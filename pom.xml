@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.littleshoot</groupId>
             <artifactId>littleproxy</artifactId>
-            <version>0.5.3</version>
+            <version>1.0.0-beta7</version>
         </dependency>
     </dependencies>
     <properties>

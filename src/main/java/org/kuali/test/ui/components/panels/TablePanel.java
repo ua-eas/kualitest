@@ -18,7 +18,6 @@ package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import org.kuali.test.ui.base.BaseTable;
@@ -33,7 +32,7 @@ public class TablePanel extends JPanel {
     }
     
     protected void initComponents() {
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), table.getConfig().getDisplayName()));
+      //  setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(), table.getConfig().getDisplayName()));
         add(new JScrollPane(table));
     }
     

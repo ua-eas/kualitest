@@ -16,24 +16,24 @@
 
 package org.kuali.test.proxyserver;
 
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.Queue;
+import javax.net.ssl.SSLEngine;
 import org.apache.log4j.Logger;
-import org.jboss.netty.channel.ChannelHandler;
-import org.jboss.netty.channel.SimpleChannelHandler;
-import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.kuali.test.Platform;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
-import org.littleshoot.proxy.ChainProxyManager;
-import org.littleshoot.proxy.DefaultHttpFilter;
-import org.littleshoot.proxy.DefaultHttpProxyServer;
-import org.littleshoot.proxy.HandshakeHandler;
-import org.littleshoot.proxy.HandshakeHandlerFactory;
-import org.littleshoot.proxy.HttpFilter;
-import org.littleshoot.proxy.HttpRequestFilter;
-import org.littleshoot.proxy.HttpRequestMatcher;
-import org.littleshoot.proxy.HttpResponseFilter;
-import org.littleshoot.proxy.HttpResponseFilters;
+import org.littleshoot.proxy.ChainedProxy;
+import org.littleshoot.proxy.ChainedProxyManager;
+import org.littleshoot.proxy.HttpFilters;
+import org.littleshoot.proxy.HttpFiltersSourceAdapter;
+import org.littleshoot.proxy.TransportProtocol;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 
 public class TestProxyServer {
@@ -41,11 +41,15 @@ public class TestProxyServer {
     private DefaultHttpProxyServer proxyServer;
     private Platform platform;
     private boolean running = false;
+    private InetSocketAddress targetAddress;
+    private InetSocketAddress localAddress;
 
     public TestProxyServer(Platform platform) {
         this.platform = platform;
-        
+
         try {
+            targetAddress = new InetSocketAddress(Utils.getHostFromUrl(platform.getWebUrl(), true), 80);
+            localAddress = new InetSocketAddress(InetAddress.getLocalHost(), Constants.TEST_PROXY_SERVER_PORT);
             initializeProxyServer();
             running = true;
         }
@@ -55,142 +59,146 @@ public class TestProxyServer {
         }
     }
     
-    private HttpResponseFilter getResponseFilter() {
-        HttpResponseFilter retval = new HttpResponseFilter() {
+    private HttpFilters getHttpFilters() {
+        return new HttpFilters() {
             @Override
-            public HttpResponse filterResponse(HttpRequest request, HttpResponse response) {
+            public HttpResponse requestPre(HttpObject ho) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Http Response Filter");
-                    LOG.debug("-----------------------------------------");
-                    LOG.debug("status: " + response.getStatus());
+                    LOG.debug("requestPre:" + ho.getDecoderResult().toString());
+                }
+                return null;
+            }
+
+            @Override
+            public HttpResponse requestPost(HttpObject ho) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("requestPost:" + ho.getDecoderResult().toString());
+                }
+                return null;
+            }
+
+            @Override
+            public HttpObject responsePre(HttpObject ho) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("responsePre:" + ho.getDecoderResult().toString());
+                }
+                return ho;
+            }
+
+            @Override
+            public HttpObject responsePost(HttpObject ho) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("responsePost:" + ho.getDecoderResult().toString());
                 }
                 
-                return response;
+                return ho;
             }
         };
-
-        return retval;
     }
+    
+    private HttpFiltersSourceAdapter getHttpFiltersSourceAdapter() {
+        final HttpFilters filters = getHttpFilters();
 
-    private HttpRequestMatcher getRequestMatcher() {
-        HttpRequestMatcher retval = new HttpRequestMatcher() {
-            public boolean shouldFilterResponses(HttpRequest httpRequest) {
-                return ((httpRequest != null) && (httpRequest.getUri().contains("kfs-dev")));
-            }
-
+        return new HttpFiltersSourceAdapter() {
             @Override
-            public boolean filterResponses(HttpRequest hr) {
-                return true;
-            }
-        };
-        
-        return retval;
-    }
-
-    private HttpFilter getHttpFilter() {
-        HttpFilter retval = new DefaultHttpFilter(getResponseFilter(), getRequestMatcher()) {
-            @Override
-            public int getMaxResponseSize() {
+            public int getMaximumResponseBufferSizeInBytes() {
                 return Constants.PROXY_RESPONSE_FILTER_MAX_SIZE;
             }
 
             @Override
-            public boolean filterResponses(HttpRequest hr) {
+            public int getMaximumRequestBufferSizeInBytes() {
+                return Constants.PROXY_RESPONSE_FILTER_MAX_SIZE;
+            }
+
+            @Override
+            public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+                return filters;
+            }
+
+            @Override
+            public HttpFilters filterRequest(HttpRequest originalRequest) {
+                return filters;
+            }
+        };
+    }
+    
+    private ChainedProxy getChainedProxy() {
+        return new ChainedProxy() {
+            @Override
+            public InetSocketAddress getChainedProxyAddress() {
+                return targetAddress;
+            }
+
+            @Override
+            public InetSocketAddress getLocalAddress() {
+                return localAddress;
+            }
+
+            @Override
+            public TransportProtocol getTransportProtocol() {
+                return TransportProtocol.TCP;
+            }
+
+            @Override
+            public boolean requiresEncryption() {
                 return true;
             }
-        };
-        
-        return retval;
-    }
-    
-    private HttpResponseFilters getResponseFilters() {
-        final HttpFilter httpFilter = getHttpFilter();
-        HttpResponseFilters retval =  new HttpResponseFilters() {
-            @Override
-            public HttpFilter getFilter(String string) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("getFilter(): " + string);
-                }
-                
-                return httpFilter;
-            }
-        };
 
-        return retval;
-    }
-
-    private HttpRequestFilter getRequestFilter() {
-        HttpRequestFilter retval = new HttpRequestFilter() {
             @Override
-            public void filter(final HttpRequest request) {
+            public void filterRequest(HttpObject ho) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Http Request Filter");
-                    LOG.debug("-----------------------------------------");
-                    LOG.debug("uri: " + request.getUri());
+                    LOG.debug("filterRequest: " + ho.getDecoderResult().toString());
                 }
             }
-        };
 
-        return retval;
-    }
-
-    private ChainProxyManager getChainProxyManager() {
-        ChainProxyManager retval = new ChainProxyManager() {
             @Override
-            public String getChainProxy(HttpRequest hr) {
-                return Utils.getHostFromUrl(platform.getWebUrl(), true);
+            public void connectionSucceeded() {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("proxy server connection succeeded");
+                }
             }
 
             @Override
-            public void onCommunicationError(String error) {
-                LOG.warn(error);
+            public void connectionFailed(Throwable t) {
+                LOG.warn(t.toString(), t);
+            }
+
+            @Override
+            public void disconnected() {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("proxy server disconnected");
+                }
+            }
+
+            @Override
+            public SSLEngine newSslEngine() {
+                return null;
             }
         };
-        
-        return retval;
     }
     
-    private HandshakeHandlerFactory getHandshakeHandlerFactory() {
-        HandshakeHandlerFactory retval = new HandshakeHandlerFactory() {
+    private ChainedProxyManager getChainProxyManager() {
+        return new ChainedProxyManager() {
             @Override
-            public HandshakeHandler newHandshakeHandler() {
-                return new HandshakeHandler() {
-
-                    @Override
-                    public ChannelHandler getChannelHandler() {
-                        return new SimpleChannelHandler();
-                    }
-
-                    @Override
-                    public String getId() {
-                        return "100";
-                    }
-                };
+            public void lookupChainedProxies(HttpRequest hr, Queue<ChainedProxy> queue) {
+                queue.add(getChainedProxy());
             }
         };
-            
-            return retval;
     }
     
     private void initializeProxyServer() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("initializing proxy server");
         }
-    /*
-        proxyServer = new DefaultHttpProxyServer(
-            Constants.TEST_PROXY_SERVER_PORT,
-            getResponseFilters(), 
-            getChainProxyManager(), 
-            getHandshakeHandlerFactory(), 
-            getRequestFilter());
-    */
-        proxyServer = new DefaultHttpProxyServer(
-            Constants.TEST_PROXY_SERVER_PORT,
-            getRequestFilter(),
-            getResponseFilters());
-
-        proxyServer.start(true, true);
-                
+        
+        DefaultHttpProxyServer
+            .bootstrap()
+            .withPort(Constants.TEST_PROXY_SERVER_PORT)
+            .withChainProxyManager(getChainProxyManager())
+            .withFiltersSource(getHttpFiltersSourceAdapter())
+            .withAllowLocalOnly(true)
+            .start();
+   
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("proxy server started");

@@ -106,6 +106,32 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
         createCheckpoint.setEnabled(startTest.isSelected());
         saveTest.setEnabled(startTest.isSelected());
     }
+
+    public ToggleToolbarButton getStartTest() {
+        return startTest;
+    }
+
+    public void setStartTest(ToggleToolbarButton startTest) {
+        this.startTest = startTest;
+    }
+
+    public ToolbarButton getCreateCheckpoint() {
+        return createCheckpoint;
+    }
+
+    public void setCreateCheckpoint(ToolbarButton createCheckpoint) {
+        this.createCheckpoint = createCheckpoint;
+    }
+
+    public ToolbarButton getSaveTest() {
+        return saveTest;
+    }
+
+    public void setSaveTest(ToolbarButton saveTest) {
+        this.saveTest = saveTest;
+    }
+    
+    
     
     protected abstract void handleStartTest();
     protected abstract void handleEndTest();

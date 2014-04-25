@@ -36,10 +36,13 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
     public WebBrowserPanel(KualiTestApp mainframe, final Platform platform, TestHeader testHeader) {
         super(platform, testHeader);
         
+        getStartTest().setEnabled(false);
+        
         SplashDisplay splash = new SplashDisplay(mainframe, "Initializing Web Test", "loading web proxy server...") {
             @Override
             protected void runProcess() {
                 testProxyServer = new TestProxyServer(platform);
+                getStartTest().setEnabled(true);
             }
         };
 
