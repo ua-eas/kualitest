@@ -130,6 +130,8 @@ public class TestProxyServer {
     }
     
     private ChainedProxy getChainedProxy() {
+        final SSLEngine sslEngine = new SelfSignedSslEngineSource(true, true).getSslContext().createSSLEngine();            
+
         return new ChainedProxy() {
             @Override
             public InetSocketAddress getChainedProxyAddress() {
@@ -179,7 +181,7 @@ public class TestProxyServer {
 
             @Override
             public SSLEngine newSslEngine() {
-                return new SelfSignedSslEngineSource(true).newSslEngine();            
+                return sslEngine;            
             }
         };
     }
