@@ -67,6 +67,7 @@ public class SplashDisplay {
                     }
 
                     dlg.setSize(Constants.DEFAULT_SPLASH_WIDTH, Constants.DEFAULT_SPLASH_HEIGHT);
+                    dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                     dlg.setResizable(false);
                     JPanel p = new JPanel(new BorderLayout(10, 10));
                     p.add(label = new JLabel(getMessage(), getIcon(), JLabel.LEFT), BorderLayout.CENTER);
@@ -88,11 +89,8 @@ public class SplashDisplay {
                 }
                 
                 catch(Exception ex) {
-                    if (getDlg() != null) {
-                        getDlg().dispose();
-                    }
-                    
-                    LOG.error(ex);
+                    getDlg().dispose();
+                    LOG.error(ex.toString(), ex);
                 }
             }
         });
@@ -105,12 +103,11 @@ public class SplashDisplay {
                 } 
                 
                 catch (Exception ex) {
-                    if (getDlg() != null) {
-                        getDlg().dispose();
-                    }
-                    
+                    LOG.error(ex.toString(), ex);
+                    getDlg().dispose();
                     UIUtils.showError(getParentWindow(), "Error", ex.toString());
                 }
+                
                 return null;
             };
 

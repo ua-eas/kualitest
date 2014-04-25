@@ -26,6 +26,14 @@ public class WebServicePanel extends BaseCreateTestPanel {
     }
 
     @Override
+    protected void handleEndTest() {
+    }
+   
+    @Override
+    protected void handleStartTest() {
+    }
+    
+    @Override
     protected void handleCreateCheckpoint() {
     }
 

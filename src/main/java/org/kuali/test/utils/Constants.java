@@ -30,8 +30,7 @@ public class Constants {
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save.png"));
     public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/createtest.png"));
 
-    public static final ImageIcon START_RECORD_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/start-record.png"));
-    public static final ImageIcon STOP_RECORD_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/stop-record.png"));
+    public static final ImageIcon START_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/start-test.png"));
     public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/create-checkpoint.png"));
     public static final ImageIcon SAVE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save-test.png"));
     public static final ImageIcon CLOCK_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/clock.png"));
@@ -60,6 +59,7 @@ public class Constants {
     public static String SAVE_ACTION = "Save";
     public static String CANCEL_ACTION = "Cancel";
     public static String CONTINUE_ACTION = "Continue";
+    public static final String START_TEST_ACTION = "Start Test";
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String SAVE_TEST_ACTION = "Save Test";
 
@@ -68,4 +68,5 @@ public class Constants {
     public static final int DEFAULT_SPLASH_WIDTH = 300;
     public static final int DEFAULT_SPLASH_HEIGHT = 75;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
+    public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
 }

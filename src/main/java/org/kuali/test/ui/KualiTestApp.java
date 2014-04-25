@@ -63,7 +63,6 @@ import org.kuali.test.ui.components.panels.TestOutputPanel;
 import org.kuali.test.ui.components.panels.WebBrowserPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -363,21 +362,17 @@ public class KualiTestApp extends JFrame  implements WindowListener {
             final Platform platform = platformTestsPanel.getCurrentPlatform();
             final TestHeader testHeader = dlg.getTestHeader();
             
-            new SplashDisplay(this, "Create Test", "Initializing test setup...") {
-                protected void runProcess() {
-                    switch (testHeader.getTestType().intValue()) {
-                        case TestType.INT_WEB:
-                            createTestPanel.replaceCenterComponent(new WebBrowserPanel(platform, testHeader));
-                            break;
-                        case TestType.INT_WEB_SERVICE:
-                            createTestPanel.replaceCenterComponent(new WebServicePanel(platform, testHeader));
-                            break;
-                        case TestType.INT_DATABASE:
-                            createTestPanel.replaceCenterComponent(new DatabasePanel(platform, testHeader));
-                            break;
-                    }
-                }
-            };
+            switch (testHeader.getTestType().intValue()) {
+                case TestType.INT_WEB:
+                    createTestPanel.replaceCenterComponent(new WebBrowserPanel(this, platform, testHeader));
+                    break;
+                case TestType.INT_WEB_SERVICE:
+                    createTestPanel.replaceCenterComponent(new WebServicePanel(platform, testHeader));
+                    break;
+                case TestType.INT_DATABASE:
+                    createTestPanel.replaceCenterComponent(new DatabasePanel(platform, testHeader));
+                    break;
+            }
         }
     }
     

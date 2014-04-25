@@ -40,16 +40,18 @@ public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
     private Platform platform;
+    private boolean running = false;
 
     public TestProxyServer(Platform platform) {
         this.platform = platform;
         
         try {
             initializeProxyServer();
+            running = true;
         }
         
         catch (Exception ex) {
-            LOG.error(ex);
+            LOG.error(ex.toString(), ex);
         }
     }
     
@@ -197,5 +199,10 @@ public class TestProxyServer {
 
     public void stop() {
         proxyServer.stop();
+        running = false;
+    }
+    
+    public boolean isRunning() {
+        return running;
     }
 }

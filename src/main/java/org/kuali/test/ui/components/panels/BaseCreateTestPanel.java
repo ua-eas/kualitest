@@ -26,6 +26,7 @@ import javax.swing.JToolBar;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
+import org.kuali.test.ui.base.ToggleToolbarButton;
 import org.kuali.test.ui.base.ToolbarButton;
 import org.kuali.test.utils.Constants;
 
@@ -35,6 +36,9 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
     
     private Platform platform;
     private TestHeader testHeader;
+    private ToggleToolbarButton startTest;
+    private ToolbarButton createCheckpoint;
+    private ToolbarButton saveTest;
     
     public BaseCreateTestPanel(Platform platform, TestHeader testHeader) {
         super(new BorderLayout(3, 3));
@@ -50,15 +54,22 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
 
     protected JToolBar createToolbar() {
         JToolBar retval = new JToolBar();
+        retval.setFloatable(false);
         
-        ToolbarButton b = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
-        b.addActionListener(this);
-        retval.add(b);
+        startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
+        startTest.addActionListener(this);
+        retval.add(startTest);
+        
+        createCheckpoint = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
+        createCheckpoint.addActionListener(this);
+        createCheckpoint.setEnabled(false);
+        retval.add(createCheckpoint);
         retval.addSeparator();
         
-        b = new ToolbarButton(Constants.SAVE_TEST_ACTION, Constants.SAVE_TEST_ICON);
-        b.addActionListener(this);
-        retval.add(b);
+        saveTest = new ToolbarButton(Constants.SAVE_TEST_ACTION, Constants.SAVE_TEST_ICON);
+        saveTest.addActionListener(this);
+        saveTest.setEnabled(false);
+        retval.add(saveTest);
 
         retval.add(new JLabel("        Platform: " + platform.getName()));
         retval.add(new JLabel("  Test Name: " + testHeader.getTestName()));
@@ -80,14 +91,24 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
+        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
+            if (startTest.isSelected()) {
+                handleStartTest();
+            } else {
+                handleEndTest();
+            }
+        } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
             handleSaveTest();
         }
+        
+        createCheckpoint.setEnabled(startTest.isSelected());
+        saveTest.setEnabled(startTest.isSelected());
     }
     
+    protected abstract void handleStartTest();
+    protected abstract void handleEndTest();
     protected abstract void handleCreateCheckpoint();
-
     protected abstract void handleSaveTest();
 }

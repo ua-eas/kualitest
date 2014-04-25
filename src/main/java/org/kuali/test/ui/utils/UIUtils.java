@@ -19,6 +19,7 @@ package org.kuali.test.ui.utils;
 import java.awt.Component;
 import java.awt.Window;
 import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class UIUtils {
@@ -31,8 +32,30 @@ public class UIUtils {
             return findWindow(c.getParent());
         }
     }
+
+    public static String buildFormattedHtmlMessage(String msg, String style) {
+        String retval = "";
+        
+        if (StringUtils.isNotBlank(msg)) {
+            StringBuilder buf = new StringBuilder(msg.length());
+
+            buf.append("<html><div style='");
+            buf.append(style);
+            buf.append(">");
+            buf.append(msg);
+            buf.append("</div></html>");
+            retval = buf.toString();
+        }
+        
+        return retval;
+    }
+    
+    public static String buildFormattedHtmlMessage(String msg, int width) {
+        return buildFormattedHtmlMessage(msg, "'width: " + width + "px;'");
+    }
+    
     public static void showError(Component c, String title, String msg) {
-        JOptionPane.showMessageDialog(findWindow(c), msg, title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(findWindow(c), buildFormattedHtmlMessage(msg, 175), title, JOptionPane.ERROR_MESSAGE);
     }
     
     public static boolean promptForDelete(Component c, String title, String prompt) {

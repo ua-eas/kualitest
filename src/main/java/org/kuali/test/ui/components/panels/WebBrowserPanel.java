@@ -24,25 +24,33 @@ import java.awt.event.ContainerListener;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.proxyserver.TestProxyServer;
+import org.kuali.test.ui.KualiTestApp;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Utils;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
     private JWebBrowser webBrowser;
     private TestProxyServer testProxyServer;
     
-    public WebBrowserPanel(Platform platform, TestHeader testHeader) {
+    public WebBrowserPanel(KualiTestApp mainframe, final Platform platform, TestHeader testHeader) {
         super(platform, testHeader);
+        
+        SplashDisplay splash = new SplashDisplay(mainframe, "Initializing Web Test", "loading web proxy server...") {
+            @Override
+            protected void runProcess() {
+                testProxyServer = new TestProxyServer(platform);
+            }
+        };
 
         initializeNativeBrowser();
-        testProxyServer = new TestProxyServer(platform);
+        
         addContainerListener(this);
     
         webBrowser = new JWebBrowser();
         webBrowser.setButtonBarVisible(false);
         webBrowser.setLocationBarVisible(false);
         webBrowser.setMenuBarVisible(false);
-        webBrowser.navigate("http://localhost:8888/" + Utils.getContextFromUrl(getPlatform().getWebUrl()));
         add(webBrowser, BorderLayout.CENTER);
     }
 
@@ -53,6 +61,15 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                 LOG.debug(webBrowser.getHTMLContent());
             }
         }
+    }
+
+    @Override
+    protected void handleEndTest() {
+    }
+   
+    @Override
+    protected void handleStartTest() {
+        webBrowser.navigate("http://localhost:8888/" + Utils.getContextFromUrl(getPlatform().getWebUrl()));
     }
 
     @Override

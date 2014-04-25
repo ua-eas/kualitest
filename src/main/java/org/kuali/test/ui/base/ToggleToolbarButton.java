@@ -14,30 +14,22 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.panels;
+package org.kuali.test.ui.base;
 
-import org.kuali.test.Platform;
-import org.kuali.test.TestHeader;
+import java.awt.Insets;
+import javax.swing.ImageIcon;
+import javax.swing.JToggleButton;
 
 
-public class DatabasePanel extends BaseCreateTestPanel {
-    public DatabasePanel(Platform platform, TestHeader testHeader) {
-        super(platform, testHeader);
+public class ToggleToolbarButton extends JToggleButton {
+    public ToggleToolbarButton(String actionCommand, ImageIcon icon) {
+        this(actionCommand, actionCommand, icon, true);
     }
 
-    @Override
-    protected void handleEndTest() {
-    }
-   
-    @Override
-    protected void handleStartTest() {
-    }
-
-    @Override
-    protected void handleCreateCheckpoint() {
-    }
-
-    @Override
-    protected void handleSaveTest() {
+    public ToggleToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
+        super(icon);
+        setActionCommand(actionCommand);
+        setText(txt);
+        setMargin(new Insets(1, 1, 1, 1));
     }
 }
