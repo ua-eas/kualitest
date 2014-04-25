@@ -33,6 +33,7 @@ import org.littleshoot.proxy.ChainedProxyManager;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersSourceAdapter;
 import org.littleshoot.proxy.TransportProtocol;
+import org.littleshoot.proxy.extras.SelfSignedSslEngineSource;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 
@@ -112,11 +113,17 @@ public class TestProxyServer {
 
             @Override
             public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("request uri: " + originalRequest.getUri());
+                }
                 return filters;
             }
 
             @Override
             public HttpFilters filterRequest(HttpRequest originalRequest) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("request uri: " + originalRequest.getUri());
+                }
                 return filters;
             }
         };
@@ -172,7 +179,7 @@ public class TestProxyServer {
 
             @Override
             public SSLEngine newSslEngine() {
-                return null;
+                return new SelfSignedSslEngineSource(true).newSslEngine();            
             }
         };
     }
