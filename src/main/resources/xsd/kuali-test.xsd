@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!--
+ Copyright 2014 The Kuali Foundation
+
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl2.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="test.kuali.org"
+           targetNamespace="test.kuali.org"
+           elementFormDefault="qualified">
+    <xs:element name="kuali-test">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="test-header" type="test-header"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="test-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Web"/>
+            <xs:enumeration value="Web Service"/>
+            <xs:enumeration value="Database"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="test-header">
+        <xs:sequence>
+            <xs:element name="platform-name" type="xs:string"/>
+            <xs:element name="test-suite-name" type="xs:string" default="no-test-suite"/>
+            <xs:element name="test-name" type="xs:string"/>
+            <xs:element name="test-file-name" type="xs:string"/>
+            <xs:element name="test-type" type="test-type"/>
+            <xs:element name="created-by" type="xs:string"/>
+            <xs:element name="date-created" type="xs:date"/>
+            <xs:element name="max-run-time" type="xs:int" default="-1"/>
+            <xs:element name="description" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="checkpoint">
+        <xs:sequence>
+            <xs:element name="test-suite" type="xs:string"/>
+            <xs:element name="test-name" type="xs:string"/>
+            <xs:element name="test-index" type="xs:string"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="number" type="xs:int"/>
+            <xs:element name="checkpoint-properties" type="checkpoint-properties"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="checkpoint-properties">
+        <xs:sequence>
+            <xs:element name="checkpoint-property" type="checkpoint-property" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:simpleType name="failure-action">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ignore"/>
+            <xs:enumeration value="warning"/>
+            <xs:enumeration value="error - continue"/>
+            <xs:enumeration value="error - halt test"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="value-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="string"/>
+            <xs:enumeration value="int"/>
+            <xs:enumeration value="boolean"/>
+            <xs:enumeration value="double"/>
+            <xs:enumeration value="date"/>
+            <xs:enumeration value="timestamp"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="comparison-operator">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="="/>
+            <xs:enumeration value="!="/>
+            <xs:enumeration value="&lt;"/>
+            <xs:enumeration value="&lt;="/>
+            <xs:enumeration value="&gt;"/>
+            <xs:enumeration value="&gt;="/>
+            <xs:enumeration value="in"/>
+            <xs:enumeration value="not in"/>
+            <xs:enumeration value="between"/>
+            <xs:enumeration value="like"/>
+            <xs:enumeration value="null"/>
+            <xs:enumeration value="not null"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="checkpoint-property">
+        <xs:sequence>
+            <xs:element name="property-name" type="xs:string"/>
+            <xs:element name="property-value" type="xs:string"/>
+            <xs:element name="value-type" type="value-type"/>
+            <xs:element name="operator" type="comparison-operator"/>
+            <xs:element name="on-failure" type="failure-action"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

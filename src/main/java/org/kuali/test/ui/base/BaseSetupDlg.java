@@ -1,0 +1,195 @@
+/*
+ * Copyright 2014 The Kuali Foundation
+ * 
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.opensource.org/licenses/ecl2.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.kuali.test.ui.base;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.WindowConstants;
+import org.apache.log4j.Logger;
+import org.kuali.test.DatabaseConnection;
+import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
+
+
+public abstract class BaseSetupDlg extends JDialog implements ActionListener {
+    protected static final Logger LOG = Logger.getLogger(BaseSetupDlg.class);
+    
+    private String saveActionCommand = Constants.SAVE_ACTION;
+    private String cancelActionCommand = Constants.CANCEL_ACTION;
+
+    private boolean saved = false;
+    private boolean editmode = false;
+    
+    public BaseSetupDlg(KualiTestApp mainframe) {
+        super(mainframe, true);
+        getContentPane().setLayout(new BorderLayout());
+    }
+
+    protected KualiTestApp getMainframe() {
+        return (KualiTestApp)getParent();
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        handleAction(e);
+    }
+
+    public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
+        return getMainframe().getConfiguration();
+    }
+
+    public void setSaved(boolean saved) {
+        this.saved = saved;
+    }
+    
+    public boolean isSaved() {
+        return saved;
+    }
+    
+    public void setEditmode(boolean editmode) {
+        this.editmode = editmode;
+    }
+    
+    public boolean isEditmode() {
+        return editmode;
+    }
+
+    protected void addStandardButtons() {
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        
+        JButton b;
+        p.add(b = new JButton(saveActionCommand = getSaveText()));
+        b.addActionListener(this);
+        
+        p.add(b = new JButton(cancelActionCommand = getCancelText()));
+        b.addActionListener(this);
+
+        JPanel p2 = new JPanel(new BorderLayout());
+        p2.add(new JSeparator(), BorderLayout.NORTH);
+        p2.add(p, BorderLayout.CENTER);
+        getContentPane().add(p2, BorderLayout.SOUTH);
+    }
+    
+    protected void setDefaultBehavior() {
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        setLocationRelativeTo(getMainframe());
+        pack();
+        setVisible(true);
+    }
+    
+    protected void displayRequiredFieldsMissingAlert(String type, String requiredFields) {
+        UIUtils.showError(this, type, "Required fields are missing - please check fields:\n" + requiredFields);
+    }
+    
+    protected void displayExistingNameAlert(String type, String name) {
+        UIUtils.showError(this, type, type + "'" + name + "' name already exists");
+    }
+    
+    protected JPanel wrapPanel(JComponent c) {
+        JPanel retval = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        retval.add(c);
+        return retval;
+    }
+    
+    protected JPanel buildLabelGridPanel(String[] labels) {
+        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
+        for (String label : labels) {
+            JLabel l = new JLabel(label + ":", JLabel.RIGHT);
+            l.setVerticalAlignment(JLabel.CENTER);
+            retval.add(l);
+        }
+        
+        return retval;
+    }
+
+    protected JPanel buildComponentGridPanel(JComponent[] components) {
+        JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 2));
+        for (JComponent c : components) {
+            retval.add(wrapPanel(c));
+        }
+        
+        return retval;
+    }
+    
+    protected JPanel buildEntryPanel(String[] labels, JComponent[] components) {
+        JPanel retval = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel entryPanel = new JPanel(new BorderLayout(2, 1));
+        entryPanel.add(buildLabelGridPanel(labels), BorderLayout.WEST);
+        entryPanel.add(buildComponentGridPanel(components), BorderLayout.CENTER);
+        
+        retval.add(entryPanel);
+        
+        return retval;
+    }
+    
+    @Override
+    public Insets getInsets() {
+        return new Insets(20, 5, 5, 5);
+    }
+    
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 300);
+    }
+    
+    protected String[] getDatabaseConnectionNames() {
+        DatabaseConnection[] dbconns = getConfiguration().getDatabaseConnections().getDatabaseConnectionArray();
+        String[] retval = new String[dbconns.length];
+        
+        for (int i = 0; i < dbconns.length; ++i) {
+            retval[i] = dbconns[i].getName();
+        }
+        
+        return retval;
+    }
+
+    
+    protected void handleAction(ActionEvent e) {
+        if (saveActionCommand.equalsIgnoreCase(e.getActionCommand())) {
+            save();
+        } else {
+            dispose();
+        }
+    }
+
+    protected abstract boolean save();
+    public Object getNewRepositoryObject() {
+        return null;
+    }
+    
+    protected String getSaveText() {
+        return Constants.SAVE_ACTION;
+    }
+
+    protected String getCancelText() {
+        return Constants.CANCEL_ACTION;
+    }
+}

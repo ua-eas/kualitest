@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<!--
+ Copyright 2014 The Kuali Foundation
+
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl2.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="test.kuali.org"
+           targetNamespace="test.kuali.org"
+           elementFormDefault="qualified">
+    <xs:element name="kuali-test-suite-execution">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="platform-name" type="xs:string"/>
+                <xs:element name="test-suite-name" type="xs:string"/>
+                <xs:element name="start-time" type="xs:dateTime"/>
+                <xs:element name="end-time" type="xs:dateTime"/>
+                <xs:element name="execution-status" type="execution-status"/>
+                <xs:element name="completion-status" type="completion-status"/>
+                <xs:element name="test-executions" type="test-executions"/>
+                <xs:element name="email-addresses" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="execution-status">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="inactive"/>
+            <xs:enumeration value="scheduled"/>
+            <xs:enumeration value="running"/>
+            <xs:enumeration value="completed"/>
+        </xs:restriction>
+    </xs:simpleType>
+   
+    <xs:simpleType name="completion-status">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="success"/>
+            <xs:enumeration value="success with warnings"/>
+            <xs:enumeration value="failed"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="test-executions">
+        <xs:sequence>
+            <xs:element name="test-execution" type="test-execution" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="test-execution">
+        <xs:sequence>
+            <xs:element name="platform-name" type="xs:string"/>
+            <xs:element name="test-suite-name" type="xs:string"/>
+            <xs:element name="test-name" type="xs:string"/>
+            <xs:element name="start-time" type="xs:dateTime"/>
+            <xs:element name="end-time" type="xs:dateTime"/>
+            <xs:element name="execution-status" type="execution-status"/>
+            <xs:element name="completion-status" type="completion-status"/>
+            <xs:element name="test-messages"/>
+            <xs:element name="test-exceptions" type="test-exceptions"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="test-messages">
+        <xs:sequence>
+            <xs:element name="message" type="test-execution-message" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-exceptions">
+        <xs:sequence>
+            <xs:element name="test-exception" type="test-exception" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-execution-message">
+        <xs:sequence>
+            <xs:element name="level" default="warning">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="trace"/>
+                        <xs:enumeration value="info"/>
+                        <xs:enumeration value="warning"/>
+                        <xs:enumeration value="error"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element> 
+            <xs:element name="time" type="xs:dateTime"/>
+            <xs:element name="message" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-exception">
+        <xs:sequence>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="message" type="test-execution-message"/>
+            <xs:element name="checkpoint-name" type="xs:string" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="time" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

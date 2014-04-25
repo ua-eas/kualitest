@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kuali-test-configuration xmlns="test.kuali.org">
+   <repository-location>/home/rbtucker/tmp/kuali-test-repository</repository-location>
+   <test-result-location>/home/rbtucker/tmp/kuali-test-results</test-result-location>
+   <database-connections>
+      <database-connection>
+         <type>Oracle</type>
+         <name>KFS DEV Database</name>
+         <jdbc-url>jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(LOAD_BALANCE=on)(ADDRESS=(PROTOCOL=TCP)(HOST=uaz-dv-scan-01.mosaic.arizona.edu)(PORT=1521)))(CONNECT_DATA=(SERVER=dedicated)(SERVICE_NAME=kfdrn.mosaic.arizona.edu)))</jdbc-url>
+         <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+         <username>kulowner</username>
+         <password>kulowner</password>
+      </database-connection>
+   </database-connections>
+   <modified>false</modified>
+   <email-setup>
+      <mail-host>mailhost</mail-host>
+      <subject>subject</subject>
+      <from-address>fromaddress</from-address>
+      <to-addresses>address1,address2,address3</to-addresses>
+   </email-setup>
+   <platforms>
+      <platform>
+         <name>kfs-dev</name>
+         <application>KFS</application>
+         <version>3.0</version>
+         <web-url>https://kf-dev.mosaic.arizona.edu/kfs-dev</web-url>
+         <web-service-url/>
+         <test-suites/>
+         <platform-tests/>
+      </platform>
+      <platform>
+         <name>kfs-test</name>
+         <application>KFS</application>
+         <version>3.0</version>
+         <web-url>https://kf-tst.mosaic.arizona.edu/kfs-tst</web-url>
+         <web-service-url/>
+         <test-suites/>
+         <platform-tests/>
+      </platform>
+      <platform>
+         <name>kfs-dev</name>
+         <application>KC</application>
+         <version>3.0</version>
+         <web-url>https://kf-dev.mosaic.arizona.edu/kfs-dev</web-url>
+         <web-service-url/>
+         <email-addresses>rbtucker@email.arizona.edu</email-addresses>
+         <test-suites/>
+         <platform-tests/>
+         <database-connection-name>KFS DEV Database</database-connection-name>
+      </platform>
+   </platforms>
+</kuali-test-configuration>
