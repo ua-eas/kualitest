@@ -27,7 +27,6 @@ import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.KualiTestApp;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
-import org.kuali.test.utils.Utils;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
     private JWebBrowser webBrowser;
@@ -54,6 +53,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         webBrowser.setButtonBarVisible(false);
         webBrowser.setLocationBarVisible(false);
         webBrowser.setMenuBarVisible(false);
+        
         add(webBrowser, BorderLayout.CENTER);
     }
 
@@ -68,11 +68,14 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     @Override
     protected void handleEndTest() {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("#test requests: " + testProxyServer.getTestRequests().size());
+        }
     }
    
     @Override
     protected void handleStartTest() {
-        webBrowser.navigate("http://localhost:8888/" + Utils.getContextFromUrl(getPlatform().getWebUrl()));
+        webBrowser.navigate(getPlatform().getWebUrl());
     }
 
     @Override

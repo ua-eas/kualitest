@@ -13,61 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kuali.test.proxyserver;
 
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
-import javax.net.ssl.SSLEngine;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyManager;
 import org.littleshoot.proxy.HttpFilters;
+import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.littleshoot.proxy.HttpFiltersSource;
 import org.littleshoot.proxy.HttpFiltersSourceAdapter;
-import org.littleshoot.proxy.TransportProtocol;
-import org.littleshoot.proxy.extras.SelfSignedSslEngineSource;
+import org.littleshoot.proxy.extras.SelfSignedMitmManager;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
-
 public class TestProxyServer {
+
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
     private Platform platform;
     private boolean running = false;
-    private InetSocketAddress targetAddress;
-    private InetSocketAddress localAddress;
+    private List<HttpRequest> testRequests = new ArrayList<HttpRequest>();
 
     public TestProxyServer(Platform platform) {
         this.platform = platform;
 
         try {
-            targetAddress = new InetSocketAddress(Utils.getHostFromUrl(platform.getWebUrl(), true), 80);
-            localAddress = new InetSocketAddress(InetAddress.getLocalHost(), Constants.TEST_PROXY_SERVER_PORT);
             initializeProxyServer();
             running = true;
-        }
-        
-        catch (Exception ex) {
+        } catch (Exception ex) {
             LOG.error(ex.toString(), ex);
         }
     }
-    
+
     private HttpFilters getHttpFilters() {
         return new HttpFilters() {
             @Override
             public HttpResponse requestPre(HttpObject ho) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("requestPre:" + ho.getDecoderResult().toString());
+                HttpResponse retval = null;
+                if (ho instanceof HttpRequest) {
+                    HttpRequest httpRequest = (HttpRequest) ho;
+                    testRequests.add(httpRequest);
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("httpRequest uri:" + httpRequest.getUri());
+                    }
+
+                    retval = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
                 }
-                return null;
+
+                return retval;
             }
 
             @Override
@@ -91,124 +97,113 @@ public class TestProxyServer {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("responsePost:" + ho.getDecoderResult().toString());
                 }
-                
+
                 return ho;
             }
         };
     }
-    
-    private HttpFiltersSourceAdapter getHttpFiltersSourceAdapter() {
-        final HttpFilters filters = getHttpFilters();
 
+    private HttpFiltersSource getHttpFiltersSource() {
         return new HttpFiltersSourceAdapter() {
             @Override
-            public int getMaximumResponseBufferSizeInBytes() {
-                return Constants.PROXY_RESPONSE_FILTER_MAX_SIZE;
-            }
-
-            @Override
-            public int getMaximumRequestBufferSizeInBytes() {
-                return Constants.PROXY_RESPONSE_FILTER_MAX_SIZE;
-            }
-
-            @Override
-            public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("request uri: " + originalRequest.getUri());
-                }
-                return filters;
-            }
-
-            @Override
             public HttpFilters filterRequest(HttpRequest originalRequest) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("request uri: " + originalRequest.getUri());
-                }
-                return filters;
+                return new HttpFiltersAdapter(originalRequest) {
+                    @Override
+                    public HttpResponse requestPre(HttpObject httpObject) {
+                        HttpResponse retval = null;
+                        if (httpObject instanceof HttpRequest) {
+                            HttpRequest httpRequest = (HttpRequest) httpObject;
+          //                  String target = Utils.getHostFromUrl(platform.getWebUrl(), true);
+                            //                 String context = Utils.getContextFromUrl(httpRequest.getUri());
+                            //       or.setUri(target + "/" + context);
+                        }
+                        return retval;
+                    }
+
+                    @Override
+                    public HttpResponse requestPost(HttpObject httpObject) {
+                        HttpResponse retval = null;
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException ex) {
+                            LOG.info(ex.toString(), ex);
+                        }
+
+                        if (httpObject instanceof HttpRequest) {
+                            HttpRequest httpRequest = (HttpRequest) httpObject;
+
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("Http request is " + ((HttpRequest) httpObject).toString());
+                                LOG.debug("Request capacity is " + ((FullHttpRequest) httpObject).content().capacity());
+                            }
+                        }
+
+                        return retval;
+                    }
+
+                    @Override
+                    public HttpObject responsePre(HttpObject httpObject) {
+                        if (httpObject instanceof HttpResponse) {
+          //                  responsePreOriginalRequestMethodsSeen
+            //                    .add(originalRequest.getMethod());
+                        } else if (httpObject instanceof HttpContent) {
+              //              responsePreBody.append(((HttpContent) httpObject)
+                //                .content().toString(
+                  //                  Charset.forName("UTF-8")));
+                        }
+                        return httpObject;
+                    }
+
+                    @Override
+                    public HttpObject responsePost(HttpObject httpObject) {
+                        if (httpObject instanceof HttpResponse) {
+//                            responsePostOriginalRequestMethodsSeen
+  //                              .add(originalRequest.getMethod());
+                        } else if (httpObject instanceof HttpContent) {
+    //                        responsePostBody.append(((HttpContent) httpObject)
+      //                          .content().toString(
+        //                            Charset.forName("UTF-8")));
+                        }
+                        return httpObject;
+                    }
+                };
+            }
+
+            public int getMaximumRequestBufferSizeInBytes() {
+                return Constants.MAX_REQUEST_BUFFER_SIZE;
+            }
+
+            public int getMaximumResponseBufferSizeInBytes() {
+                return Constants.MAX_RESPONSE_BUFFER_SIZE;
             }
         };
     }
-    
-    private ChainedProxy getChainedProxy() {
-        final SSLEngine sslEngine = new SelfSignedSslEngineSource(true, true).getSslContext().createSSLEngine();            
 
-        return new ChainedProxy() {
-            @Override
-            public InetSocketAddress getChainedProxyAddress() {
-                return targetAddress;
-            }
-
-            @Override
-            public InetSocketAddress getLocalAddress() {
-                return localAddress;
-            }
-
-            @Override
-            public TransportProtocol getTransportProtocol() {
-                return TransportProtocol.TCP;
-            }
-
-            @Override
-            public boolean requiresEncryption() {
-                return true;
-            }
-
-            @Override
-            public void filterRequest(HttpObject ho) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("filterRequest: " + ho.getDecoderResult().toString());
-                }
-            }
-
-            @Override
-            public void connectionSucceeded() {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("proxy server connection succeeded");
-                }
-            }
-
-            @Override
-            public void connectionFailed(Throwable t) {
-                LOG.warn(t.toString(), t);
-            }
-
-            @Override
-            public void disconnected() {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("proxy server disconnected");
-                }
-            }
-
-            @Override
-            public SSLEngine newSslEngine() {
-                return sslEngine;            
-            }
-        };
-    }
-    
     private ChainedProxyManager getChainProxyManager() {
         return new ChainedProxyManager() {
             @Override
-            public void lookupChainedProxies(HttpRequest hr, Queue<ChainedProxy> queue) {
-                queue.add(getChainedProxy());
+            public void lookupChainedProxies(HttpRequest httpRequest, Queue<ChainedProxy> chainedProxies) {
+                for (ChainedProxy cp : chainedProxies) {
+                }
             }
+
         };
     }
-    
+
     private void initializeProxyServer() {
         if (LOG.isDebugEnabled()) {
             LOG.debug("initializing proxy server");
         }
-        
+
         DefaultHttpProxyServer
             .bootstrap()
             .withPort(Constants.TEST_PROXY_SERVER_PORT)
             .withChainProxyManager(getChainProxyManager())
-            .withFiltersSource(getHttpFiltersSourceAdapter())
-            .withAllowLocalOnly(true)
+            .withFiltersSource(getHttpFiltersSource())
+            .withManInTheMiddle(new SelfSignedMitmManager())
+       //     .withAllowLocalOnly(true)
             .start();
-   
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("proxy server started");
         }
@@ -218,8 +213,12 @@ public class TestProxyServer {
         proxyServer.stop();
         running = false;
     }
-    
+
     public boolean isRunning() {
         return running;
+    }
+
+    public List<HttpRequest> getTestRequests() {
+        return testRequests;
     }
 }
