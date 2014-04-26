@@ -155,4 +155,10 @@ public class InitNewTestDlg extends BaseSetupDlg {
     protected String getSaveText() {
         return Constants.CONTINUE_ACTION;
     }
+    
+    @Override
+    protected String getDialogName() {
+        return "newtestsetup";
+    }
+
 }

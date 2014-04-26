@@ -21,8 +21,10 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -52,6 +54,43 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         getContentPane().setLayout(new BorderLayout());
     }
 
+    protected void loadPreferences() {
+      Preferences proot = Preferences.userRoot();
+      Preferences node = proot.node(Constants.PREFS_DLG_NODE);
+      Dimension dim = getPreferredSize();
+      
+      String nm = getDialogName();
+      int left = node.getInt(nm + Constants.PREFS_DLG_LEFT, Constants.DEFAULT_DIALOG_LEFT);
+      int top = node.getInt(nm + Constants.PREFS_DLG_TOP, Constants.DEFAULT_DIALOG_TOP);
+      int width = node.getInt(nm + Constants.PREFS_DLG_WIDTH, dim.width);
+      int height = node.getInt(nm + Constants.PREFS_DLG_HEIGHT, dim.height);
+      setBounds(left, top, width, height);
+        
+    }
+    
+    protected void savePreferences() {
+      Preferences proot = Preferences.userRoot();
+      Preferences node = proot.node(Constants.PREFS_DLG_NODE);
+      
+      Rectangle rect = getBounds();
+
+      String nm = getDialogName();
+      
+      node.putInt(nm + Constants.PREFS_DLG_LEFT, rect.x);
+      node.putInt(nm + Constants.PREFS_DLG_TOP, rect.y);
+      node.putInt(nm + Constants.PREFS_DLG_WIDTH, rect.width);
+      node.putInt(nm + Constants.PREFS_DLG_HEIGHT, rect.height);
+    }
+    
+    protected abstract String getDialogName();
+
+    @Override
+    public void dispose() {
+        savePreferences();
+        super.dispose(); 
+    }
+
+    
     protected KualiTestApp getMainframe() {
         return (KualiTestApp)getParent();
     }
@@ -101,6 +140,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(getMainframe());
+        loadPreferences();
         pack();
         setVisible(true);
     }

@@ -17,23 +17,34 @@
 package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Insets;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.utils.Constants;
 
 
 public class TablePanel extends JPanel {
     private BaseTable table;
-    public TablePanel(BaseTable table) {
+    public TablePanel(BaseTable table, int numberOfRowsToDisplay) {
         super(new BorderLayout(3, 3));
         this.table = table;
-        initComponents();
+        initComponents(numberOfRowsToDisplay);
     }
     
-    protected void initComponents() {
-      //  setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(), table.getConfig().getDisplayName()));
-        add(new JScrollPane(table));
+    public TablePanel(BaseTable table) {
+        this(table, Constants.DEFAULT_DISPLAY_TABLE_ROWS);
+    }
+    
+    protected void initComponents(int numberOfRowsToDisplay) {
+        add (new JLabel(table.getConfig().getDisplayName()), BorderLayout.NORTH);
+        add(new JScrollPane(table), BorderLayout.CENTER);
+        table.setPreferredScrollableViewportSize(new Dimension( 
+            table.getPreferredScrollableViewportSize().width, 
+            numberOfRowsToDisplay*table.getRowHeight())); 
+
     }
     
     public Insets getInsets() {

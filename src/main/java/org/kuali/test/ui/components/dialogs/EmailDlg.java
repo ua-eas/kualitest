@@ -104,4 +104,10 @@ public class EmailDlg extends BaseSetupDlg {
         
         return retval;
     }
+    
+    @Override
+    protected String getDialogName() {
+        return "emailsetup";
+    }
+
 }

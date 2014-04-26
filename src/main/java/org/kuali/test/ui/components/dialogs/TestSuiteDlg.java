@@ -232,6 +232,11 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 200);
+        return new Dimension(600, 400);
+    }
+
+    @Override
+    protected String getDialogName() {
+        return "testsuitesetup";
     }
 }

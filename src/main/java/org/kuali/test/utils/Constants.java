@@ -44,7 +44,8 @@ public class Constants {
     
     public static final String KUALI_TEST_TITLE = "Kuali Test Framework";
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
-    public static final String PREFS_TABLE_NODE = "kualitest/tables";;
+    public static final String PREFS_TABLE_NODE = "kualitest/tables";
+    public static final String PREFS_DLG_NODE = "kualitest/dialogs";
     public static final String PREFS_HORIZONTAL_DIVIDER_LOCATION = "horizontal-divider-location";
     public static final String PREFS_VERTICAL_DIVIDER_LOCATION = "vertical-divider-location";
     public static final String PREFS_MAINFRAME_LEFT = "mainframe-left";
@@ -52,6 +53,14 @@ public class Constants {
     public static final String PREFS_MAINFRAME_WIDTH = "mainframe-width";
     public static final String PREFS_MAINFRAME_HEIGHT = "mainframe-height";
     public static final String PREFS_MAINFRAME_WINDOW_STATE = "mainframe-window-state";
+    
+    
+    public static final int DEFAULT_DIALOG_LEFT = 300;
+    public static final int DEFAULT_DIALOG_TOP = 200;
+    public static final String PREFS_DLG_LEFT = "-dlg-left";
+    public static final String PREFS_DLG_TOP = "-dlg-top";
+    public static final String PREFS_DLG_WIDTH = "-dlg-width";
+    public static final String PREFS_DLG_HEIGHT = "-dlg-height";
     
     public static final String TEST_TRANSFER_MIME_TYPE = "test-transfer";
     
@@ -69,4 +78,5 @@ public class Constants {
     public static final int DEFAULT_SPLASH_HEIGHT = 75;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
+    public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
 }

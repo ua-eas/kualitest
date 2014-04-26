@@ -35,6 +35,9 @@ public class BaseTable extends JTable {
         for (int i = 0; i < config.getHeaders().length; ++i) {
             getColumnModel().getColumn(i).setPreferredWidth(getColumnWidth(config, i));
         }
+        
+        setShowHorizontalLines(true);
+        setShowVerticalLines(true);
     }
     
     private String getColumnPreferenceKey(TableConfiguration config, int col, String name) {

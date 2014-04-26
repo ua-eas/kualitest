@@ -158,4 +158,10 @@ public class DatabaseDlg extends BaseSetupDlg {
     public Object getNewRepositoryObject() {
         return dbconnection;
     }
+    
+    @Override
+    protected String getDialogName() {
+        return "databasesetup";
+    }
+
 }

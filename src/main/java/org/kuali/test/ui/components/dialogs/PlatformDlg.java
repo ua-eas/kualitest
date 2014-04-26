@@ -176,4 +176,10 @@ public class PlatformDlg extends BaseSetupDlg {
     public Object getNewRepositoryObject() {
         return platform;
     }
+    
+        @Override
+    protected String getDialogName() {
+        return "platformsetup";
+    }
+
 }
