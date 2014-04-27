@@ -15,19 +15,15 @@
  */
 package org.kuali.test.proxyserver;
 
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import org.apache.log4j.Logger;
-import org.kuali.test.Platform;
 import org.kuali.test.utils.Constants;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyManager;
@@ -39,16 +35,12 @@ import org.littleshoot.proxy.extras.SelfSignedMitmManager;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 public class TestProxyServer {
-
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
-    private Platform platform;
     private boolean running = false;
     private List<HttpRequest> testRequests = new ArrayList<HttpRequest>();
 
-    public TestProxyServer(Platform platform) {
-        this.platform = platform;
-
+    public TestProxyServer() {
         try {
             initializeProxyServer();
             running = true;
@@ -57,85 +49,28 @@ public class TestProxyServer {
         }
     }
 
-    private HttpFilters getHttpFilters() {
-        return new HttpFilters() {
-            @Override
-            public HttpResponse requestPre(HttpObject ho) {
-                HttpResponse retval = null;
-                if (ho instanceof HttpRequest) {
-                    HttpRequest httpRequest = (HttpRequest) ho;
-                    testRequests.add(httpRequest);
-
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("httpRequest uri:" + httpRequest.getUri());
-                    }
-
-                    retval = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
-                }
-
-                return retval;
-            }
-
-            @Override
-            public HttpResponse requestPost(HttpObject ho) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("requestPost:" + ho.getDecoderResult().toString());
-                }
-                return null;
-            }
-
-            @Override
-            public HttpObject responsePre(HttpObject ho) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("responsePre:" + ho.getDecoderResult().toString());
-                }
-                return ho;
-            }
-
-            @Override
-            public HttpObject responsePost(HttpObject ho) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("responsePost:" + ho.getDecoderResult().toString());
-                }
-
-                return ho;
-            }
-        };
-    }
-
     private HttpFiltersSource getHttpFiltersSource() {
-        return new HttpFiltersSourceAdapter() {
+          return new HttpFiltersSourceAdapter() {
             @Override
             public HttpFilters filterRequest(HttpRequest originalRequest) {
                 return new HttpFiltersAdapter(originalRequest) {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
                         HttpResponse retval = null;
-                        if (httpObject instanceof HttpRequest) {
-                            HttpRequest httpRequest = (HttpRequest) httpObject;
-          //                  String target = Utils.getHostFromUrl(platform.getWebUrl(), true);
-                            //                 String context = Utils.getContextFromUrl(httpRequest.getUri());
-                            //       or.setUri(target + "/" + context);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("requestPre: " + originalRequest.toString());
                         }
+                        
+                        testRequests.add(originalRequest);
+                        
                         return retval;
                     }
 
                     @Override
                     public HttpResponse requestPost(HttpObject httpObject) {
                         HttpResponse retval = null;
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException ex) {
-                            LOG.info(ex.toString(), ex);
-                        }
-
-                        if (httpObject instanceof HttpRequest) {
-                            HttpRequest httpRequest = (HttpRequest) httpObject;
-
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("Http request is " + ((HttpRequest) httpObject).toString());
-                                LOG.debug("Request capacity is " + ((FullHttpRequest) httpObject).content().capacity());
-                            }
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("requestPost: " + originalRequest.toString());
                         }
 
                         return retval;
@@ -143,6 +78,10 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePre(HttpObject httpObject) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("responsePre: " + originalRequest.toString());
+                        }
+
                         if (httpObject instanceof HttpResponse) {
           //                  responsePreOriginalRequestMethodsSeen
             //                    .add(originalRequest.getMethod());
@@ -156,6 +95,9 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("responsePost: " + originalRequest.toString());
+                        }
                         if (httpObject instanceof HttpResponse) {
 //                            responsePostOriginalRequestMethodsSeen
   //                              .add(originalRequest.getMethod());
@@ -198,10 +140,11 @@ public class TestProxyServer {
         DefaultHttpProxyServer
             .bootstrap()
             .withPort(Constants.TEST_PROXY_SERVER_PORT)
+            .withAddress(new InetSocketAddress("localhost", Constants.TEST_PROXY_SERVER_PORT))
             .withChainProxyManager(getChainProxyManager())
             .withFiltersSource(getHttpFiltersSource())
             .withManInTheMiddle(new SelfSignedMitmManager())
-       //     .withAllowLocalOnly(true)
+            .withAllowLocalOnly(true)
             .start();
 
         if (LOG.isDebugEnabled()) {
