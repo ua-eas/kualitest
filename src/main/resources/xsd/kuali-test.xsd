@@ -55,7 +55,7 @@
             <xs:element name="test-index" type="xs:string"/>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="number" type="xs:int"/>
-            <xs:element name="link-number" type="xs:int"/>
+            <xs:element name="link" type="xs:int"/>
             <xs:element name="checkpoint-properties" type="checkpoint-properties"/>
         </xs:sequence>
     </xs:complexType>

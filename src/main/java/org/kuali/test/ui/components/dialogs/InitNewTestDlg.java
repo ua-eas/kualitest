@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestType;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.utils.UIUtils;

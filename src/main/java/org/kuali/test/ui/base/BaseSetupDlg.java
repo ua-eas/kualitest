@@ -35,7 +35,7 @@ import javax.swing.WindowConstants;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 

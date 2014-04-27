@@ -21,7 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.EmailSetup;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseSetupDlg;
 
 /**

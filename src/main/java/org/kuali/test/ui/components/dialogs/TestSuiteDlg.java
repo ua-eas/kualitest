@@ -30,7 +30,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;

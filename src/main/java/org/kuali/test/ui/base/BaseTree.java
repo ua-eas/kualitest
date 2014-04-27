@@ -26,7 +26,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 
 
 public abstract class BaseTree extends JTree {

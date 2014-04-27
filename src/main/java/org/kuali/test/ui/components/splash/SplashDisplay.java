@@ -60,7 +60,7 @@ public class SplashDisplay {
             @Override
             public void run() {
                 try {
-                    if (getParentWindow() instanceof JFrame) {
+                    if ((getParentWindow() == null) || (getParentWindow() instanceof JFrame)) {
                         dlg = new JDialog((JFrame)getParentWindow(), getTitle(), true);
                     } else {
                         dlg = new JDialog((JDialog)getParentWindow(), getTitle(), true);

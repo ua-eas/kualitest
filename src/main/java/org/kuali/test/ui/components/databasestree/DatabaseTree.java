@@ -22,7 +22,7 @@ import javax.swing.tree.TreeCellRenderer;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseTree;
 
 /**

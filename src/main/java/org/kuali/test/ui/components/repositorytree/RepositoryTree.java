@@ -39,7 +39,7 @@ import org.kuali.test.SuiteTest;
 import org.kuali.test.SuiteTests;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseTree;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;

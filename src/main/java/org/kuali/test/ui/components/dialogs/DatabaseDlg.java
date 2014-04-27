@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Utils;
 

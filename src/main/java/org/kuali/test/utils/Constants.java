@@ -16,8 +16,10 @@
 
 package org.kuali.test.utils;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.ImageIcon;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 
 
 public class Constants {
@@ -72,7 +74,8 @@ public class Constants {
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String SAVE_TEST_ACTION = "Save Test";
 
-    public static final int TEST_PROXY_SERVER_PORT= 8888;
+    public static final String DEFAULT_PROXY_HOST= "localhost";
+    public static final String DEFAULT_PROXY_PORT= "8888";
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);
     public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024);
     public static final int DEFAULT_SPLASH_WIDTH = 300;
@@ -80,4 +83,26 @@ public class Constants {
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
+    
+    public static final String HTTP_REQUEST_METHOD_GET = "GET";
+    public static final String HTTP_REQUEST_METHOD_POST = "POST";
+    public static final String HTTP_REQUEST_METHOD_CONNECT = "CONNECT";
+    
+    public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();
+    public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
+    
+    static {
+        IMAGE_SUFFIX_SET.add("gif");
+        IMAGE_SUFFIX_SET.add("ico");
+        IMAGE_SUFFIX_SET.add("jpg");
+        IMAGE_SUFFIX_SET.add("jpeg");
+        IMAGE_SUFFIX_SET.add("png");
+    }
+    
+    static {
+        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
+        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
+        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_CONNECT);
+    }
+    
 }

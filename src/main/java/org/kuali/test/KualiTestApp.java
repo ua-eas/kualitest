@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui;
+package org.kuali.test;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import java.awt.BorderLayout;
@@ -42,13 +42,6 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
-import org.kuali.test.DatabaseConnection;
-import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.Platform;
-import org.kuali.test.SuiteTest;
-import org.kuali.test.TestHeader;
-import org.kuali.test.TestSuite;
-import org.kuali.test.TestType;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
@@ -125,7 +118,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
                         NativeInterface.close();
                     }
                 }
-                
+
                 catch (Exception ex) {
                     LOG.warn(ex);
                 }

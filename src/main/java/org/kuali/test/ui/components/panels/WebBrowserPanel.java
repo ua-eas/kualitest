@@ -26,7 +26,7 @@ import java.util.List;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.proxyserver.TestProxyServer;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 

@@ -17,7 +17,7 @@
 package org.kuali.test.ui.components.panels;
 
 import javax.swing.JLabel;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BasePanel;
 
 public class CreateTestPanel extends BasePanel {

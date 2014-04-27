@@ -20,7 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 
 
 public class BasePanel extends JPanel {

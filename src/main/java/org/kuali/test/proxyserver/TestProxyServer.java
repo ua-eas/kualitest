@@ -21,9 +21,12 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Queue;
 import org.apache.log4j.Logger;
+import org.apache.xmlbeans.SystemProperties;
 import org.kuali.test.utils.Constants;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyManager;
@@ -37,13 +40,14 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
-    private boolean running = false;
     private List<HttpRequest> testRequests = new ArrayList<HttpRequest>();
-
+    private boolean proxyServerRunning = false;
+    
+    
     public TestProxyServer() {
         try {
+            Thread.sleep(1000);
             initializeProxyServer();
-            running = true;
         } catch (Exception ex) {
             LOG.error(ex.toString(), ex);
         }
@@ -57,11 +61,13 @@ public class TestProxyServer {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
                         HttpResponse retval = null;
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("requestPre: " + originalRequest.toString());
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("requestPre: " + originalRequest.toString());
                         }
                         
-                        testRequests.add(originalRequest);
+                        if (isValidTestRequest(originalRequest)) {
+                            testRequests.add(originalRequest);
+                        }
                         
                         return retval;
                     }
@@ -69,8 +75,8 @@ public class TestProxyServer {
                     @Override
                     public HttpResponse requestPost(HttpObject httpObject) {
                         HttpResponse retval = null;
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("requestPost: " + originalRequest.toString());
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("requestPost: " + originalRequest.toString());
                         }
 
                         return retval;
@@ -78,8 +84,8 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePre(HttpObject httpObject) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("responsePre: " + originalRequest.toString());
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("responsePre: " + originalRequest.toString());
                         }
 
                         if (httpObject instanceof HttpResponse) {
@@ -133,20 +139,27 @@ public class TestProxyServer {
     }
 
     private void initializeProxyServer() {
+        // proxy port and host should be passed in as vm params
+        String proxyHost = SystemProperties.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
+        String proxyPort = SystemProperties.getProperty("network.proxy_port", Constants.DEFAULT_PROXY_PORT);
         if (LOG.isDebugEnabled()) {
             LOG.debug("initializing proxy server");
+            LOG.debug("network.proxy_host: " + proxyHost);
+            LOG.debug("network.proxy_port: " + proxyPort);
         }
 
         DefaultHttpProxyServer
             .bootstrap()
-            .withPort(Constants.TEST_PROXY_SERVER_PORT)
-            .withAddress(new InetSocketAddress("localhost", Constants.TEST_PROXY_SERVER_PORT))
+            .withPort(Integer.parseInt(proxyPort))
+            .withAddress(new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)))
             .withChainProxyManager(getChainProxyManager())
             .withFiltersSource(getHttpFiltersSource())
             .withManInTheMiddle(new SelfSignedMitmManager())
             .withAllowLocalOnly(true)
             .start();
 
+        proxyServerRunning = true;
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("proxy server started");
         }
@@ -154,14 +167,58 @@ public class TestProxyServer {
 
     public void stop() {
         proxyServer.stop();
-        running = false;
+        proxyServerRunning = false;
     }
 
-    public boolean isRunning() {
-        return running;
+    public boolean isProxyServerRunning() {
+        return proxyServerRunning;
     }
 
     public List<HttpRequest> getTestRequests() {
         return testRequests;
+    }
+    
+    protected boolean isValidTestRequest(HttpRequest request) {
+        boolean retval = false;
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("uri: " + request.getUri());
+            LOG.debug("method: " + request.getMethod().toString());
+            LOG.debug("protocol version: " + request.getProtocolVersion());
+            LOG.debug("headers: ");
+            Iterator <Entry<String, String>> it = request.headers().iterator();
+            while (it.hasNext()) {
+                Entry entry = it.next();
+                LOG.debug("     [" + entry.getKey() + "=" + entry.getValue() + "]");
+            }
+        }
+        
+        String method = request.getMethod().toString();
+        
+        if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
+            if (!isGetImageRequest(method, request.getUri())) {
+                retval = true;
+            }
+        }
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("isValidTestRequest: " + retval);
+        }
+        
+        return retval;
+    }
+    
+    private boolean isGetImageRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            int pos = uri.lastIndexOf(".");
+            if (pos > -1) {
+                String s = uri.substring(pos+1).toLowerCase().trim();
+                retval = Constants.IMAGE_SUFFIX_SET.contains(s);
+            }
+        }
+        
+        return retval;
     }
 }

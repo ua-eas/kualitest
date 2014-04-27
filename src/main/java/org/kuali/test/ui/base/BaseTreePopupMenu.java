@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.kuali.test.ui.KualiTestApp;
+import org.kuali.test.KualiTestApp;
 
 
 public abstract class BaseTreePopupMenu extends JPopupMenu implements ActionListener {
