@@ -15,7 +15,6 @@
  */
 package org.kuali.test.proxyserver;
 
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -91,25 +90,6 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("responsePost: " + httpObject.getDecoderResult().toString());
-                        }
-                        
-                        if (httpObject instanceof HttpResponse) {
-                            HttpResponse response = (HttpResponse)httpObject;
-                            if (LOG.isTraceEnabled()) {
-                                LOG.trace("responsePost(response): " + response.toString());
-                            }
-                            
-                            if (isTestableResponse(response)) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.trace("responsePost(response): " + response.toString());
-                                }
-                            }
-
-                        } else if (httpObject instanceof HttpContent) {
-                            HttpContent content = (HttpContent)httpObject;
-                        }
                         return httpObject;
                     }
                 };
@@ -140,6 +120,7 @@ public class TestProxyServer {
         // proxy port and host should be passed in as vm params
         String proxyHost = SystemProperties.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
         String proxyPort = SystemProperties.getProperty("network.proxy_port", Constants.DEFAULT_PROXY_PORT);
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("initializing proxy server");
             LOG.debug("network.proxy_host: " + proxyHost);
