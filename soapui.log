@@ -1,0 +1,2 @@
+2014-04-28 08:17:33,920 WARN  [SoapUI] Missing folder [/home/rbtucker/env/test/kualitest/./ext] for external libraries
+2014-04-28 08:17:33,921 INFO  [DefaultSoapUICore] Creating new settings at [/home/rbtucker/soapui-settings.xml]

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kuali.test;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
@@ -57,6 +56,8 @@ import org.kuali.test.ui.components.panels.WebBrowserPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.ApplicationInstanceListener;
+import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -64,9 +65,10 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class KualiTestApp extends JFrame  implements WindowListener {
+public class KualiTestApp extends JFrame implements WindowListener {
+
     private static final Logger LOG = Logger.getLogger(KualiTestApp.class);
-    
+
     private String configFileName;
     private JDesktopPane desktopPane;
     private JSplitPane hsplitPane;
@@ -79,7 +81,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     private RepositoryTree testRepositoryTree;
     private DatabaseTree databaseTree;
     private PlatformTestsPanel platformTestsPanel;
-    
+
     public KualiTestApp(String configFileName) {
         this.configFileName = configFileName;
         if (LOG.isDebugEnabled()) {
@@ -93,14 +95,14 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     }
 
     private void installShutdownHook() {
-        if (LOG.isDebugEnabled()){
+        if (LOG.isDebugEnabled()) {
             LOG.debug("installing shutdown hook");
         }
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (LOG.isDebugEnabled()){
+                if (LOG.isDebugEnabled()) {
                     LOG.debug("running shutdown hook");
                 }
 
@@ -108,45 +110,42 @@ public class KualiTestApp extends JFrame  implements WindowListener {
                     if (NativeInterface.isOpen()) {
                         NativeInterface.close();
                     }
-                }
-
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     LOG.warn(ex);
                 }
             }
         });
     }
-    
-    private void loadPreferences() {
-      Preferences proot = Preferences.userRoot();
-      Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
-      int left = node.getInt(Constants.PREFS_MAINFRAME_LEFT, Constants.MAINFRAME_DEFAULT_LEFT);
-      int top = node.getInt(Constants.PREFS_MAINFRAME_TOP, Constants.MAINFRAME_DEFAULT_TOP);
-      int width = node.getInt(Constants.PREFS_MAINFRAME_WIDTH, Constants.MAINFRAME_DEFAULT_WIDTH);
-      int height = node.getInt(Constants.PREFS_MAINFRAME_HEIGHT, Constants.MAINFRAME_DEFAULT_HEIGHT);
-      setState(node.getInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, Frame.NORMAL));
 
-      setBounds(left, top, width, height);
-      hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
-      vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
+    private void loadPreferences() {
+        Preferences proot = Preferences.userRoot();
+        Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+        int left = node.getInt(Constants.PREFS_MAINFRAME_LEFT, Constants.MAINFRAME_DEFAULT_LEFT);
+        int top = node.getInt(Constants.PREFS_MAINFRAME_TOP, Constants.MAINFRAME_DEFAULT_TOP);
+        int width = node.getInt(Constants.PREFS_MAINFRAME_WIDTH, Constants.MAINFRAME_DEFAULT_WIDTH);
+        int height = node.getInt(Constants.PREFS_MAINFRAME_HEIGHT, Constants.MAINFRAME_DEFAULT_HEIGHT);
+        setState(node.getInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, Frame.NORMAL));
+
+        setBounds(left, top, width, height);
+        hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
+        vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
     }
-    
+
     private void savePreferences() {
-      Preferences proot = Preferences.userRoot();
-      Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
-      
-      Rectangle rect = getBounds();
-      
-      node.putInt(Constants.PREFS_MAINFRAME_LEFT, rect.x);
-      node.putInt(Constants.PREFS_MAINFRAME_TOP, rect.y);
-      node.putInt(Constants.PREFS_MAINFRAME_WIDTH, rect.width);
-      node.putInt(Constants.PREFS_MAINFRAME_HEIGHT, rect.height);
-      node.putInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, hsplitPane.getDividerLocation());
-      node.putInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, vsplitPane.getDividerLocation());
-      node.putInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, getState());
+        Preferences proot = Preferences.userRoot();
+        Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+
+        Rectangle rect = getBounds();
+
+        node.putInt(Constants.PREFS_MAINFRAME_LEFT, rect.x);
+        node.putInt(Constants.PREFS_MAINFRAME_TOP, rect.y);
+        node.putInt(Constants.PREFS_MAINFRAME_WIDTH, rect.width);
+        node.putInt(Constants.PREFS_MAINFRAME_HEIGHT, rect.height);
+        node.putInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, hsplitPane.getDividerLocation());
+        node.putInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, vsplitPane.getDividerLocation());
+        node.putInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, getState());
     }
-    
-    
+
     private void createMenuBar() {
         JMenuBar mainMenu = new JMenuBar();
         JMenu fileMenu = new JMenu();
@@ -164,7 +163,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         JMenuItem helpMenu = new JMenu();
         JMenuItem contentMenuItem = new JMenuItem();
         JMenuItem aboutMenuItem = new JMenuItem();
-        
+
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
 
@@ -175,7 +174,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
                 handleLoadConfiguation(evt);
             }
         });
-        
+
         fileMenu.add(loadConfiguationMenuItem);
 
         fileMenu.add(new JSeparator());
@@ -206,7 +205,6 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         });
         setup.add(emailSetupMenuItem);
 
-        
         fileMenu.add(setup);
         fileMenu.add(new JSeparator());
 
@@ -254,9 +252,10 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         helpMenu.add(aboutMenuItem);
 
         mainMenu.add(helpMenu);
-        
+
         setJMenuBar(mainMenu);
     }
+
     /**
      * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The content of this
      * method is always regenerated by the Form Editor.
@@ -273,7 +272,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         hsplitPane = new JSplitPane();
         hsplitPane.setDividerLocation(150);
         hsplitPane.setOneTouchExpandable(true);
-        
+
         vsplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         vsplitPane.setDividerLocation(250);
 
@@ -281,13 +280,13 @@ public class KualiTestApp extends JFrame  implements WindowListener {
 
         JPanel p = new JPanel(new BorderLayout());
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        
+
         p2.add(saveConfigurationButton = new JButton(Constants.SAVE_CONFIGURATION, Constants.SAVE_CONFIGURATION_ICON) {
             public void setEnabled(boolean enabled) {
                 if (enabled) {
                     getConfiguration().setModified(true);
                 }
-                
+
                 super.setEnabled(enabled);
             }
         });
@@ -299,7 +298,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
                 saveConfigurationButton.setEnabled(false);
             }
         });
-        
+
         p2.add(createTestButton = new JButton(Constants.CREATE_TEST, Constants.CREATE_TEST_ICON));
         createTestButton.setEnabled(false);
         createTestButton.addActionListener(new ActionListener() {
@@ -318,31 +317,31 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
 
         hsplitPane.setLeftComponent(tabbedPane);
-        
+
         tabbedPane = new JTabbedPane();
         tabbedPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
         tabbedPane.addTab(Constants.TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
         tabbedPane.addTab(Constants.RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
         hsplitPane.setRightComponent(tabbedPane);
-        
+
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
-        
+
         getContentPane().add(desktopPane);
-        
+
         pack();
     }
 
     private void handleCreateTest() {
         InitNewTestDlg dlg = new InitNewTestDlg(this, platformTestsPanel.getCurrentPlatform());
-        
+
         if (dlg.isSaved()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("init new " + dlg.getTestHeader().getTestType() + " test for platform " + dlg.getTestHeader().getPlatformName());
             }
-            
+
             final Platform platform = platformTestsPanel.getCurrentPlatform();
             final TestHeader testHeader = dlg.getTestHeader();
-            
+
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
                     createTestPanel.replaceCenterComponent(new WebBrowserPanel(this, platform, testHeader));
@@ -356,33 +355,33 @@ public class KualiTestApp extends JFrame  implements WindowListener {
             }
         }
     }
-    
+
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
         savePreferences();
         System.exit(0);
     }
 
-   public void handleAddDatabaseConnection(ActionEvent evt) {
+    public void handleAddDatabaseConnection(ActionEvent evt) {
         DatabaseDlg dlg = new DatabaseDlg(this);
-        
+
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
-            DatabaseConnection dbconn = (DatabaseConnection)dlg.getNewRepositoryObject();
+            DatabaseConnection dbconn = (DatabaseConnection) dlg.getNewRepositoryObject();
             databaseTree.addDatabaseConnection(dbconn);
         }
     }
 
     public void handleEditDatabaseConnection(DatabaseConnection databaseConnection) {
         DatabaseDlg dlg = new DatabaseDlg(this, databaseConnection);
-        
+
         if (dlg.isSaved()) {
-           saveConfigurationButton.setEnabled(true);
+            saveConfigurationButton.setEnabled(true);
         }
     }
 
     public void handleAddPlatform(ActionEvent evt) {
         PlatformDlg dlg = new PlatformDlg(this);
-        
+
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
             if (!dlg.isEditmode()) {
@@ -394,7 +393,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
 
     public void handleEditPlatform(Platform platform) {
         PlatformDlg dlg = new PlatformDlg(this, platform);
-        
+
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
         }
@@ -404,13 +403,13 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         Platform platform = null;
         TestSuite testSuite = null;
         if (actionNode.getUserObject() instanceof Platform) {
-            platform = (Platform)actionNode.getUserObject();
+            platform = (Platform) actionNode.getUserObject();
         } else {
-            testSuite = (TestSuite)actionNode.getUserObject();
-            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)actionNode.getParent();
-            platform = (Platform)pnode.getUserObject();
+            testSuite = (TestSuite) actionNode.getUserObject();
+            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode) actionNode.getParent();
+            platform = (Platform) pnode.getUserObject();
         }
-        
+
         TestSuiteDlg dlg = new TestSuiteDlg(this, platform, testSuite);
 
         if (dlg.isSaved()) {
@@ -422,8 +421,8 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     }
 
     public void handleRemoveTest(DefaultMutableTreeNode actionNode) {
-        SuiteTest suiteTest = (SuiteTest)actionNode.getUserObject();
-        if (UIUtils.promptForDelete(this, "Remove Test", 
+        SuiteTest suiteTest = (SuiteTest) actionNode.getUserObject();
+        if (UIUtils.promptForDelete(this, "Remove Test",
             "Remove test '" + suiteTest.getTestHeader().getTestName() + "'?")) {
             testRepositoryTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
@@ -433,8 +432,8 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     }
 
     public void handleDeleteTestSuite(DefaultMutableTreeNode actionNode) {
-        TestSuite testSuite = (TestSuite)actionNode.getUserObject();
-        if (UIUtils.promptForDelete(this, "Delete Test Suite", 
+        TestSuite testSuite = (TestSuite) actionNode.getUserObject();
+        if (UIUtils.promptForDelete(this, "Delete Test Suite",
             "Delete test suite'" + testSuite.getName() + "'?")) {
             testRepositoryTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
@@ -445,15 +444,15 @@ public class KualiTestApp extends JFrame  implements WindowListener {
 
     private void handleEmailSetup(ActionEvent evt) {
         EmailDlg dlg = new EmailDlg(this, getConfiguration().getEmailSetup());
-        
+
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
         }
     }
-    
+
     public void handleRemoveDatabaseConnection(DefaultMutableTreeNode actionNode) {
-        DatabaseConnection dbconn = (DatabaseConnection)actionNode.getUserObject();
-        if (UIUtils.promptForDelete(this, "Delete Database Connection", 
+        DatabaseConnection dbconn = (DatabaseConnection) actionNode.getUserObject();
+        if (UIUtils.promptForDelete(this, "Delete Database Connection",
             "Delete database connection '" + dbconn.getName() + "'?")) {
             databaseTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
@@ -468,7 +467,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         chooser.setFileFilter(filter);
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             testRepositoryTree.loadConfiguration(chooser.getSelectedFile());
-        } 
+        }
     }
 
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
@@ -478,7 +477,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     public JButton getCreateTestButton() {
         return createTestButton;
     }
-    
+
     public JButton getSaveConfigurationButton() {
         return saveConfigurationButton;
     }
@@ -493,15 +492,30 @@ public class KualiTestApp extends JFrame  implements WindowListener {
             LOG.error(ex.toString(), ex);
         }
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                String filename = null;
-                if (args.length > 0) {
-                    filename = args[0];
+
+        if (!ApplicationInstanceManager.registerInstance()) {
+            // instance already running.
+            System.out.println("Another instance of this application is already running.  Exiting.");
+            System.exit(0);
+        } else {
+            ApplicationInstanceManager.setApplicationInstanceListener(new ApplicationInstanceListener() {
+                public void newInstanceCreated() {
+                    
                 }
-                new KualiTestApp(filename).setVisible(true);
-            }
-        });
+            });
+
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    String filename = null;
+                    if (args.length > 0) {
+                        filename = args[0];
+                    }
+                    new KualiTestApp(filename).setVisible(true);
+                }
+            });
+
+        }
     }
 
     public String getConfigFileName() {
