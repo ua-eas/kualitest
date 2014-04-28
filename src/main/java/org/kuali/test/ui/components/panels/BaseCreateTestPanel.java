@@ -28,6 +28,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.ui.base.ToggleToolbarButton;
 import org.kuali.test.ui.base.ToolbarButton;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
 
@@ -91,11 +92,17 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
+        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)
+            || e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
             if (startTest.isSelected()) {
                 handleStartTest();
-            } else {
-                handleEndTest();
+                startTest.setText(Constants.CANCEL_TEST_ACTION);
+                startTest.setIcon(Constants.CANCEL_TEST_ICON);
+            } else if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
+                "Are you sure you want to cancel the new test creation?")) {
+                handleCancelTest();
+                startTest.setText(Constants.START_TEST_ACTION);
+                startTest.setIcon(Constants.START_TEST_ICON);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
@@ -131,10 +138,8 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
         this.saveTest = saveTest;
     }
     
-    
-    
     protected abstract void handleStartTest();
-    protected abstract void handleEndTest();
+    protected abstract void handleCancelTest();
     protected abstract void handleCreateCheckpoint();
     protected abstract void handleSaveTest();
 }

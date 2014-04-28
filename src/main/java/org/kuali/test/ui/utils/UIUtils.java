@@ -61,4 +61,8 @@ public class UIUtils {
     public static boolean promptForDelete(Component c, String title, String prompt) {
         return (JOptionPane.showConfirmDialog(findWindow(c), prompt, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
     }
+
+    public static boolean promptForCancel(Component c, String title, String prompt) {
+        return (JOptionPane.showConfirmDialog(findWindow(c), prompt, title, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION);
+    }
 }

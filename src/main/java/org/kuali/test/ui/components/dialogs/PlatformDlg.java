@@ -17,13 +17,14 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.KualiApplication;
-import org.kuali.test.Platform;
 import org.kuali.test.KualiTestApp;
+import org.kuali.test.Platform;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Utils;
 
@@ -177,9 +178,13 @@ public class PlatformDlg extends BaseSetupDlg {
         return platform;
     }
     
-        @Override
+    @Override
     protected String getDialogName() {
         return "platformsetup";
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 375);
+    }
 }

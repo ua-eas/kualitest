@@ -23,10 +23,10 @@ import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.List;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.proxyserver.TestProxyServer;
-import org.kuali.test.KualiTestApp;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 
@@ -39,7 +39,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         
         getStartTest().setEnabled(false);
         
-        SplashDisplay splash = new SplashDisplay(mainframe, "Initializing Web Test", "loading web proxy server...") {
+        new SplashDisplay(mainframe, "Initializing Web Test", "Loading web proxy server...") {
             @Override
             protected void runProcess() {
                 testProxyServer = new TestProxyServer();
@@ -48,7 +48,10 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         };
 
         initializeNativeBrowser();
-        
+        initComponents();
+    }
+
+    private void initComponents() {
         addContainerListener(this);
 
         webBrowser = new JWebBrowser();
@@ -56,8 +59,9 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         webBrowser.setLocationBarVisible(false);
         webBrowser.setMenuBarVisible(false);
         add(webBrowser, BorderLayout.CENTER);
+        
     }
-
+    
     @Override
     protected void handleCreateCheckpoint() {
         if (webBrowser != null) {
@@ -68,10 +72,8 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
     }
 
     @Override
-    protected void handleEndTest() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("#test requests: " + testProxyServer.getTestRequests().size());
-        }
+    protected void handleCancelTest() {
+        testProxyServer.getTestRequests().clear();
     }
    
     @Override
@@ -81,12 +83,9 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     @Override
     protected void handleSaveTest() {
-        List <HttpRequest> l = testProxyServer.getTestRequests();
-        
-        HttpRequest r;
-        
+        List <HttpRequest> testRequests = testProxyServer.getTestRequests();
         if (LOG.isDebugEnabled()) {
-            LOG.debug("num requests: " + l.size());
+            LOG.debug("num requests: " + testRequests.size());
         }
     }
     
@@ -129,7 +128,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
             LOG.debug("component removed: " + e.getComponent().getClass().getName());
         }
 
-        if ( e.getComponent() instanceof JWebBrowser) {
+        if (e.getComponent() instanceof JWebBrowser) {
             browserRemoved();
         }
     }

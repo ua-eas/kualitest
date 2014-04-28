@@ -25,9 +25,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyManager;
 import org.littleshoot.proxy.HttpFilters;
@@ -84,33 +86,29 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePre(HttpObject httpObject) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("responsePre: " + originalRequest.toString());
-                        }
-
-                        if (httpObject instanceof HttpResponse) {
-          //                  responsePreOriginalRequestMethodsSeen
-            //                    .add(originalRequest.getMethod());
-                        } else if (httpObject instanceof HttpContent) {
-              //              responsePreBody.append(((HttpContent) httpObject)
-                //                .content().toString(
-                  //                  Charset.forName("UTF-8")));
-                        }
                         return httpObject;
                     }
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("responsePost: " + originalRequest.toString());
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("responsePost: " + httpObject.getDecoderResult().toString());
                         }
+                        
                         if (httpObject instanceof HttpResponse) {
-//                            responsePostOriginalRequestMethodsSeen
-  //                              .add(originalRequest.getMethod());
+                            HttpResponse response = (HttpResponse)httpObject;
+                            if (LOG.isTraceEnabled()) {
+                                LOG.trace("responsePost(response): " + response.toString());
+                            }
+                            
+                            if (isTestableResponse(response)) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.trace("responsePost(response): " + response.toString());
+                                }
+                            }
+
                         } else if (httpObject instanceof HttpContent) {
-    //                        responsePostBody.append(((HttpContent) httpObject)
-      //                          .content().toString(
-        //                            Charset.forName("UTF-8")));
+                            HttpContent content = (HttpContent)httpObject;
                         }
                         return httpObject;
                     }
@@ -181,23 +179,21 @@ public class TestProxyServer {
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("uri: " + request.getUri());
-            LOG.debug("method: " + request.getMethod().toString());
-            LOG.debug("protocol version: " + request.getProtocolVersion());
-            LOG.debug("headers: ");
-            Iterator <Entry<String, String>> it = request.headers().iterator();
-            while (it.hasNext()) {
-                Entry entry = it.next();
-                LOG.debug("     [" + entry.getKey() + "=" + entry.getValue() + "]");
-            }
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(getHttpRequestDetails(request));
         }
         
         String method = request.getMethod().toString();
         
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-            if (!isGetImageRequest(method, request.getUri())) {
-                retval = true;
+            retval = (!isGetImageRequest(method, request.getUri())
+                && !isGetJavascriptRequest(method, request.getUri())
+                && !isGetCssRequest(method, request.getUri()));
+        }
+        
+        if (retval) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(getHttpRequestDetails(request));
             }
         }
         
@@ -208,16 +204,78 @@ public class TestProxyServer {
         return retval;
     }
     
+    private String getHttpRequestDetails(HttpRequest request) {
+        StringBuilder retval = new StringBuilder(512);
+        retval.append("uri: ");
+        retval.append(request.getUri());
+        retval.append("\r\n");
+        retval.append("method: ");
+        retval.append(request.getMethod().toString());
+        retval.append("\r\n");
+        retval.append("protocol version: ");
+        retval.append(request.getProtocolVersion());
+        retval.append("\r\n");
+        retval.append("headers: \r\n");
+        retval.append("------------------------------\r\n");
+        Iterator <Entry<String, String>> it = request.headers().iterator();
+        while (it.hasNext()) {
+            Entry entry = it.next();
+            retval.append(entry.getKey());
+            retval.append("=");
+            retval.append(entry.getValue());
+            retval.append("\r\n");
+        }
+        retval.append("------------------------------\r\n");
+        return retval.toString();
+    }
+
     private boolean isGetImageRequest(String method, String uri) {
         boolean retval = false;
         
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            int pos = uri.lastIndexOf(".");
-            if (pos > -1) {
-                String s = uri.substring(pos+1).toLowerCase().trim();
-                retval = Constants.IMAGE_SUFFIX_SET.contains(s);
-            }
+            retval = Constants.IMAGE_SUFFIX_SET.contains(Utils.getFileSuffix(uri));
         }
+        
+        return retval;
+    }
+
+    private boolean isGetJavascriptRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
+        }
+        
+        return retval;
+    }
+
+    private boolean isGetCssRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
+        }
+        
+        return retval;
+    }
+    
+    private boolean isTestableResponse(HttpResponse response) {
+        boolean retval = false;
+        
+        String contentType = response.headers().get(Constants.HTTP_RESPONSE_CONTENT_TYPE);
+        
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("contentType: " + contentType);
+        }
+        
+        if (StringUtils.isNotBlank(contentType)) {
+            retval = contentType.toLowerCase().startsWith(Constants.MIME_TYPE_HTML);
+        }
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("isTestableResponse: " + retval);
+        }
+        
         
         return retval;
     }

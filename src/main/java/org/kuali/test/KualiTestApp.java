@@ -66,11 +66,6 @@ import org.kuali.test.utils.Utils;
  */
 public class KualiTestApp extends JFrame  implements WindowListener {
     private static final Logger LOG = Logger.getLogger(KualiTestApp.class);
-
-    private static final String SAVE_CONFIGURATION = "Save Configuration";
-    private static final String CREATE_TEST = "Create Test";
-    private static final String TEST_OUTPUT = "Test Output";
-    private static final String RUNNING_TESTS = "Running Tests";
     
     private String configFileName;
     private JDesktopPane desktopPane;
@@ -85,10 +80,6 @@ public class KualiTestApp extends JFrame  implements WindowListener {
     private DatabaseTree databaseTree;
     private PlatformTestsPanel platformTestsPanel;
     
-    /**
-     * Creates new form KualiTest
-     * @param configFileName
-     */
     public KualiTestApp(String configFileName) {
         this.configFileName = configFileName;
         if (LOG.isDebugEnabled()) {
@@ -291,7 +282,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         JPanel p = new JPanel(new BorderLayout());
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
-        p2.add(saveConfigurationButton = new JButton(SAVE_CONFIGURATION, Constants.SAVE_CONFIGURATION_ICON) {
+        p2.add(saveConfigurationButton = new JButton(Constants.SAVE_CONFIGURATION, Constants.SAVE_CONFIGURATION_ICON) {
             public void setEnabled(boolean enabled) {
                 if (enabled) {
                     getConfiguration().setModified(true);
@@ -309,7 +300,7 @@ public class KualiTestApp extends JFrame  implements WindowListener {
             }
         });
         
-        p2.add(createTestButton = new JButton(CREATE_TEST, Constants.CREATE_TEST_ICON));
+        p2.add(createTestButton = new JButton(Constants.CREATE_TEST, Constants.CREATE_TEST_ICON));
         createTestButton.setEnabled(false);
         createTestButton.addActionListener(new ActionListener() {
             @Override
@@ -323,18 +314,15 @@ public class KualiTestApp extends JFrame  implements WindowListener {
         vsplitPane.setTopComponent(p);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Repository", vsplitPane);
-        tabbedPane.addTab("Databases", new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
+        tabbedPane.addTab(Constants.REPOSITORY, vsplitPane);
+        tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
 
         hsplitPane.setLeftComponent(tabbedPane);
         
         tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(CREATE_TEST, createTestPanel = new CreateTestPanel(this));
-        tabbedPane.addTab(TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
-        tabbedPane.addTab(RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
-        hsplitPane.setRightComponent(tabbedPane);
-        
-        
+        tabbedPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
+        tabbedPane.addTab(Constants.TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
+        tabbedPane.addTab(Constants.RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
         hsplitPane.setRightComponent(tabbedPane);
         
         desktopPane.add(hsplitPane, BorderLayout.CENTER);

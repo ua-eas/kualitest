@@ -384,4 +384,17 @@ public class Utils {
         
         return retval;
     }
+    
+    public static String getFileSuffix(String nm) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(nm)) {
+            int pos = nm.lastIndexOf(".");
+            if (pos > -1) {
+                retval = nm.substring(pos+1).toLowerCase().trim();
+            }
+        }
+        
+        return retval;
+    }
 }

@@ -31,6 +31,7 @@ public class Constants {
     public static final ImageIcon TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/test.png"));
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save.png"));
     public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/createtest.png"));
+    public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/cancel-test.png"));
 
     public static final ImageIcon START_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/start-test.png"));
     public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/create-checkpoint.png"));
@@ -67,10 +68,18 @@ public class Constants {
     public static final String TEST_TRANSFER_MIME_TYPE = "test-transfer";
     
     
+    public static final String SAVE_CONFIGURATION = "Save Configuration";
+    public static final String CREATE_TEST = "Create Test";
+    public static final String TEST_OUTPUT = "Test Output";
+    public static final String RUNNING_TESTS = "Running Tests";
+    public static final String REPOSITORY = "Repository";
+    public static final String DATABASES = "Databases";
+    
     public static String SAVE_ACTION = "Save";
     public static String CANCEL_ACTION = "Cancel";
     public static String CONTINUE_ACTION = "Continue";
     public static final String START_TEST_ACTION = "Start Test";
+    public static final String CANCEL_TEST_ACTION = "Cancel Test";
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String SAVE_TEST_ACTION = "Save Test";
 
@@ -87,7 +96,11 @@ public class Constants {
     public static final String HTTP_REQUEST_METHOD_GET = "GET";
     public static final String HTTP_REQUEST_METHOD_POST = "POST";
     public static final String HTTP_REQUEST_METHOD_CONNECT = "CONNECT";
+    public static final String HTTP_RESPONSE_CONTENT_TYPE = "Content-Type";
+    public static final String MIME_TYPE_HTML = "text/html";
     
+    public static final String JAVASCRIPT_SUFFIX = "js";
+    public static final String CSS_SUFFIX = "css";
     public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();
     public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
     
