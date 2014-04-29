@@ -19,6 +19,7 @@ import chrriis.dj.nativeswing.NativeSwing;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import io.netty.handler.codec.http.HttpRequest;
@@ -32,6 +33,7 @@ import org.kuali.test.proxyserver.TestProxyServer;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
     private JWebBrowser webBrowser;
@@ -92,6 +94,25 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                 JWebBrowser wb = e.getNewWebBrowser();
                 wb.setBarsVisible(false);
                 wb.setStatusBarVisible(true);
+            }
+
+            @Override
+            public void locationChanged(WebBrowserNavigationEvent e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("in locationChanged()");
+                }
+                
+                int selindx = tabbedPane.getSelectedIndex();
+                if (Constants.NEW_BROWSER_TAB_DEFAULT_TEXT.equals(tabbedPane.getTitleAt(selindx))) {
+                    Object o = e.getWebBrowser().executeJavascriptWithResult("return document.title;");
+                    if (o != null) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("documentTitle: " + o.toString());
+                        }
+
+                        tabbedPane.setTitleAt(selindx, o.toString());
+                    }
+                }
             }
         });
 

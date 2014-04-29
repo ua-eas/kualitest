@@ -50,7 +50,7 @@ import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
-import org.kuali.test.ui.components.panels.RootWebBrowserPanel;
+import org.kuali.test.ui.components.panels.WebBrowserPanel;
 import org.kuali.test.ui.components.panels.RunningTestPanel;
 import org.kuali.test.ui.components.panels.TabbedTestPane;
 import org.kuali.test.ui.components.panels.TestOutputPanel;
@@ -346,7 +346,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
 
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
-                    createTestPanel.replaceCenterComponent(new RootWebBrowserPanel(tabbedTestPane, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebBrowserPanel(tabbedTestPane, platform, testHeader));
                     break;
                 case TestType.INT_WEB_SERVICE:
                     createTestPanel.replaceCenterComponent(new WebServicePanel(platform, testHeader));

@@ -24,7 +24,7 @@
          <name>kfs-dev</name>
          <application>KFS</application>
          <version>3.0</version>
-         <web-url>https://kf-dev.mosaic.arizona.edu/kfs-dev</web-url>
+         <web-url>https://kf-tst.mosaic.arizona.edu/kfs-tst</web-url>
          <web-service-url/>
          <test-suites/>
          <platform-tests/>
