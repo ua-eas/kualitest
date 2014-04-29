@@ -25,6 +25,12 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import org.htmlcleaner.CleanerProperties;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.HtmlNode;
+import org.htmlcleaner.JDomSerializer;
+import org.htmlcleaner.TagNode;
+import org.htmlcleaner.TagNodeVisitor;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.proxyserver.TestProxyServer;
@@ -34,10 +40,11 @@ import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
+
     private JWebBrowser webBrowser;
     private TestProxyServer testProxyServer;
     private TabbedTestPane tabbedPane;
-    
+
     public WebBrowserPanel(TabbedTestPane tabbedPane, Platform platform, TestHeader testHeader) {
         super(platform, testHeader);
         this.tabbedPane = tabbedPane;
@@ -63,7 +70,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     private JWebBrowser createWebBrowser(boolean initial) {
         JWebBrowser retval = new JWebBrowser();
-        
+
         if (initial) {
             retval.setButtonBarVisible(false);
             retval.setLocationBarVisible(false);
@@ -77,7 +84,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("in windowWillOpen()");
                 }
-                
+
                 JWebBrowser wb = createWebBrowser(false);
                 e.setNewWebBrowser(wb);
                 tabbedPane.addNewBrowserPanel(wb);
@@ -99,7 +106,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("in locationChanged()");
                 }
-                
+
                 int selindx = tabbedPane.getSelectedIndex();
                 if (Constants.NEW_BROWSER_TAB_DEFAULT_TEXT.equals(tabbedPane.getTitleAt(selindx))) {
                     Object o = e.getWebBrowser().executeJavascriptWithResult("return document.title;");
@@ -120,9 +127,32 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
     @Override
     protected void handleCreateCheckpoint() {
         if (webBrowser != null) {
+
+            // create an instance of HtmlCleaner
+            HtmlCleaner cleaner = new HtmlCleaner();
+            CleanerProperties props = new CleanerProperties();
+            TagNode node = cleaner.clean(webBrowser.getHTMLContent());
+            org.jdom.Document doc = new JDomSerializer(props, true).createJDom(node);
+
             if (LOG.isDebugEnabled()) {
-                LOG.debug(webBrowser.getHTMLContent());
+                LOG.debug(doc.toString());
             }
+
+            // traverse whole DOM and update images to absolute URLs
+            node.traverse(new TagNodeVisitor() {
+                public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
+                    if (htmlNode instanceof TagNode) {
+                        TagNode tag = (TagNode) htmlNode;
+                        String tagName = tag.getName();
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("tagName: " + tagName);
+                        }
+                        
+                    }
+                    
+                    return true;
+                }
+            });
         }
     }
 
@@ -139,17 +169,17 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     @Override
     protected boolean handleSaveTest() {
-        boolean retval = saveTest(tabbedPane.getMainframe().getConfiguration().getRepositoryLocation(), 
+        boolean retval = saveTest(tabbedPane.getMainframe().getConfiguration().getRepositoryLocation(),
             getTestHeader(), testProxyServer.getTestOperations());
-        
+
         if (retval) {
             tabbedPane.getMainframe().getSaveConfigurationButton().setEnabled(true);
             tabbedPane.getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
         }
-        
+
         return retval;
     }
-    
+
     private void initializeNativeBrowser() {
         if (!NativeInterface.isInitialized()) {
             NativeSwing.initialize();
