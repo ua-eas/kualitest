@@ -37,7 +37,9 @@ public class Constants {
     public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/create-checkpoint.png"));
     public static final ImageIcon SAVE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save-test.png"));
     public static final ImageIcon CLOCK_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/clock.png"));
+    public static final ImageIcon CLOSE_TAB_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/close-tab.png"));
 
+    
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;
@@ -82,6 +84,7 @@ public class Constants {
     public static final String CANCEL_TEST_ACTION = "Cancel Test";
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String SAVE_TEST_ACTION = "Save Test";
+    public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
 
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";
