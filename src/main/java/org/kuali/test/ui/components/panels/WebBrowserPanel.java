@@ -13,15 +13,157 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kuali.test.ui.components.panels;
 
+import chrriis.dj.nativeswing.NativeSwing;
+import chrriis.dj.nativeswing.swtimpl.NativeInterface;
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
+import io.netty.handler.codec.http.HttpRequest;
 import java.awt.BorderLayout;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.util.List;
+import org.kuali.test.Platform;
+import org.kuali.test.TestHeader;
+import org.kuali.test.proxyserver.TestProxyServer;
+import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
+import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.utils.UIUtils;
 
+public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
+    private JWebBrowser webBrowser;
+    private TestProxyServer testProxyServer;
+    private TabbedTestPane tabbedPane;
+    
+    public WebBrowserPanel(TabbedTestPane tabbedPane, Platform platform, TestHeader testHeader) {
+        super(platform, testHeader);
+        this.tabbedPane = tabbedPane;
+        getStartTest().setEnabled(false);
 
-public class WebBrowserPanel extends ClosableTabPanel {
-    public WebBrowserPanel(TabbedTestPane tabbedPane) {
-        super(tabbedPane);
-        setLayout(new BorderLayout());
+        new SplashDisplay(UIUtils.findWindow(tabbedPane), "Initializing Web Test", "Loading web proxy server...") {
+            @Override
+            protected void runProcess() {
+                testProxyServer = new TestProxyServer();
+                getStartTest().setEnabled(true);
+            }
+        };
+
+        initializeNativeBrowser();
+        initComponents();
+    }
+
+    private void initComponents() {
+        addContainerListener(this);
+        webBrowser = createWebBrowser(true);
+        add(webBrowser, BorderLayout.CENTER);
+    }
+
+    private JWebBrowser createWebBrowser(boolean initial) {
+        JWebBrowser retval = new JWebBrowser();
+        
+        if (initial) {
+            retval.setButtonBarVisible(false);
+            retval.setLocationBarVisible(false);
+            retval.setMenuBarVisible(false);
+            retval.setStatusBarVisible(true);
+        }
+
+        retval.addWebBrowserListener(new WebBrowserAdapter() {
+            @Override
+            public void windowWillOpen(WebBrowserWindowWillOpenEvent e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("in windowWillOpen()");
+                }
+                
+                JWebBrowser wb = createWebBrowser(false);
+                e.setNewWebBrowser(wb);
+                tabbedPane.addNewBrowserPanel(wb);
+            }
+
+            @Override
+            public void windowOpening(WebBrowserWindowOpeningEvent e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("in windowOpening()");
+                }
+
+                JWebBrowser wb = e.getNewWebBrowser();
+                wb.setBarsVisible(false);
+                wb.setStatusBarVisible(true);
+            }
+        });
+
+        return retval;
+    }
+
+    @Override
+    protected void handleCreateCheckpoint() {
+        if (webBrowser != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(webBrowser.getHTMLContent());
+            }
+        }
+    }
+
+    @Override
+    protected void handleCancelTest() {
+        testProxyServer.getTestRequests().clear();
+    }
+
+    @Override
+    protected void handleStartTest() {
+        webBrowser.navigate(getPlatform().getWebUrl());
+    }
+
+    @Override
+    protected void handleSaveTest() {
+        List<HttpRequest> testRequests = testProxyServer.getTestRequests();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("num requests: " + testRequests.size());
+        }
+    }
+
+    private void initializeNativeBrowser() {
+        if (!NativeInterface.isInitialized()) {
+            NativeSwing.initialize();
+        }
+
+        if (!NativeInterface.isOpen()) {
+            NativeInterface.open();
+        }
+    }
+
+    public void browserRemoved() {
+        try {
+            if (webBrowser != null) {
+                webBrowser.disposeNativePeer(false);
+            }
+            if (NativeInterface.isOpen()) {
+                NativeInterface.close();
+            }
+
+            if (testProxyServer != null) {
+                testProxyServer.stop();
+            }
+        } catch (Exception ex) {
+            LOG.warn(ex.toString());
+        }
+    }
+
+    @Override
+    public void componentAdded(ContainerEvent e) {
+    }
+
+    @Override
+    public void componentRemoved(ContainerEvent e) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("component removed: " + e.getComponent().getClass().getName());
+        }
+
+        if (e.getComponent() instanceof JWebBrowser) {
+            browserRemoved();
+        }
     }
 }
