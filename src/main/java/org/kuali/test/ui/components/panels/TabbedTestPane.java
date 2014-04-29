@@ -18,21 +18,29 @@ package org.kuali.test.ui.components.panels;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import org.apache.log4j.Logger;
+import org.kuali.test.ui.components.buttons.CloseTabIcon;
+import org.kuali.test.utils.Constants;
 
 
 public class TabbedTestPane extends JTabbedPane {
+    private static final Logger LOG = Logger.getLogger(TabbedTestPane.class);
+    
     public TabbedTestPane() {
         super();
+        setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     
     public void addNewBrowserPanel(JWebBrowser wb) {
-        WebBrowserPanel panel = new WebBrowserPanel(this); 
+        JPanel panel = new JPanel(new BorderLayout(3, 3)); 
         panel.add(wb, BorderLayout.CENTER);
-        addTab(getTabName(wb), panel);
+        addTab(Constants.NEW_BROWSER_TAB_DEFAULT_TEXT, new CloseTabIcon(), panel);
+        setSelectedComponent(panel);
     }
     
     private String getTabName(JWebBrowser wb) {
-        return "test";
+        return "xxxxxxxxxx";
     }
 }
