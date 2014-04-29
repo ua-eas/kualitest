@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.base;
+package org.kuali.test.ui.components.buttons;
 
 import java.awt.Insets;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.JToggleButton;
 
 
-public class ToolbarButton extends JButton {
-    public ToolbarButton(String actionCommand, ImageIcon icon) {
+public class ToggleToolbarButton extends JToggleButton {
+    public ToggleToolbarButton(String actionCommand, ImageIcon icon) {
         this(actionCommand, actionCommand, icon, true);
     }
 
-    public ToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
+    public ToggleToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
         super(icon);
         setActionCommand(actionCommand);
         setText(txt);

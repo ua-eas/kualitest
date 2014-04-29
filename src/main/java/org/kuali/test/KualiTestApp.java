@@ -50,9 +50,10 @@ import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
+import org.kuali.test.ui.components.panels.RootWebBrowserPanel;
 import org.kuali.test.ui.components.panels.RunningTestPanel;
+import org.kuali.test.ui.components.panels.TabbedTestPane;
 import org.kuali.test.ui.components.panels.TestOutputPanel;
-import org.kuali.test.ui.components.panels.WebBrowserPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.utils.UIUtils;
@@ -73,6 +74,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
     private JDesktopPane desktopPane;
     private JSplitPane hsplitPane;
     private JSplitPane vsplitPane;
+    private TabbedTestPane tabbedTestPane;
     private CreateTestPanel createTestPanel;
     private RunningTestPanel runningTestsPanel;
     private TestOutputPanel testOutputPanel;
@@ -318,11 +320,11 @@ public class KualiTestApp extends JFrame implements WindowListener {
 
         hsplitPane.setLeftComponent(tabbedPane);
 
-        tabbedPane = new JTabbedPane();
-        tabbedPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
-        tabbedPane.addTab(Constants.TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
-        tabbedPane.addTab(Constants.RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
-        hsplitPane.setRightComponent(tabbedPane);
+        tabbedTestPane = new TabbedTestPane();
+        tabbedTestPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
+        tabbedTestPane.addTab(Constants.TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
+        tabbedTestPane.addTab(Constants.RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
+        hsplitPane.setRightComponent(tabbedTestPane);
 
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
 
@@ -344,7 +346,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
 
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
-                    createTestPanel.replaceCenterComponent(new WebBrowserPanel(this, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new RootWebBrowserPanel(tabbedTestPane, platform, testHeader));
                     break;
                 case TestType.INT_WEB_SERVICE:
                     createTestPanel.replaceCenterComponent(new WebServicePanel(platform, testHeader));

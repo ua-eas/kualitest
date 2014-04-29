@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.base;
+package org.kuali.test.ui.components.editmasks;
 
 import javax.swing.JFormattedTextField;
 import javax.swing.text.MaskFormatter;

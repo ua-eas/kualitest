@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.base;
+package org.kuali.test.ui.components.panels;
 
-import java.awt.Insets;
-import javax.swing.ImageIcon;
-import javax.swing.JToggleButton;
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import java.awt.BorderLayout;
+import javax.swing.JTabbedPane;
 
 
-public class ToggleToolbarButton extends JToggleButton {
-    public ToggleToolbarButton(String actionCommand, ImageIcon icon) {
-        this(actionCommand, actionCommand, icon, true);
+public class TabbedTestPane extends JTabbedPane {
+    public TabbedTestPane() {
+        super();
     }
-
-    public ToggleToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
-        super(icon);
-        setActionCommand(actionCommand);
-        setText(txt);
-        setMargin(new Insets(1, 1, 1, 1));
+    
+    public void addNewBrowserPanel(JWebBrowser wb) {
+        WebBrowserPanel panel = new WebBrowserPanel(this); 
+        panel.add(wb, BorderLayout.CENTER);
+        addTab(getTabName(wb), panel);
+    }
+    
+    private String getTabName(JWebBrowser wb) {
+        return "test";
     }
 }

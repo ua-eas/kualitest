@@ -26,8 +26,8 @@ import javax.swing.JToolBar;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
-import org.kuali.test.ui.base.ToggleToolbarButton;
-import org.kuali.test.ui.base.ToolbarButton;
+import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
+import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 

@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.editmasks;
+package org.kuali.test.ui.components.buttons;
+
+import java.awt.Insets;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 
 
-public class IntegerTextField extends BaseEditMaskField {
-    public IntegerTextField() {
-        this("#####");
+public class ToolbarButton extends JButton {
+    public ToolbarButton(String actionCommand, ImageIcon icon) {
+        this(actionCommand, actionCommand, icon, true);
     }
 
-    public IntegerTextField(String mask) {
-        super(mask, 6);
+    public ToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
+        super(icon);
+        setActionCommand(actionCommand);
+        setText(txt);
+        setMargin(new Insets(1, 1, 1, 1));
     }
 }

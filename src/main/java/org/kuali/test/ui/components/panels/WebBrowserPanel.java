@@ -13,151 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.kuali.test.ui.components.panels;
 
-import chrriis.dj.nativeswing.NativeSwing;
-import chrriis.dj.nativeswing.swtimpl.NativeInterface;
-import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
-import io.netty.handler.codec.http.HttpRequest;
 import java.awt.BorderLayout;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import org.kuali.test.KualiTestApp;
-import org.kuali.test.Platform;
-import org.kuali.test.TestHeader;
-import org.kuali.test.proxyserver.TestProxyServer;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 
-public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
 
-    private JWebBrowser webBrowser;
-    private TestProxyServer testProxyServer;
-    private KualiTestApp mainframe;
-
-    public WebBrowserPanel(KualiTestApp mainframe, final Platform platform, TestHeader testHeader) {
-        super(platform, testHeader);
-        this.mainframe = mainframe;
-        getStartTest().setEnabled(false);
-
-        new SplashDisplay(mainframe, "Initializing Web Test", "Loading web proxy server...") {
-            @Override
-            protected void runProcess() {
-                testProxyServer = new TestProxyServer();
-                getStartTest().setEnabled(true);
-            }
-        };
-
-        initializeNativeBrowser();
-        initComponents();
-    }
-
-    private void initComponents() {
-        addContainerListener(this);
-        webBrowser = createWebBrowser();
-        add(webBrowser, BorderLayout.CENTER);
-    }
-
-    private JWebBrowser createWebBrowser() {
-        JWebBrowser retval = new JWebBrowser();
-        retval.setButtonBarVisible(false);
-        retval.setLocationBarVisible(false);
-        retval.setMenuBarVisible(false);
-        retval.setStatusBarVisible(true);
-
-        retval.addWebBrowserListener(new WebBrowserAdapter() {
-            @Override
-            public void windowOpening(WebBrowserWindowOpeningEvent e) {
-                super.windowOpening(e); //To change body of generated methods, choose Tools | Templates.
-            }
-            
-            @Override
-            public void windowWillOpen(WebBrowserWindowWillOpenEvent e) {
-                JFrame frame = new JFrame("test");
-                JPanel p = new JPanel(new BorderLayout());
-                e.setNewWebBrowser(createWebBrowser());
-                p.add(e.getNewWebBrowser(), BorderLayout.CENTER);
-                frame.setBounds(20, 20, 800, 600);
-                frame.getContentPane().add(p);
-                frame.setVisible(true);
-                super.windowWillOpen(e);
-            }
-        });
-
-        return retval;
-    }
-
-    @Override
-    protected void handleCreateCheckpoint() {
-        if (webBrowser != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(webBrowser.getHTMLContent());
-            }
-        }
-    }
-
-    @Override
-    protected void handleCancelTest() {
-        testProxyServer.getTestRequests().clear();
-    }
-
-    @Override
-    protected void handleStartTest() {
-        webBrowser.navigate(getPlatform().getWebUrl());
-    }
-
-    @Override
-    protected void handleSaveTest() {
-        List<HttpRequest> testRequests = testProxyServer.getTestRequests();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("num requests: " + testRequests.size());
-        }
-    }
-
-    private void initializeNativeBrowser() {
-        if (!NativeInterface.isInitialized()) {
-            NativeSwing.initialize();
-        }
-
-        if (!NativeInterface.isOpen()) {
-            NativeInterface.open();
-        }
-    }
-
-    public void browserRemoved() {
-        try {
-            if (webBrowser != null) {
-                webBrowser.disposeNativePeer(false);
-            }
-            if (NativeInterface.isOpen()) {
-                NativeInterface.close();
-            }
-
-            if (testProxyServer != null) {
-                testProxyServer.stop();
-            }
-        } catch (Exception ex) {
-            LOG.warn(ex.toString());
-        }
-    }
-
-    @Override
-    public void componentAdded(ContainerEvent e) {
-    }
-
-    @Override
-    public void componentRemoved(ContainerEvent e) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("component removed: " + e.getComponent().getClass().getName());
-        }
-
-        if (e.getComponent() instanceof JWebBrowser) {
-            browserRemoved();
-        }
+public class WebBrowserPanel extends ClosableTabPanel {
+    public WebBrowserPanel(TabbedTestPane tabbedPane) {
+        super(tabbedPane);
+        setLayout(new BorderLayout());
     }
 }
