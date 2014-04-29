@@ -38,6 +38,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
     }
 
     @Override
-    protected void handleSaveTest() {
+    protected boolean handleSaveTest() {
+        return false;
     }
 }

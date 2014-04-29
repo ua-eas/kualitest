@@ -22,15 +22,55 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="test-header" type="test-header"/>
+                <xs:element name="operations" type="test-operations"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
 
+    <xs:simpleType name="test-operation-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="file inquiry"/>
+            <xs:enumeration value="http request"/>
+            <xs:enumeration value="memory inquiry"/>
+            <xs:enumeration value="sql select"/>
+            <xs:enumeration value="web service request"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="test-operations">
+        <xs:sequence>
+            <xs:element name="operation" type="test-operation" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-operation-parameter">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value-type" type="value-type"/>
+            <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-operation-parameters">
+        <xs:sequence>
+            <xs:element name="parameter" type="test-operation-parameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="test-operation">
+        <xs:sequence>
+            <xs:element name="operation-type" type="test-operation-type"/>
+            <xs:element name="parameters" type="test-operation-parameters"/>
+        </xs:sequence>
+    </xs:complexType>
+        
     <xs:simpleType name="test-type">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="Database"/>
+            <xs:enumeration value="File"/>
+            <xs:enumeration value="Memory"/>
             <xs:enumeration value="Web"/>
             <xs:enumeration value="Web Service"/>
-            <xs:enumeration value="Database"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -48,6 +88,15 @@
         </xs:sequence>
     </xs:complexType>
     
+    <xs:simpleType name="checkpoint-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="http"/>
+            <xs:enumeration value="memory"/>
+            <xs:enumeration value="sql"/>
+            <xs:enumeration value="web service"/>
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="checkpoint">
         <xs:sequence>
             <xs:element name="test-suite" type="xs:string"/>
@@ -55,7 +104,7 @@
             <xs:element name="test-index" type="xs:string"/>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="number" type="xs:int"/>
-            <xs:element name="link" type="xs:int"/>
+            <xs:element name="type" type="checkpoint-type"/>
             <xs:element name="checkpoint-properties" type="checkpoint-properties"/>
         </xs:sequence>
     </xs:complexType>
@@ -77,11 +126,12 @@
 
     <xs:simpleType name="value-type">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="string"/>
-            <xs:enumeration value="int"/>
             <xs:enumeration value="boolean"/>
-            <xs:enumeration value="double"/>
             <xs:enumeration value="date"/>
+            <xs:enumeration value="double"/>
+            <xs:enumeration value="int"/>
+            <xs:enumeration value="long"/>
+            <xs:enumeration value="string"/>
             <xs:enumeration value="timestamp"/>
         </xs:restriction>
     </xs:simpleType>

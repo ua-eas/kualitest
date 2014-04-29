@@ -22,11 +22,9 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
-import io.netty.handler.codec.http.HttpRequest;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
-import java.util.List;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.proxyserver.TestProxyServer;
@@ -130,7 +128,8 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     @Override
     protected void handleCancelTest() {
-        testProxyServer.getTestRequests().clear();
+        testProxyServer.getTestOperations().clear();
+        tabbedPane.getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
     }
 
     @Override
@@ -139,13 +138,18 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
     }
 
     @Override
-    protected void handleSaveTest() {
-        List<HttpRequest> testRequests = testProxyServer.getTestRequests();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("num requests: " + testRequests.size());
+    protected boolean handleSaveTest() {
+        boolean retval = saveTest(tabbedPane.getMainframe().getConfiguration().getRepositoryLocation(), 
+            getTestHeader(), testProxyServer.getTestOperations());
+        
+        if (retval) {
+            tabbedPane.getMainframe().getSaveConfigurationButton().setEnabled(true);
+            tabbedPane.getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
         }
+        
+        return retval;
     }
-
+    
     private void initializeNativeBrowser() {
         if (!NativeInterface.isInitialized()) {
             NativeSwing.initialize();

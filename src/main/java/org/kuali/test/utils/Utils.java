@@ -16,20 +16,34 @@
 
 package org.kuali.test.utils;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpRequest;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationParameter;
+import org.kuali.test.TestOperationParameters;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.ValueType;
 
 
 public class Utils {
@@ -394,6 +408,157 @@ public class Utils {
                 retval = nm.substring(pos+1).toLowerCase().trim();
             }
         }
+        
+        return retval;
+    }
+
+    public static boolean wantHttpRequestHeader(String key) {
+        return false;
+    }
+    
+    public static void populateHttpRequestOperation(TestOperation op, HttpRequest request) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(getHttpRequestDetails(request));
+        }
+
+        Iterator <Entry<String, String>> it = request.headers().iterator();
+        TestOperationParameters params = op.addNewParameters();
+        boolean ispost = false;
+        
+        while (it.hasNext()) {
+            Entry <String, String> entry = it.next();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(entry.getKey() + "=" + entry.getValue());
+            }
+            
+            if (wantHttpRequestHeader(entry.getKey())) {
+                TestOperationParameter param = params.addNewParameter();
+                param.setName(entry.getKey());
+                param.setValue(entry.getValue());
+                param.setValueType(ValueType.STRING);
+            }
+        }
+
+        TestOperationParameter param = params.addNewParameter();
+
+        String method = request.getMethod().name();
+        
+        param.setName("method");
+        param.setValueType(ValueType.STRING);
+        param.setValue(request.getMethod().name());
+        
+        param = params.addNewParameter();
+        
+        param.setName("uri");
+        param.setValueType(ValueType.STRING);
+        param.setValue(request.getUri());
+        
+        // if this is a post then try to get content
+        if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
+            if (request instanceof FullHttpRequest) {
+                FullHttpRequest fr = (FullHttpRequest)request;
+                if (fr.content() != null) {
+                    byte[] data = getHttpPostContent(fr.content());
+                    
+                    if (data != null) {
+                        param = params.addNewParameter();
+                        param.setName("content");
+                        param.setValueType(ValueType.STRING);
+                        param.setValue(new String(data));
+                    }
+                }
+            }
+        }
+    }
+    
+    public static TestOperation buildTestOperation(TestOperationType.Enum optype, Object inputData) {
+        TestOperation retval = TestOperation.Factory.newInstance();
+        
+        retval.setOperationType(optype);
+        
+        if (inputData != null) {
+            if (inputData instanceof HttpRequest) {
+                populateHttpRequestOperation(retval, (HttpRequest)inputData);
+            }
+        }
+        
+        
+        return retval;
+    }
+    
+    public static String getTestFileName(TestHeader header) {
+        String retval = null;
+        if (StringUtils.isNotBlank(header.getTestName())) {
+            retval = header.getTestName().toLowerCase().replace(' ', '-');
+        } 
+        return retval;
+    }
+    
+    public static File buildTestFile(String repositoryLocation, TestHeader header) {
+        StringBuilder nm = new StringBuilder(256);
+        nm.append(repositoryLocation);
+        nm.append("/");
+        nm.append(header.getPlatformName());
+        nm.append("/tests/");
+        nm.append(getTestFileName(header));
+        nm.append(".xml");
+        
+        return new File(nm.toString());
+    }
+    
+    public static XmlOptions getSaveXmlOptions() {
+        XmlOptions retval = new XmlOptions();
+        retval.setSavePrettyPrint();
+        retval.setSavePrettyPrintIndent(3);
+        return retval;
+    }
+    
+    public static String getHttpRequestDetails(HttpRequest request) {
+        StringBuilder retval = new StringBuilder(512);
+        retval.append("uri: ");
+        retval.append(request.getUri());
+        retval.append("\r\n");
+        retval.append("method: ");
+        retval.append(request.getMethod().toString());
+        retval.append("\r\n");
+        retval.append("protocol version: ");
+        retval.append(request.getProtocolVersion());
+        retval.append("\r\n");
+        retval.append("------------ headers -----------\r\n");
+        Iterator <Entry<String, String>> it = request.headers().iterator();
+        while (it.hasNext()) {
+            Entry entry = it.next();
+            retval.append(entry.getKey());
+            retval.append("=");
+            retval.append(entry.getValue());
+            retval.append("\r\n");
+        }
+
+        retval.append("--------------------------------\r\n");
+        
+        if (request instanceof DefaultFullHttpRequest) {
+            DefaultFullHttpRequest fr = (DefaultFullHttpRequest)request;
+            if (fr.content() != null) {
+                byte[] data = getHttpPostContent(fr.content());
+            
+                if (data != null) {
+                    retval.append("------------ content -----------\r\n");
+                    retval.append(new String(getHttpPostContent(fr.content())));
+                    retval.append("--------------------------------\r\n");
+                }
+            }
+        }
+        
+        return retval.toString();
+    }
+    
+    public static byte[] getHttpPostContent(ByteBuf content) {
+        byte[] retval = null;
+        if (content.isReadable()) {
+            ByteBuffer nioBuffer = content.nioBuffer();
+            retval = new byte[nioBuffer.remaining()];
+            nioBuffer.get(retval);
+        } 
         
         return retval;
     }

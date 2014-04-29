@@ -20,13 +20,13 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Queue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.littleshoot.proxy.ChainedProxy;
@@ -41,7 +41,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
-    private List<HttpRequest> testRequests = new ArrayList<HttpRequest>();
+    private List<TestOperation> testOperations = new ArrayList<TestOperation>();
     private boolean proxyServerRunning = false;
     
     
@@ -67,7 +67,7 @@ public class TestProxyServer {
                         }
                         
                         if (isValidTestRequest(originalRequest)) {
-                            testRequests.add(originalRequest);
+                            testOperations.add(Utils.buildTestOperation(TestOperationType.HTTP_REQUEST, originalRequest));
                         }
                         
                         return retval;
@@ -153,15 +153,15 @@ public class TestProxyServer {
         return proxyServerRunning;
     }
 
-    public List<HttpRequest> getTestRequests() {
-        return testRequests;
+    public List<TestOperation> getTestOperations() {
+        return testOperations;
     }
     
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
         
         if (LOG.isTraceEnabled()) {
-            LOG.trace(getHttpRequestDetails(request));
+            LOG.trace(Utils.getHttpRequestDetails(request));
         }
         
         String method = request.getMethod().toString();
@@ -174,7 +174,7 @@ public class TestProxyServer {
         
         if (retval) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(getHttpRequestDetails(request));
+                LOG.debug(Utils.getHttpRequestDetails(request));
             }
         }
         
@@ -185,31 +185,6 @@ public class TestProxyServer {
         return retval;
     }
     
-    private String getHttpRequestDetails(HttpRequest request) {
-        StringBuilder retval = new StringBuilder(512);
-        retval.append("uri: ");
-        retval.append(request.getUri());
-        retval.append("\r\n");
-        retval.append("method: ");
-        retval.append(request.getMethod().toString());
-        retval.append("\r\n");
-        retval.append("protocol version: ");
-        retval.append(request.getProtocolVersion());
-        retval.append("\r\n");
-        retval.append("headers: \r\n");
-        retval.append("------------------------------\r\n");
-        Iterator <Entry<String, String>> it = request.headers().iterator();
-        while (it.hasNext()) {
-            Entry entry = it.next();
-            retval.append(entry.getKey());
-            retval.append("=");
-            retval.append(entry.getValue());
-            retval.append("\r\n");
-        }
-        retval.append("------------------------------\r\n");
-        return retval.toString();
-    }
-
     private boolean isGetImageRequest(String method, String uri) {
         boolean retval = false;
         

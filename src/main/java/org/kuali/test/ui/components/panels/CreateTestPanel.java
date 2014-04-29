@@ -26,4 +26,8 @@ public class CreateTestPanel extends BasePanel {
         super(mainframe);
         add(label = new JLabel("inactive", JLabel.CENTER));
     }
+    
+    public void clearPanel(String msg) {
+        replaceCenterComponent(label = new JLabel(msg, JLabel.CENTER));
+    }
 }

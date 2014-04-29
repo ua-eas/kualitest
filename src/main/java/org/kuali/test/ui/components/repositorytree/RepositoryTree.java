@@ -33,13 +33,13 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.SuiteTests;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
-import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.base.BaseTree;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
@@ -109,13 +109,9 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             if (f.exists() && f.isFile() && configuration.getModified()) {
                 configuration.setModified(false);
                 try {
-                    XmlOptions xmlOptions = new XmlOptions();
-                    xmlOptions.setSavePrettyPrint();
-                    xmlOptions.setSavePrettyPrintIndent(3);
-                    
                     KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();
                     doc.setKualiTestConfiguration(configuration);
-                    doc.save(f, xmlOptions);
+                    doc.save(f, Utils.getSaveXmlOptions());
                 } catch (IOException ex) {
                     LOG.error(ex.toString(), ex);
                     UIUtils.showError(this, "Configuration Save Error", "An error occured while trying to save configuration,");

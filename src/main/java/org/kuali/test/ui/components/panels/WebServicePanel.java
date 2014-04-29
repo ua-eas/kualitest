@@ -38,7 +38,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
     }
 
     @Override
-    protected void handleSaveTest() {
+    protected boolean handleSaveTest() {
+        return false;
     }
 
 }

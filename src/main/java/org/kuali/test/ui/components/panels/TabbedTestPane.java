@@ -21,15 +21,18 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import org.apache.log4j.Logger;
+import org.kuali.test.KualiTestApp;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.utils.Constants;
 
 
 public class TabbedTestPane extends JTabbedPane {
     private static final Logger LOG = Logger.getLogger(TabbedTestPane.class);
+    private KualiTestApp mainframe;
     
-    public TabbedTestPane() {
+    public TabbedTestPane(KualiTestApp mainframe) {
         super();
+        this.mainframe = mainframe;
         setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
     }
     
@@ -39,8 +42,8 @@ public class TabbedTestPane extends JTabbedPane {
         addTab(Constants.NEW_BROWSER_TAB_DEFAULT_TEXT, new CloseTabIcon(), panel);
         setSelectedComponent(panel);
     }
-    
-    private String getTabName(JWebBrowser wb) {
-        return "xxxxxxxxxx";
+
+    public KualiTestApp getMainframe() {
+        return mainframe;
     }
 }

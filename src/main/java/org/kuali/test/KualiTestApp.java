@@ -50,10 +50,8 @@ import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
-import org.kuali.test.ui.components.panels.WebBrowserPanel;
-import org.kuali.test.ui.components.panels.RunningTestPanel;
 import org.kuali.test.ui.components.panels.TabbedTestPane;
-import org.kuali.test.ui.components.panels.TestOutputPanel;
+import org.kuali.test.ui.components.panels.WebBrowserPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.utils.UIUtils;
@@ -76,8 +74,6 @@ public class KualiTestApp extends JFrame implements WindowListener {
     private JSplitPane vsplitPane;
     private TabbedTestPane tabbedTestPane;
     private CreateTestPanel createTestPanel;
-    private RunningTestPanel runningTestsPanel;
-    private TestOutputPanel testOutputPanel;
     private JButton saveConfigurationButton;
     private JButton createTestButton;
     private RepositoryTree testRepositoryTree;
@@ -320,10 +316,8 @@ public class KualiTestApp extends JFrame implements WindowListener {
 
         hsplitPane.setLeftComponent(tabbedPane);
 
-        tabbedTestPane = new TabbedTestPane();
+        tabbedTestPane = new TabbedTestPane(this);
         tabbedTestPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
-        tabbedTestPane.addTab(Constants.TEST_OUTPUT, testOutputPanel = new TestOutputPanel(this));
-        tabbedTestPane.addTab(Constants.RUNNING_TESTS, runningTestsPanel = new RunningTestPanel(this));
         hsplitPane.setRightComponent(tabbedTestPane);
 
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
@@ -356,6 +350,10 @@ public class KualiTestApp extends JFrame implements WindowListener {
                     break;
             }
         }
+    }
+
+    public CreateTestPanel getCreateTestPanel() {
+        return createTestPanel;
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
