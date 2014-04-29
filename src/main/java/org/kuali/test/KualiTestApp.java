@@ -499,8 +499,8 @@ public class KualiTestApp extends JFrame implements WindowListener {
             System.exit(0);
         } else {
             ApplicationInstanceManager.setApplicationInstanceListener(new ApplicationInstanceListener() {
+                @Override
                 public void newInstanceCreated() {
-                    
                 }
             });
 

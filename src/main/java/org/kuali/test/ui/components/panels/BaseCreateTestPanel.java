@@ -59,8 +59,8 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
         
         startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
         startTest.addActionListener(this);
-        retval.addSeparator();
         retval.add(startTest);
+        retval.addSeparator();
         
         createCheckpoint = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
         createCheckpoint.addActionListener(this);
