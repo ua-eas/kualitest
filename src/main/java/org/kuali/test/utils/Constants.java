@@ -16,6 +16,7 @@
 
 package org.kuali.test.utils;
 
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.ImageIcon;
@@ -23,6 +24,10 @@ import org.kuali.test.KualiTestApp;
 
 
 public class Constants {
+    public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
+    public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    
     public static final ImageIcon KUALI_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/kuali-small.png"));
     
     public static final ImageIcon REPOSITORY_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/repository.png"));

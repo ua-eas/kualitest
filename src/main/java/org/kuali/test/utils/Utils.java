@@ -488,12 +488,16 @@ public class Utils {
         return retval;
     }
     
-    public static String getTestFileName(TestHeader header) {
+    public static String formatForFileName(String input) {
         String retval = null;
-        if (StringUtils.isNotBlank(header.getTestName())) {
-            retval = header.getTestName().toLowerCase().replace(' ', '-');
+        if (StringUtils.isNotBlank(input)) {
+            retval = input.toLowerCase().replace(' ', '-');
         } 
         return retval;
+    }
+    
+    public static String getTestFileName(TestHeader header) {
+        return formatForFileName(header.getTestName());
     }
     
     public static File buildTestFile(String repositoryLocation, TestHeader header) {

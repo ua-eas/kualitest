@@ -42,21 +42,31 @@ public class TestRunner {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private List<TestExecutionContext> scheduledTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
     private List<TestExecutionContext> executingTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
+    private boolean stopRunner = false;
+    private Timer timer;
     
     public TestRunner(String configFileName) {
         if (loadConfiguration(configFileName)) {
             TimerTask timerTask = new TimerTask() {
                 @Override
                 public void run() {
-                    checkForRunnableTests();
+                    if (!stopRunner) {
+                        checkForRunnableTests();
+                    }
                 }
             };
 
             // running timer task as daemon thread
-	        new Timer(true).scheduleAtFixedRate(timerTask, 0, Constants.TEST_RUNNER_CHECK_INTERVAL);
+	        timer = new Timer();
+            timer.scheduleAtFixedRate(timerTask, 0, Constants.TEST_RUNNER_CHECK_INTERVAL);
         }
     }
 
+    public void stopRunner() {
+        stopRunner = true;
+        timer.cancel();
+    }
+    
     private void checkForRunnableTests() {
         Iterator <TestExecutionContext> it = scheduledTests.iterator();
         
@@ -105,7 +115,7 @@ public class TestRunner {
             KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
             
             if (test != null) {
-                scheduledTests.add(new TestExecutionContext(test, scheduledTime));
+                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime));
             } else {
                 LOG.error("failed to find kuali test '" + testName + "' for plaform " + platformName);
             }
@@ -121,7 +131,7 @@ public class TestRunner {
             TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
             
             if (testSuite != null) {
-                scheduledTests.add(new TestExecutionContext(testSuite, scheduledTime));
+                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime));
             } else {
                 LOG.error("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
             }
@@ -132,7 +142,7 @@ public class TestRunner {
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
-            executingTests.add(new TestExecutionContext(test));
+            executingTests.add(new TestExecutionContext(configuration, test));
         } else {
             LOG.error("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
@@ -142,7 +152,7 @@ public class TestRunner {
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
         if (testSuite != null) {
-            scheduledTests.add(new TestExecutionContext(testSuite));
+            scheduledTests.add(new TestExecutionContext(configuration, testSuite));
         } else {
             LOG.error("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }
