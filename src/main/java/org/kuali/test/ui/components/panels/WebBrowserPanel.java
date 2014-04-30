@@ -25,7 +25,10 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
@@ -39,6 +42,7 @@ import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlTagInfo;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
 
@@ -133,11 +137,18 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         
         if (webBrowser != null) {
             HtmlCleaner cleaner = new HtmlCleaner();
-            loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent());
+            List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
+            loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent(), availableHtmlObjects);
+            Collections.sort(availableHtmlObjects);
+            for (HtmlTagInfo tagInfo : availableHtmlObjects) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(tagInfo);
+                }
+            }
         }
     }
 
-    private void loadHtmlDomObjects(final HtmlCleaner htmlCleaner, String html) {
+    private void loadHtmlDomObjects(final HtmlCleaner htmlCleaner, String html, final List <HtmlTagInfo> availableHtmlObjects) {
         final Set <String> iframejscalls = new HashSet<String>();
         TagNode node = htmlCleaner.clean(html);
         
@@ -150,10 +161,6 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                         TagNode tag = (TagNode) htmlNode;
                         String id = tag.getAttributeByName("id");
                         String name = tag.getAttributeByName("name");
-
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("tag: type=" + tag.getName() + ", id=" + id + ", name=" + name);
-                        }
 
                         if (StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name)) {
                             // if this tag is aniframe we will load a javascript call
@@ -175,6 +182,8 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                                 js.append(".contentDocument.body.innerHTML;");
                                 
                                 iframejscalls.add(js.toString());
+                            } else {
+                                availableHtmlObjects.add(new HtmlTagInfo(null, tag));
                             }
                         }
                     }
@@ -198,7 +207,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                         LOG.trace("------------------------------------------------");
                     }
 
-                    loadHtmlDomObjects(htmlCleaner, o.toString());
+                    loadHtmlDomObjects(htmlCleaner, o.toString(), availableHtmlObjects);
                 }
             }
         }

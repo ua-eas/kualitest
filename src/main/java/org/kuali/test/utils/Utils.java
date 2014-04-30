@@ -35,6 +35,8 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
+import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
@@ -559,6 +561,37 @@ public class Utils {
             retval = new byte[nioBuffer.remaining()];
             nioBuffer.get(retval);
         } 
+        
+        return retval;
+    }
+    
+    public static KualiTest findKualiTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        String platformName, String testName) {
+        KualiTest retval = null;
+        
+        Platform platform = findPlatform(configuration, platformName);
+        
+        if (platform != null) {
+            for (TestHeader th : platform.getPlatformTests().getTestHeaderArray()) {
+                if (StringUtils.equalsIgnoreCase(testName, th.getTestName())) {
+                    File f = buildTestFile(configuration.getRepositoryLocation(), th);
+                    
+                    if ((f.exists() && f.isFile())) {
+                        KualiTestDocument doc;
+                        try {
+                            doc = KualiTestDocument.Factory.parse(f);
+                            retval = doc.getKualiTest();
+                        } 
+                        
+                        catch (Exception ex) {
+                            LOG.error(ex.toString(), ex);
+                        }
+                        
+                        break;
+                    }
+                }
+            }
+        }
         
         return retval;
     }

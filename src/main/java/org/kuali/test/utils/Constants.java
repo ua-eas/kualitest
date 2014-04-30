@@ -120,4 +120,6 @@ public class Constants {
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
     }
     
+    
+    public static final long TEST_RUNNER_CHECK_INTERVAL = 60*1000;
 }
