@@ -40,8 +40,8 @@ import org.kuali.test.utils.Utils;
 public class TestRunner {
     private static final Logger LOG = Logger.getLogger(TestRunner.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-    private List<TestExecutionContext> scheduledTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
-    private List<TestExecutionContext> executingTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
+    private final List<TestExecutionContext> scheduledTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
+    private final List<TestExecutionContext> executingTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
     private boolean stopRunner = false;
     private Timer timer;
     
@@ -56,9 +56,8 @@ public class TestRunner {
                 }
             };
 
-            // running timer task as daemon thread
 	        timer = new Timer();
-            timer.scheduleAtFixedRate(timerTask, 0, Constants.TEST_RUNNER_CHECK_INTERVAL);
+            timer.scheduleAtFixedRate(timerTask, Constants.TEST_RUNNER_CHECK_INTERVAL, Constants.TEST_RUNNER_CHECK_INTERVAL);
         }
     }
 
