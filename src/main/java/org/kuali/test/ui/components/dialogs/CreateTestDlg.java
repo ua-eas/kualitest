@@ -39,7 +39,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class InitNewTestDlg extends BaseSetupDlg {
+public class CreateTestDlg extends BaseSetupDlg {
     private Platform platform;
     private JTextField testName;
     private JComboBox testType;
@@ -52,7 +52,7 @@ public class InitNewTestDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public InitNewTestDlg(KualiTestApp mainFrame, Platform platform) {
+    public CreateTestDlg(KualiTestApp mainFrame, Platform platform) {
         super(mainFrame);
         this.platform = platform;
         if (platform != null) {

@@ -44,7 +44,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
-import org.kuali.test.ui.components.dialogs.InitNewTestDlg;
+import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
@@ -328,7 +328,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
     }
 
     private void handleCreateTest() {
-        InitNewTestDlg dlg = new InitNewTestDlg(this, platformTestsPanel.getCurrentPlatform());
+        CreateTestDlg dlg = new CreateTestDlg(this, platformTestsPanel.getCurrentPlatform());
 
         if (dlg.isSaved()) {
             if (LOG.isDebugEnabled()) {

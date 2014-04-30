@@ -25,8 +25,9 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.HtmlNode;
 import org.htmlcleaner.TagNode;
@@ -131,28 +132,49 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         }
         
         if (webBrowser != null) {
-            // pass the html through the cleaner andc create an XML dom
             HtmlCleaner cleaner = new HtmlCleaner();
-            CleanerProperties props = new CleanerProperties();
-            TagNode node = cleaner.clean(webBrowser.getHTMLContent());
+            loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent());
+        }
+    }
 
+    private void loadHtmlDomObjects(final HtmlCleaner htmlCleaner, String html) {
+        final Set <String> iframejscalls = new HashSet<String>();
+        TagNode node = htmlCleaner.clean(html);
+        
+        if (node != null) {
             // traverse whole DOM and update images to absolute URLs
             node.traverse(new TagNodeVisitor() {
+                @Override
                 public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
                     if (htmlNode instanceof TagNode) {
                         TagNode tag = (TagNode) htmlNode;
                         String id = tag.getAttributeByName("id");
                         String name = tag.getAttributeByName("name");
-                        if ("iframe".equalsIgnoreCase(tag.getName())) {
-                            String src = tag.getAttributeByName("src");
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("src=" + src);
-                            }
+
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("tag: type=" + tag.getName() + ", id=" + id + ", name=" + name);
                         }
-                        
-                        if (StringUtils.isNotBlank(name)) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("id=" + id + ", name=" + name + ", text=" + tag.getText());
+
+                        if (StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name)) {
+                            // if this tag is aniframe we will load a javascript call
+                            // that we will call later
+                            if ("iframe".equalsIgnoreCase(tag.getName())) {
+                                StringBuilder js = new StringBuilder(256);
+                                js.append("");
+                                
+                                if (StringUtils.isNotBlank(id)) {
+                                    js.append("return document.getElementById('");
+                                    js.append(id);
+                                    js.append("')");
+                                } else {
+                                    js.append("return document.getElementsByTagName('");
+                                    js.append(name);
+                                    js.append("')[0]");
+                                }
+
+                                js.append(".contentDocument.body.innerHTML;");
+                                
+                                iframejscalls.add(js.toString());
                             }
                         }
                     }
@@ -160,9 +182,28 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                     return true;
                 }
             });
+            
+            
+            for (String jscall :iframejscalls) {
+                Object o = webBrowser.executeJavascriptWithResult(jscall);
+
+                if (LOG.isDebugEnabled()){
+                    LOG.debug("iframe call: " + jscall);
+                }
+
+                if (o != null) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("----------------- iframe content ----------------");
+                        LOG.trace(o.toString());
+                        LOG.trace("------------------------------------------------");
+                    }
+
+                    loadHtmlDomObjects(htmlCleaner, o.toString());
+                }
+            }
         }
     }
-
+    
     @Override
     protected void handleCancelTest() {
         testProxyServer.getTestOperations().clear();
