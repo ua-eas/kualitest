@@ -25,10 +25,10 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.HtmlNode;
-import org.htmlcleaner.JDomSerializer;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
 import org.kuali.test.Platform;
@@ -126,28 +126,35 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
 
     @Override
     protected void handleCreateCheckpoint() {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("in handleCreateCheckpoint()");
+        }
+        
         if (webBrowser != null) {
-
-            // create an instance of HtmlCleaner
+            // pass the html through the cleaner andc create an XML dom
             HtmlCleaner cleaner = new HtmlCleaner();
             CleanerProperties props = new CleanerProperties();
             TagNode node = cleaner.clean(webBrowser.getHTMLContent());
-            org.jdom.Document doc = new JDomSerializer(props, true).createJDom(node);
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(doc.toString());
-            }
 
             // traverse whole DOM and update images to absolute URLs
             node.traverse(new TagNodeVisitor() {
                 public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
                     if (htmlNode instanceof TagNode) {
                         TagNode tag = (TagNode) htmlNode;
-                        String tagName = tag.getName();
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("tagName: " + tagName);
+                        String id = tag.getAttributeByName("id");
+                        String name = tag.getAttributeByName("name");
+                        if ("iframe".equalsIgnoreCase(tag.getName())) {
+                            String src = tag.getAttributeByName("src");
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("src=" + src);
+                            }
                         }
                         
+                        if (StringUtils.isNotBlank(name)) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("id=" + id + ", name=" + name + ", text=" + tag.getText());
+                            }
+                        }
                     }
                     
                     return true;
