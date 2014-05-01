@@ -33,6 +33,8 @@ import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestSuite;
+import org.kuali.test.utils.ApplicationInstanceListener;
+import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -44,6 +46,27 @@ public class TestRunner {
     private final List<TestExecutionContext> executingTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
     private boolean stopRunner = false;
     private Timer timer;
+    
+    
+    public static void main(final String args[]) {
+        if (args.length != 1) {
+            System.out.println("usage: TestRunner <config-file-path>");
+        } else {
+            if (!ApplicationInstanceManager.registerInstance(ApplicationInstanceManager.SINGLE_INSTANCE_NETWORK_SOCKET2)) {
+                // instance already running.
+                System.out.println("Another instance of this application is already running.  Exiting.");
+                System.exit(0);
+            } else {
+                ApplicationInstanceManager.setApplicationInstanceListener(new ApplicationInstanceListener() {
+                    @Override
+                    public void newInstanceCreated() {
+                    }
+                });
+
+                new TestRunner(args[0]);
+            }
+        }
+    }
     
     public TestRunner(String configFileName) {
         if (loadConfiguration(configFileName)) {
@@ -58,6 +81,8 @@ public class TestRunner {
 
 	        timer = new Timer();
             timer.scheduleAtFixedRate(timerTask, Constants.TEST_RUNNER_CHECK_INTERVAL, Constants.TEST_RUNNER_CHECK_INTERVAL);
+        } else {
+            System.exit(-1);
         }
     }
 
@@ -86,7 +111,7 @@ public class TestRunner {
                     platformName = testSuite.getPlatformName();
                 }
                 
-                LOG.info("starting test " + nm + "' for platform " + platformName);
+                System.out.println("starting test " + nm + "' for platform " + platformName);
                 
                 it.remove();
                 ec.startTest();
@@ -107,32 +132,32 @@ public class TestRunner {
     
     public void scheduleTest(String platformName, String testName, Date scheduledTime) {
         if (scheduledTime == null) {
-            LOG.warn("scheduled time is null - abort scheduling");
+            System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
-            LOG.warn("scheduled time is in past - abort scheduling");
+            System.out.println("scheduled time is in past - abort scheduling");
         } else {
             KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
             
             if (test != null) {
                 scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime));
             } else {
-                LOG.error("failed to find kuali test '" + testName + "' for plaform " + platformName);
+                System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
             }
         }
     }
 
     public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime) {
         if (scheduledTime == null) {
-            LOG.warn("scheduled time is null - abort scheduling");
+            System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
-            LOG.warn("scheduled time is in past - abort scheduling");
+            System.out.println("scheduled time is in past - abort scheduling");
         } else {
             TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
             
             if (testSuite != null) {
                 scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime));
             } else {
-                LOG.error("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
+                System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
             }
         }
     }
@@ -143,7 +168,7 @@ public class TestRunner {
         if (test != null) {
             executingTests.add(new TestExecutionContext(configuration, test));
         } else {
-            LOG.error("failed to find kuali test '" + testName + "' for plaform " + platformName);
+            System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
     }
 
@@ -153,7 +178,7 @@ public class TestRunner {
         if (testSuite != null) {
             scheduledTests.add(new TestExecutionContext(configuration, testSuite));
         } else {
-            LOG.error("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
+            System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }
     }
 
@@ -194,11 +219,6 @@ public class TestRunner {
         if (StringUtils.isNotBlank(configFilePath)) {
             File configFile = new File(configFilePath);
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("configFileName: " + configFilePath);
-                LOG.debug("configFile: " + configFile);
-            }
-
             if (configFile.exists() && configFile.isFile()) {
                 List<XmlError> xmlValidationErrorList = new ArrayList<XmlError>();
 
@@ -210,13 +230,6 @@ public class TestRunner {
                     validateOptions.setErrorListener(xmlValidationErrorList);
                     configuration.validate(validateOptions);
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(configuration.xmlText());
-                        LOG.debug("repository-location: " + configuration.getRepositoryLocation());
-                        LOG.debug("platform count:" + configuration.getPlatforms().getPlatformArray().length);
-
-                    }
-
                     if (!xmlValidationErrorList.isEmpty()) {
                         throw new XmlException("invalid xml file: " + configFile.getPath());
                     }
@@ -225,15 +238,15 @@ public class TestRunner {
                 } 
                 
                 catch (XmlException ex) {
-                    LOG.error(ex.toString(), ex);
+                    System.out.println(ex.toString());
 
                     for (XmlError error : xmlValidationErrorList) {
-                        LOG.error(error.toString());
+                        System.out.println(error.toString());
                     }
                 } 
                 
                 catch (IOException ex) {
-                    LOG.error(ex.toString(), ex);
+                    System.out.println(ex.toString());
                 }
             }
         }

@@ -42,9 +42,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
+import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
-import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
@@ -492,8 +492,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
             LOG.error(ex.toString(), ex);
         }
 
-
-        if (!ApplicationInstanceManager.registerInstance()) {
+        if (!ApplicationInstanceManager.registerInstance(ApplicationInstanceManager.SINGLE_INSTANCE_NETWORK_SOCKET1)) {
             // instance already running.
             System.out.println("Another instance of this application is already running.  Exiting.");
             System.exit(0);
@@ -540,6 +539,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
 
     @Override
     public void windowClosing(WindowEvent e) {
+        savePreferences();
         System.exit(0);
     }
 

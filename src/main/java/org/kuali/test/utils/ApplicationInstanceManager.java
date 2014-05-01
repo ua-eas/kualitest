@@ -33,7 +33,8 @@ public class ApplicationInstanceManager {
     /**
      * Randomly chosen, but static, high socket number
      */
-    public static final int SINGLE_INSTANCE_NETWORK_SOCKET = 44331;
+    public static final int SINGLE_INSTANCE_NETWORK_SOCKET1 = 44331;
+    public static final int SINGLE_INSTANCE_NETWORK_SOCKET2 = 44332;
 
     /**
      * Must end with newline
@@ -45,15 +46,15 @@ public class ApplicationInstanceManager {
      *
      * @return true if first instance, false if not.
      */
-    public static boolean registerInstance() {
+    public static boolean registerInstance(int networkSocket) {
         // returnValueOnError should be true if lenient (allows app to run on network error) or false if strict.
         boolean returnValueOnError = true;
         // try to open network socket
         // if success, listen to socket for new instance message, return true
         // if unable to open, connect to existing and send new instance message, return false
         try {
-            final ServerSocket socket = new ServerSocket(SINGLE_INSTANCE_NETWORK_SOCKET, 10, InetAddress.getLocalHost());
-            LOG.debug("Listening for application instances on socket " + SINGLE_INSTANCE_NETWORK_SOCKET);
+            final ServerSocket socket = new ServerSocket(networkSocket, 10, InetAddress.getLocalHost());
+            LOG.debug("Listening for application instances on socket " + networkSocket);
             Thread instanceListenerThread = new Thread(new Runnable() {
                 public void run() {
                     boolean socketClosed = false;
@@ -86,7 +87,7 @@ public class ApplicationInstanceManager {
         } catch (IOException e) {
             LOG.debug("Port is already taken.  Notifying first instance.");
             try {
-                Socket clientSocket = new Socket(InetAddress.getLocalHost(), SINGLE_INSTANCE_NETWORK_SOCKET);
+                Socket clientSocket = new Socket(InetAddress.getLocalHost(), networkSocket);
                 OutputStream out = clientSocket.getOutputStream();
                 out.write(SINGLE_INSTANCE_SHARED_KEY.getBytes());
                 out.close();

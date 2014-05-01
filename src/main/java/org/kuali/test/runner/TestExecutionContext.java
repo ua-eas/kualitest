@@ -183,7 +183,7 @@ public class TestExecutionContext extends Thread {
         this.endTime = endTime;
     }
     
-    public void startTest() {
+    public final void startTest() {
         start();
     }
 
