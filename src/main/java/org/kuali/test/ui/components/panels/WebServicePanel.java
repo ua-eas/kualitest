@@ -18,11 +18,12 @@ package org.kuali.test.ui.components.panels;
 
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
+import org.kuali.test.creator.TestCreator;
 
 
 public class WebServicePanel extends BaseCreateTestPanel {
-    public WebServicePanel(Platform platform, TestHeader testHeader) {
-        super(platform, testHeader);
+    public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+        super(mainframe, platform, testHeader);
     }
 
     @Override

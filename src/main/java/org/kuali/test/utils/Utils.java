@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
@@ -626,7 +627,7 @@ public class Utils {
     public static boolean isHtmlLabel(HtmlTagInfo tagInfo) {
         boolean retval = false;
         
-        if ("label".equalsIgnoreCase(tagInfo.getType())) {
+        if ("label".equalsIgnoreCase(tagInfo.getTagType())) {
             String nm = getHtmlElementKey(tagInfo);
             
             if (StringUtils.isNotBlank(nm)) {
@@ -655,16 +656,65 @@ public class Utils {
     public static String getHtmlElementKey(HtmlTagInfo tagInfo) {
         String retval = null;
         
-        if (StringUtils.isNotBlank(tagInfo.getId())) {
-            retval = tagInfo.getId();
-        } else if (StringUtils.isNotBlank(tagInfo.getName())) {
-            retval = tagInfo.getName();
+        if (StringUtils.isNotBlank(tagInfo.getIdAttribute())) {
+            retval = tagInfo.getIdAttribute();
+        } else if (StringUtils.isNotBlank(tagInfo.getNameAttribute())) {
+            retval = tagInfo.getNameAttribute();
         }
 
         return retval;
     }
     
     public static boolean isValidCheckpointTag(HtmlTagInfo tagInfo) {
-        return Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getType().toLowerCase());
+        boolean retval = false;
+        if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getTagType().toLowerCase())) {
+            retval = !isHtmlInputImageTag(tagInfo) && !isHtmlInputHiddenTag(tagInfo);
+        }
+        
+        return retval;
+    }
+    
+    public static String cleanDisplayText(String input) {
+        String retval = "";
+        
+        if (StringUtils.isNotBlank(input)) {
+            retval = StringEscapeUtils.unescapeHtml4(input).trim();  
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlInputTag(String tagType) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(tagType)) {
+            retval =  Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(tagType);
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlInputImageTag(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if (isHtmlInputTag(tagInfo.getTagType())) {
+            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
+                retval =  Constants.HTML_INPUT_TYPE_IMAGE.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlInputHiddenTag(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if (isHtmlInputTag(tagInfo.getTagType())) {
+            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
+                retval =  Constants.HTML_INPUT_TYPE_HIDDEN.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
     }
 }

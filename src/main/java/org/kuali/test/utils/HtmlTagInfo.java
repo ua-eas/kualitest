@@ -20,44 +20,55 @@ import org.htmlcleaner.TagNode;
 
 
 public class HtmlTagInfo {
-    private String type;
-    private String name;
-    private String id;
+    private String tagType;
+    private String typeAttribute;
+    private String nameAttribute;
+    private String idAttribute;
     private String text;
 
     public HtmlTagInfo() {
     }
     
     public HtmlTagInfo(String pageTitle, TagNode tag) {
-        type = tag.getName();
-        id = tag.getAttributeByName("id");
-        name = tag.getAttributeByName("name");
-        text = tag.getText().toString();
+        tagType = tag.getName();
+        typeAttribute = tag.getAttributeByName("type");
+        idAttribute = tag.getAttributeByName("id");
+        nameAttribute = tag.getAttributeByName("name");
+        text = Utils.cleanDisplayText(tag.getText().toString());
     }
 
-    public String getType() {
-        return type;
+    public String getTagType() {
+        return tagType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTagType(String tagType) {
+        this.tagType = tagType;
     }
 
-    public String getName() {
-        return name;
+    public String getTypeAttribute() {
+        return typeAttribute;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTypeAttribute(String typeAttribute) {
+        this.typeAttribute = typeAttribute;
     }
 
-    public String getId() {
-        return id;
+    public String getNameAttribute() {
+        return nameAttribute;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setNameAttribute(String nameAttribute) {
+        this.nameAttribute = nameAttribute;
     }
+
+    public String getIdAttribute() {
+        return idAttribute;
+    }
+
+    public void setIdAttribute(String idAttribute) {
+        this.idAttribute = idAttribute;
+    }
+
 
     public String getText() {
         return text;
@@ -70,12 +81,14 @@ public class HtmlTagInfo {
     public String toString() {
         StringBuilder retval = new StringBuilder(128);
         
-        retval.append("tag-info: type=");
-        retval.append(type);
+        retval.append("tag-info: tagType=");
+        retval.append(tagType);
         retval.append(", id=");
-        retval.append(id);
+        retval.append(idAttribute);
         retval.append(", name=");
-        retval.append(name);
+        retval.append(nameAttribute);
+        retval.append(", type=");
+        retval.append(typeAttribute);
         
         return retval.toString();
     }

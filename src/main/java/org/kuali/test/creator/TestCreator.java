@@ -57,8 +57,7 @@ import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
-import org.kuali.test.ui.components.panels.TabbedTestPane;
-import org.kuali.test.ui.components.panels.WebBrowserPanel;
+import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.utils.UIUtils;
@@ -79,7 +78,6 @@ public class TestCreator extends JFrame implements WindowListener {
     private JDesktopPane desktopPane;
     private JSplitPane hsplitPane;
     private JSplitPane vsplitPane;
-    private TabbedTestPane tabbedTestPane;
     private CreateTestPanel createTestPanel;
     private JButton saveConfigurationButton;
     private JButton createTestButton;
@@ -322,10 +320,7 @@ public class TestCreator extends JFrame implements WindowListener {
         tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
 
         hsplitPane.setLeftComponent(tabbedPane);
-
-        tabbedTestPane = new TabbedTestPane(this);
-        tabbedTestPane.addTab(Constants.CREATE_TEST, createTestPanel = new CreateTestPanel(this));
-        hsplitPane.setRightComponent(tabbedTestPane);
+        hsplitPane.setRightComponent(createTestPanel = new CreateTestPanel(this));
 
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
 
@@ -347,13 +342,13 @@ public class TestCreator extends JFrame implements WindowListener {
 
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
-                    createTestPanel.replaceCenterComponent(new WebBrowserPanel(tabbedTestPane, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebTestPanel(this, platform, testHeader));
                     break;
                 case TestType.INT_WEB_SERVICE:
-                    createTestPanel.replaceCenterComponent(new WebServicePanel(platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, platform, testHeader));
                     break;
                 case TestType.INT_DATABASE:
-                    createTestPanel.replaceCenterComponent(new DatabasePanel(platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new DatabasePanel(this, platform, testHeader));
                     break;
             }
         }

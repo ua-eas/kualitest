@@ -26,7 +26,6 @@ import java.util.Calendar;
 import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -36,6 +35,8 @@ import org.kuali.test.PlatformTests;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperations;
+import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.utils.UIUtils;
@@ -43,7 +44,7 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
-public abstract class BaseCreateTestPanel extends JPanel implements ActionListener {
+public abstract class BaseCreateTestPanel extends BasePanel implements ActionListener {
     protected static final Logger LOG = Logger.getLogger(BaseCreateTestPanel.class);
     
     private Platform platform;
@@ -52,8 +53,8 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
     private ToolbarButton createCheckpoint;
     private ToolbarButton saveTest;
     
-    public BaseCreateTestPanel(Platform platform, TestHeader testHeader) {
-        super(new BorderLayout(3, 3));
+    public BaseCreateTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+        super(mainframe);
         this.platform = platform;
         this.testHeader = testHeader;
     
@@ -213,7 +214,7 @@ public abstract class BaseCreateTestPanel extends JPanel implements ActionListen
         createCheckpoint.setEnabled(false);
         saveTest.setEnabled(false);
     }
-    
+
     protected abstract void handleStartTest();
     protected abstract void handleCancelTest();
     protected abstract void handleCreateCheckpoint();

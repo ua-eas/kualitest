@@ -77,6 +77,7 @@ public class Constants {
     
     public static final String SAVE_CONFIGURATION = "Save Configuration";
     public static final String CREATE_TEST = "Create Test";
+    public static final String NEW_WEB_TEST = "New Web Test";
     public static final String TEST_OUTPUT = "Test Output";
     public static final String RUNNING_TESTS = "Running Tests";
     public static final String REPOSITORY = "Repository";
@@ -123,12 +124,15 @@ public class Constants {
 
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
-        
+
         VALID_CHECKPOINT_TAG_TYPES.add("input");
         VALID_CHECKPOINT_TAG_TYPES.add("select");
-        VALID_CHECKPOINT_TAG_TYPES.add("div");
     }
     
     
     public static final long TEST_RUNNER_CHECK_INTERVAL = 60*1000;
+    
+    public static final String HTML_TAG_TYPE_INPUT = "input";
+    public static final String HTML_INPUT_TYPE_IMAGE = "image";
+    public static final String HTML_INPUT_TYPE_HIDDEN = "hidden";
 }

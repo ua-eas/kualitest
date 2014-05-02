@@ -18,11 +18,12 @@ package org.kuali.test.ui.components.panels;
 
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
+import org.kuali.test.creator.TestCreator;
 
 
 public class DatabasePanel extends BaseCreateTestPanel {
-    public DatabasePanel(Platform platform, TestHeader testHeader) {
-        super(platform, testHeader);
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+        super(mainframe, platform, testHeader);
     }
 
     @Override
