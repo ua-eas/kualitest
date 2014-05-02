@@ -21,7 +21,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.EmailSetup;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 
 /**
@@ -40,7 +40,7 @@ public class EmailDlg extends BaseSetupDlg {
      * Creates new form PlatformDlg
      * @param mainFrame
      */
-    public EmailDlg(KualiTestApp mainFrame) {
+    public EmailDlg(TestCreator mainFrame) {
         this(mainFrame, null);
     }
     /**
@@ -48,7 +48,7 @@ public class EmailDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public EmailDlg(KualiTestApp mainFrame, EmailSetup emailSetup) {
+    public EmailDlg(TestCreator mainFrame, EmailSetup emailSetup) {
         super(mainFrame);
         this.emailSetup = emailSetup;
         initComponents();

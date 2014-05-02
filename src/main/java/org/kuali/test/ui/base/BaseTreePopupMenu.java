@@ -20,14 +20,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 
 
 public abstract class BaseTreePopupMenu extends JPopupMenu implements ActionListener {
     private DefaultMutableTreeNode actionNode;
-    private KualiTestApp mainframe;
+    private TestCreator mainframe;
     
-    public BaseTreePopupMenu(KualiTestApp mainframe) {
+    public BaseTreePopupMenu(TestCreator mainframe) {
         this.mainframe = mainframe;
         initMenu();
     }
@@ -37,7 +37,7 @@ public abstract class BaseTreePopupMenu extends JPopupMenu implements ActionList
         actionNode = null;
     }
     
-    public KualiTestApp getMainframe() {
+    public TestCreator getMainframe() {
         return mainframe;
     }
     

@@ -24,7 +24,7 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Utils;
 
@@ -47,7 +47,7 @@ public class DatabaseDlg extends BaseSetupDlg {
      * Creates new form PlatformDlg
      * @param mainFrame
      */
-    public DatabaseDlg(KualiTestApp mainFrame) {
+    public DatabaseDlg(TestCreator mainFrame) {
         this(mainFrame, null);
     }
     /**
@@ -55,7 +55,7 @@ public class DatabaseDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public DatabaseDlg(KualiTestApp mainFrame, DatabaseConnection dbconnection) {
+    public DatabaseDlg(TestCreator mainFrame, DatabaseConnection dbconnection) {
         super(mainFrame);
         this.dbconnection = dbconnection;
         if (dbconnection != null) {

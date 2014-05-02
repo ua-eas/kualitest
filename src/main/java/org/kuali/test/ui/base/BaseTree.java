@@ -26,13 +26,13 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 
 
 public abstract class BaseTree extends JTree {
-    private KualiTestApp mainframe;
+    private TestCreator mainframe;
     
-    public BaseTree(KualiTestApp mainframe) {
+    public BaseTree(TestCreator mainframe) {
         this.mainframe = mainframe;
     }
 
@@ -76,7 +76,7 @@ public abstract class BaseTree extends JTree {
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
     }
     
-    public KualiTestApp getMainframe() {
+    public TestCreator getMainframe() {
         return mainframe;
     }
     

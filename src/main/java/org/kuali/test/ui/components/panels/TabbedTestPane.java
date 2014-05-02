@@ -21,16 +21,16 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import org.apache.log4j.Logger;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.utils.Constants;
 
 
 public class TabbedTestPane extends JTabbedPane {
     private static final Logger LOG = Logger.getLogger(TabbedTestPane.class);
-    private KualiTestApp mainframe;
+    private TestCreator mainframe;
     
-    public TabbedTestPane(KualiTestApp mainframe) {
+    public TabbedTestPane(TestCreator mainframe) {
         super();
         this.mainframe = mainframe;
         setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -43,7 +43,7 @@ public class TabbedTestPane extends JTabbedPane {
         setSelectedComponent(panel);
     }
 
-    public KualiTestApp getMainframe() {
+    public TestCreator getMainframe() {
         return mainframe;
     }
 }

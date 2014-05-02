@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 import javax.swing.ImageIcon;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 
 
 public class Constants {
@@ -28,21 +28,21 @@ public class Constants {
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
     public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
     
-    public static final ImageIcon KUALI_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/kuali-small.png"));
+    public static final ImageIcon KUALI_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
     
-    public static final ImageIcon REPOSITORY_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/repository.png"));
-    public static final ImageIcon PLATFORM_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/platform.png"));
-    public static final ImageIcon TEST_SUITE_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/test-suite.png"));
-    public static final ImageIcon TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/test.png"));
-    public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save.png"));
-    public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/createtest.png"));
-    public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/cancel-test.png"));
+    public static final ImageIcon REPOSITORY_ICON = new ImageIcon(TestCreator.class.getResource("/images/repository.png"));
+    public static final ImageIcon PLATFORM_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform.png"));
+    public static final ImageIcon TEST_SUITE_ICON = new ImageIcon(TestCreator.class.getResource("/images/test-suite.png"));
+    public static final ImageIcon TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/test.png"));
+    public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(TestCreator.class.getResource("/images/save.png"));
+    public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/createtest.png"));
+    public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/cancel-test.png"));
 
-    public static final ImageIcon START_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/start-test.png"));
-    public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/create-checkpoint.png"));
-    public static final ImageIcon SAVE_TEST_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/save-test.png"));
-    public static final ImageIcon CLOCK_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/clock.png"));
-    public static final ImageIcon CLOSE_TAB_ICON = new ImageIcon(KualiTestApp.class.getResource("/images/close-tab.png"));
+    public static final ImageIcon START_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/start-test.png"));
+    public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(TestCreator.class.getResource("/images/create-checkpoint.png"));
+    public static final ImageIcon SAVE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/save-test.png"));
+    public static final ImageIcon CLOCK_ICON = new ImageIcon(TestCreator.class.getResource("/images/clock.png"));
+    public static final ImageIcon CLOSE_TAB_ICON = new ImageIcon(TestCreator.class.getResource("/images/close-tab.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
@@ -112,6 +112,7 @@ public class Constants {
     public static final String CSS_SUFFIX = "css";
     public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();
     public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
+    public static final Set <String> VALID_CHECKPOINT_TAG_TYPES = new HashSet<String>();
     
     static {
         IMAGE_SUFFIX_SET.add("gif");
@@ -119,11 +120,13 @@ public class Constants {
         IMAGE_SUFFIX_SET.add("jpg");
         IMAGE_SUFFIX_SET.add("jpeg");
         IMAGE_SUFFIX_SET.add("png");
-    }
-    
-    static {
+
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
+        
+        VALID_CHECKPOINT_TAG_TYPES.add("input");
+        VALID_CHECKPOINT_TAG_TYPES.add("select");
+        VALID_CHECKPOINT_TAG_TYPES.add("div");
     }
     
     

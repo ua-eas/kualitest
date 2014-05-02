@@ -20,12 +20,12 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 
 
 public class BasePanel extends JPanel {
-    private KualiTestApp mainframe;
-    public BasePanel(KualiTestApp mainframe) {
+    private TestCreator mainframe;
+    public BasePanel(TestCreator mainframe) {
         this.mainframe = mainframe;
         setLayout(new BorderLayout(3, 3));
     }
@@ -41,7 +41,7 @@ public class BasePanel extends JPanel {
         getParent().validate();
     }
 
-    public KualiTestApp getMainframe() {
+    public TestCreator getMainframe() {
         return mainframe;
     }
     

@@ -22,7 +22,7 @@ import javax.swing.tree.TreeCellRenderer;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 
 /**
@@ -34,7 +34,7 @@ public class DatabaseTree extends BaseTree {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private DatabasePopupMenu popupMenu;
     
-    public DatabaseTree(KualiTestApp mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+    public DatabaseTree(TestCreator mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         super(mainframe);
         setRootVisible(false);
         this.setShowsRootHandles(true);

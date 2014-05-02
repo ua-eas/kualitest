@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JMenuItem;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.DatabaseConnection;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
 
@@ -29,7 +29,7 @@ public class DatabasePopupMenu extends BaseTreePopupMenu {
     public static final String EDIT_CONNECTION_ACTION = "Edit Connection";
     public static final String REMOVE_CONNECTION_ACTION = "Remove Connection";
 
-    public DatabasePopupMenu(KualiTestApp mainframe) {
+    public DatabasePopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 

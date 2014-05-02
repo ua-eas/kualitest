@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kuali.test;
+package org.kuali.test.creator;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import java.awt.BorderLayout;
@@ -41,6 +41,13 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
+import org.kuali.test.DatabaseConnection;
+import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.Platform;
+import org.kuali.test.SuiteTest;
+import org.kuali.test.TestHeader;
+import org.kuali.test.TestSuite;
+import org.kuali.test.TestType;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
@@ -64,9 +71,9 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class KualiTestApp extends JFrame implements WindowListener {
+public class TestCreator extends JFrame implements WindowListener {
 
-    private static final Logger LOG = Logger.getLogger(KualiTestApp.class);
+    private static final Logger LOG = Logger.getLogger(TestCreator.class);
 
     private String configFileName;
     private JDesktopPane desktopPane;
@@ -80,7 +87,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
     private DatabaseTree databaseTree;
     private PlatformTestsPanel platformTestsPanel;
 
-    public KualiTestApp(String configFileName) {
+    public TestCreator(String configFileName) {
         this.configFileName = configFileName;
         if (LOG.isDebugEnabled()) {
             LOG.debug("input configuration file name: " + configFileName);
@@ -510,7 +517,7 @@ public class KualiTestApp extends JFrame implements WindowListener {
                     if (args.length > 0) {
                         filename = args[0];
                     }
-                    new KualiTestApp(filename).setVisible(true);
+                    new TestCreator(filename).setVisible(true);
                 }
             });
 

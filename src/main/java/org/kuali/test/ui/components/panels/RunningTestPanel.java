@@ -17,11 +17,11 @@
 package org.kuali.test.ui.components.panels;
 
 import javax.swing.JLabel;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 
 public class RunningTestPanel extends BasePanel {
-    public RunningTestPanel(KualiTestApp mainframe) {
+    public RunningTestPanel(TestCreator mainframe) {
         super(mainframe);
         add(new JLabel("inactive", JLabel.CENTER));
     }

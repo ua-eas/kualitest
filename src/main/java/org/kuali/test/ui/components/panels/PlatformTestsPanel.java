@@ -32,7 +32,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
@@ -45,7 +45,7 @@ public class PlatformTestsPanel extends BasePanel implements TreeSelectionListen
     private JList testList;
     private Platform currentPlatform;
 
-    public PlatformTestsPanel(KualiTestApp mainframe) {
+    public PlatformTestsPanel(TestCreator mainframe) {
         super(mainframe);
         JPanel p = new JPanel(new BorderLayout());
         p.add(new JLabel("Available Tests"), BorderLayout.NORTH);

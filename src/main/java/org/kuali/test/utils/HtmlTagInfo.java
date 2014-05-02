@@ -19,8 +19,7 @@ package org.kuali.test.utils;
 import org.htmlcleaner.TagNode;
 
 
-public class HtmlTagInfo implements Comparable<HtmlTagInfo> {
-    private String pageTitle;
+public class HtmlTagInfo {
     private String type;
     private String name;
     private String id;
@@ -34,14 +33,6 @@ public class HtmlTagInfo implements Comparable<HtmlTagInfo> {
         id = tag.getAttributeByName("id");
         name = tag.getAttributeByName("name");
         text = tag.getText().toString();
-    }
-
-    public String getPageTitle() {
-        return pageTitle;
-    }
-
-    public void setPageTitle(String pageTitle) {
-        this.pageTitle = pageTitle;
     }
 
     public String getType() {
@@ -79,9 +70,7 @@ public class HtmlTagInfo implements Comparable<HtmlTagInfo> {
     public String toString() {
         StringBuilder retval = new StringBuilder(128);
         
-        retval.append("tag-info: pageTitle=");
-        retval.append(pageTitle);
-        retval.append(", type=");
+        retval.append("tag-info: type=");
         retval.append(type);
         retval.append(", id=");
         retval.append(id);
@@ -89,20 +78,5 @@ public class HtmlTagInfo implements Comparable<HtmlTagInfo> {
         retval.append(name);
         
         return retval.toString();
-    }
-
-    public String getKey() {
-        StringBuilder retval = new StringBuilder(128);
-        retval.append(type);
-        retval.append(".");
-        retval.append(id);
-        retval.append(".");
-        retval.append(name);
-        return retval.toString();
-    }
-    
-    @Override
-    public int compareTo(HtmlTagInfo o) {
-        return getKey().compareTo(o.getKey());
     }
 }

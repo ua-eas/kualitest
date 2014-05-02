@@ -30,7 +30,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
@@ -52,7 +52,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public TestSuiteDlg(KualiTestApp mainFrame, Platform platform, TestSuite testSuite) {
+    public TestSuiteDlg(TestCreator mainFrame, Platform platform, TestSuite testSuite) {
         super(mainFrame);
         this.platform = platform;
         this.testSuite = testSuite;

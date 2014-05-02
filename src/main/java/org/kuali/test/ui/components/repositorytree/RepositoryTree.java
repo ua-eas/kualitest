@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
@@ -58,7 +58,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private RepositoryPopupMenu popupMenu;
 
-    public RepositoryTree(KualiTestApp mainframe) {
+    public RepositoryTree(TestCreator mainframe) {
         super(mainframe);
         popupMenu = new RepositoryPopupMenu(mainframe);
         init();

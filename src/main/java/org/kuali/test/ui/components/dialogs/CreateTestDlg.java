@@ -28,7 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestType;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.utils.UIUtils;
@@ -52,7 +52,7 @@ public class CreateTestDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public CreateTestDlg(KualiTestApp mainFrame, Platform platform) {
+    public CreateTestDlg(TestCreator mainFrame, Platform platform) {
         super(mainFrame);
         this.platform = platform;
         if (platform != null) {

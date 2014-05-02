@@ -23,7 +23,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.KualiApplication;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.Platform;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Utils;
@@ -47,7 +47,7 @@ public class PlatformDlg extends BaseSetupDlg {
      * Creates new form PlatformDlg
      * @param mainFrame
      */
-    public PlatformDlg(KualiTestApp mainFrame) {
+    public PlatformDlg(TestCreator mainFrame) {
         this(mainFrame, null);
     }
     /**
@@ -55,7 +55,7 @@ public class PlatformDlg extends BaseSetupDlg {
      * @param mainFrame
      * @param platform
      */
-    public PlatformDlg(KualiTestApp mainFrame, Platform platform) {
+    public PlatformDlg(TestCreator mainFrame, Platform platform) {
         super(mainFrame);
         this.platform = platform;
         if (platform != null) {

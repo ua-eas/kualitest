@@ -27,6 +27,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -196,8 +197,7 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         HtmlCleaner cleaner = new HtmlCleaner();
         List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
         loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent(), availableHtmlObjects);
-        Collections.sort(availableHtmlObjects);
-        
+
         // create a map of labels objects for names - will assume that label naming
         // convention is <input-name/id>.label
         Map<String, HtmlTagInfo> labels = new HashMap<String, HtmlTagInfo>();
@@ -225,25 +225,34 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
                     LOG.debug("non-label - " + tagInfo);
                 }
 
-                CheckpointProperty p = CheckpointProperty.Factory.newInstance();
+                if (Utils.isValidCheckpointTag(tagInfo)) {
+                    CheckpointProperty p = CheckpointProperty.Factory.newInstance();
 
-                String key = Utils.getHtmlElementKey(tagInfo);
-                HtmlTagInfo label = labels.get(key);
-                
-                if (label != null) {
-                    p.setPropertyName(label.getText());
-                } else {
-                    p.setPropertyName(key);
+                    String key = Utils.getHtmlElementKey(tagInfo);
+                    HtmlTagInfo label = labels.get(key);
+
+                    if (label != null) {
+                        p.setPropertyName(label.getText());
+                    } else {
+                        p.setPropertyName(key);
+                    }
+
+                    p.setPropertyValue(tagInfo.getText());
+                    p.setOperator(ComparisonOperator.EQUAL_TO);
+                    p.setOnFailure(FailureAction.NONE);
+                    p.setValueType(ValueType.UNKNOWN);
+
+                    retval.add(p);
                 }
-                
-                p.setPropertyValue(tagInfo.getText());
-                p.setOperator(ComparisonOperator.EQUAL_TO);
-                p.setOnFailure(FailureAction.NONE);
-                p.setValueType(ValueType.UNKNOWN);
-                
-                retval.add(p);
             }
         }
+        
+        Collections.sort(retval, new Comparator<CheckpointProperty>() {
+            @Override
+            public int compare(CheckpointProperty cp1, CheckpointProperty cp2) {
+                return cp1.getPropertyName().toLowerCase().compareTo(cp2.getPropertyName().toLowerCase());
+            }
+        });
         
         return retval;
     }

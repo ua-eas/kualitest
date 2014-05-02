@@ -35,7 +35,7 @@ import javax.swing.WindowConstants;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
@@ -49,7 +49,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     private boolean saved = false;
     private boolean editmode = false;
     
-    public BaseSetupDlg(KualiTestApp mainframe) {
+    public BaseSetupDlg(TestCreator mainframe) {
         super(mainframe, true);
         getContentPane().setLayout(new BorderLayout());
     }
@@ -91,8 +91,8 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     }
 
     
-    protected KualiTestApp getMainframe() {
-        return (KualiTestApp)getParent();
+    protected TestCreator getMainframe() {
+        return (TestCreator)getParent();
     }
     
     @Override

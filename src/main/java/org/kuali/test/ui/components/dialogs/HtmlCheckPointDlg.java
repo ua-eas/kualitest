@@ -27,8 +27,8 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
-import org.kuali.test.KualiTestApp;
 import org.kuali.test.TestHeader;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
@@ -43,11 +43,11 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private Checkpoint checkpoint;
     private JTextField name;
     
-    public HtmlCheckPointDlg(KualiTestApp mainFrame, TestHeader testHeader, List<CheckpointProperty> checkpointProperties) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, List<CheckpointProperty> checkpointProperties) {
         this(mainFrame, testHeader, null, checkpointProperties);
     }
     
-    public HtmlCheckPointDlg(KualiTestApp mainFrame, TestHeader testHeader, 
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, 
         Checkpoint checkpoint, List<CheckpointProperty> checkpointProperties) {
         super(mainFrame);
         this.testHeader= testHeader;
@@ -113,10 +113,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         
         config.setPropertyNames(new String[] {
             "propertyName",
-            "valueType.toString",
-            "operator.toString",
+            "valueType",
+            "operator",
             "propertyValue",
-            "onFailure.toString"
+            "onFailure"
         });
             
         config.setColumnTypes(new Class[] {

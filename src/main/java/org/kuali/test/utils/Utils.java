@@ -298,7 +298,7 @@ public class Utils {
                     } 
 
                     catch (Exception ex) {
-                        LOG.warn(ex.toString(), ex);
+                        LOG.warn(ex.toString());
                     }
                 }
             }
@@ -361,28 +361,19 @@ public class Utils {
             try {
                 int pos = propertyName.indexOf(".");
                 Method m = null;
-                
+
                 if (pos > -1) {
                     m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName.substring(0, pos)));
                 } else {
                     m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
                 }
-                
-                retval = m.invoke(o, (Class)null);
+                retval = m.invoke(o);
                 
                 if ((retval != null) && (pos > -1)) {
-                    String s = propertyName.substring(pos+1);
-                    
-                    if ("toString".equals(s)) {
-                        retval = retval.toString();
-                    } else {
-                        m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(s));
-                        retval = m.invoke(o, (Class)null);
-                    }
+                    retval = getObjectProperty(retval, propertyName.substring(pos+1));
                 }
-                
             } catch (Exception ex) {
-                LOG.warn(ex.toString(), ex);
+                LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
             } 
         }
 
@@ -392,10 +383,28 @@ public class Utils {
     public static void setObjectProperty(Object o, String propertyName, Object value) {
         if (o != null) {
             try {
-                Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
-                m.invoke(o, value);
+                //Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
+                //m.invoke(o, value);
+
+                int pos = propertyName.indexOf(".");
+                if (pos > -1) {
+                   String s = propertyName.substring(pos+1);
+                   setObjectProperty(getObjectProperty(o, s), s, value);
+                } else {
+                    Method m = null;
+
+                    if (pos > -1) {
+                        m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName.substring(0, pos)));
+                    } else {
+                        m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
+                    }
+                    
+                    m.invoke(o, value);
+                }
+
+            
             } catch (Exception ex) {
-                LOG.warn(ex.toString(), ex);
+                LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
             } 
         }
     }
@@ -653,5 +662,9 @@ public class Utils {
         }
 
         return retval;
+    }
+    
+    public static boolean isValidCheckpointTag(HtmlTagInfo tagInfo) {
+        return Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getType().toLowerCase());
     }
 }

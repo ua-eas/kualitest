@@ -23,7 +23,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
-import org.kuali.test.KualiTestApp;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
 
@@ -37,7 +37,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
     public static final String EDIT_TEST_ACTION = "Edit Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
     
-    public RepositoryPopupMenu(KualiTestApp mainframe) {
+    public RepositoryPopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 
