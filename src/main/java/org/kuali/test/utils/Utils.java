@@ -34,18 +34,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestHeader;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationParameter;
-import org.kuali.test.TestOperationParameters;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
-import org.kuali.test.ValueType;
 
 
 public class Utils {
@@ -298,7 +298,7 @@ public class Utils {
                     } 
 
                     catch (Exception ex) {
-                        LOG.warn(ex.toString());
+                        LOG.warn(ex.toString(), ex);
                     }
                 }
             }
@@ -359,10 +359,30 @@ public class Utils {
         
         if (o != null) {
             try {
-                Method m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
+                int pos = propertyName.indexOf(".");
+                Method m = null;
+                
+                if (pos > -1) {
+                    m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName.substring(0, pos)));
+                } else {
+                    m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
+                }
+                
                 retval = m.invoke(o, (Class)null);
+                
+                if ((retval != null) && (pos > -1)) {
+                    String s = propertyName.substring(pos+1);
+                    
+                    if ("toString".equals(s)) {
+                        retval = retval.toString();
+                    } else {
+                        m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(ps));
+                        retval = m.invoke(o, (Class)null);
+                    }
+                }
+                
             } catch (Exception ex) {
-                LOG.warn(ex.toString());
+                LOG.warn(ex.toString(), ex);
             } 
         }
 
@@ -375,7 +395,7 @@ public class Utils {
                 Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
                 m.invoke(o, value);
             } catch (Exception ex) {
-                LOG.warn(ex.toString());
+                LOG.warn(ex.toString(), ex);
             } 
         }
     }
@@ -418,14 +438,17 @@ public class Utils {
         return false;
     }
     
-    public static void populateHttpRequestOperation(TestOperation op, HttpRequest request) {
+    public static void populateHttpRequestOperation(TestOperation testop, HttpRequest request) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(getHttpRequestDetails(request));
         }
 
-        Iterator <Entry<String, String>> it = request.headers().iterator();
-        TestOperationParameters params = op.addNewParameters();
+        HtmlRequestOp op = testop.addNewOperation().addNewHtmlRequestOperation();
+        op.addNewRequestHeaders();
+        op.addNewRequestParameters();
         boolean ispost = false;
+        
+        Iterator <Entry<String, String>> it = request.headers().iterator();
         
         while (it.hasNext()) {
             Entry <String, String> entry = it.next();
@@ -434,26 +457,16 @@ public class Utils {
             }
             
             if (wantHttpRequestHeader(entry.getKey())) {
-                TestOperationParameter param = params.addNewParameter();
-                param.setName(entry.getKey());
-                param.setValue(entry.getValue());
-                param.setValueType(ValueType.STRING);
+                RequestHeader header = op.getRequestHeaders().addNewHeader();
+                header.setName(entry.getKey());
+                header.setValue(entry.getValue());
             }
         }
 
-        TestOperationParameter param = params.addNewParameter();
-
         String method = request.getMethod().name();
         
-        param.setName("method");
-        param.setValueType(ValueType.STRING);
-        param.setValue(request.getMethod().name());
-        
-        param = params.addNewParameter();
-        
-        param.setName("uri");
-        param.setValueType(ValueType.STRING);
-        param.setValue(request.getUri());
+        op.setMethod("method");
+        op.setUri("uri");
         
         // if this is a post then try to get content
         if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
@@ -463,9 +476,8 @@ public class Utils {
                     byte[] data = getHttpPostContent(fr.content());
                     
                     if (data != null) {
-                        param = params.addNewParameter();
+                        RequestParameter param = op.getRequestParameters().addNewParameter();
                         param.setName("content");
-                        param.setValueType(ValueType.STRING);
                         param.setValue(new String(data));
                     }
                 }
@@ -479,8 +491,10 @@ public class Utils {
         retval.setOperationType(optype);
         
         if (inputData != null) {
-            if (inputData instanceof HttpRequest) {
-                populateHttpRequestOperation(retval, (HttpRequest)inputData);
+            switch(optype.intValue()) {
+                case TestOperationType.INT_HTTP_REQUEST:
+                    populateHttpRequestOperation(retval, (HttpRequest)inputData);
+                    break;
             }
         }
         
@@ -597,6 +611,47 @@ public class Utils {
             }
         }
         
+        return retval;
+    }
+    
+    public static boolean isHtmlLabel(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if ("label".equalsIgnoreCase(tagInfo.getType())) {
+            String nm = getHtmlElementKey(tagInfo);
+            
+            if (StringUtils.isNotBlank(nm)) {
+                retval = nm.endsWith(".label");
+            }
+        }
+        
+        return retval;
+    }
+
+    public static String getHtmlLabelPartnerId(HtmlTagInfo tagInfo) {
+        String retval = null;
+        
+        if (isHtmlLabel(tagInfo)) {
+            String nm = getHtmlElementKey(tagInfo);
+            
+            if (nm != null) {
+                int pos = nm.lastIndexOf(".");
+                retval = nm.substring(0, pos);
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String getHtmlElementKey(HtmlTagInfo tagInfo) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(tagInfo.getId())) {
+            retval = tagInfo.getId();
+        } else if (StringUtils.isNotBlank(tagInfo.getName())) {
+            retval = tagInfo.getName();
+        }
+
         return retval;
     }
 }

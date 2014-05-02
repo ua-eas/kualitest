@@ -27,22 +27,34 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.HtmlNode;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
+import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointProperty;
+import org.kuali.test.CheckpointType;
+import org.kuali.test.ComparisonOperator;
+import org.kuali.test.FailureAction;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.ValueType;
 import org.kuali.test.proxyserver.TestProxyServer;
+import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
+import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlTagInfo;
+import org.kuali.test.utils.Utils;
 
 public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerListener {
 
@@ -136,18 +148,115 @@ public class WebBrowserPanel extends BaseCreateTestPanel implements ContainerLis
         }
         
         if (webBrowser != null) {
-            HtmlCleaner cleaner = new HtmlCleaner();
-            List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
-            loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent(), availableHtmlObjects);
-            Collections.sort(availableHtmlObjects);
-            for (HtmlTagInfo tagInfo : availableHtmlObjects) {
+            CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(tabbedPane.getMainframe());
+            
+            if (dlg.isSaved()) {
+                int cptype = dlg.getCheckpointType().intValue();
+
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(tagInfo);
+                    LOG.debug("checkpoint type: " + dlg.getCheckpointType()  + ", intval: " + cptype);
+                }
+
+                switch(cptype) {
+                    case CheckpointType.INT_HTTP:
+                        createHtmlCheckpoint();
+                        break;
+                    case CheckpointType.INT_MEMORY:
+                        createMemoryCheckpoint();
+                        break;
+                    case CheckpointType.INT_SQL:
+                        createSqlCheckpoint();
+                        break;
+                    case CheckpointType.INT_WEB_SERVICE:
+                        createWebServiceCheckpoint();
+                        break;
                 }
             }
         }
     }
 
+    private void createHtmlCheckpoint() {
+        List <CheckpointProperty> checkpointProperties = loadCheckpointPropertiesFromHtml();
+        
+        if ((checkpointProperties != null) && !checkpointProperties.isEmpty()) {
+            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(tabbedPane.getMainframe(), getTestHeader(), checkpointProperties);
+            
+            if (dlg.isSaved()) {
+                TestOperation op = TestOperation.Factory.newInstance();
+                Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
+                
+                
+//                testProxyServer.getTestOperations();
+            }
+        }
+    }
+
+    private List <CheckpointProperty> loadCheckpointPropertiesFromHtml() {
+        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+        HtmlCleaner cleaner = new HtmlCleaner();
+        List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
+        loadHtmlDomObjects(cleaner, webBrowser.getHTMLContent(), availableHtmlObjects);
+        Collections.sort(availableHtmlObjects);
+        
+        // create a map of labels objects for names - will assume that label naming
+        // convention is <input-name/id>.label
+        Map<String, HtmlTagInfo> labels = new HashMap<String, HtmlTagInfo>();
+        
+        for (HtmlTagInfo tagInfo : availableHtmlObjects) {
+            if (Utils.isHtmlLabel(tagInfo)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("label - " + tagInfo);
+                }
+
+                String rootName = Utils.getHtmlLabelPartnerId(tagInfo);
+                if (StringUtils.isNotBlank(rootName)) {
+                    labels.put(rootName, tagInfo);
+                }
+            }
+        }
+
+        // now lets loop through the non-label elements and create checkpoint properties
+        for (HtmlTagInfo tagInfo : availableHtmlObjects) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(tagInfo);
+            }
+            if (!Utils.isHtmlLabel(tagInfo)) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("non-label - " + tagInfo);
+                }
+
+                CheckpointProperty p = CheckpointProperty.Factory.newInstance();
+
+                String key = Utils.getHtmlElementKey(tagInfo);
+                HtmlTagInfo label = labels.get(key);
+                
+                if (label != null) {
+                    p.setPropertyName(label.getText());
+                } else {
+                    p.setPropertyName(key);
+                }
+                
+                p.setPropertyValue(tagInfo.getText());
+                p.setOperator(ComparisonOperator.EQUAL_TO);
+                p.setOnFailure(FailureAction.NONE);
+                p.setValueType(ValueType.UNKNOWN);
+                
+                retval.add(p);
+            }
+        }
+        
+        return retval;
+    }
+    
+    private void createMemoryCheckpoint() {
+    }
+    
+    private void createSqlCheckpoint() {
+    }
+    
+    private void createWebServiceCheckpoint() {
+    }
+    
     private void loadHtmlDomObjects(final HtmlCleaner htmlCleaner, String html, final List <HtmlTagInfo> availableHtmlObjects) {
         final Set <String> iframejscalls = new HashSet<String>();
         TagNode node = htmlCleaner.clean(html);

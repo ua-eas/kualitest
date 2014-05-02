@@ -34,6 +34,7 @@
             <xs:enumeration value="memory inquiry"/>
             <xs:enumeration value="sql select"/>
             <xs:enumeration value="web service request"/>
+            <xs:enumeration value="checkpoint"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -43,24 +44,80 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="test-operation-parameter">
+    <xs:complexType name="html-request-op">
+        <xs:sequence>
+            <xs:element name="method" type="xs:string"/>
+            <xs:element name="uri" type="xs:string"/>
+            <xs:element name="request-headers" type="request-headers"/>
+            <xs:element name="request-parameters" type="request-parameters"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="request-headers">
+        <xs:sequence>
+            <xs:element name="header" type="request-header" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="request-parameters">
+        <xs:sequence>
+            <xs:element name="parameter" type="request-parameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="request-header">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
-            <xs:element name="value-type" type="value-type"/>
             <xs:element name="value" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="test-operation-parameters">
+    <xs:complexType name="request-parameter">
         <xs:sequence>
-            <xs:element name="parameter" type="test-operation-parameter" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="sql-select-op">
+        <xs:sequence>
+            <xs:element name="sql" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="web-service-request-op">
+        <xs:sequence>
+            <xs:element name="request" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="file-inquiry-op">
+        <xs:sequence>
+            <xs:element name="inquiry" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="memory-inquiry-op">
+        <xs:sequence>
+            <xs:element name="inquiry" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="operation">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="checkpoint-operation" type="checkpoint"/>
+            <xs:element name="html-request-operation" type="html-request-op"/>
+            <xs:element name="sql-select-operation" type="sql-select-op"/>
+            <xs:element name="memory-inquiry-operation" type="memory-inquiry-op"/>
+            <xs:element name="file-inquiry-operation" type="file-inquiry-op"/>
+            <xs:element name="web-service-request-operation" type="web-service-request-op"/>
+        </xs:choice>  
+    </xs:complexType>      
 
     <xs:complexType name="test-operation">
         <xs:sequence>
             <xs:element name="operation-type" type="test-operation-type"/>
-            <xs:element name="parameters" type="test-operation-parameters"/>
+            <xs:element name="operation" type="operation"/>
         </xs:sequence>
     </xs:complexType>
         
@@ -117,7 +174,7 @@
     
     <xs:simpleType name="failure-action">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="ignore"/>
+            <xs:enumeration value="none"/>
             <xs:enumeration value="warning"/>
             <xs:enumeration value="error - continue"/>
             <xs:enumeration value="error - halt test"/>
@@ -126,6 +183,7 @@
 
     <xs:simpleType name="value-type">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="unknown"/>
             <xs:enumeration value="boolean"/>
             <xs:enumeration value="date"/>
             <xs:enumeration value="double"/>
@@ -138,12 +196,12 @@
 
     <xs:simpleType name="comparison-operator">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="="/>
-            <xs:enumeration value="!="/>
-            <xs:enumeration value="&lt;"/>
-            <xs:enumeration value="&lt;="/>
-            <xs:enumeration value="&gt;"/>
-            <xs:enumeration value="&gt;="/>
+            <xs:enumeration value="equal to"/>
+            <xs:enumeration value="not equal to"/>
+            <xs:enumeration value="less than"/>
+            <xs:enumeration value="less than or equal"/>
+            <xs:enumeration value="greater than"/>
+            <xs:enumeration value="greater than or equal"/>
             <xs:enumeration value="in"/>
             <xs:enumeration value="not in"/>
             <xs:enumeration value="between"/>

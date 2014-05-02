@@ -83,6 +83,7 @@ public class Constants {
     public static final String DATABASES = "Databases";
     
     public static String SAVE_ACTION = "Save";
+    public static String OK_ACTION = "Ok";
     public static String CANCEL_ACTION = "Cancel";
     public static String CONTINUE_ACTION = "Continue";
     public static final String START_TEST_ACTION = "Start Test";
