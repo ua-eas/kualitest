@@ -247,7 +247,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     HtmlTagInfo label = labels.get(key);
 
                     if (label != null) {
-                        p.setPropertyName(label.getText());
+                        p.setPropertyName(Utils.formatDisplayName(label.getText()));
                     } else {
                         p.setPropertyName(key);
                     }

@@ -24,6 +24,8 @@ public class HtmlTagInfo {
     private String typeAttribute;
     private String nameAttribute;
     private String idAttribute;
+    private String forAttribute;
+    private String classAttribute;
     private String text;
 
     public HtmlTagInfo() {
@@ -34,6 +36,8 @@ public class HtmlTagInfo {
         typeAttribute = tag.getAttributeByName("type");
         idAttribute = tag.getAttributeByName("id");
         nameAttribute = tag.getAttributeByName("name");
+        forAttribute = tag.getAttributeByName("for");
+        classAttribute = tag.getAttributeByName("class");
         text = Utils.cleanDisplayText(tag.getText().toString());
     }
 
@@ -75,8 +79,25 @@ public class HtmlTagInfo {
     }
 
     public void setText(String text) {
-        this.text = text;
+        this.text = Utils.cleanDisplayText(text);
     }
+
+    public String getForAttribute() {
+        return forAttribute;
+    }
+
+    public void setForAttribute(String forAttribute) {
+        this.forAttribute = forAttribute;
+    }
+
+    public String getClassAttribute() {
+        return classAttribute;
+    }
+
+    public void setClassAttribute(String classAttribute) {
+        this.classAttribute = classAttribute;
+    }
+    
     
     public String toString() {
         StringBuilder retval = new StringBuilder(128);

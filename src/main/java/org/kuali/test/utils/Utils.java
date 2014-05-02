@@ -625,29 +625,14 @@ public class Utils {
     }
     
     public static boolean isHtmlLabel(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if ("label".equalsIgnoreCase(tagInfo.getTagType())) {
-            String nm = getHtmlElementKey(tagInfo);
-            
-            if (StringUtils.isNotBlank(nm)) {
-                retval = nm.endsWith(".label");
-            }
-        }
-        
-        return retval;
+        return StringUtils.isNotBlank(tagInfo.getForAttribute());
     }
 
     public static String getHtmlLabelPartnerId(HtmlTagInfo tagInfo) {
         String retval = null;
         
         if (isHtmlLabel(tagInfo)) {
-            String nm = getHtmlElementKey(tagInfo);
-            
-            if (nm != null) {
-                int pos = nm.lastIndexOf(".");
-                retval = nm.substring(0, pos);
-            }
+            retval = tagInfo.getForAttribute();
         }
         
         return retval;
@@ -712,6 +697,19 @@ public class Utils {
         if (isHtmlInputTag(tagInfo.getTagType())) {
             if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
                 retval =  Constants.HTML_INPUT_TYPE_HIDDEN.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String formatDisplayName(String name) {
+        String retval = name;
+        
+        if (StringUtils.isNotBlank(name)) {
+            String s = name.trim();
+            if (s.endsWith(":")) {
+                retval = s.substring(0, s.length()-1);
             }
         }
         
