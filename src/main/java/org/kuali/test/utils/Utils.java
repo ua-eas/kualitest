@@ -376,7 +376,7 @@ public class Utils {
                     if ("toString".equals(s)) {
                         retval = retval.toString();
                     } else {
-                        m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(ps));
+                        m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(s));
                         retval = m.invoke(o, (Class)null);
                     }
                 }
