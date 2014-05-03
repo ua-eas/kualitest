@@ -80,6 +80,10 @@ public class BaseTableModel extends AbstractTableModel {
             Object o = data.get(row);
             Utils.setObjectProperty(o, config.getPropertyNames()[col], value);
             fireTableCellUpdated(row, col);
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("in setValueAt(): " + getValueAt(row, col));
+            }
         }
     }
 

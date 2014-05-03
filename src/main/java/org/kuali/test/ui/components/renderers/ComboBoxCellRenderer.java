@@ -32,12 +32,18 @@ public class ComboBoxCellRenderer extends JComboBox implements TableCellRenderer
         boolean isSelected, boolean hasFocus, int row, int column) {
         if (isSelected) {
             setForeground(table.getSelectionForeground());
-            super.setBackground(table.getSelectionBackground());
+            setBackground(table.getSelectionBackground());
         } else {
             setForeground(table.getForeground());
             setBackground(table.getBackground());
         }
         // Select the current value
+        if (value != null) {
+            if (!table.getModel().getColumnClass(column).equals(value.getClass())) {
+                value = value.toString();
+            }
+        }
+        
         setSelectedItem(value);
         
         return this;

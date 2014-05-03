@@ -33,6 +33,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
@@ -397,7 +398,19 @@ public class Utils {
                    String s = propertyName.substring(pos+1);
                    setObjectProperty(getObjectProperty(o, s), s, value);
                 } else {
-                    Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
+                    Class argumentType = getPropertyClass(o, propertyName);
+                    Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName), argumentType);
+                    
+                    // this is a hack to handle the XMLBeans Enums 
+                    if (value != null) {
+                        if (!argumentType.isAssignableFrom(value.getClass())) {
+                            if (StringEnumAbstractBase.class.isAssignableFrom(argumentType)) {
+                                Method m2 = argumentType.getMethod("forString", String.class);
+                                value = m2.invoke(null, value);
+                            }
+                        }
+                    }
+                    
                     m.invoke(o, value);
                 }
 
@@ -408,6 +421,22 @@ public class Utils {
         }
     }
 
+    public static Class getPropertyClass(Object o, String propertyName) {
+        Class retval = null;
+        try {
+            Method m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
+            
+            retval = m.getReturnType();
+        }
+        
+        catch (Exception ex) {
+            LOG.warn(ex.toString());
+        }
+        
+        return retval;
+    }
+    
+    
     public static  String buildSetMethodNameFromPropertyName(String propertyName) {
         return buildMethodNameFromPropertyName("set", propertyName);
     }
