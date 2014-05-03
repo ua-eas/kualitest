@@ -174,7 +174,7 @@
     
     <xs:simpleType name="failure-action">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="none"/>
+            <xs:enumeration value="ignore"/>
             <xs:enumeration value="warning"/>
             <xs:enumeration value="error - continue"/>
             <xs:enumeration value="error - halt test"/>
@@ -183,7 +183,6 @@
 
     <xs:simpleType name="value-type">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="unknown"/>
             <xs:enumeration value="boolean"/>
             <xs:enumeration value="date"/>
             <xs:enumeration value="double"/>

@@ -74,6 +74,7 @@ public class BaseTableModel extends AbstractTableModel {
         return retval;
     }
 
+    @Override
     public void setValueAt(Object value, int row, int col) {
         if ((row < data.size()) && (col < config.getPropertyNames().length)) {
             Object o = data.get(row);

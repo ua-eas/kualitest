@@ -31,17 +31,17 @@ public class CheckpointTable extends BaseTable {
     public CheckpointTable(TableConfiguration config) {
         super(config);
         
-        String[] valueTypes = Utils.getXmlEnumerations(ValueType.class);
+        String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
         JComboBox cb = new JComboBox(valueTypes);
         getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cb));
         getColumnModel().getColumn(1).setCellRenderer(new ComboBoxCellRenderer(valueTypes));
 
-        String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class);
+        String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
         cb = new JComboBox(comparisonOperators);
         getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(cb));
         getColumnModel().getColumn(2).setCellRenderer(new ComboBoxCellRenderer(comparisonOperators));
         
-        String[] failureActions = Utils.getXmlEnumerations(FailureAction.class);
+        String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
         cb = new JComboBox(failureActions);
         getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(cb));
         getColumnModel().getColumn(4).setCellRenderer(new ComboBoxCellRenderer(failureActions));

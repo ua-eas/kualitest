@@ -43,11 +43,9 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
-import org.kuali.test.FailureAction;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
-import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
@@ -260,8 +258,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
                     p.setPropertyValue(tagInfo.getText());
                     p.setOperator(ComparisonOperator.EQUAL_TO);
-                    p.setOnFailure(FailureAction.NONE);
-                    p.setValueType(ValueType.UNKNOWN);
 
                     retval.add(p);
                 }

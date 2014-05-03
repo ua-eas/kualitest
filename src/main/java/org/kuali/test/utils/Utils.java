@@ -283,8 +283,16 @@ public class Utils {
     }
     
     public static String[] getXmlEnumerations(Class clazz) {
+        return getXmlEnumerations(clazz, false);
+    }
+    
+    public static String[] getXmlEnumerations(Class clazz, boolean includeEmptyItem) {
         List <String> retval = new ArrayList<String>();
         Field[] fields = clazz.getDeclaredFields();
+        
+        if (includeEmptyItem) {
+            retval.add("");
+        }
         
         for (Field field : fields) {
             // looking for XMLBean enumerated types
@@ -384,22 +392,12 @@ public class Utils {
     public static void setObjectProperty(Object o, String propertyName, Object value) {
         if (o != null) {
             try {
-                //Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
-                //m.invoke(o, value);
-
                 int pos = propertyName.indexOf(".");
                 if (pos > -1) {
                    String s = propertyName.substring(pos+1);
                    setObjectProperty(getObjectProperty(o, s), s, value);
                 } else {
-                    Method m = null;
-
-                    if (pos > -1) {
-                        m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName.substring(0, pos)));
-                    } else {
-                        m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
-                    }
-                    
+                    Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName));
                     m.invoke(o, value);
                 }
 
