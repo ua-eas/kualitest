@@ -230,6 +230,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             }
         }
 
+        Set <String> tagset = new HashSet<String>();
+        
         // now lets loop through the non-label elements and create checkpoint properties
         for (HtmlTagInfo tagInfo : availableHtmlObjects) {
             if (LOG.isDebugEnabled()) {
@@ -240,16 +242,20 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     LOG.debug("non-label - " + tagInfo);
                 }
 
-                if (Utils.isValidCheckpointTag(tagInfo)) {
+                if (Utils.isValidCheckpointTag(tagInfo) 
+                    && !tagset.contains(tagInfo.getNameAttribute())) {
+                    tagset.add(tagInfo.getNameAttribute());
                     CheckpointProperty p = CheckpointProperty.Factory.newInstance();
 
                     String key = Utils.getHtmlElementKey(tagInfo);
                     HtmlTagInfo label = labels.get(key);
 
+                    p.setPropertyName(key);
+                    
                     if (label != null) {
-                        p.setPropertyName(Utils.formatDisplayName(label.getText()));
+                        p.setDisplayName(Utils.formatDisplayName(label.getText()));
                     } else {
-                        p.setPropertyName(key);
+                        p.setDisplayName(key);
                     }
 
                     p.setPropertyValue(tagInfo.getText());

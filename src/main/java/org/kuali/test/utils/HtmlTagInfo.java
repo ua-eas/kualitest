@@ -16,6 +16,7 @@
 
 package org.kuali.test.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.TagNode;
 
 
@@ -38,9 +39,88 @@ public class HtmlTagInfo {
         nameAttribute = tag.getAttributeByName("name");
         forAttribute = tag.getAttributeByName("for");
         classAttribute = tag.getAttributeByName("class");
-        text = Utils.cleanDisplayText(tag.getText().toString());
+        
+        if (Utils.isHtmlInputTag(tagType)) {
+            text = getInputValue(tag, typeAttribute, nameAttribute);
+        } else if (Utils.isHtmlSelectTag(tagType)) {
+            text = getSelectedSelectOption(tag);
+        } else {
+            text = Utils.cleanDisplayText(tag.getText().toString());
+        }
     }
 
+    private String getInputValue(TagNode tag, String typeAttribute, String nameAttribute) {
+        String retval = "";
+        
+        if (Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(typeAttribute)) {
+            retval = getSelectedRadioValue(tag, typeAttribute, nameAttribute);
+        } else if (Constants.HTML_INPUT_TYPE_CHECKBOX.equalsIgnoreCase(typeAttribute)) {
+            retval = getCheckedValues(tag, typeAttribute, nameAttribute);
+        } else {
+            retval = tag.getAttributeByName("value");
+        }
+        
+        return retval;
+    }
+
+    private String getSelectedRadioValue(TagNode tag, String typeAttribute, String nameAttribute) {
+        String retval = "";
+        
+        TagNode[] childTags = tag.getParent().getChildTags();
+        
+        for (int i = 0; i < childTags.length; ++i) {
+            if (Utils.isHtmlInputTag(childTags[i].getName()) 
+                && typeAttribute.equals(Constants.HTML_INPUT_TYPE_RADIO)
+                && nameAttribute.equals(childTags[i].getAttributeByName("name"))) {
+                if (StringUtils.isNotBlank(childTags[i].getAttributeByName("checked"))) {
+                    retval = childTags[i].getAttributeByName("value");
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String getCheckedValues(TagNode tag, String typeAttribute, String nameAttribute) {
+        StringBuilder retval = new StringBuilder(64);
+        
+        String comma = "";
+        
+        TagNode[] childTags = tag.getParent().getChildTags();
+        
+        for (int i = 0; i < childTags.length; ++i) {
+            if (Utils.isHtmlInputTag(childTags[i].getName()) 
+                && typeAttribute.equals(Constants.HTML_INPUT_TYPE_CHECKBOX)
+                && nameAttribute.equals(childTags[i].getAttributeByName("name"))) {
+                if (StringUtils.isNotBlank(childTags[i].getAttributeByName("checked"))) {
+                    retval.append(comma);
+                    retval.append(childTags[i].getAttributeByName("value"));
+                    comma = ",";
+                }
+            }
+        }
+        
+        return retval.toString();
+    }
+
+    private String getSelectedSelectOption(TagNode selectTag) {
+        String retval = "";
+        
+        TagNode[] childTags = selectTag.getChildTags();
+        
+        for (int i = 0; i < childTags.length; ++i) {
+            if (Utils.isHtmlOptionTag(childTags[i].getName())) {
+                if (StringUtils.isNotBlank(childTags[i].getAttributeByName("selected"))) {
+                    retval = childTags[i].getAttributeByName("value");
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
     public String getTagType() {
         return tagType;
     }

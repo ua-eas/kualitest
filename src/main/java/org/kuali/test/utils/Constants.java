@@ -135,4 +135,9 @@ public class Constants {
     public static final String HTML_TAG_TYPE_INPUT = "input";
     public static final String HTML_INPUT_TYPE_IMAGE = "image";
     public static final String HTML_INPUT_TYPE_HIDDEN = "hidden";
+    public static final String HTML_INPUT_TYPE_SUBMIT = "submit";
+    public static final String HTML_INPUT_TYPE_RADIO = "radio";
+    public static final String HTML_INPUT_TYPE_CHECKBOX = "checkbox";
+    public static final String HTML_TAG_TYPE_SELECT = "select";
+    public static final String HTML_TAG_TYPE_OPTION = "option";
 }

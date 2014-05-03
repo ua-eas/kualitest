@@ -30,7 +30,6 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
-import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
 
@@ -91,7 +90,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
-    private BaseTable buildParameterTable(List <CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTable(List <CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties");
         config.setDisplayName("Checkpoint Properties");
@@ -112,7 +111,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         });
         
         config.setPropertyNames(new String[] {
-            "propertyName",
+            "displayName",
             "valueType",
             "operator",
             "propertyValue",
@@ -128,17 +127,16 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         });
         
         config.setColumnWidths(new int[] {
-            75,
-            20,
+            100,
+            40,
             20,
             50,
-            100
+            75
         });
-
         
         config.setData(checkpointProperties);
         
-        return new BaseTable(config);
+        return new CheckpointTable(config);
     }
     
     @Override
@@ -193,7 +191,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(700, 400);
+        return new Dimension(800, 400);
     }
 
     @Override

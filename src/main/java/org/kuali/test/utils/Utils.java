@@ -653,7 +653,9 @@ public class Utils {
     public static boolean isValidCheckpointTag(HtmlTagInfo tagInfo) {
         boolean retval = false;
         if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getTagType().toLowerCase())) {
-            retval = !isHtmlInputImageTag(tagInfo) && !isHtmlInputHiddenTag(tagInfo);
+            retval = (!isHtmlInputImageTag(tagInfo) 
+                    && !isHtmlInputHiddenTag(tagInfo)
+                    && !isHtmlInputSubmitTag(tagInfo));
         }
         
         return retval;
@@ -703,6 +705,42 @@ public class Utils {
         return retval;
     }
     
+    public static boolean isHtmlInputSubmitTag(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if (isHtmlInputTag(tagInfo.getTagType())) {
+            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
+                retval =  Constants.HTML_INPUT_TYPE_SUBMIT.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlInputRadioTag(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if (isHtmlInputTag(tagInfo.getTagType())) {
+            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
+                retval =  Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlInputCheckboxTag(HtmlTagInfo tagInfo) {
+        boolean retval = false;
+        
+        if (isHtmlInputTag(tagInfo.getTagType())) {
+            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
+                retval =  Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(tagInfo.getTypeAttribute());
+            }
+        }
+        
+        return retval;
+    }
+
     public static String formatDisplayName(String name) {
         String retval = name;
         
@@ -714,5 +752,13 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    public static boolean isHtmlSelectTag(String tagType) {
+        return Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagType);
+    }
+
+    public static boolean isHtmlOptionTag(String tagType) {
+        return Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(tagType);
     }
 }

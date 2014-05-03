@@ -215,6 +215,8 @@
         <xs:sequence>
             <xs:element name="property-name" type="xs:string"/>
             <xs:element name="property-value" type="xs:string"/>
+            <xs:element name="display-name" type="xs:string"/>
+            <xs:element name="additional-key-data" type="xs:string"/>
             <xs:element name="value-type" type="value-type"/>
             <xs:element name="operator" type="comparison-operator"/>
             <xs:element name="on-failure" type="failure-action"/>
