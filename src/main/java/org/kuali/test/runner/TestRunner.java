@@ -32,6 +32,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.KualiTestRunnerDocument;
+import org.kuali.test.ScheduledTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
@@ -42,10 +44,12 @@ import org.kuali.test.utils.Utils;
 public class TestRunner {
     private static final Logger LOG = Logger.getLogger(TestRunner.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
+    private KualiTestRunnerDocument.KualiTestRunner testRunnerConfiguration;
     private final List<TestExecutionContext> scheduledTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
     private final List<TestExecutionContext> executingTests = Collections.synchronizedList(new ArrayList<TestExecutionContext>());
     private boolean stopRunner = false;
-    private Timer timer;
+    private Timer testInquiryTimer;
+    private Timer configurationUpdateTimer;
     
     
     public static void main(final String args[]) {
@@ -70,7 +74,7 @@ public class TestRunner {
     
     public TestRunner(String configFileName) {
         if (loadConfiguration(configFileName)) {
-            TimerTask timerTask = new TimerTask() {
+            TimerTask testInquireyTimerTask = new TimerTask() {
                 @Override
                 public void run() {
                     if (!stopRunner) {
@@ -79,16 +83,79 @@ public class TestRunner {
                 }
             };
 
-	        timer = new Timer();
-            timer.scheduleAtFixedRate(timerTask, Constants.TEST_RUNNER_CHECK_INTERVAL, Constants.TEST_RUNNER_CHECK_INTERVAL);
+	        testInquiryTimer = new Timer();
+            long interval = 100*60*testRunnerConfiguration.getScheduledTestInquiryInterval();
+            testInquiryTimer.scheduleAtFixedRate(testInquireyTimerTask, interval, interval);
+
+            TimerTask configurationUpdateTimerTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (!stopRunner) {
+                        try {
+                            updateTestRunnerConfiguration();
+                        }
+                        
+                        catch (Exception ex) {
+                            LOG.error(ex.toString(), ex);
+                        }
+                    }
+                }
+            };
+
+	        configurationUpdateTimer = new Timer();
+            interval = 100*60*testRunnerConfiguration.getConfigurationUpdateInterval();
+            configurationUpdateTimer.scheduleAtFixedRate(configurationUpdateTimerTask, interval, interval);
+            
         } else {
             System.exit(-1);
         }
     }
 
+    private File getTestRunnerConfigurationFile() {
+        return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
+    }
+    protected void updateTestRunnerConfiguration() throws XmlException, IOException {
+        File trConfigFile =  getTestRunnerConfigurationFile();
+                    
+        if (trConfigFile.exists() && trConfigFile.isFile()) {
+            testRunnerConfiguration = KualiTestRunnerDocument.Factory.parse(trConfigFile).getKualiTestRunner();
+        }
+        
+        List <ScheduledTest> activeTests = new ArrayList<ScheduledTest>();
+        scheduledTests.clear();
+        if (testRunnerConfiguration.getScheduledTests() != null) {
+            for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
+                if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
+                    if (StringUtils.isNotBlank(test.getTestSuiteName())) {
+                        scheduleTestSuite(test.getPlaformName(), test.getTestSuiteName(), test.getStartTime().getTime());
+                    } else if (StringUtils.isNotBlank(test.getTestName())) {
+                        scheduleTest(test.getPlaformName(), test.getTestName(), test.getStartTime().getTime());
+                    }
+                    activeTests.add(test);
+                }
+            }
+        }
+        
+        if (!activeTests.isEmpty()) {
+            testRunnerConfiguration.getScheduledTests().setScheduledTestArray(activeTests.toArray(new ScheduledTest[activeTests.size()]));
+        } else {
+            testRunnerConfiguration.getScheduledTests().setScheduledTestArray(null);
+        }
+        
+        saveTestRunnerConfiguration();
+    }
+    
+    private void saveTestRunnerConfiguration() throws IOException {
+        File f =  getTestRunnerConfigurationFile();
+        KualiTestRunnerDocument doc = KualiTestRunnerDocument.Factory.newInstance();
+        doc.setKualiTestRunner(testRunnerConfiguration);
+        doc.save(f);
+    }
+    
     public void stopRunner() {
         stopRunner = true;
-        timer.cancel();
+        testInquiryTimer.cancel();
+        configurationUpdateTimer.cancel();
     }
     
     private void checkForRunnableTests() {
@@ -233,6 +300,8 @@ public class TestRunner {
                     if (!xmlValidationErrorList.isEmpty()) {
                         throw new XmlException("invalid xml file: " + configFile.getPath());
                     }
+                    
+                    updateTestRunnerConfiguration();
                     
                     retval = true;
                 } 

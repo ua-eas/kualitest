@@ -107,7 +107,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
-            "",
+            "Select",
             "Name",
             "Type",
             "Operator",
