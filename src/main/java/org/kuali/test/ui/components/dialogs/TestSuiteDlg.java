@@ -85,7 +85,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
         emailAddresses = new JTextField(testSuite.getEmailAddresses(), 30);
         
-
         JComponent[] components = new JComponent[] {
             name,
             emailAddresses,

@@ -219,6 +219,7 @@
             <xs:element name="value-type" type="value-type"/>
             <xs:element name="operator" type="comparison-operator"/>
             <xs:element name="on-failure" type="failure-action"/>
+            <xs:element name="selected" type="xs:boolean"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

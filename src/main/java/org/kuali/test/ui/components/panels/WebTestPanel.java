@@ -42,7 +42,6 @@ import org.htmlcleaner.TagNodeVisitor;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
-import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -257,7 +256,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     }
 
                     p.setPropertyValue(tagInfo.getText());
-                    p.setOperator(ComparisonOperator.EQUAL_TO);
 
                     retval.add(p);
                 }

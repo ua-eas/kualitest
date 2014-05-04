@@ -95,14 +95,19 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         config.setTableName("html-checkpoint-properties");
         config.setDisplayName("Checkpoint Properties");
         
-        int[] alignment = new int[5];
+        int[] alignment = new int[6];
         for (int i = 0; i < alignment.length; ++i) {
-            alignment[i] = JLabel.LEFT;
+            if (i == 0) {
+                alignment[i] = JLabel.CENTER;
+            } else {
+                alignment[i] = JLabel.LEFT;
+            }
         }
             
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
+            "",
             "Name",
             "Type",
             "Operator",
@@ -111,6 +116,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         });
         
         config.setPropertyNames(new String[] {
+            "selected",
             "displayName",
             "valueType",
             "operator",
@@ -119,6 +125,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         });
             
         config.setColumnTypes(new Class[] {
+            Boolean.class,
             String.class,
             String.class,
             String.class,
@@ -127,6 +134,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         });
         
         config.setColumnWidths(new int[] {
+            15,
             100,
             40,
             20,

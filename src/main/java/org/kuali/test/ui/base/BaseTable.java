@@ -17,6 +17,7 @@
 package org.kuali.test.ui.base;
 
 import java.awt.Component;
+import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -33,19 +34,22 @@ public class BaseTable extends JTable {
         super(new BaseTableModel(config));
 
         for (int i = 0; i < config.getHeaders().length; ++i) {
-            getColumnModel().getColumn(i).setPreferredWidth(getColumnWidth(config, i));
+            getColumnModel().getColumn(i).setPreferredWidth(getColumnWidth(i));
         }
         
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
+        
+        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        setAutoCreateColumnsFromModel(false);
     }
     
-    private String getColumnPreferenceKey(TableConfiguration config, int col, String name) {
+    private String getColumnPreferenceKey(int col, String name) {
         StringBuilder retval = new StringBuilder(64);
         
-        retval.append(config.getTableName());
+        retval.append(getConfig().getTableName());
         retval.append(".column.");
-        retval.append(config.getPropertyNames()[col]);
+        retval.append(getConfig().getPropertyNames()[col]);
         retval.append(".");
         retval.append(name);
 
@@ -63,26 +67,26 @@ public class BaseTable extends JTable {
         Preferences node = proot.node(Constants.PREFS_TABLE_NODE);
         
         for (int i = 0; i < config.getPropertyNames().length; ++i) {
-            String key = getColumnPreferenceKey(config, i, "width");
+            String key = getColumnPreferenceKey(i, "width");
             node.putInt(key, getColumnModel().getColumn(i).getPreferredWidth());
         }
     }
     
-    private int getColumnWidth(TableConfiguration config, int col) {
-        int retval = config.getColumnWidths()[col];
+    private int getColumnWidth(int col) {
+        int retval = getConfig().getColumnWidths()[col];
         Preferences proot = Preferences.userRoot();
         Preferences node = proot.node(Constants.PREFS_TABLE_NODE);
-        retval = node.getInt(getColumnPreferenceKey(config, col, "width"), retval);
+        retval = node.getInt(getColumnPreferenceKey(col, "width"), retval);
         return retval;
     }
 
-    protected TableColumn getTableColumn(TableConfiguration config, int col) {
-        int colwidth =  getColumnWidth(config, col);
+    protected TableColumn getTableColumn(int col) {
+        int colwidth =  getColumnWidth(col);
 
         return new TableColumn(col, 
             colwidth, 
-            getTableCellRenderer(config, col),
-            getTableCellEditor(config, col));
+            getTableCellRenderer(getConfig(), col),
+            getTableCellEditor(getConfig(), col));
     }
 
     protected TableCellRenderer getTableCellRenderer(final TableConfiguration config, final int col) {
@@ -105,4 +109,22 @@ public class BaseTable extends JTable {
         super.columnMarginChanged(e);
         saveTablePreferences();
     }
+
+    protected List getTableData() {
+        BaseTableModel tm = (BaseTableModel)getModel();
+        return tm.getData();
+    }
+
+    protected Object getTableDataAt(int row) {
+        Object retval = null;
+        List l = getTableData();
+        
+        if ((l != null) && (row < l.size())) {
+            retval = l.get(row);
+        }
+        
+        return retval;
+    }
+    
+    
 }
