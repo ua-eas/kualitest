@@ -25,13 +25,18 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.utils.Constants;
 
 
-public class TablePanel extends JPanel {
+public class TablePanel extends JPanel implements ListSelectionListener {
     private BaseTable table;
     private JPanel labelPanel;
+    private JButton deleteButton;
+    
     public TablePanel(BaseTable table, int numberOfRowsToDisplay) {
         super(new BorderLayout(3, 3));
         this.table = table;
@@ -46,7 +51,9 @@ public class TablePanel extends JPanel {
         labelPanel = new JPanel(new BorderLayout());
         labelPanel.add(new JLabel(table.getConfig().getDisplayName()), BorderLayout.NORTH);
         add (labelPanel, BorderLayout.NORTH);
-        labelPanel.add(new JPanel(new FlowLayout(FlowLayout.LEFT)), BorderLayout.CENTER);
+        labelPanel.add(new JSeparator(), BorderLayout.CENTER);
+        labelPanel.add(new JPanel(new FlowLayout(FlowLayout.LEFT)), BorderLayout.SOUTH);
+        
         add(new JScrollPane(table), BorderLayout.CENTER);
         table.setPreferredScrollableViewportSize(new Dimension( 
             table.getPreferredScrollableViewportSize().width, 
@@ -61,12 +68,13 @@ public class TablePanel extends JPanel {
     
     private JPanel getButtonPanel() {
         BorderLayout l = (BorderLayout)labelPanel.getLayout();
-        return (JPanel)l.getLayoutComponent(BorderLayout.CENTER);
+        return (JPanel)l.getLayoutComponent(BorderLayout.SOUTH);
     }
     
     public void addAddButton(ActionListener listener, String text, String tooltipText) {;
         JPanel p = getButtonPanel();
         JButton b = new JButton(text, Constants.ADD_ICON);
+        b.setMargin(new Insets(1, 1, 1, 1));
         b.setToolTipText(tooltipText);
         b.addActionListener(listener);
         p.add(b);
@@ -74,9 +82,19 @@ public class TablePanel extends JPanel {
     
     public void addDeleteButton(ActionListener listener, String text, String tooltipText) {
         JPanel p = getButtonPanel();
-        JButton b = new JButton(text, Constants.DELETE_ICON);
-        b.setToolTipText(tooltipText);
-        b.addActionListener(listener);
-        p.add(b);
+        deleteButton = new JButton(text, Constants.DELETE_ICON);
+        deleteButton.setMargin(new Insets(1, 1, 1, 1));
+        deleteButton.setToolTipText(tooltipText);
+        deleteButton.setEnabled(false);
+        deleteButton.addActionListener(listener);
+        table.getSelectionModel().addListSelectionListener(this);
+        p.add(deleteButton);
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (deleteButton != null) {
+            deleteButton.setEnabled(table.getSelectedRow() > -1);
+        }
     }
 }

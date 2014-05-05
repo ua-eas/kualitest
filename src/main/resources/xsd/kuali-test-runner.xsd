@@ -36,7 +36,7 @@
     <xs:simpleType name="scheduled-test-type">
         <xs:restriction base="xs:string">
             <xs:enumeration value="test suite"/>
-            <xs:enumeration value="single test"/>
+            <xs:enumeration value="platform test"/>
         </xs:restriction>
     </xs:simpleType>
 

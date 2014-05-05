@@ -46,12 +46,19 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     private JButton cancelButton;
     private String saveActionCommand = Constants.SAVE_ACTION;
     private String cancelActionCommand = Constants.CANCEL_ACTION;
-
+    private TestCreator mainframe;
     private boolean saved = false;
     private boolean editmode = false;
     
     public BaseSetupDlg(TestCreator mainframe) {
         super(mainframe, true);
+        this.mainframe = mainframe;
+        getContentPane().setLayout(new BorderLayout());
+    }
+
+    public BaseSetupDlg(TestCreator mainframe, JDialog parent) {
+        super(parent, true);
+        this.mainframe = mainframe;
         getContentPane().setLayout(new BorderLayout());
     }
 
@@ -93,7 +100,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
 
     
     protected TestCreator getMainframe() {
-        return (TestCreator)getParent();
+        return mainframe;
     }
     
     @Override
@@ -145,6 +152,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         setVisible(true);
     }
     
+    protected void inputDataErrorsAlert(String type, String msg) {
+        UIUtils.showError(this, type, "Input data errors:<br />" + msg);
+    }
+
     protected void displayRequiredFieldsMissingAlert(String type, String requiredFields) {
         UIUtils.showError(this, type, "Required fields are missing - please check fields:\n" + requiredFields);
     }
@@ -223,7 +234,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     }
 
     protected abstract boolean save();
-    protected void handleOtherActions(String actionCommend) {};
+    protected void handleOtherActions(String actionCommand) {};
     
     public Object getNewRepositoryObject() {
         return null;

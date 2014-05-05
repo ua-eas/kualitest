@@ -26,9 +26,19 @@
          <version>3.0</version>
          <web-url>https://kf-tst.mosaic.arizona.edu/kfs-tst</web-url>
          <web-service-url/>
-         <test-suites/>
-         <platform-tests>
-         </platform-tests>
+         <test-suites>
+            <test-suite>
+               <platform-name>kfs-dev</platform-name>
+               <name>test suite 1</name>
+               <suite-tests/>
+            </test-suite>
+            <test-suite>
+               <platform-name>kfs-dev</platform-name>
+               <name>test suite 2</name>
+               <suite-tests/>
+            </test-suite>
+         </test-suites>
+         <platform-tests></platform-tests>
       </platform>
       <platform>
          <name>kfs-test</name>

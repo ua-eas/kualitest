@@ -125,7 +125,7 @@ public class TestRunner {
                 if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
                     if (test.getType().equals(ScheduledTestType.TEST_SUITE)) {
                         scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
-                    } else if (test.getType().equals(ScheduledTestType.SINGLE_TEST)) {
+                    } else if (test.getType().equals(ScheduledTestType.PLATFORM_TEST)) {
                         scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
                     }
                     activeTests.add(test);

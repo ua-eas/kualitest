@@ -26,6 +26,7 @@ import org.kuali.test.creator.TestCreator;
 public class Constants {
     public static final String DEFAULT_TIMESTAMP_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_DATE_FORMAT_STRING = "yyyy-MM-dd";
+    public static final String SELECT_DATETIME_FORMAT_STRING = "MM/dd/yyyy HH:mm";
     
     public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
@@ -99,7 +100,7 @@ public class Constants {
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
-
+    public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);

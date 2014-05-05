@@ -41,7 +41,7 @@ public class UIUtils {
 
             buf.append("<html><div style='");
             buf.append(style);
-            buf.append(">");
+            buf.append("'>");
             buf.append(msg);
             buf.append("</div></html>");
             retval = buf.toString();
@@ -51,11 +51,11 @@ public class UIUtils {
     }
     
     public static String buildFormattedHtmlMessage(String msg, int width) {
-        return buildFormattedHtmlMessage(msg, "'width: " + width + "px;'");
+        return buildFormattedHtmlMessage(msg, "width: " + width + "px;");
     }
     
     public static void showError(Component c, String title, String msg) {
-        JOptionPane.showMessageDialog(findWindow(c), buildFormattedHtmlMessage(msg, 175), title, JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(findWindow(c), buildFormattedHtmlMessage(msg, 250), title, JOptionPane.ERROR_MESSAGE);
     }
     
     public static boolean promptForDelete(Component c, String title, String prompt) {

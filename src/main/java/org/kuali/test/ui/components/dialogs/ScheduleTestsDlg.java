@@ -21,11 +21,14 @@ import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestRunnerDocument;
 import org.kuali.test.KualiTestRunnerDocument.KualiTestRunner;
@@ -40,6 +43,7 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.renderers.CalendarTableCellRenderer;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.ScheduledTestComparator;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -147,6 +151,8 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
                 for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
                     data.add(test);
                 }
+                
+                Collections.sort(data, new ScheduledTestComparator());
 
                 config.setData(data);
             }
@@ -155,7 +161,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         retval = new BaseTable(config);
         
         retval.getColumnModel().getColumn(2).setCellRenderer(new CalendarTableCellRenderer());
-        
+        retval.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
         return retval;
     }
     
@@ -175,21 +181,40 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            KualiTestRunnerDocument doc = KualiTestRunnerDocument.Factory.newInstance();
-            doc.setKualiTestRunner(testRunnerConfiguration);
-            try {
-                doc.save(Utils.getTestRunnerConfigurationFile(getMainframe().getConfiguration()));
-                setSaved(true);
-                dispose();
-                retval = true;
-            }
-            
-            catch (Exception ex) {
-                UIUtils.showError(getMainframe(), "SChedule Test Error", "An error occurred while attempting save scheduled tests - " + ex.toString());
-            }
+            saveTestSchedule();
+            setSaved(true);
+            dispose();
+            retval = true;
+
         }
         
         return retval;
+    }
+    
+    private void saveTestSchedule() {
+        List <ScheduledTest> scheduledTests = scheduledTestsTable.getTableData();
+        
+        Iterator <ScheduledTest> it = scheduledTests.iterator();
+        
+        while (it.hasNext()) {
+            if (it.next().getStartTime().getTimeInMillis() < System.currentTimeMillis()) {
+                it.remove();
+            }
+        }
+        
+        Collections.sort(scheduledTests, new ScheduledTestComparator());
+        
+        testRunnerConfiguration.getScheduledTests().setScheduledTestArray(scheduledTests.toArray(new ScheduledTest[scheduledTests.size()]));
+        
+        KualiTestRunnerDocument doc = KualiTestRunnerDocument.Factory.newInstance();
+        doc.setKualiTestRunner(testRunnerConfiguration);
+        try {
+            doc.save(Utils.getTestRunnerConfigurationFile(getMainframe().getConfiguration()));
+        }
+
+        catch (Exception ex) {
+            UIUtils.showError(getMainframe(), "SChedule Test Error", "An error occurred while attempting save scheduled tests - " + ex.toString());
+        }
     }
     
     @Override
@@ -199,7 +224,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "test-scheduler";
+        return "schedule-tests-dlg";
     }
     
     protected void handleOtherActions(String actionCommand) {
@@ -221,7 +246,23 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             }
             
         } else if (Constants.SCHEDULE_TEST_ACTION.equals(actionCommand)) {
+            scheduleTest();
+        }
+    }
+    
+    private void scheduleTest() {
+        ScheduleTestDlg dlg = new ScheduleTestDlg(getMainframe(), this);
+
+        if (dlg.isSaved()) {
+            ScheduledTest test = (ScheduledTest)dlg.getNewRepositoryObject();
             
+            if (test != null) {
+                List <ScheduledTest> tests =  scheduledTestsTable.getTableData();
+                tests.add(test);
+                Collections.sort(tests, new ScheduledTestComparator());
+                BaseTableModel tm = (BaseTableModel)scheduledTestsTable.getModel();
+                tm.fireTableDataChanged();
+            }
         }
     }
 }
