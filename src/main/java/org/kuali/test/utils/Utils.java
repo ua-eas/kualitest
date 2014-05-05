@@ -792,5 +792,47 @@ public class Utils {
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
+    
+    public static boolean isKualiTab(HtmlTagInfo tagInfo) {
+        return isKualiTab(tagInfo.getTagType(), tagInfo.getIdAttribute());
+    }
+    
+    public static boolean isKualiTab(String tagType, String id) {
+        boolean retval = false;
+        if (StringUtils.isNotBlank(id)) {
+            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(tagType)) {
+                if (id.startsWith("tab-")) {
+                    retval = id.endsWith("-div");
+                }
+            }
+        }
+        return retval;
+    }
 
+
+    public static String getKualiTabDisplayNameFromId(String id) {
+        String retval = id;
+        if (StringUtils.isNotBlank(id)) {
+            int pos1 = id.indexOf('-');
+            int pos2 = id.lastIndexOf('-');
+
+            if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
+                String nm = id.substring(pos1+1, pos2);
+                
+                int len = nm.length();
+                StringBuilder buf = new StringBuilder(len);
+                for (int i = 0; i < len; ++i) {
+                    if ((i > 0) && Character.isUpperCase(nm.charAt(i))) {
+                        buf.append(" ");
+                    }
+                    
+                    buf.append(nm.charAt(i));
+                }
+                
+                retval = buf.toString();
+            }
+            
+        }
+        return retval;
+    }
 }

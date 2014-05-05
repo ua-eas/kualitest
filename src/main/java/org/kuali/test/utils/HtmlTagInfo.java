@@ -22,6 +22,8 @@ import org.htmlcleaner.TagNode;
 
 public class HtmlTagInfo {
     private String tagType;
+    private String parentTabName;
+    private String parentTabId;
     private String typeAttribute;
     private String nameAttribute;
     private String idAttribute;
@@ -32,7 +34,7 @@ public class HtmlTagInfo {
     public HtmlTagInfo() {
     }
     
-    public HtmlTagInfo(String pageTitle, TagNode tag) {
+    public HtmlTagInfo(TagNode tag) {
         tagType = tag.getName();
         typeAttribute = tag.getAttributeByName("type");
         idAttribute = tag.getAttributeByName("id");
@@ -47,8 +49,34 @@ public class HtmlTagInfo {
         } else {
             text = Utils.cleanDisplayText(tag.getText().toString());
         }
-    }
+        
+        parentTabId = findParentTabId(tag);
+        if (StringUtils.isNotBlank(parentTabId)) {
+            parentTabName = Utils.getKualiTabDisplayNameFromId(parentTabId);
+        } else {
+            parentTabName = "top";
+            parentTabId = "top";
+        }
+    }   
 
+    private String findParentTabId(TagNode tag) {
+        String retval = null;
+        if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tag.getName().toLowerCase())) {
+            TagNode parent = tag.getParent();
+            while (parent != null) {
+                String id =  parent.getAttributeByName("id");
+                if (Utils.isKualiTab(parent.getName(),id)) {
+                    retval = id;
+                    break;
+                }
+
+                parent = parent.getParent();
+            }
+        }
+        
+        return retval;
+    }
+    
     private String getInputValue(TagNode tag, String typeAttribute, String nameAttribute) {
         String retval = "";
         
@@ -177,7 +205,22 @@ public class HtmlTagInfo {
     public void setClassAttribute(String classAttribute) {
         this.classAttribute = classAttribute;
     }
-    
+
+    public String getParentTabName() {
+        return parentTabName;
+    }
+
+    public void setParentTabName(String parentTabName) {
+        this.parentTabName = parentTabName;
+    }
+
+    public String getParentTabId() {
+        return parentTabId;
+    }
+
+    public void setParentTabId(String parentTabId) {
+        this.parentTabId = parentTabId;
+    }
     
     public String toString() {
         StringBuilder retval = new StringBuilder(128);

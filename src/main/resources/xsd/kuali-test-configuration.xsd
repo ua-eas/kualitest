@@ -99,7 +99,7 @@
             <xs:element name="name" type="xs:string"/>
             <xs:element name="email-addresses" type="xs:string" minOccurs="0"/>
             <xs:element name="suite-tests" type="suite-tests"/>
-            <xs:element name="max-run-time" type="xs:int" default="-1"/>
+            <xs:element name="max-run-time" type="xs:int" default="0"/>
         </xs:sequence>
     </xs:complexType>
     

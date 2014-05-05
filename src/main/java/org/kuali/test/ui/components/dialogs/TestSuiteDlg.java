@@ -126,7 +126,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Type",
             "Created By",
             "Create Date",
-            "Max Run Time",
+            "Max Run Time(min)",
             "Description"
             
         });
@@ -246,6 +246,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "testsuitesetup";
+        return "test-suite-setup";
     }
 }

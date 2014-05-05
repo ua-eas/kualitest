@@ -27,7 +27,6 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.utils.CheckpointPropertyComparator;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlTagInfo;
 import org.kuali.test.utils.Utils;
@@ -186,23 +186,21 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-        List <CheckpointProperty> checkpointProperties = loadCheckpointPropertiesFromHtml();
+        Map <String, List<CheckpointProperty>> checkpointProperties = loadCheckpointPropertiesFromHtml();
         
-        if ((checkpointProperties != null) && !checkpointProperties.isEmpty()) {
+        if (checkpointProperties.size() > 0) {
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), checkpointProperties);
-            
+
             if (dlg.isSaved()) {
                 TestOperation op = TestOperation.Factory.newInstance();
                 Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
-                
-                
 //                testProxyServer.getTestOperations();
             }
         }
     }
 
-    private List <CheckpointProperty> loadCheckpointPropertiesFromHtml() {
-        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+    private Map <String, List<CheckpointProperty>> loadCheckpointPropertiesFromHtml() {
+        Map <String, List<CheckpointProperty>> retval = new HashMap<String, List<CheckpointProperty>>();
         HtmlCleaner cleaner = new HtmlCleaner();
         List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
         
@@ -227,21 +225,18 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             }
         }
 
-        Set <String> tagset = new HashSet<String>();
-        
         // now lets loop through the non-label elements and create checkpoint properties
         for (HtmlTagInfo tagInfo : availableHtmlObjects) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(tagInfo);
             }
+            
             if (!Utils.isHtmlLabel(tagInfo)) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("non-label - " + tagInfo);
                 }
 
-                if (Utils.isValidCheckpointTag(tagInfo) 
-                    && !tagset.contains(tagInfo.getNameAttribute())) {
-                    tagset.add(tagInfo.getNameAttribute());
+                if (Utils.isValidCheckpointTag(tagInfo)) {
                     CheckpointProperty p = CheckpointProperty.Factory.newInstance();
 
                     String key = Utils.getHtmlElementKey(tagInfo);
@@ -256,18 +251,24 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     }
 
                     p.setPropertyValue(tagInfo.getText());
-
-                    retval.add(p);
+                    p.setParentId(tagInfo.getParentTabId());
+                    p.setParentDisplayName(tagInfo.getParentTabName());
+                    
+                    List <CheckpointProperty> l = retval.get(tagInfo.getParentTabId());
+                    
+                    if (l == null) {
+                        retval.put(tagInfo.getParentTabId(), l = new ArrayList<CheckpointProperty>());
+                    }
+                    
+                    l.add(p);
                 }
             }
         }
         
-        Collections.sort(retval, new Comparator<CheckpointProperty>() {
-            @Override
-            public int compare(CheckpointProperty cp1, CheckpointProperty cp2) {
-                return cp1.getPropertyName().toLowerCase().compareTo(cp2.getPropertyName().toLowerCase());
-            }
-        });
+        CheckpointPropertyComparator comp = new CheckpointPropertyComparator();
+        for (List <CheckpointProperty> properties : retval.values()) {
+            Collections.sort(properties, comp);
+        }
         
         return retval;
     }
@@ -284,7 +285,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void loadHtmlDomObjects(JWebBrowser webBrowser, final HtmlCleaner htmlCleaner, String html, final List <HtmlTagInfo> availableHtmlObjects) {
         final Set <String> iframejscalls = new HashSet<String>();
         TagNode node = htmlCleaner.clean(html);
-        
+
         if (node != null) {
             // traverse whole DOM and update images to absolute URLs
             node.traverse(new TagNodeVisitor() {
@@ -296,8 +297,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                         String name = tag.getAttributeByName("name");
 
                         if (StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name)) {
-                            // if this tag is aniframe we will load a javascript call
-                            // that we will call later
+                            // if this tag is an iframe we will load a javascript call
+                            // that we will call later to get the inner html
                             if ("iframe".equalsIgnoreCase(tag.getName())) {
                                 StringBuilder js = new StringBuilder(256);
                                 js.append("");
@@ -316,7 +317,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                                 
                                 iframejscalls.add(js.toString());
                             } else {
-                                availableHtmlObjects.add(new HtmlTagInfo(null, tag));
+                                availableHtmlObjects.add(new HtmlTagInfo(tag));
                             }
                         }
                     }

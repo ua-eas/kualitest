@@ -146,6 +146,12 @@ public class Constants {
     public static final String HTML_INPUT_TYPE_CHECKBOX = "checkbox";
     public static final String HTML_TAG_TYPE_SELECT = "select";
     public static final String HTML_TAG_TYPE_OPTION = "option";
+    public static final String HTML_TAG_TYPE_DIV = "div";
+    public static final String HTML_TAG_TYPE_TABLE = "table";
+    
+    public static final String HTML_ATTRIBUTE_CLASS_DATATABLE = "datatable";
+    
+    
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     
     

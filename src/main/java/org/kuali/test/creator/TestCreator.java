@@ -115,9 +115,7 @@ public class TestCreator extends JFrame implements WindowListener {
                     if (NativeInterface.isOpen()) {
                         NativeInterface.close();
                     }
-                } 
-                
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     LOG.warn(ex);
                 }
             }
@@ -215,18 +213,18 @@ public class TestCreator extends JFrame implements WindowListener {
 
         fileMenu.add(setup);
         fileMenu.add(new JSeparator());
-        
+
         scheduleTestsMenuItem.setText("Schedule Tests...");
         scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 handleScheduleTests(evt);
             }
         });
-        
+
         fileMenu.add(scheduleTestsMenuItem);
-        
+
         fileMenu.add(new JSeparator());
-        
+
         exitMenuItem.setMnemonic('x');
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -287,7 +285,7 @@ public class TestCreator extends JFrame implements WindowListener {
         createMenuBar();
 
         addWindowListener(this);
-        
+
         desktopPane.setLayout(new java.awt.BorderLayout());
 
         hsplitPane = new JSplitPane();
@@ -493,7 +491,7 @@ public class TestCreator extends JFrame implements WindowListener {
     private void handleScheduleTests(ActionEvent evt) {
         new ScheduleTestsDlg(this);
     }
-    
+
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return testRepositoryTree.getConfiguration();
     }
@@ -591,6 +589,5 @@ public class TestCreator extends JFrame implements WindowListener {
     public synchronized void addWindowStateListener(WindowStateListener l) {
         super.addWindowStateListener(l); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    
+
 }
