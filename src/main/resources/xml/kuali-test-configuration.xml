@@ -30,15 +30,19 @@
             <test-suite>
                <platform-name>kfs-dev</platform-name>
                <name>test suite 1</name>
+               <email-addresses>email1</email-addresses>
                <suite-tests/>
+               <max-run-time>0</max-run-time>
             </test-suite>
             <test-suite>
                <platform-name>kfs-dev</platform-name>
                <name>test suite 2</name>
+               <email-addresses>email2</email-addresses>
                <suite-tests/>
+               <max-run-time>0</max-run-time>
             </test-suite>
          </test-suites>
-         <platform-tests></platform-tests>
+         <platform-tests/>
       </platform>
       <platform>
          <name>kfs-test</name>

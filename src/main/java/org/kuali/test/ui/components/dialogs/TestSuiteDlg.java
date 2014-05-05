@@ -34,6 +34,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.TablePanel;
 
 /**
@@ -43,6 +44,7 @@ import org.kuali.test.ui.components.panels.TablePanel;
 public class TestSuiteDlg extends BaseSetupDlg {
     private Platform platform;
     private TestSuite testSuite;
+    private IntegerTextField maxRunTime;
     private JTextField name;
     private JTextField platformName;
     private JTextField emailAddresses;
@@ -64,6 +66,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             this.testSuite = TestSuite.Factory.newInstance();
             this.testSuite.setName("new test suite");
             this.testSuite.setPlatformName(platform.getName());
+            this.testSuite.setMaxRunTime(0);
         }
         
         initComponents();
@@ -75,6 +78,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Name", 
             "Email Addresses",
             "Platform",
+            "Max Run Time(min)"
         };
         
         name = new JTextField(testSuite.getName(), 20);
@@ -85,10 +89,14 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
         emailAddresses = new JTextField(testSuite.getEmailAddresses(), 30);
         
+        maxRunTime = new IntegerTextField();
+        maxRunTime.setInt(testSuite.getMaxRunTime());
+        
         JComponent[] components = new JComponent[] {
             name,
             emailAddresses,
-            platformName};
+            platformName,
+            maxRunTime};
 
         JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
@@ -189,15 +197,17 @@ public class TestSuiteDlg extends BaseSetupDlg {
                 testSuite = platform.getTestSuites().addNewTestSuite();
                 testSuite.setName(name.getText());
                 
-                String s = emailAddresses.getText();
-                
-                if (StringUtils.isNotBlank(s)) {
-                    testSuite.setEmailAddresses(s);
-                }
-                
                 testSuite.setPlatformName(platform.getName());
                 testSuite.addNewSuiteTests();
             }
+            
+            String s = emailAddresses.getText();
+
+            if (StringUtils.isNotBlank(s)) {
+                testSuite.setEmailAddresses(s);
+            }
+                
+            testSuite.setMaxRunTime(maxRunTime.getInt());
             
             getConfiguration().setModified(true);
             setSaved(true);

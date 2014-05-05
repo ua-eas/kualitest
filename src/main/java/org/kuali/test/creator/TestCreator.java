@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
@@ -114,7 +115,9 @@ public class TestCreator extends JFrame implements WindowListener {
                     if (NativeInterface.isOpen()) {
                         NativeInterface.close();
                     }
-                } catch (Exception ex) {
+                } 
+                
+                catch (Exception ex) {
                     LOG.warn(ex);
                 }
             }
@@ -283,6 +286,8 @@ public class TestCreator extends JFrame implements WindowListener {
 
         createMenuBar();
 
+        addWindowListener(this);
+        
         desktopPane.setLayout(new java.awt.BorderLayout());
 
         hsplitPane = new JSplitPane();
@@ -581,4 +586,11 @@ public class TestCreator extends JFrame implements WindowListener {
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
+
+    @Override
+    public synchronized void addWindowStateListener(WindowStateListener l) {
+        super.addWindowStateListener(l); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
 }

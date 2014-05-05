@@ -30,18 +30,21 @@ import org.kuali.test.utils.Constants;
 
 
 public class BaseTable extends JTable {
+    private boolean initializing = true;
     public BaseTable(TableConfiguration config) {
         super(new BaseTableModel(config));
 
+        
         for (int i = 0; i < config.getHeaders().length; ++i) {
-            getColumnModel().getColumn(i).setPreferredWidth(getColumnWidth(i));
+            int cx = getColumnWidth(i);
+            getColumnModel().getColumn(i).setWidth(cx);
+            getColumnModel().getColumn(i).setPreferredWidth(cx);
         }
         
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
-        
-        setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-        setAutoCreateColumnsFromModel(false);
+        setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        initializing = false;
     }
     
     private String getColumnPreferenceKey(int col, String name) {
@@ -106,8 +109,10 @@ public class BaseTable extends JTable {
  
     @Override
     public void columnMarginChanged(ChangeEvent e) {
-        super.columnMarginChanged(e);
-        saveTablePreferences();
+        if (!initializing) {
+            super.columnMarginChanged(e);
+            saveTablePreferences();
+        }
     }
 
     public List getTableData() {
