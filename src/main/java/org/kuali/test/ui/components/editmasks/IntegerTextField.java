@@ -25,4 +25,20 @@ public class IntegerTextField extends BaseEditMaskField {
     public IntegerTextField(String mask) {
         super(mask, 6);
     }
+    
+    public void setInt(int in) {
+        setText("" + in);
+    }
+    
+    public int getInt() {
+        int retval = 0;
+        try {
+            retval = Integer.parseInt(getText());
+        }
+        
+        catch (Exception ex) {
+        }
+        
+        return retval;
+    }
 }

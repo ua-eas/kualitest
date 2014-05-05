@@ -42,7 +42,8 @@ import org.kuali.test.utils.Constants;
 
 public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected static final Logger LOG = Logger.getLogger(BaseSetupDlg.class);
-    
+    private JButton saveButton;
+    private JButton cancelButton;
     private String saveActionCommand = Constants.SAVE_ACTION;
     private String cancelActionCommand = Constants.CANCEL_ACTION;
 
@@ -123,12 +124,11 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected void addStandardButtons() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
-        JButton b;
-        p.add(b = new JButton(saveActionCommand = getSaveText()));
-        b.addActionListener(this);
+        p.add(saveButton = new JButton(saveActionCommand = getSaveText()));
+        saveButton.addActionListener(this);
         
-        p.add(b = new JButton(cancelActionCommand = getCancelText()));
-        b.addActionListener(this);
+        p.add(cancelButton = new JButton(cancelActionCommand = getCancelText()));
+        cancelButton.addActionListener(this);
 
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(new JSeparator(), BorderLayout.NORTH);
@@ -215,16 +215,28 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected void handleAction(ActionEvent e) {
         if (saveActionCommand.equalsIgnoreCase(e.getActionCommand())) {
             save();
-        } else {
+        } else if (cancelActionCommand.equalsIgnoreCase(e.getActionCommand())) {
             dispose();
+        } else {
+            handleOtherActions(e.getActionCommand());
         }
     }
 
     protected abstract boolean save();
+    protected void handleOtherActions(String actionCommend) {};
+    
     public Object getNewRepositoryObject() {
         return null;
     }
     
+    protected JButton getSaveButton() {
+        return saveButton;
+    }
+    
+    protected JButton getCancelButton() {
+        return cancelButton;
+    }
+
     protected String getSaveText() {
         return Constants.SAVE_ACTION;
     }

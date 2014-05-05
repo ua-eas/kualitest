@@ -110,12 +110,12 @@ public class BaseTable extends JTable {
         saveTablePreferences();
     }
 
-    protected List getTableData() {
+    public List getTableData() {
         BaseTableModel tm = (BaseTableModel)getModel();
         return tm.getData();
     }
 
-    protected Object getTableDataAt(int row) {
+    public Object getTableDataAt(int row) {
         Object retval = null;
         List l = getTableData();
         
@@ -125,6 +125,4 @@ public class BaseTable extends JTable {
         
         return retval;
     }
-    
-    
 }

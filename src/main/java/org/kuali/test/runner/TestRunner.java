@@ -34,10 +34,10 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.KualiTestRunnerDocument;
 import org.kuali.test.ScheduledTest;
+import org.kuali.test.ScheduledTestType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
-import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
@@ -111,11 +111,8 @@ public class TestRunner {
         }
     }
 
-    private File getTestRunnerConfigurationFile() {
-        return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
-    }
     protected void updateTestRunnerConfiguration() throws XmlException, IOException {
-        File trConfigFile =  getTestRunnerConfigurationFile();
+        File trConfigFile =  Utils.getTestRunnerConfigurationFile(configuration);
                     
         if (trConfigFile.exists() && trConfigFile.isFile()) {
             testRunnerConfiguration = KualiTestRunnerDocument.Factory.parse(trConfigFile).getKualiTestRunner();
@@ -126,10 +123,10 @@ public class TestRunner {
         if (testRunnerConfiguration.getScheduledTests() != null) {
             for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
                 if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
-                    if (StringUtils.isNotBlank(test.getTestSuiteName())) {
-                        scheduleTestSuite(test.getPlaformName(), test.getTestSuiteName(), test.getStartTime().getTime());
-                    } else if (StringUtils.isNotBlank(test.getTestName())) {
-                        scheduleTest(test.getPlaformName(), test.getTestName(), test.getStartTime().getTime());
+                    if (test.getType().equals(ScheduledTestType.TEST_SUITE)) {
+                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
+                    } else if (test.getType().equals(ScheduledTestType.SINGLE_TEST)) {
+                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
                     }
                     activeTests.add(test);
                 }
@@ -146,7 +143,7 @@ public class TestRunner {
     }
     
     private void saveTestRunnerConfiguration() throws IOException {
-        File f =  getTestRunnerConfigurationFile();
+        File f =  Utils.getTestRunnerConfigurationFile(configuration);
         KualiTestRunnerDocument doc = KualiTestRunnerDocument.Factory.newInstance();
         doc.setKualiTestRunner(testRunnerConfiguration);
         doc.save(f);

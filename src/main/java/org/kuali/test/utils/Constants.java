@@ -24,9 +24,12 @@ import org.kuali.test.creator.TestCreator;
 
 
 public class Constants {
+    public static final String DEFAULT_TIMESTAMP_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
+    public static final String DEFAULT_DATE_FORMAT_STRING = "yyyy-MM-dd";
+    
     public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
-    public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
-    public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
+    public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
+    public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT_STRING);
     
     public static final ImageIcon KUALI_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
     
@@ -43,6 +46,8 @@ public class Constants {
     public static final ImageIcon SAVE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/save-test.png"));
     public static final ImageIcon CLOCK_ICON = new ImageIcon(TestCreator.class.getResource("/images/clock.png"));
     public static final ImageIcon CLOSE_TAB_ICON = new ImageIcon(TestCreator.class.getResource("/images/close-tab.png"));
+    public static final ImageIcon ADD_ICON = new ImageIcon(TestCreator.class.getResource("/images/add.png"));
+    public static final ImageIcon DELETE_ICON = new ImageIcon(TestCreator.class.getResource("/images/delete.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
@@ -92,6 +97,8 @@ public class Constants {
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String SAVE_TEST_ACTION = "Save Test";
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
+    public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
+    public static final String REMOVE_TEST_ACTION = "Remove Test";
 
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";
@@ -139,4 +146,9 @@ public class Constants {
     public static final String HTML_TAG_TYPE_SELECT = "select";
     public static final String HTML_TAG_TYPE_OPTION = "option";
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
+    
+    
+    public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
+    public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
+
 }

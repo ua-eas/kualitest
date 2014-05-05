@@ -788,4 +788,9 @@ public class Utils {
     public static boolean isHtmlOptionTag(String tagType) {
         return Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(tagType);
     }
+    
+    public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
+    }
+
 }

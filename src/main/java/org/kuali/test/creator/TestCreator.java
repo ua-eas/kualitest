@@ -53,12 +53,13 @@ import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
+import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
-import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
+import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
@@ -157,6 +158,7 @@ public class TestCreator extends JFrame implements WindowListener {
         JMenuItem addPlatformMenuItem = new JMenuItem();
         JMenuItem addDatabaseConnectionMenuItem = new JMenuItem();
         JMenuItem emailSetupMenuItem = new JMenuItem();
+        JMenuItem scheduleTestsMenuItem = new JMenuItem();
         JMenuItem exitMenuItem = new JMenuItem();
         JMenuItem editMenu = new JMenu();
         JMenuItem cutMenuItem = new JMenuItem();
@@ -170,7 +172,7 @@ public class TestCreator extends JFrame implements WindowListener {
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
 
-        loadConfiguationMenuItem.setText("Load Configuation...");
+        loadConfiguationMenuItem.setText("Load Configuration...");
         loadConfiguationMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
@@ -210,7 +212,18 @@ public class TestCreator extends JFrame implements WindowListener {
 
         fileMenu.add(setup);
         fileMenu.add(new JSeparator());
-
+        
+        scheduleTestsMenuItem.setText("Schedule Tests...");
+        scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleScheduleTests(evt);
+            }
+        });
+        
+        fileMenu.add(scheduleTestsMenuItem);
+        
+        fileMenu.add(new JSeparator());
+        
         exitMenuItem.setMnemonic('x');
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -472,6 +485,10 @@ public class TestCreator extends JFrame implements WindowListener {
         }
     }
 
+    private void handleScheduleTests(ActionEvent evt) {
+        new ScheduleTestsDlg(this);
+    }
+    
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return testRepositoryTree.getConfiguration();
     }

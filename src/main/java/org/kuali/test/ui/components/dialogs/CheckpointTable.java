@@ -25,7 +25,7 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.editors.CheckboxTableCellEditor;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.renderers.CheckboxTableCellRenderer;
-import org.kuali.test.ui.components.renderers.ComboBoxCellRenderer;
+import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.utils.Utils;
 
 
@@ -39,17 +39,17 @@ public class CheckpointTable extends BaseTable {
         String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
         JComboBox cb = new JComboBox(valueTypes);
         getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(2).setCellRenderer(new ComboBoxCellRenderer(valueTypes));
+        getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
 
         String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
         cb = new JComboBox(comparisonOperators);
         getColumnModel().getColumn(3).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(3).setCellRenderer(new ComboBoxCellRenderer(comparisonOperators));
+        getColumnModel().getColumn(3).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
         
         String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
         cb = new JComboBox(failureActions);
         getColumnModel().getColumn(5).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(5).setCellRenderer(new ComboBoxCellRenderer(failureActions));
+        getColumnModel().getColumn(5).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
 
     }
 
