@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
+import org.htmlcleaner.TagNode;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -810,14 +811,14 @@ public class Utils {
     }
 
 
-    public static String getKualiTabDisplayNameFromId(String id) {
-        String retval = id;
-        if (StringUtils.isNotBlank(id)) {
-            int pos1 = id.indexOf('-');
-            int pos2 = id.lastIndexOf('-');
+    public static String buildGroupDisplayName(String group) {
+        String retval = group;
+        if (StringUtils.isNotBlank(group)) {
+            int pos1 = group.indexOf('-');
+            int pos2 = group.lastIndexOf('-');
 
             if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-                String nm = id.substring(pos1+1, pos2);
+                String nm = group.substring(pos1+1, pos2);
                 
                 int len = nm.length();
                 StringBuilder buf = new StringBuilder(len);
@@ -835,4 +836,21 @@ public class Utils {
         }
         return retval;
     }
+    
+    public static boolean isHtmlGroupMatch(TagNode tag) {
+        return false;
+    }
+     
+    public static String getHtmlGroup(TagNode tag) {
+        return null;
+    }
+    
+    public static boolean isHtmlSubgroupMatch(TagNode tag) {
+        return false;
+    }
+    
+    public static String getHtmlSubgroup(TagNode tag) {
+        return null;
+    }
+
 }

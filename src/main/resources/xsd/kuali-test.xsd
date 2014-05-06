@@ -215,9 +215,9 @@
             <xs:element name="property-name" type="xs:string"/>
             <xs:element name="property-value" type="xs:string"/>
             <xs:element name="display-name" type="xs:string"/>
-            <xs:element name="parent-id" minOccurs="0" type="xs:string"/>
-            <xs:element name="parent-display-name" minOccurs="0" type="xs:string"/>
-            <xs:element name="additional-key-data" type="xs:string"/>
+            <xs:element name="group" minOccurs="0" type="xs:string"/>
+            <xs:element name="subgroup" minOccurs="0" type="xs:string"/>
+            <xs:element name="additional-identifiers" type="xs:string"/>
             <xs:element name="value-type" type="value-type"/>
             <xs:element name="operator" type="comparison-operator"/>
             <xs:element name="on-failure" type="failure-action"/>

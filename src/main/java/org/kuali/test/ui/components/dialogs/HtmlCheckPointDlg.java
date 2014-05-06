@@ -37,6 +37,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.utils.CheckpointPropertyComparator;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -75,10 +76,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         Map <String, List<CheckpointProperty>>  retval = new HashMap<String, List<CheckpointProperty>> ();
         
         for (CheckpointProperty checkpointProperty : checkpointProperties) {
-            List <CheckpointProperty> l = retval.get(checkpointProperty.getParentId());
+            List <CheckpointProperty> l = retval.get(checkpointProperty.getGroup());
             
             if (l == null) {
-                retval.put(null, l = new ArrayList<CheckpointProperty>());
+                retval.put(checkpointProperty.getGroup(), l = new ArrayList<CheckpointProperty>());
             }
             
             l.add(checkpointProperty);
@@ -119,7 +120,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             
             if ((l != null) && !l.isEmpty()) {
                 p2.add(new JScrollPane(buildParameterTable(l)), BorderLayout.CENTER);
-                tabbedPane.add(l.get(0).getParentDisplayName(), p2);
+                tabbedPane.add(Utils.buildGroupDisplayName(l.get(0).getGroup()), p2);
             }
         }
         
@@ -132,8 +133,8 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     
     private CheckpointTable buildParameterTable(List <CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("html-checkpoint-properties-" + checkpointProperties.get(0).getParentDisplayName().toLowerCase());
-        config.setDisplayName("Checkpoint Properties - " + checkpointProperties.get(0).getParentDisplayName());
+        config.setTableName("html-checkpoint-properties-" + checkpointProperties.get(0).getGroup().toLowerCase());
+        config.setDisplayName("Checkpoint Properties - " + Utils.buildGroupDisplayName(checkpointProperties.get(0).getGroup()));
         
         int[] alignment = new int[6];
         for (int i = 0; i < alignment.length; ++i) {

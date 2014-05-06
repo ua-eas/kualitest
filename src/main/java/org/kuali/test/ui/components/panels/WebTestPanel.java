@@ -32,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
@@ -196,6 +197,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
 //                testProxyServer.getTestOperations();
             }
+        } else {
+            JOptionPane.showMessageDialog(getMainframe(), "No checkpoint property fields found.");
         }
     }
 
@@ -214,10 +217,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         for (HtmlTagInfo tagInfo : availableHtmlObjects) {
             if (Utils.isHtmlLabel(tagInfo)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("label - " + tagInfo);
-                }
-
                 String rootName = Utils.getHtmlLabelPartnerId(tagInfo);
                 if (StringUtils.isNotBlank(rootName)) {
                     labels.put(rootName, tagInfo);
@@ -232,10 +231,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             }
             
             if (!Utils.isHtmlLabel(tagInfo)) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("non-label - " + tagInfo);
-                }
-
                 if (Utils.isValidCheckpointTag(tagInfo)) {
                     CheckpointProperty p = CheckpointProperty.Factory.newInstance();
 
@@ -251,13 +246,14 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     }
 
                     p.setPropertyValue(tagInfo.getText());
-                    p.setParentId(tagInfo.getParentTabId());
-                    p.setParentDisplayName(tagInfo.getParentTabName());
+                    p.setGroup(tagInfo.getGroup());
+                    p.setSubgroup(tagInfo.getSubgroup());
+                    p.setAdditionalIdentifiers(tagInfo.getAdditionalIdentifiers());
                     
-                    List <CheckpointProperty> l = retval.get(tagInfo.getParentTabId());
+                    List <CheckpointProperty> l = retval.get(tagInfo.getGroup());
                     
                     if (l == null) {
-                        retval.put(tagInfo.getParentTabId(), l = new ArrayList<CheckpointProperty>());
+                        retval.put(tagInfo.getGroup(), l = new ArrayList<CheckpointProperty>());
                     }
                     
                     l.add(p);

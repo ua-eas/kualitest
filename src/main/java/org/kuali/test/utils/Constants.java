@@ -110,6 +110,9 @@ public class Constants {
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
+    public static final String DEFAULT_HTML_GROUP = "top";
+    public static final String DEFAULT_HTML_SUBGROUP = "none";
+    
     
     public static final String HTTP_REQUEST_METHOD_GET = "GET";
     public static final String HTTP_REQUEST_METHOD_POST = "POST";

@@ -22,8 +22,9 @@ import org.htmlcleaner.TagNode;
 
 public class HtmlTagInfo {
     private String tagType;
-    private String parentTabName;
-    private String parentTabId;
+    private String group = Constants.DEFAULT_HTML_GROUP;
+    private String subgroup = Constants.DEFAULT_HTML_SUBGROUP;
+    private String additionalIdentifiers;
     private String typeAttribute;
     private String nameAttribute;
     private String idAttribute;
@@ -42,6 +43,7 @@ public class HtmlTagInfo {
         forAttribute = tag.getAttributeByName("for");
         classAttribute = tag.getAttributeByName("class");
         
+        
         if (Utils.isHtmlInputTag(tagType)) {
             text = getInputValue(tag, typeAttribute, nameAttribute);
         } else if (Utils.isHtmlSelectTag(tagType)) {
@@ -50,35 +52,25 @@ public class HtmlTagInfo {
             text = Utils.cleanDisplayText(tag.getText().toString());
         }
         
-        parentTabId = findParentTabId(tag);
-        if (StringUtils.isNotBlank(parentTabId)) {
-            parentTabName = Utils.getKualiTabDisplayNameFromId(parentTabId);
-        } else {
-            parentTabName = "top";
-            parentTabId = "top";
+        if (Utils.isValidCheckpointTag(this)) {
+            checkGroups(tag);
         }
     }   
 
-    private String findParentTabId(TagNode tag) {
-        String retval = null;
-        if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tag.getName().toLowerCase())) {
-            TagNode parent = tag.getParent();
-            while (parent != null) {
-                String id =  parent.getAttributeByName("id");
-                if (Utils.isKualiTab(parent.getName(),id)) {
-                    retval = id;
-                    break;
-                }
-
-                parent = parent.getParent();
+    private void checkGroups(TagNode tag) {
+        TagNode parent = tag.getParent();
+        
+        while(parent != null) {
+            if (Utils.isHtmlGroupMatch(parent)) {
+                group = Utils.getHtmlGroup(parent);
+            } else if (Utils.isHtmlSubgroupMatch(parent)) {
+                subgroup = Utils.getHtmlSubgroup(parent);
             }
         }
-        
-        return retval;
     }
     
     private String getInputValue(TagNode tag, String typeAttribute, String nameAttribute) {
-        String retval = "";
+        String retval = null;
         
         if (Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(typeAttribute)) {
             retval = getSelectedRadioValue(tag, typeAttribute, nameAttribute);
@@ -206,22 +198,32 @@ public class HtmlTagInfo {
         this.classAttribute = classAttribute;
     }
 
-    public String getParentTabName() {
-        return parentTabName;
+    public String getGroup() {
+        return group;
     }
 
-    public void setParentTabName(String parentTabName) {
-        this.parentTabName = parentTabName;
+    public void setGroup(String group) {
+        this.group = group;
     }
 
-    public String getParentTabId() {
-        return parentTabId;
+    public String getSubgroup() {
+        return subgroup;
     }
 
-    public void setParentTabId(String parentTabId) {
-        this.parentTabId = parentTabId;
+    public void setSubgroup(String subgroup) {
+        this.subgroup = subgroup;
     }
+
+    public String getAdditionalIdentifiers() {
+        return additionalIdentifiers;
+    }
+
+    public void setAdditionalIdentifiers(String additionalIdentifiers) {
+        this.additionalIdentifiers = additionalIdentifiers;
+    }
+
     
+    @Override
     public String toString() {
         StringBuilder retval = new StringBuilder(128);
         
