@@ -133,7 +133,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     
     private CheckpointTable buildParameterTable(List <CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("html-checkpoint-properties-" + checkpointProperties.get(0).getGroup().toLowerCase());
+        config.setTableName("html-checkpoint-properties");
         config.setDisplayName("Checkpoint Properties - " + Utils.buildGroupDisplayName(checkpointProperties.get(0).getGroup()));
         
         int[] alignment = new int[6];

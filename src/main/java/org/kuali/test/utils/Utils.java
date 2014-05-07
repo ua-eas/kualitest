@@ -26,9 +26,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.htmlcleaner.TagNode;
+import org.kuali.test.CustomHtmlTagHandler;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -54,6 +58,7 @@ import org.kuali.test.TestSuite;
 public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
+    public static final Map<String, Pattern> REGEX_PATTERNS = new HashMap<String, Pattern>();
     
     public static String[] getPlatformNames(Platform[] platforms) {
         String[] retval = new String[platforms.length];
@@ -681,9 +686,7 @@ public class Utils {
     public static boolean isValidCheckpointTag(HtmlTagInfo tagInfo) {
         boolean retval = false;
         if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getTagType().toLowerCase())) {
-            retval = (!isHtmlInputImageTag(tagInfo) 
-                    && !isHtmlInputHiddenTag(tagInfo)
-                    && !isHtmlInputSubmitTag(tagInfo));
+            retval = (!isHtmlInputImageTag(tagInfo) && !isHtmlInputSubmitTag(tagInfo));
         }
         
         return retval;
@@ -837,20 +840,78 @@ public class Utils {
         return retval;
     }
     
-    public static boolean isHtmlGroupMatch(TagNode tag) {
-        return false;
+
+    public static void initializeRegexMatchers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        for (CustomHtmlTagHandler h :configuration.getCustomHtmlTagHandlers().getHtmlTagHandlerArray()) {
+            if (StringUtils.isNotBlank(h.getClassMatchExpression())) {
+                REGEX_PATTERNS.put(h.getName() + ".class", Pattern.compile(h.getClassMatchExpression()));
+            }
+            
+            if (StringUtils.isNotBlank(h.getIdMatchExpression())) {
+                REGEX_PATTERNS.put(h.getName() + ".id", Pattern.compile(h.getIdMatchExpression()));
+            }
+            
+            if (StringUtils.isNotBlank(h.getNameMatchExpression())) {
+                REGEX_PATTERNS.put(h.getName() + ".name", Pattern.compile(h.getIdMatchExpression()));
+            }
+        }
     }
-     
+    
     public static String getHtmlGroup(TagNode tag) {
-        return null;
+        String retval = null;
+        
+        if (isHtmlTagMatch("group", tag)) {
+            retval = buildGroupDisplayName(tag.getAttributeByName("id"));
+        }
+
+        return retval;
     }
-    
-    public static boolean isHtmlSubgroupMatch(TagNode tag) {
-        return false;
-    }
-    
+
     public static String getHtmlSubgroup(TagNode tag) {
-        return null;
+        String retval = null;
+        
+        if (isHtmlTagMatch("subgroup", tag)) {
+            retval = tag.getAttributeByName("summary");
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isHtmlTagMatch(String type, TagNode tag) {
+        boolean retval = false;
+        
+        String s = tag.getAttributeByName("id");
+        if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".id")) {
+            retval = REGEX_PATTERNS.get(type + ".id").matcher(s).matches();
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("s: " + s);
+                LOG.debug(REGEX_PATTERNS.get(type + ".id").pattern());
+                LOG.debug("id match: " + retval);
+            }
+        }
+        
+        if (!retval) {
+            s = tag.getAttributeByName("name");
+            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".name")) {
+                retval = REGEX_PATTERNS.get(type + ".name").matcher(s).matches();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("name match: " + retval);
+                }
+            }
+        }
+        
+        if (!retval) {
+            s = tag.getAttributeByName("class");
+            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".class")) {
+                retval = REGEX_PATTERNS.get(type + ".class").matcher(s).matches();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("class match: " + retval);
+                }
+            }
+        }
+        
+        return retval;
     }
 
 }

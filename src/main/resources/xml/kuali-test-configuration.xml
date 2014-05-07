@@ -19,6 +19,20 @@
       <from-address>fromaddress</from-address>
       <to-addresses>address1,address2,address3</to-addresses>
    </email-setup>
+   <custom-html-tag-handlers>
+       <html-tag-handler>
+           <name>group</name>
+           <tag-type>div</tag-type>
+           <id-match-expression>^tab-.*-div$</id-match-expression>
+       </html-tag-handler>
+       <html-tag-handler>
+           <name>subgroup</name>
+           <tag-type>table</tag-type>
+           <class-match-expression>^datatable$</class-match-expression>
+           <parent-tag-definition>name=div|class=tab-container</parent-tag-definition>
+       </html-tag-handler>
+   </custom-html-tag-handlers>
+
    <platforms>
       <platform>
          <name>kfs-dev</name>

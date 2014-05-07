@@ -60,12 +60,20 @@ public class HtmlTagInfo {
     private void checkGroups(TagNode tag) {
         TagNode parent = tag.getParent();
         
-        while(parent != null) {
-            if (Utils.isHtmlGroupMatch(parent)) {
-                group = Utils.getHtmlGroup(parent);
-            } else if (Utils.isHtmlSubgroupMatch(parent)) {
-                subgroup = Utils.getHtmlSubgroup(parent);
+        while((parent != null) 
+            && (Constants.DEFAULT_HTML_GROUP.equals(group) || Constants.DEFAULT_HTML_GROUP.equals(subgroup))) {
+            String g = Utils.getHtmlGroup(parent);
+            String sg = Utils.getHtmlSubgroup(parent);
+            
+            if (StringUtils.isNotBlank(g)) {
+                group = g;
             }
+            
+            if (StringUtils.isNotBlank(sg)) {
+                subgroup = sg;
+            }
+            
+            parent = parent.getParent();
         }
     }
     

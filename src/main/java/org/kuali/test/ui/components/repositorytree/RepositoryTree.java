@@ -33,13 +33,13 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.kuali.test.creator.TestCreator;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.SuiteTests;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
@@ -167,6 +167,8 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 if (!xmlValidationErrorList.isEmpty()) {
                     throw new XmlException("invalid xml file: " + configFile.getPath());
                 }
+                
+                Utils.initializeRegexMatchers(configuration);
             } catch (XmlException ex) {
                 UIUtils.showError(this, "Invalid input configuration", "Input configuration file failed validation");
                 LOG.error(ex.toString());

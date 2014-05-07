@@ -28,6 +28,7 @@
                 <xs:element name="database-connections" type="database-connections" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="modified" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="email-setup" type="email-setup"/>
+                <xs:element name="custom-html-tag-handlers" type="custom-html-tag-handlers"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
         </xs:complexType>
@@ -47,6 +48,25 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+
+    <xs:complexType name="custom-html-tag-handlers">
+        <xs:sequence>
+            <xs:element name="html-tag-handler" type="custom-html-tag-handler" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="custom-html-tag-handler">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="tag-type" type="xs:string"/>
+            <xs:element name="id-match-expression" type="xs:string" minOccurs="0"/>
+            <xs:element name="name-match-expression" type="xs:string" minOccurs="0"/>
+            <xs:element name="class-match-expression" type="xs:string" minOccurs="0"/>
+            <xs:element name="parent-tag-definition" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
 
     <xs:complexType name="platforms">
         <xs:sequence>

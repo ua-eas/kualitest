@@ -42,6 +42,7 @@ import org.htmlcleaner.TagNodeVisitor;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.HiddenField;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -187,10 +188,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-        Map <String, List<CheckpointProperty>> checkpointProperties = loadCheckpointPropertiesFromHtml();
+        HtmlTestData testData = loadCheckpointPropertiesFromHtml();
         
-        if (checkpointProperties.size() > 0) {
-            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), checkpointProperties);
+        if (testData.getCheckpointProperties().size() > 0) {
+            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), testData.getCheckpointProperties());
 
             if (dlg.isSaved()) {
                 TestOperation op = TestOperation.Factory.newInstance();
@@ -202,8 +203,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
-    private Map <String, List<CheckpointProperty>> loadCheckpointPropertiesFromHtml() {
-        Map <String, List<CheckpointProperty>> retval = new HashMap<String, List<CheckpointProperty>>();
+    private HtmlTestData loadCheckpointPropertiesFromHtml() {
+        HtmlTestData retval = new HtmlTestData();
         HtmlCleaner cleaner = new HtmlCleaner();
         List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
         
@@ -232,39 +233,37 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             
             if (!Utils.isHtmlLabel(tagInfo)) {
                 if (Utils.isValidCheckpointTag(tagInfo)) {
-                    CheckpointProperty p = CheckpointProperty.Factory.newInstance();
-
-                    String key = Utils.getHtmlElementKey(tagInfo);
-                    HtmlTagInfo label = labels.get(key);
-
-                    p.setPropertyName(key);
-                    
-                    if (label != null) {
-                        p.setDisplayName(Utils.formatDisplayName(label.getText()));
+                    if (Utils.isHtmlInputHiddenTag(tagInfo)) {
+                        HiddenField hf = HiddenField.Factory.newInstance();
+                        hf.setName(tagInfo.getNameAttribute());
+                        hf.setValue(tagInfo.getText());
+                        retval.getHiddenFields().add(hf);
                     } else {
-                        p.setDisplayName(key);
-                    }
+                        CheckpointProperty p = CheckpointProperty.Factory.newInstance();
 
-                    p.setPropertyValue(tagInfo.getText());
-                    p.setGroup(tagInfo.getGroup());
-                    p.setSubgroup(tagInfo.getSubgroup());
-                    p.setAdditionalIdentifiers(tagInfo.getAdditionalIdentifiers());
-                    
-                    List <CheckpointProperty> l = retval.get(tagInfo.getGroup());
-                    
-                    if (l == null) {
-                        retval.put(tagInfo.getGroup(), l = new ArrayList<CheckpointProperty>());
+                        String key = Utils.getHtmlElementKey(tagInfo);
+                        HtmlTagInfo label = labels.get(key);
+
+                        p.setPropertyName(key);
+
+                        if (label != null) {
+                            p.setDisplayName(Utils.formatDisplayName(label.getText()));
+                        } else {
+                            p.setDisplayName(key);
+                        }
+
+                        p.setPropertyValue(tagInfo.getText());
+                        p.setGroup(tagInfo.getGroup());
+                        p.setSubgroup(tagInfo.getSubgroup());
+                        p.setAdditionalIdentifiers(tagInfo.getAdditionalIdentifiers());
+
+                        retval.getCheckpointPropertiesByGroup(tagInfo.getGroup()).add(p);
                     }
-                    
-                    l.add(p);
                 }
             }
         }
         
-        CheckpointPropertyComparator comp = new CheckpointPropertyComparator();
-        for (List <CheckpointProperty> properties : retval.values()) {
-            Collections.sort(properties, comp);
-        }
+        retval.sortProperties();
         
         return retval;
     }
@@ -415,6 +414,48 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         if (e.getComponent() instanceof JWebBrowser) {
             browserRemoved();
+        }
+    }
+    
+    private class HtmlTestData {
+        private Map <String, List<CheckpointProperty>> checkpointProperties = new HashMap<String, List<CheckpointProperty>>();
+        private List <HiddenField> hiddenFields;
+
+        public Map<String, List<CheckpointProperty>> getCheckpointProperties() {
+            return checkpointProperties;
+        }
+
+        public List <CheckpointProperty> getCheckpointPropertiesByGroup(String group) {
+            List <CheckpointProperty> retval = checkpointProperties.get(group);
+            
+            if (retval == null) {
+                 checkpointProperties.put(group, retval = new ArrayList<CheckpointProperty>());
+            }
+            
+            return retval;
+        }
+
+        public void setCheckpointProperties(Map<String, List<CheckpointProperty>> checkpointProperties) {
+            this.checkpointProperties = checkpointProperties;
+        }
+
+        public List<HiddenField> getHiddenFields() {
+            if (hiddenFields == null) {
+                hiddenFields = new ArrayList<HiddenField>();
+            }
+            
+            return hiddenFields;
+        }
+
+        public void setHiddenFields(List<HiddenField> hiddenFields) {
+            this.hiddenFields = hiddenFields;
+        }
+        
+        public void sortProperties() {
+            CheckpointPropertyComparator comp = new CheckpointPropertyComparator();
+            for (List <CheckpointProperty> properties : checkpointProperties.values()) {
+                Collections.sort(properties, comp);
+            }
         }
     }
 }
