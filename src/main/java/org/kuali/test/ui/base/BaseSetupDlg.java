@@ -72,8 +72,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
       int top = node.getInt(nm + Constants.PREFS_DLG_TOP, Constants.DEFAULT_DIALOG_TOP);
       int width = node.getInt(nm + Constants.PREFS_DLG_WIDTH, dim.width);
       int height = node.getInt(nm + Constants.PREFS_DLG_HEIGHT, dim.height);
+      
+      setPreferredSize(new Dimension(width, height));
+      
       setBounds(left, top, width, height);
-        
     }
     
     protected void savePreferences() {
@@ -145,11 +147,15 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     
     protected void setDefaultBehavior() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        setResizable(false);
         setLocationRelativeTo(getMainframe());
-        loadPreferences();
         pack();
+        loadPreferences();
         setVisible(true);
+    }
+
+    @Override
+    public boolean isResizable() {
+        return false;
     }
     
     protected void inputDataErrorsAlert(String type, String msg) {

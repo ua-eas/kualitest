@@ -112,7 +112,8 @@ public class Constants {
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
     public static final String DEFAULT_HTML_GROUP = "top";
     public static final String DEFAULT_HTML_SUBGROUP = "none";
-    
+    public static final String GROUP = "group";
+    public static final String SUBGROUP = "subgroup";
     
     public static final String HTTP_REQUEST_METHOD_GET = "GET";
     public static final String HTTP_REQUEST_METHOD_POST = "POST";

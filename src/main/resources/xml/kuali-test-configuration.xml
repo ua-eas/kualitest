@@ -23,6 +23,7 @@
        <html-tag-handler>
            <name>group</name>
            <tag-type>div</tag-type>
+           <display-generator-class>org.kuali.test.utils.KualiTabDisplayGenerator</display-generator-class>
            <id-match-expression>^tab-.*-div$</id-match-expression>
        </html-tag-handler>
        <html-tag-handler>

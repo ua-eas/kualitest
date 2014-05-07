@@ -37,6 +37,8 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.utils.CheckpointPropertyComparator;
+import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlCheckpointTabComparator;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -111,7 +113,8 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         List <String> tabnames = new ArrayList<String>(checkpointProperties.keySet());
-        Collections.sort(tabnames);
+
+        Collections.sort(tabnames, new HtmlCheckpointTabComparator());
         JTabbedPane tabbedPane = new JTabbedPane();
         
         for (String tabname : tabnames) {
@@ -120,7 +123,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             
             if ((l != null) && !l.isEmpty()) {
                 p2.add(new JScrollPane(buildParameterTable(l)), BorderLayout.CENTER);
-                tabbedPane.add(Utils.buildGroupDisplayName(l.get(0).getGroup()), p2);
+                tabbedPane.add(Utils.buildHtmlDisplayName(Constants.GROUP, l.get(0).getGroup()), p2);
             }
         }
         
@@ -129,12 +132,13 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         addStandardButtons();
         setDefaultBehavior();
+        setResizable(true);
     }
     
     private CheckpointTable buildParameterTable(List <CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties");
-        config.setDisplayName("Checkpoint Properties - " + Utils.buildGroupDisplayName(checkpointProperties.get(0).getGroup()));
+        config.setDisplayName("Checkpoint Properties - " + Utils.buildHtmlDisplayName(Constants.GROUP, checkpointProperties.get(0).getGroup()));
         
         int[] alignment = new int[6];
         for (int i = 0; i < alignment.length; ++i) {
@@ -245,6 +249,11 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "htmlcheckpointentry";
+        return "html-checkpoint-entry";
+    }
+
+    @Override
+    public boolean isResizable() {
+        return true;
     }
 }

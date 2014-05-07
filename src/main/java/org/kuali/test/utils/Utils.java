@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -59,6 +60,8 @@ public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
     public static final Map<String, Pattern> REGEX_PATTERNS = new HashMap<String, Pattern>();
+    public static final Map<String, CustomHtmlTagHandler> CUSTOM_TAG_HANDLERS = new HashMap<String, CustomHtmlTagHandler>();
+    public static final Map<String, DisplayGenerator> DISPLAY_GENERATORS = new HashMap<String, DisplayGenerator>();
     
     public static String[] getPlatformNames(Platform[] platforms) {
         String[] retval = new String[platforms.length];
@@ -797,52 +800,19 @@ public class Utils {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
     
-    public static boolean isKualiTab(HtmlTagInfo tagInfo) {
-        return isKualiTab(tagInfo.getTagType(), tagInfo.getIdAttribute());
-    }
-    
-    public static boolean isKualiTab(String tagType, String id) {
-        boolean retval = false;
-        if (StringUtils.isNotBlank(id)) {
-            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(tagType)) {
-                if (id.startsWith("tab-")) {
-                    retval = id.endsWith("-div");
-                }
-            }
-        }
-        return retval;
-    }
-
-
-    public static String buildGroupDisplayName(String group) {
-        String retval = group;
-        if (StringUtils.isNotBlank(group)) {
-            int pos1 = group.indexOf('-');
-            int pos2 = group.lastIndexOf('-');
-
-            if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-                String nm = group.substring(pos1+1, pos2);
-                
-                int len = nm.length();
-                StringBuilder buf = new StringBuilder(len);
-                for (int i = 0; i < len; ++i) {
-                    if ((i > 0) && Character.isUpperCase(nm.charAt(i))) {
-                        buf.append(" ");
-                    }
-                    
-                    buf.append(nm.charAt(i));
-                }
-                
-                retval = buf.toString();
-            }
-            
-        }
-        return retval;
-    }
-    
-
-    public static void initializeRegexMatchers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+    public static void initializeCustomTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         for (CustomHtmlTagHandler h :configuration.getCustomHtmlTagHandlers().getHtmlTagHandlerArray()) {
+            CUSTOM_TAG_HANDLERS.put(h.getName(), h);
+            
+            if (StringUtils.isNotBlank(h.getDisplayGeneratorClass())) {
+                try {
+                    DISPLAY_GENERATORS.put(h.getDisplayGeneratorClass(), (DisplayGenerator)Class.forName(h.getDisplayGeneratorClass()).newInstance());
+                }
+                
+                catch (Exception ex) {};
+            }
+                
+                
             if (StringUtils.isNotBlank(h.getClassMatchExpression())) {
                 REGEX_PATTERNS.put(h.getName() + ".class", Pattern.compile(h.getClassMatchExpression()));
             }
@@ -860,9 +830,7 @@ public class Utils {
     public static String getHtmlGroup(TagNode tag) {
         String retval = null;
         
-        if (isHtmlTagMatch("group", tag)) {
-            retval = buildGroupDisplayName(tag.getAttributeByName("id"));
-        }
+        retval = getHtmlTagMatch(Constants.GROUP, tag);
 
         return retval;
     }
@@ -870,44 +838,63 @@ public class Utils {
     public static String getHtmlSubgroup(TagNode tag) {
         String retval = null;
         
-        if (isHtmlTagMatch("subgroup", tag)) {
-            retval = tag.getAttributeByName("summary");
+        retval = getHtmlTagMatch(Constants.SUBGROUP, tag);
+
+        return retval;
+    }
+    
+    public static String getHtmlTagMatch(String type, TagNode tag) {
+        String retval = null;
+        
+        CustomHtmlTagHandler h = CUSTOM_TAG_HANDLERS.get(type);
+
+        if ((h != null) && h.getTagType().equalsIgnoreCase(tag.getName())) {
+            Matcher matcher = null;
+            String s = tag.getAttributeByName("id");
+            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".id")) {
+                matcher = REGEX_PATTERNS.get(type + ".id").matcher(s);
+
+                if (matcher.matches()) {
+                    retval = matcher.group();
+                }
+            }
+
+            if (StringUtils.isBlank(retval)) {
+                s = tag.getAttributeByName("name");
+                if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".name")) {
+                    matcher = REGEX_PATTERNS.get(type + ".name").matcher(s);
+
+                    if (matcher.matches()) {
+                        retval = matcher.group();
+                    }
+                }
+            }
+
+            if (StringUtils.isBlank(retval)) {
+                s = tag.getAttributeByName("class");
+                if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".class")) {
+                    matcher = REGEX_PATTERNS.get(type + ".class").matcher(s);
+
+                    if (matcher.matches()) {
+                        retval = matcher.group();
+                    }
+                }
+            }
         }
         
         return retval;
     }
-    
-    public static boolean isHtmlTagMatch(String type, TagNode tag) {
-        boolean retval = false;
+
+    public static String buildHtmlDisplayName(String type, String baseName) {
+        String retval = baseName;
+
+        CustomHtmlTagHandler h = CUSTOM_TAG_HANDLERS.get(type);
         
-        String s = tag.getAttributeByName("id");
-        if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".id")) {
-            retval = REGEX_PATTERNS.get(type + ".id").matcher(s).matches();
+        if ((h != null) && StringUtils.isNotBlank(h.getDisplayGeneratorClass())) {
+            DisplayGenerator dg = DISPLAY_GENERATORS.get(h.getDisplayGeneratorClass());
             
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("s: " + s);
-                LOG.debug(REGEX_PATTERNS.get(type + ".id").pattern());
-                LOG.debug("id match: " + retval);
-            }
-        }
-        
-        if (!retval) {
-            s = tag.getAttributeByName("name");
-            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".name")) {
-                retval = REGEX_PATTERNS.get(type + ".name").matcher(s).matches();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("name match: " + retval);
-                }
-            }
-        }
-        
-        if (!retval) {
-            s = tag.getAttributeByName("class");
-            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".class")) {
-                retval = REGEX_PATTERNS.get(type + ".class").matcher(s).matches();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("class match: " + retval);
-                }
+            if (dg != null) {
+                retval = dg.getDisplayString(baseName);
             }
         }
         

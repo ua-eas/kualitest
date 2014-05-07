@@ -60,6 +60,7 @@
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="tag-type" type="xs:string"/>
+            <xs:element name="display-generator-class" type="xs:string" minOccurs="0"/>
             <xs:element name="id-match-expression" type="xs:string" minOccurs="0"/>
             <xs:element name="name-match-expression" type="xs:string" minOccurs="0"/>
             <xs:element name="class-match-expression" type="xs:string" minOccurs="0"/>
