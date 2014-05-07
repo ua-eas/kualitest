@@ -29,8 +29,8 @@
        <html-tag-handler>
            <name>subgroup</name>
            <tag-type>table</tag-type>
+           <display-generator-class>org.kuali.test.utils.KualiDatatableDisplayGenerator</display-generator-class>
            <class-match-expression>^datatable$</class-match-expression>
-           <parent-tag-definition>name=div|class=tab-container</parent-tag-definition>
        </html-tag-handler>
    </custom-html-tag-handlers>
 

@@ -20,13 +20,12 @@ import java.awt.Component;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import org.kuali.test.ui.base.BaseTableModel;
 
 
 public class CheckboxTableCellEditor extends DefaultCellEditor implements CellEditorListener {
-    private JTable table;
     public CheckboxTableCellEditor() {
         super(new JCheckBox());
         addCellEditorListener(this);
@@ -34,17 +33,7 @@ public class CheckboxTableCellEditor extends DefaultCellEditor implements CellEd
 
     @Override
     public void editingStopped(ChangeEvent e) {
-        if (table != null) {
-            int row = table.getSelectedRow();
-            BaseTableModel tm = (BaseTableModel)table.getModel();
-            Boolean b = (Boolean)tm.getValueAt(row, 0);
-            
-            if (!b.booleanValue()) {
-                tm.setValueAt(null, row, 2);
-                tm.setValueAt(null, row, 3);
-                tm.setValueAt(null, row, 5);
-            }
-        }
+        handleEditingStopped();
     }
 
     @Override
@@ -53,7 +42,11 @@ public class CheckboxTableCellEditor extends DefaultCellEditor implements CellEd
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-        this.table = table;
-        return super.getTableCellEditorComponent(table, value, isSelected, row, column); 
+        JCheckBox retval =  (JCheckBox)super.getTableCellEditorComponent(table, value, isSelected, row, column); 
+        retval.setHorizontalAlignment(SwingConstants.CENTER);
+        return retval;
+    }
+    
+    protected void handleEditingStopped() {
     }
 }

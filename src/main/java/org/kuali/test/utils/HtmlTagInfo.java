@@ -17,10 +17,13 @@
 package org.kuali.test.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.htmlcleaner.TagNode;
 
 
 public class HtmlTagInfo {
+    private static final Logger LOG = Logger.getLogger(HtmlTagInfo.class);
+    
     private String tagType;
     private String group = Constants.DEFAULT_HTML_GROUP;
     private String subgroup = Constants.DEFAULT_HTML_SUBGROUP;
@@ -43,7 +46,6 @@ public class HtmlTagInfo {
         forAttribute = tag.getAttributeByName("for");
         classAttribute = tag.getAttributeByName("class");
         
-        
         if (Utils.isHtmlInputTag(tagType)) {
             text = getInputValue(tag, typeAttribute, nameAttribute);
         } else if (Utils.isHtmlSelectTag(tagType)) {
@@ -61,7 +63,7 @@ public class HtmlTagInfo {
         TagNode parent = tag.getParent();
         
         while((parent != null) 
-            && (Constants.DEFAULT_HTML_GROUP.equals(group) || Constants.DEFAULT_HTML_GROUP.equals(subgroup))) {
+            && (Constants.DEFAULT_HTML_GROUP.equals(group) || Constants.DEFAULT_HTML_SUBGROUP.equals(subgroup))) {
             String g = Utils.getHtmlGroup(parent);
             String sg = Utils.getHtmlSubgroup(parent);
             
@@ -70,7 +72,14 @@ public class HtmlTagInfo {
             }
             
             if (StringUtils.isNotBlank(sg)) {
-                subgroup = sg;
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("sg: " + subgroup);
+                }
+                
+                DisplayGenerator dg = Utils.DISPLAY_GENERATORS.get(Constants.SUBGROUP);
+                if (dg != null) {
+                    subgroup = dg.getDisplayString(parent);
+                }
             }
             
             parent = parent.getParent();
@@ -230,7 +239,6 @@ public class HtmlTagInfo {
         this.additionalIdentifiers = additionalIdentifiers;
     }
 
-    
     @Override
     public String toString() {
         StringBuilder retval = new StringBuilder(128);

@@ -23,6 +23,12 @@ import org.kuali.test.CheckpointProperty;
 public class CheckpointPropertyComparator implements Comparator <CheckpointProperty> {
     @Override
     public int compare(CheckpointProperty o1, CheckpointProperty o2) {
-        return o1.getPropertyName().toLowerCase().compareTo(o2.getPropertyName().toLowerCase());
+        int retval = o1.getSubgroup().compareTo(o2.getSubgroup());
+        
+        if (retval == 0) {
+            retval = o1.getPropertyName().toLowerCase().compareTo(o2.getPropertyName().toLowerCase());
+        }
+        
+        return retval;
     }
 }

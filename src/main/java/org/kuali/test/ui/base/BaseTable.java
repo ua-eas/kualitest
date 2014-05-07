@@ -41,6 +41,7 @@ public class BaseTable extends JTable {
             getColumnModel().getColumn(i).setPreferredWidth(cx);
         }
         
+        getTableHeader().setReorderingAllowed(false);
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
         setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);

@@ -17,15 +17,25 @@
 package org.kuali.test.utils;
 
 import org.apache.commons.lang3.StringUtils;
+import org.htmlcleaner.TagNode;
 
 
-public class KualiTabDisplayGenerator implements DisplayGenerator {
+public class KualiDatatableDisplayGenerator implements DisplayGenerator {
     @Override
-    public String getDisplayString(Object base) {
-        String retval = (String)base;
-        
-        if (StringUtils.isNotBlank(retval) && (retval.length() > 9)) {
-            retval = retval.substring(4, retval.length() - 4);
+    public String getDisplayString(Object o) {
+        String retval = "";
+        if ((o != null) && (o instanceof TagNode)) {
+            TagNode tag = (TagNode)o;
+            String s = tag.getAttributeByName("summary");
+            if (StringUtils.isNotBlank(s)) {
+                int pos = s.lastIndexOf(' ');
+                
+                if ((pos > -1) && "section".equals(s.substring(pos+1).toLowerCase().trim())) {
+                    retval = s.substring(0, pos).trim();
+                } else {
+                    retval = s;
+                }
+            }
         }
         
         return retval;

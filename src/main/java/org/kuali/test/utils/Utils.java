@@ -806,7 +806,7 @@ public class Utils {
             
             if (StringUtils.isNotBlank(h.getDisplayGeneratorClass())) {
                 try {
-                    DISPLAY_GENERATORS.put(h.getDisplayGeneratorClass(), (DisplayGenerator)Class.forName(h.getDisplayGeneratorClass()).newInstance());
+                    DISPLAY_GENERATORS.put(h.getName(), (DisplayGenerator)Class.forName(h.getDisplayGeneratorClass()).newInstance());
                 }
                 
                 catch (Exception ex) {};
@@ -822,7 +822,7 @@ public class Utils {
             }
             
             if (StringUtils.isNotBlank(h.getNameMatchExpression())) {
-                REGEX_PATTERNS.put(h.getName() + ".name", Pattern.compile(h.getIdMatchExpression()));
+                REGEX_PATTERNS.put(h.getName() + ".name", Pattern.compile(h.getNameMatchExpression()));
             }
         }
     }
@@ -888,14 +888,10 @@ public class Utils {
     public static String buildHtmlDisplayName(String type, String baseName) {
         String retval = baseName;
 
-        CustomHtmlTagHandler h = CUSTOM_TAG_HANDLERS.get(type);
-        
-        if ((h != null) && StringUtils.isNotBlank(h.getDisplayGeneratorClass())) {
-            DisplayGenerator dg = DISPLAY_GENERATORS.get(h.getDisplayGeneratorClass());
-            
-            if (dg != null) {
-                retval = dg.getDisplayString(baseName);
-            }
+        DisplayGenerator dg = DISPLAY_GENERATORS.get(type);
+
+        if (dg != null) {
+            retval = dg.getDisplayString(baseName);
         }
         
         return retval;

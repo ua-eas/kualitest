@@ -18,5 +18,5 @@ package org.kuali.test.utils;
 
 
 public interface DisplayGenerator {
-    public String getDisplayString(String base);
+    public String getDisplayString(Object base);
 }

@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.renderers;
 import java.awt.Component;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
 public class CheckboxTableCellRenderer extends JCheckBox implements TableCellRenderer {
@@ -43,7 +44,9 @@ public class CheckboxTableCellRenderer extends JCheckBox implements TableCellRen
             b = (Boolean)value;
         }
         
-        setSelected(b.booleanValue());
+        setSelected(b);
+        
+        setHorizontalAlignment(SwingConstants.CENTER);
 
         return this;
     }

@@ -16,16 +16,22 @@
 
 package org.kuali.test.ui.components.dialogs;
 
+import java.awt.Component;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.ValueType;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.BaseTableModel;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.editors.CheckboxTableCellEditor;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.renderers.CheckboxTableCellRenderer;
 import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
@@ -33,33 +39,61 @@ public class CheckpointTable extends BaseTable {
     public CheckpointTable(TableConfiguration config) {
         super(config);
         
-        getColumnModel().getColumn(0).setCellEditor(new CheckboxTableCellEditor());
-        getColumnModel().getColumn(0).setCellRenderer(new CheckboxTableCellRenderer());
+        getColumnModel().getColumn(0).setCellEditor(new CheckboxTableCellEditor() {
+            @Override
+            protected void handleEditingStopped() {
+                int row = getSelectedRow();
+                if (row > -1) {
+                    BaseTableModel tm = (BaseTableModel)getModel();
+                    
+                    // if checkbox unchecked then clear selections
+                    Boolean b = (Boolean)tm.getValueAt(row, 0);
+                    if (!b) {
+                        tm.setValueAt(null, row, 3);
+                        tm.setValueAt(null, row, 4);
+                        tm.setValueAt(null, row, 6);
+                    }
+                }
+            }
+        });
         
+        getColumnModel().getColumn(0).setCellRenderer(new CheckboxTableCellRenderer());
+        getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                JLabel retval = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (Constants.DEFAULT_HTML_SUBGROUP.equals(value)) {
+                    retval.setText("");
+                }
+                
+                return retval;
+            }
+        });
+
         String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
         JComboBox cb = new JComboBox(valueTypes);
-        getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
+        getColumnModel().getColumn(3).setCellEditor(new ComboBoxCellEditor(cb));
+        getColumnModel().getColumn(3).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
 
         String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
         cb = new JComboBox(comparisonOperators);
-        getColumnModel().getColumn(3).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(3).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
+        getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(cb));
+        getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
         
         String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
         cb = new JComboBox(failureActions);
-        getColumnModel().getColumn(5).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(5).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
+        getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(cb));
+        getColumnModel().getColumn(6).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
 
     }
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return ((column == 0) || isRowEditable(row));
+        return ((column == 0) || ((column > 1) && isRowEditable(row)));
     }
     
     private boolean isRowEditable(int row) {
-        Boolean retval = (Boolean)getValueAt(row, 0);
-        return retval.booleanValue();
+        return (Boolean)getValueAt(row, 0);
     }
 }
