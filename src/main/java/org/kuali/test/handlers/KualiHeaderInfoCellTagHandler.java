@@ -16,7 +16,8 @@
 
 package org.kuali.test.handlers;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Utils;
 
@@ -24,9 +25,13 @@ import org.kuali.test.utils.Utils;
 public class KualiHeaderInfoCellTagHandler extends DefaultHtmlTagHandler {
 
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
-        CheckpointProperty retval = super.getCheckpointProperty(tag);
-        retval.setPropertyValue(Utils.cleanDisplayText(tag.getText().toString()));
+    public CheckpointProperty getCheckpointProperty(Node node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        
+        if (node instanceof Element) {
+            retval.setPropertyValue(Utils.cleanDisplayText(((Element)node).data()));
+        }
+        
         return retval;
     }
 }

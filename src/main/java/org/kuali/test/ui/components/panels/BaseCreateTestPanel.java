@@ -45,7 +45,7 @@ import org.kuali.test.utils.Utils;
 
 
 public abstract class BaseCreateTestPanel extends BasePanel implements ActionListener {
-    protected static final Logger LOG = Logger.getLogger(BaseCreateTestPanel.class);
+    private static final Logger LOG = Logger.getLogger(BaseCreateTestPanel.class);
     
     private Platform platform;
     private TestHeader testHeader;

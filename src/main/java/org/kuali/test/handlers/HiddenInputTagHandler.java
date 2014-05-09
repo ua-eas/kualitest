@@ -16,13 +16,13 @@
 
 package org.kuali.test.handlers;
 
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
 
 public class HiddenInputTagHandler extends TextInputTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
-        return super.getCheckpointProperty(tag);
+    public CheckpointProperty getCheckpointProperty(Node node) {
+        return super.getCheckpointProperty(node);
     }
 }

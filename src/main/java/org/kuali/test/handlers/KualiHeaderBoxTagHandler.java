@@ -17,14 +17,14 @@
 package org.kuali.test.handlers;
 
 import javax.swing.JComponent;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.utils.Constants;
 
 
 public class KualiHeaderBoxTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public JComponent getContainerComponent(TagNode tag) {
-        return getNewPanel(tag);
+    public JComponent getContainerComponent(Node node) {
+        return getNewPanel(node);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class KualiHeaderBoxTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getGroupName(TagNode tag) {
+    public String getGroupName(Node node) {
         return Constants.HEADER_INFO_PANEL_NAME;
     }
 }

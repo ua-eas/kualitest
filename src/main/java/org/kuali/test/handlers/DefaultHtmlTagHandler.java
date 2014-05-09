@@ -19,7 +19,7 @@ package org.kuali.test.handlers;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
 import org.kuali.test.utils.Constants;
@@ -34,21 +34,20 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     }
 
     @Override
-    public JComponent getContainerComponent(TagNode tag) {
+    public JComponent getContainerComponent(Node node) {
         return null;
     }
 
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
+    public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
-        retval.setKey(tag.getAttributeByName("test-key"));
-        retval.setPropertyGroup(getGroupName(tag));
-        retval.setPropertySection(getSectionName(tag));
+        retval.setPropertyGroup(getGroupName(node));
+        retval.setPropertySection(getSectionName(node));
 
         return retval;
     }
     
-    protected JPanel getNewPanel(TagNode tag) {
+    protected JPanel getNewPanel(Node tag) {
         JPanel retval = new JPanel();
         retval.setName(getGroupName(tag));
         return retval;
@@ -69,12 +68,12 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     }
     
     @Override
-    public String getGroupName(TagNode tag) {
+    public String getGroupName(Node node) {
         return Constants.DEFAULT_HTML_PROPERTY_GROUP;
     }
 
     @Override
-    public String getSectionName(TagNode tag) {
+    public String getSectionName(Node node) {
         return Constants.DEFAULT_HTML_PROPERTY_SECTION;
     }
 }

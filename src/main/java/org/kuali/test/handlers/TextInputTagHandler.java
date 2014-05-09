@@ -17,19 +17,19 @@
 package org.kuali.test.handlers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
 
 public class TextInputTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
-        CheckpointProperty retval = super.getCheckpointProperty(tag);
-        retval.setPropertyValue(tag.getAttributeByName("value"));
-        retval.setPropertyName(tag.getAttributeByName("id"));
+    public CheckpointProperty getCheckpointProperty(Node node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        retval.setPropertyValue(node.attributes().get("value"));
+        retval.setPropertyName(node.attributes().get("id"));
         
         if (StringUtils.isBlank(retval.getPropertyName())) {
-            retval.setPropertyName(tag.getAttributeByName("name"));
+            retval.setPropertyName(node.attributes().get("name"));
         }
         
         return retval;

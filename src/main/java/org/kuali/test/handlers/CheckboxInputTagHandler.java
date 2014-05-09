@@ -20,30 +20,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
 
 public class CheckboxInputTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
-        CheckpointProperty retval = super.getCheckpointProperty(tag);
-        retval.setPropertyName(tag.getAttributeByName("name"));
-        retval.setPropertyValue(getSelectedCheckboxValues(tag, retval.getPropertyName()));
+    public CheckpointProperty getCheckpointProperty(Node node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        retval.setPropertyName(node.attributes().get("name"));
+        retval.setPropertyValue(getSelectedCheckboxValues(node, retval.getPropertyName()));
         return retval;
     }
     
-    private String getSelectedCheckboxValues(TagNode tag, String name) {
+    private String getSelectedCheckboxValues(Node node, String name) {
         String retval = "";
         
         List <String> l = new ArrayList<String>();
+
         
-        TagNode[] childTags = tag.getParent().getChildTags();
-        
-        for (int i = 0; i < childTags.length; ++i) {
-            if (name.equals(childTags[i].getAttributeByName("name"))) {
-                if (StringUtils.isNotBlank(childTags[i].getAttributeByName("selected"))) {
-                    l.add(childTags[i].getAttributeByName("value"));
+        for (Node sibling : node.siblingNodes()) {
+            if (name.equals(sibling.attributes().get("name"))) {
+                if (StringUtils.isNotBlank(sibling.attributes().get("selected"))) {
+                    l.add(sibling.attributes().get("value"));
                     break;
                 }
             }

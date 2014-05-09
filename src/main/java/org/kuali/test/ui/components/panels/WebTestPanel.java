@@ -29,10 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.HtmlNode;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.TagNodeVisitor;
+import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.safety.Whitelist;
+import org.jsoup.select.NodeVisitor;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Platform;
@@ -43,11 +45,12 @@ import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
-import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
 public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener {
+    private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
+
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
 
@@ -177,12 +180,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-        HtmlCleaner cleaner = new HtmlCleaner();
         JWebBrowser wb = getCurrentBrowser();
         
-        List<TagNode>[] nodeList = getRootNodesFromHtml(wb, cleaner, wb.getHTMLContent());
+        List <Node>[] nodeList = getRootNodesFromHtml(wb, wb.getHTMLContent());
         
-        if (!nodeList[1].isEmpty()) {
+        if (!nodeList[0].isEmpty()) {
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), nodeList[0], nodeList[1]);
 
             if (dlg.isSaved()) {
@@ -190,7 +192,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
 //                testProxyServer.getTestOperations();
             }
-        } 
+        } else {
+            
+        }
     }
 
     private void createMemoryCheckpoint() {
@@ -202,68 +206,99 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void createWebServiceCheckpoint() {
     }
     
-    private List <TagNode> [] getRootNodesFromHtml(final JWebBrowser webBrowser, final HtmlCleaner htmlCleaner, String html) {
-        // will return 2 lists - 1st is list of root nodes, 2nd is list of label nodes (will use for display names
-        final List [] retval = {new ArrayList<TagNode>(), new ArrayList<TagNode>()};
+    private void traverseNode(final JWebBrowser webBrowser, 
+        final Whitelist whitelist, 
+        Node node, 
+        final List <Node> rootNodes, 
+        final List <Node> labelNodes) {
+        node.traverse(new NodeVisitor() {
+            @Override
+            public void head(Node node, int depth) {
+                // if this tag is an iframe we will load by javascript call
+                if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(node.nodeName())) {
+                    String id = node.attributes().get("id");
+                    String name = node.attributes().get("name");
+
+                    // if we have an iframe try to load the body
+                    if ((StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name))) {
+                        StringBuilder js = new StringBuilder(256);
+                        js.append("");
+
+                        if (StringUtils.isNotBlank(id)) {
+                            js.append("return document.getElementById('");
+                            js.append(id);
+                            js.append("')");
+                        } else {
+                            js.append("return document.getElementsByTagName('");
+                            js.append(name);
+                            js.append("')[0]");
+                        }
+
+                        js.append(".contentDocument.body.innerHTML;");
+
+                        Object o = webBrowser.executeJavascriptWithResult(js.toString());
+
+                        if (LOG.isDebugEnabled()){
+                            LOG.debug("iframe call: " + js.toString());
+                        }
+
+                        if (o != null) {
+                            String iframeCleanHtml = Jsoup.clean(o.toString(), whitelist);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("iframe clean html: " + iframeCleanHtml);
+                            }
+                            Node iframeNode = Jsoup.parse(iframeCleanHtml).body();
+                            rootNodes.add(iframeNode);
+                            traverseNode(webBrowser, whitelist, iframeNode, rootNodes, labelNodes);
+                        }
+                    }
+                } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(node.nodeName())) {
+                    String att = node.attributes().get(Constants.HTML_TAG_ATTRIBUTE_FOR);
+
+                    if (StringUtils.isNotBlank(att)) {
+                        labelNodes.add(node);
+                    }
+                }
+            }
+
+            @Override
+            public void tail(Node node, int i) {
+            }
+        });
+    }
+
+    private Whitelist getHtmlWhitelist() {
+        Whitelist retval = Whitelist.none();
         
-        TagNode node = htmlCleaner.clean(html);
+        retval.addTags("input", "div", "label", "span", "tr", "th", "td", "select", "option", "iframe", "body");
+        retval.addAttributes("input", "id", "name", "value", "type", "class", "checked");
+        retval.addAttributes("div", "id", "name", "class");
+        retval.addAttributes("span", "id", "name", "class");
+        retval.addAttributes("label", "id", "for", "name");
+        retval.addAttributes("select", "id", "name");
+        retval.addAttributes("iframe", "id", "name");
+        
+        return retval;
+    }
+    
+    private List <Node> [] getRootNodesFromHtml(final JWebBrowser webBrowser, String html) {
+        // will return 2 lists - 1st is list of root nodes, 2nd is list of label nodes (will use for display names
+        final List [] retval = {new ArrayList<Element>(), new ArrayList<Element>()};
+        
+        Whitelist whitelist = getHtmlWhitelist();
+        String cleanHtml = Jsoup.clean(html, whitelist);
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("clean html: " + cleanHtml);
+        }
+        
+        Node node = Jsoup.parse(cleanHtml).body();
 
         if (node != null) {
             retval[0].add(node);
-
-            // traverse whole DOM
-            node.traverse(new TagNodeVisitor() {
-                @Override
-                public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
-                    if (htmlNode instanceof TagNode) {
-                        TagNode tag = (TagNode) htmlNode;
-                        String id = tag.getAttributeByName("id");
-                        String name = tag.getAttributeByName("name");
-
-                        if (StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name)) {
-                            // if this tag is an iframe we will load by javascript call
-                            if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(tag.getName())) {
-                                StringBuilder js = new StringBuilder(256);
-                                js.append("");
-                                
-                                if (StringUtils.isNotBlank(id)) {
-                                    js.append("return document.getElementById('");
-                                    js.append(id);
-                                    js.append("')");
-                                } else {
-                                    js.append("return document.getElementsByTagName('");
-                                    js.append(name);
-                                    js.append("')[0]");
-                                }
-
-                                js.append(".contentDocument.body.innerHTML;");
-                                
-                                Object o = webBrowser.executeJavascriptWithResult(js.toString());
-
-                                if (LOG.isDebugEnabled()){
-                                    LOG.debug("iframe call: " + js.toString());
-                                }
-
-                                if (o != null) {
-                                    TagNode iframeNode = htmlCleaner.clean(o.toString());
-                                    if (iframeNode != null) {
-                                        retval[0].add(iframeNode);
-                                    }
-                                }
-                            }
-                        } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(tag.getName())) {
-                            String att = tag.getAttributeByName(Constants.HTML_TAG_ATTRIBUTE_FOR);
-                            
-                            if (StringUtils.isNotBlank(att)) {
-                                retval[1].add(tag);
-                            }
-                        }
-                    }
-                    return true;
-                }
-            });
+            traverseNode(webBrowser, whitelist, node, retval[0], retval[1]);
         }
-        
+
         return retval;
     }
     

@@ -17,17 +17,17 @@
 package org.kuali.test.handlers;
 
 import javax.swing.JComponent;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
 
 
 public interface HtmlTagHandler {
     public boolean isContainer();
-    public JComponent getContainerComponent(TagNode tag);
-    public String getGroupName(TagNode tag);
-    public String getSectionName(TagNode tag);
-    public CheckpointProperty getCheckpointProperty(TagNode tag);
+    public JComponent getContainerComponent(Node tag);
+    public String getGroupName(Node tag);
+    public String getSectionName(Node tag);
+    public CheckpointProperty getCheckpointProperty(Node tag);
     public TagHandler getTagHandler();
     public void setTagHandler(TagHandler tagHandler);
 }

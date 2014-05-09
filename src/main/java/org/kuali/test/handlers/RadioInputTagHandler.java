@@ -17,28 +17,26 @@
 package org.kuali.test.handlers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
 
 public class RadioInputTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(TagNode tag) {
-        CheckpointProperty retval = super.getCheckpointProperty(tag);
-        retval.setPropertyName(tag.getAttributeByName("name"));
-        retval.setPropertyValue(getSelectedRadioValue(tag, retval.getPropertyName()));
+    public CheckpointProperty getCheckpointProperty(Node node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        retval.setPropertyName(node.attributes().get("name"));
+        retval.setPropertyValue(getSelectedRadioValue(node, retval.getPropertyName()));
         return retval;
     }
     
-    private String getSelectedRadioValue(TagNode tag, String name) {
+    private String getSelectedRadioValue(Node node, String name) {
         String retval = "";
         
-        TagNode[] childTags = tag.getParent().getChildTags();
-        
-        for (int i = 0; i < childTags.length; ++i) {
-            if (name.equals(childTags[i].getAttributeByName("name"))) {
-                if (StringUtils.isNotBlank(childTags[i].getAttributeByName("checked"))) {
-                    retval = childTags[i].getAttributeByName("value");
+        for (Node sibling : node.siblingNodes()) {
+            if (name.equals(sibling.attributes().get("name"))) {
+                if (StringUtils.isNotBlank(sibling.attributes().get("checked"))) {
+                    retval = sibling.attributes().get("value");
                     break;
                 }
             }

@@ -30,7 +30,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestHeader;
@@ -55,7 +56,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private Checkpoint checkpoint;
     private JTextField name;
     
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, List<TagNode> rootNodes, List<TagNode>labelNodes) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, List<Node> rootNodes, List<Node>labelNodes) {
         super(mainFrame);
         this.testHeader= testHeader;
         
@@ -73,7 +74,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     }
     
     @SuppressWarnings("unchecked")
-    private void initComponents(List <TagNode> rootNodes, List <TagNode> labelNodes) {
+    private void initComponents(List <Node> rootNodes, List <Node> labelNodes) {
         String[] labels = new String[] {
             "Checkpoint Name" 
         };
@@ -89,6 +90,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
         
         BasePanel propertyContainer = buildPropertyContainer(rootNodes, labelNodes);
+        
         p.add(propertyContainer, BorderLayout.CENTER);
         getContentPane().add(p, BorderLayout.CENTER);
 
@@ -101,14 +103,14 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         setResizable(true);
     }
     
-    private BasePanel buildPropertyContainer(List <TagNode> rootNodes, List <TagNode> labelNodes) {
+    private BasePanel buildPropertyContainer(List <Node> rootNodes, List <Node> labelNodes) {
         BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
         Map <String, String> labelMap = buildLabelMap(labelNodes);
         List <CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
 
-        for (TagNode node : rootNodes) {
+        for (Node node : rootNodes) {
             processNode(Constants.DEFAULT_HTML_PROPERTY_GROUP, labelMap, checkpointProperties, node);
         }
 
@@ -167,12 +169,16 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private void processNode(String groupName, Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, TagNode node) {
+    private void processNode(String groupName, Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, Node node) {
         HtmlTagHandler th = Utils.getHtmlTagHandler(node);
         
         if (th != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("tag handler: " + th.getTagHandler().getHandlerClassName());
+            }
+            
             if (th.isContainer()) {
-                for (TagNode child : node.getChildTags()) {
+                for (Node child : node.childNodes()) {
                     processNode(th.getGroupName(node), labelMap, checkpointProperties, child);
                 }
             } else {
@@ -187,17 +193,21 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 
                 checkpointProperties.add(cp);
             }
+        } else {
+            for (Node child : node.childNodes()) {
+                processNode(groupName, labelMap, checkpointProperties, child);
+            }
         }
     }
     
-    private Map <String, String> buildLabelMap(List <TagNode> labelNodes) {
+    private Map <String, String> buildLabelMap(List <Node> labelNodes) {
         Map <String, String> retval = new HashMap<String, String>();
         
-        for (TagNode label : labelNodes) {
-            String key = label.getAttributeByName("for");
+        for (Node label : labelNodes) {
+            String key = label.attributes().get("for");
             
-            if (StringUtils.isNotBlank(key)) {
-                retval.put(key, Utils.cleanDisplayText(label.getText().toString()));
+            if (StringUtils.isNotBlank(key) && (label instanceof Element)) {
+                retval.put(key, Utils.cleanDisplayText(((Element)label).data()));
             }
         }
         
@@ -232,7 +242,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         
         config.setPropertyNames(new String[] {
             "selected",
-            "subgroup",
+            "propertySection",
             "displayName",
             "valueType",
             "operator",

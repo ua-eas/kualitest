@@ -32,12 +32,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
-import org.htmlcleaner.TagNode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.safety.Whitelist;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -665,7 +667,7 @@ public class Utils {
         String retval = "";
         
         if (StringUtils.isNotBlank(input)) {
-            retval = StringEscapeUtils.unescapeHtml4(input).trim();  
+            retval = Jsoup.clean(input, Whitelist.none());  
         }
         
         return retval;
@@ -706,12 +708,14 @@ public class Utils {
         }
     }
 
-    public static boolean isTagMatch(TagNode tag, TagMatchAttribute[] attributes) {
+    public static boolean isTagMatch(Node node, TagMatchAttribute[] attributes) {
         boolean retval = true;
         
         for (TagMatchAttribute att : attributes) {
-            String tagatt = tag.getAttributeByName(att.getName());
-
+            String tagatt = node.attributes().get(att.getName());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("tag: " + node.nodeName() + ", att: " + att.getName() + ", value: " + tagatt);
+            }
             if ((tagatt == null) || !att.getValue().equals(tagatt)) {
                 retval = false;
                 break;
@@ -721,11 +725,11 @@ public class Utils {
         return retval;
     }
     
-    public static TagNode getMatchingChild(TagMatcher tm, TagNode tag) {
-        TagNode retval = null;
+    public static Node getMatchingChild(TagMatcher tm, Node node) {
+        Node retval = null;
     
-        for (TagNode child : tag.getChildTags()) {
-            if (child.getName().equalsIgnoreCase(tm.getTagName())) {
+        for (Node child : node.childNodes()) {
+            if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
                 if (isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
                     retval = child;
                     break;
@@ -736,36 +740,34 @@ public class Utils {
         return retval;
     }
     
-    public static TagNode getMatchingParent(TagMatcher tm, TagNode tag) {
-        TagNode retval = null;
+    public static Node getMatchingParent(TagMatcher tm, Node node) {
+        Node retval = null;
     
-        TagNode parent = tag.getParent();
+        Node parent = node.parentNode();
         
         while (parent != null) {
-            if (parent.getName().equalsIgnoreCase(tm.getTagName())) {
+            if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
                 if (isTagMatch(parent, tm.getMatchAttributes().getMatchAttributeArray())) {
                     retval = parent;
                     break;
                 }
             }
             
-            parent = parent.getParent();
+            parent = parent.parentNode();
         }
         
         return retval;
     }
 
-    public static TagNode getPreviousMatchingSibling(TagMatcher tm, TagNode tag) {
-        TagNode retval = null;
-    
-        TagNode parent = tag.getParent();
-        
-        while (parent != null) {
-            int indx = parent.getChildIndex(tag);
-            
-            for (int i = 0; i < indx; ++i) {
-                TagNode sibling = parent.getChildTags()[i];
-                if (sibling.getName().equalsIgnoreCase(tm.getTagName())) {
+    public static Node getPreviousMatchingSibling(TagMatcher tm, Node node) {
+        Node retval = null;
+
+        int indx = node.siblingIndex();
+        List <Node> siblingNodes = node.siblingNodes();
+        for (int i = indx - 1; i > -1; ++i) {
+            Node sibling = siblingNodes.get(i);
+            if (sibling != null) {
+                if (sibling.nodeName().equalsIgnoreCase(tm.getTagName())) {
                     if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
                         retval = sibling;
                         break;
@@ -777,21 +779,18 @@ public class Utils {
         return retval;
     }
 
-    public static TagNode getNextMatchingSibling(TagMatcher tm, TagNode tag) {
-        TagNode retval = null;
-    
-        TagNode parent = tag.getParent();
+    public static Node getNextMatchingSibling(TagMatcher tm, Node node) {
+        Node retval = null;
+
+        int indx = node.siblingIndex();
+        List <Node> siblingNodes = node.siblingNodes();
         
-        while (parent != null) {
-            int indx = parent.getChildIndex(tag);
-            
-            for (int i = indx+1; i < parent.getChildTags().length; ++i) {
-                TagNode sibling = parent.getChildTags()[i];
-                if (sibling.getName().equalsIgnoreCase(tm.getTagName())) {
-                    if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = sibling;
-                        break;
-                    }
+        for (int i = indx+1; i < siblingNodes.size(); ++i) {
+            Node sibling = siblingNodes.get(i);
+            if (sibling.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    retval = sibling;
+                    break;
                 }
             }
         }
@@ -799,51 +798,56 @@ public class Utils {
         return retval;
     }
     
-    public static String getLabelText(TagMatcher labelMatcher, TagNode tag) {
+    public static String getLabelText(TagMatcher labelMatcher, Node node) {
         String retval = "";
-        TagNode labelNode = getMatchingTagNode(labelMatcher, tag);
+        Node labelNode = getMatchingTagNode(labelMatcher, node);
         
         if (labelNode != null) {
-            retval = tag.getAttributeByName("value");
+            retval = node.attributes().get("value");
             
-            if (StringUtils.isBlank(retval)) {
-                retval = cleanDisplayText(tag.getText().toString());
+            if (StringUtils.isBlank(retval) && (labelNode instanceof Element)) {
+                retval = cleanDisplayText(((Element)labelNode).data());
             }
         }
         
         return retval;
     }
     
-    public static TagNode getMatchingTagNode(TagMatcher tm, TagNode tag) {
-        TagNode retval = null;
-        
+    public static Node getMatchingTagNode(TagMatcher tm, Node node) {
+        Node retval = null;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.nodeName());
+        }
         switch(tm.getMatchType().intValue()) {
-            case TagMatchType.INT_CURRENT:
-                if (isTagMatch(tag, tm.getMatchAttributes().getMatchAttributeArray())) {
-                   retval = tag;
-                }
-                break;
             case TagMatchType.INT_CHILD:
-                retval = getMatchingChild(tm, tag);
+                retval = getMatchingChild(tm, node);
                 break;
             case TagMatchType.INT_PARENT:
-                retval = getMatchingParent(tm, tag);
+                retval = getMatchingParent(tm, node);
                 break;
             case TagMatchType.INT_PREVIOUS_SIBLING:
-                retval = getPreviousMatchingSibling(tm, tag);
+                retval = getPreviousMatchingSibling(tm, node);
                 break;
             case TagMatchType.INT_NEXT_SIBLING:
-                retval = getNextMatchingSibling(tm, tag);
+                retval = getNextMatchingSibling(tm, node);
+                break;
+            default:
+                if (isTagMatch(node, tm.getMatchAttributes().getMatchAttributeArray())) {
+                   retval = node;
+                }
                 break;
         }
 
         return retval;
     }
     
-    public static HtmlTagHandler getHtmlTagHandler(TagNode tag) {
+    public static HtmlTagHandler getHtmlTagHandler(Node node) {
         HtmlTagHandler retval = null;
         
-        List <HtmlTagHandler> thl = TAG_HANDLERS.get(tag.getName().toLowerCase());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getHtmlTagHandler - " + node.nodeName());
+        }
+        List <HtmlTagHandler> thl = TAG_HANDLERS.get(node.nodeName().toLowerCase());
         
         if (thl != null) {
             for (HtmlTagHandler hth : thl) {
@@ -851,7 +855,7 @@ public class Utils {
                 TagHandler th = hth.getTagHandler();
                 if (th.getTagMatchers() != null) {
                     for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
-                        if (getMatchingTagNode(tm, tag) == null) {
+                        if (getMatchingTagNode(tm, node) == null) {
                             match = false;
                             break;
                         }

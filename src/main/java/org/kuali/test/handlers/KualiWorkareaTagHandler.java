@@ -17,12 +17,12 @@
 package org.kuali.test.handlers;
 
 import javax.swing.JComponent;
-import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Node;
 
 
 public class KualiWorkareaTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public JComponent getContainerComponent(TagNode tag) {
+    public JComponent getContainerComponent(Node node) {
         return getNewTabbedPane();
     }
 
