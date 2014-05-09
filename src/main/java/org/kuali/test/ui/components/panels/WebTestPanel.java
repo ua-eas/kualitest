@@ -26,13 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.HtmlCleaner;
@@ -40,9 +34,7 @@ import org.htmlcleaner.HtmlNode;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.TagNodeVisitor;
 import org.kuali.test.Checkpoint;
-import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
-import org.kuali.test.HiddenField;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -53,10 +45,7 @@ import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import static org.kuali.test.ui.components.panels.BaseCreateTestPanel.LOG;
 import org.kuali.test.ui.components.splash.SplashDisplay;
-import org.kuali.test.utils.CheckpointPropertyComparator;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.HtmlTagInfo;
-import org.kuali.test.utils.Utils;
 
 public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener {
     private TestProxyServer testProxyServer;
@@ -188,86 +177,22 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-        HtmlTestData testData = loadCheckpointPropertiesFromHtml();
+        HtmlCleaner cleaner = new HtmlCleaner();
+        JWebBrowser wb = getCurrentBrowser();
         
-        if (testData.getCheckpointProperties().size() > 0) {
-            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), testData.getCheckpointProperties());
+        List<TagNode>[] nodeList = getRootNodesFromHtml(wb, cleaner, wb.getHTMLContent());
+        
+        if (!nodeList[1].isEmpty()) {
+            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), nodeList[0], nodeList[1]);
 
             if (dlg.isSaved()) {
                 TestOperation op = TestOperation.Factory.newInstance();
                 Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
 //                testProxyServer.getTestOperations();
             }
-        } else {
-            JOptionPane.showMessageDialog(getMainframe(), "No checkpoint property fields found.");
-        }
+        } 
     }
 
-    private HtmlTestData loadCheckpointPropertiesFromHtml() {
-        HtmlTestData retval = new HtmlTestData();
-        HtmlCleaner cleaner = new HtmlCleaner();
-        List <HtmlTagInfo> availableHtmlObjects = new ArrayList<HtmlTagInfo>();
-        
-        JWebBrowser wb = getCurrentBrowser();
-        
-        loadHtmlDomObjects(wb, cleaner, wb.getHTMLContent(), availableHtmlObjects);
-
-        // create a map of labels objects for names - will assume that label naming
-        // convention is <input-name/id>.label
-        Map<String, HtmlTagInfo> labels = new HashMap<String, HtmlTagInfo>();
-        
-        for (HtmlTagInfo tagInfo : availableHtmlObjects) {
-            if (Utils.isHtmlLabel(tagInfo)) {
-                String rootName = Utils.getHtmlLabelPartnerId(tagInfo);
-                if (StringUtils.isNotBlank(rootName)) {
-                    labels.put(rootName, tagInfo);
-                }
-            }
-        }
-
-        // now lets loop through the non-label elements and create checkpoint properties
-        for (HtmlTagInfo tagInfo : availableHtmlObjects) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(tagInfo);
-            }
-            
-            if (!Utils.isHtmlLabel(tagInfo)) {
-                if (Utils.isValidCheckpointTag(tagInfo)) {
-                    if (Utils.isHtmlInputHiddenTag(tagInfo)) {
-                        HiddenField hf = HiddenField.Factory.newInstance();
-                        hf.setName(tagInfo.getNameAttribute());
-                        hf.setValue(tagInfo.getText());
-                        retval.getHiddenFields().add(hf);
-                    } else {
-                        CheckpointProperty p = CheckpointProperty.Factory.newInstance();
-
-                        String key = Utils.getHtmlElementKey(tagInfo);
-                        HtmlTagInfo label = labels.get(key);
-
-                        p.setPropertyName(key);
-
-                        if (label != null) {
-                            p.setDisplayName(Utils.formatDisplayName(label.getText()));
-                        } else {
-                            p.setDisplayName(key);
-                        }
-
-                        p.setPropertyValue(tagInfo.getText());
-                        p.setGroup(tagInfo.getGroup());
-                        p.setSubgroup(tagInfo.getSubgroup());
-                        p.setAdditionalIdentifiers(tagInfo.getAdditionalIdentifiers());
-
-                        retval.getCheckpointPropertiesByGroup(tagInfo.getGroup()).add(p);
-                    }
-                }
-            }
-        }
-        
-        retval.sortProperties();
-        
-        return retval;
-    }
-    
     private void createMemoryCheckpoint() {
     }
     
@@ -277,12 +202,16 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void createWebServiceCheckpoint() {
     }
     
-    private void loadHtmlDomObjects(JWebBrowser webBrowser, final HtmlCleaner htmlCleaner, String html, final List <HtmlTagInfo> availableHtmlObjects) {
-        final Set <String> iframejscalls = new HashSet<String>();
+    private List <TagNode> [] getRootNodesFromHtml(final JWebBrowser webBrowser, final HtmlCleaner htmlCleaner, String html) {
+        // will return 2 lists - 1st is list of root nodes, 2nd is list of label nodes (will use for display names
+        final List [] retval = {new ArrayList<TagNode>(), new ArrayList<TagNode>()};
+        
         TagNode node = htmlCleaner.clean(html);
 
         if (node != null) {
-            // traverse whole DOM and update images to absolute URLs
+            retval[0].add(node);
+
+            // traverse whole DOM
             node.traverse(new TagNodeVisitor() {
                 @Override
                 public boolean visit(TagNode tagNode, HtmlNode htmlNode) {
@@ -292,9 +221,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                         String name = tag.getAttributeByName("name");
 
                         if (StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name)) {
-                            // if this tag is an iframe we will load a javascript call
-                            // that we will call later to get the inner html
-                            if ("iframe".equalsIgnoreCase(tag.getName())) {
+                            // if this tag is an iframe we will load by javascript call
+                            if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(tag.getName())) {
                                 StringBuilder js = new StringBuilder(256);
                                 js.append("");
                                 
@@ -310,36 +238,33 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
                                 js.append(".contentDocument.body.innerHTML;");
                                 
-                                iframejscalls.add(js.toString());
-                            } else {
-                                availableHtmlObjects.add(new HtmlTagInfo(tag));
+                                Object o = webBrowser.executeJavascriptWithResult(js.toString());
+
+                                if (LOG.isDebugEnabled()){
+                                    LOG.debug("iframe call: " + js.toString());
+                                }
+
+                                if (o != null) {
+                                    TagNode iframeNode = htmlCleaner.clean(o.toString());
+                                    if (iframeNode != null) {
+                                        retval[0].add(iframeNode);
+                                    }
+                                }
+                            }
+                        } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(tag.getName())) {
+                            String att = tag.getAttributeByName(Constants.HTML_TAG_ATTRIBUTE_FOR);
+                            
+                            if (StringUtils.isNotBlank(att)) {
+                                retval[1].add(tag);
                             }
                         }
                     }
-                    
                     return true;
                 }
             });
-            
-            
-            for (String jscall :iframejscalls) {
-                Object o = webBrowser.executeJavascriptWithResult(jscall);
-
-                if (LOG.isDebugEnabled()){
-                    LOG.debug("iframe call: " + jscall);
-                }
-
-                if (o != null) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("----------------- iframe content ----------------");
-                        LOG.trace(o.toString());
-                        LOG.trace("------------------------------------------------");
-                    }
-
-                    loadHtmlDomObjects(webBrowser, htmlCleaner, o.toString(), availableHtmlObjects);
-                }
-            }
         }
+        
+        return retval;
     }
     
     @Override
@@ -414,48 +339,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         if (e.getComponent() instanceof JWebBrowser) {
             browserRemoved();
-        }
-    }
-    
-    private class HtmlTestData {
-        private Map <String, List<CheckpointProperty>> checkpointProperties = new HashMap<String, List<CheckpointProperty>>();
-        private List <HiddenField> hiddenFields;
-
-        public Map<String, List<CheckpointProperty>> getCheckpointProperties() {
-            return checkpointProperties;
-        }
-
-        public List <CheckpointProperty> getCheckpointPropertiesByGroup(String group) {
-            List <CheckpointProperty> retval = checkpointProperties.get(group);
-            
-            if (retval == null) {
-                 checkpointProperties.put(group, retval = new ArrayList<CheckpointProperty>());
-            }
-            
-            return retval;
-        }
-
-        public void setCheckpointProperties(Map<String, List<CheckpointProperty>> checkpointProperties) {
-            this.checkpointProperties = checkpointProperties;
-        }
-
-        public List<HiddenField> getHiddenFields() {
-            if (hiddenFields == null) {
-                hiddenFields = new ArrayList<HiddenField>();
-            }
-            
-            return hiddenFields;
-        }
-
-        public void setHiddenFields(List<HiddenField> hiddenFields) {
-            this.hiddenFields = hiddenFields;
-        }
-        
-        public void sortProperties() {
-            CheckpointPropertyComparator comp = new CheckpointPropertyComparator();
-            for (List <CheckpointProperty> properties : checkpointProperties.values()) {
-                Collections.sort(properties, comp);
-            }
         }
     }
 }

@@ -31,8 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.htmlcleaner.TagNode;
-import org.kuali.test.CustomHtmlTagHandler;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -50,18 +47,22 @@ import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
+import org.kuali.test.TagHandler;
+import org.kuali.test.TagMatchAttribute;
+import org.kuali.test.TagMatchType;
+import org.kuali.test.TagMatcher;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.handlers.HtmlTagHandler;
 
 
 public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
-    public static final Map<String, Pattern> REGEX_PATTERNS = new HashMap<String, Pattern>();
-    public static final Map<String, CustomHtmlTagHandler> CUSTOM_TAG_HANDLERS = new HashMap<String, CustomHtmlTagHandler>();
-    public static final Map<String, DisplayGenerator> DISPLAY_GENERATORS = new HashMap<String, DisplayGenerator>();
+    
+    public static Map <String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
     
     public static String[] getPlatformNames(Platform[] platforms) {
         String[] retval = new String[platforms.length];
@@ -660,116 +661,11 @@ public class Utils {
         return retval;
     }
     
-    public static boolean isHtmlLabel(HtmlTagInfo tagInfo) {
-        return StringUtils.isNotBlank(tagInfo.getForAttribute());
-    }
-
-    public static String getHtmlLabelPartnerId(HtmlTagInfo tagInfo) {
-        String retval = null;
-        
-        if (isHtmlLabel(tagInfo)) {
-            retval = tagInfo.getForAttribute();
-        }
-        
-        return retval;
-    }
-    
-    public static String getHtmlElementKey(HtmlTagInfo tagInfo) {
-        String retval = null;
-        
-        if (StringUtils.isNotBlank(tagInfo.getIdAttribute())) {
-            retval = tagInfo.getIdAttribute();
-        } else if (StringUtils.isNotBlank(tagInfo.getNameAttribute())) {
-            retval = tagInfo.getNameAttribute();
-        }
-
-        return retval;
-    }
-    
-    public static boolean isValidCheckpointTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        if (Constants.VALID_CHECKPOINT_TAG_TYPES.contains(tagInfo.getTagType().toLowerCase())) {
-            retval = (!isHtmlInputImageTag(tagInfo) && !isHtmlInputSubmitTag(tagInfo));
-        }
-        
-        return retval;
-    }
-    
     public static String cleanDisplayText(String input) {
         String retval = "";
         
         if (StringUtils.isNotBlank(input)) {
             retval = StringEscapeUtils.unescapeHtml4(input).trim();  
-        }
-        
-        return retval;
-    }
-
-    public static boolean isHtmlInputTag(String tagType) {
-        boolean retval = false;
-        
-        if (StringUtils.isNotBlank(tagType)) {
-            retval =  Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(tagType);
-        }
-        
-        return retval;
-    }
-
-    public static boolean isHtmlInputImageTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if (isHtmlInputTag(tagInfo.getTagType())) {
-            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
-                retval =  Constants.HTML_INPUT_TYPE_IMAGE.equalsIgnoreCase(tagInfo.getTypeAttribute());
-            }
-        }
-        
-        return retval;
-    }
-
-    public static boolean isHtmlInputHiddenTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if (isHtmlInputTag(tagInfo.getTagType())) {
-            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
-                retval =  Constants.HTML_INPUT_TYPE_HIDDEN.equalsIgnoreCase(tagInfo.getTypeAttribute());
-            }
-        }
-        
-        return retval;
-    }
-    
-    public static boolean isHtmlInputSubmitTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if (isHtmlInputTag(tagInfo.getTagType())) {
-            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
-                retval =  Constants.HTML_INPUT_TYPE_SUBMIT.equalsIgnoreCase(tagInfo.getTypeAttribute());
-            }
-        }
-        
-        return retval;
-    }
-
-    public static boolean isHtmlInputRadioTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if (isHtmlInputTag(tagInfo.getTagType())) {
-            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
-                retval =  Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(tagInfo.getTypeAttribute());
-            }
-        }
-        
-        return retval;
-    }
-
-    public static boolean isHtmlInputCheckboxTag(HtmlTagInfo tagInfo) {
-        boolean retval = false;
-        
-        if (isHtmlInputTag(tagInfo.getTagType())) {
-            if (StringUtils.isNotBlank(tagInfo.getTypeAttribute())) {
-                retval =  Constants.HTML_INPUT_TYPE_RADIO.equalsIgnoreCase(tagInfo.getTypeAttribute());
-            }
         }
         
         return retval;
@@ -788,95 +684,91 @@ public class Utils {
         return retval;
     }
     
-    public static boolean isHtmlSelectTag(String tagType) {
-        return Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagType);
-    }
-
-    public static boolean isHtmlOptionTag(String tagType) {
-        return Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(tagType);
-    }
-    
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
     
-    public static void initializeCustomTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
-        for (CustomHtmlTagHandler h :configuration.getCustomHtmlTagHandlers().getHtmlTagHandlerArray()) {
-            CUSTOM_TAG_HANDLERS.put(h.getName(), h);
-            
-            if (StringUtils.isNotBlank(h.getDisplayGeneratorClass())) {
-                try {
-                    DISPLAY_GENERATORS.put(h.getName(), (DisplayGenerator)Class.forName(h.getDisplayGeneratorClass()).newInstance());
-                }
-                
-                catch (Exception ex) {};
+    public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        for (TagHandler th :configuration.getTagHandlers().getHandlerArray()) {
+            List <HtmlTagHandler> thl = TAG_HANDLERS.get(th.getTagName());
+
+            if (thl == null) {
+                TAG_HANDLERS.put(th.getTagName(), thl = new ArrayList<HtmlTagHandler>());
             }
-                
-                
-            if (StringUtils.isNotBlank(h.getClassMatchExpression())) {
-                REGEX_PATTERNS.put(h.getName() + ".class", Pattern.compile(h.getClassMatchExpression()));
-            }
-            
-            if (StringUtils.isNotBlank(h.getIdMatchExpression())) {
-                REGEX_PATTERNS.put(h.getName() + ".id", Pattern.compile(h.getIdMatchExpression()));
-            }
-            
-            if (StringUtils.isNotBlank(h.getNameMatchExpression())) {
-                REGEX_PATTERNS.put(h.getName() + ".name", Pattern.compile(h.getNameMatchExpression()));
+
+            try {
+                HtmlTagHandler hth = (HtmlTagHandler)Class.forName(th.getHandlerClassName()).newInstance();
+                hth.setTagHandler(th);
+                thl.add(hth);
+            } catch (Exception ex) {
+                LOG.warn(ex.toString(), ex);
             }
         }
     }
-    
-    public static String getHtmlGroup(TagNode tag) {
-        String retval = null;
-        
-        retval = getHtmlTagMatch(Constants.GROUP, tag);
 
-        return retval;
-    }
-
-    public static String getHtmlSubgroup(TagNode tag) {
-        String retval = null;
+    public static boolean isTagMatch(TagNode tag, TagMatchAttribute[] attributes) {
+        boolean retval = true;
         
-        retval = getHtmlTagMatch(Constants.SUBGROUP, tag);
+        for (TagMatchAttribute att : attributes) {
+            String tagatt = tag.getAttributeByName(att.getName());
+
+            if ((tagatt == null) || !att.getValue().equals(tagatt)) {
+                retval = false;
+                break;
+            }
+        }
 
         return retval;
     }
     
-    public static String getHtmlTagMatch(String type, TagNode tag) {
-        String retval = null;
+    public static TagNode getMatchingChild(TagMatcher tm, TagNode tag) {
+        TagNode retval = null;
+    
+        for (TagNode child : tag.getChildTags()) {
+            if (child.getName().equalsIgnoreCase(tm.getTagName())) {
+                if (isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    retval = child;
+                    break;
+                }
+            }
+        }
         
-        CustomHtmlTagHandler h = CUSTOM_TAG_HANDLERS.get(type);
-
-        if ((h != null) && h.getTagType().equalsIgnoreCase(tag.getName())) {
-            Matcher matcher = null;
-            String s = tag.getAttributeByName("id");
-            if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".id")) {
-                matcher = REGEX_PATTERNS.get(type + ".id").matcher(s);
-
-                if (matcher.matches()) {
-                    retval = matcher.group();
+        return retval;
+    }
+    
+    public static TagNode getMatchingParent(TagMatcher tm, TagNode tag) {
+        TagNode retval = null;
+    
+        TagNode parent = tag.getParent();
+        
+        while (parent != null) {
+            if (parent.getName().equalsIgnoreCase(tm.getTagName())) {
+                if (isTagMatch(parent, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    retval = parent;
+                    break;
                 }
             }
+            
+            parent = parent.getParent();
+        }
+        
+        return retval;
+    }
 
-            if (StringUtils.isBlank(retval)) {
-                s = tag.getAttributeByName("name");
-                if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".name")) {
-                    matcher = REGEX_PATTERNS.get(type + ".name").matcher(s);
-
-                    if (matcher.matches()) {
-                        retval = matcher.group();
-                    }
-                }
-            }
-
-            if (StringUtils.isBlank(retval)) {
-                s = tag.getAttributeByName("class");
-                if (StringUtils.isNotBlank(s) && REGEX_PATTERNS.containsKey(type + ".class")) {
-                    matcher = REGEX_PATTERNS.get(type + ".class").matcher(s);
-
-                    if (matcher.matches()) {
-                        retval = matcher.group();
+    public static TagNode getPreviousMatchingSibling(TagMatcher tm, TagNode tag) {
+        TagNode retval = null;
+    
+        TagNode parent = tag.getParent();
+        
+        while (parent != null) {
+            int indx = parent.getChildIndex(tag);
+            
+            for (int i = 0; i < indx; ++i) {
+                TagNode sibling = parent.getChildTags()[i];
+                if (sibling.getName().equalsIgnoreCase(tm.getTagName())) {
+                    if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = sibling;
+                        break;
                     }
                 }
             }
@@ -885,16 +777,94 @@ public class Utils {
         return retval;
     }
 
-    public static String buildHtmlDisplayName(String type, String baseName) {
-        String retval = baseName;
-
-        DisplayGenerator dg = DISPLAY_GENERATORS.get(type);
-
-        if (dg != null) {
-            retval = dg.getDisplayString(baseName);
+    public static TagNode getNextMatchingSibling(TagMatcher tm, TagNode tag) {
+        TagNode retval = null;
+    
+        TagNode parent = tag.getParent();
+        
+        while (parent != null) {
+            int indx = parent.getChildIndex(tag);
+            
+            for (int i = indx+1; i < parent.getChildTags().length; ++i) {
+                TagNode sibling = parent.getChildTags()[i];
+                if (sibling.getName().equalsIgnoreCase(tm.getTagName())) {
+                    if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = sibling;
+                        break;
+                    }
+                }
+            }
         }
         
         return retval;
     }
+    
+    public static String getLabelText(TagMatcher labelMatcher, TagNode tag) {
+        String retval = "";
+        TagNode labelNode = getMatchingTagNode(labelMatcher, tag);
+        
+        if (labelNode != null) {
+            retval = tag.getAttributeByName("value");
+            
+            if (StringUtils.isBlank(retval)) {
+                retval = cleanDisplayText(tag.getText().toString());
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static TagNode getMatchingTagNode(TagMatcher tm, TagNode tag) {
+        TagNode retval = null;
+        
+        switch(tm.getMatchType().intValue()) {
+            case TagMatchType.INT_CURRENT:
+                if (isTagMatch(tag, tm.getMatchAttributes().getMatchAttributeArray())) {
+                   retval = tag;
+                }
+                break;
+            case TagMatchType.INT_CHILD:
+                retval = getMatchingChild(tm, tag);
+                break;
+            case TagMatchType.INT_PARENT:
+                retval = getMatchingParent(tm, tag);
+                break;
+            case TagMatchType.INT_PREVIOUS_SIBLING:
+                retval = getPreviousMatchingSibling(tm, tag);
+                break;
+            case TagMatchType.INT_NEXT_SIBLING:
+                retval = getNextMatchingSibling(tm, tag);
+                break;
+        }
 
+        return retval;
+    }
+    
+    public static HtmlTagHandler getHtmlTagHandler(TagNode tag) {
+        HtmlTagHandler retval = null;
+        
+        List <HtmlTagHandler> thl = TAG_HANDLERS.get(tag.getName().toLowerCase());
+        
+        if (thl != null) {
+            for (HtmlTagHandler hth : thl) {
+                boolean match = true;
+                TagHandler th = hth.getTagHandler();
+                if (th.getTagMatchers() != null) {
+                    for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
+                        if (getMatchingTagNode(tm, tag) == null) {
+                            match = false;
+                            break;
+                        }
+                    }
+                }
+                
+                if (match) {
+                    retval = hth;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
 }

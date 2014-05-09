@@ -41,7 +41,7 @@ import org.kuali.test.utils.Constants;
 
 
 public abstract class BaseSetupDlg extends JDialog implements ActionListener {
-    protected static final Logger LOG = Logger.getLogger(BaseSetupDlg.class);
+    private static final Logger LOG = Logger.getLogger(BaseSetupDlg.class);
     private JButton saveButton;
     private JButton cancelButton;
     private String saveActionCommand = Constants.SAVE_ACTION;

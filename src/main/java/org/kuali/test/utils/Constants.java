@@ -110,10 +110,10 @@ public class Constants {
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
-    public static final String DEFAULT_HTML_GROUP = "top";
-    public static final String DEFAULT_HTML_SUBGROUP = "none";
-    public static final String GROUP = "group";
-    public static final String SUBGROUP = "subgroup";
+    public static final String HEADER_INFO_PANEL_NAME = "Header Info";
+    public static final String DEFAULT_HTML_PROPERTY_GROUP = "main";
+    public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
+    
     
     public static final String HTTP_REQUEST_METHOD_GET = "GET";
     public static final String HTTP_REQUEST_METHOD_POST = "POST";
@@ -125,7 +125,6 @@ public class Constants {
     public static final String CSS_SUFFIX = "css";
     public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();
     public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
-    public static final Set <String> VALID_CHECKPOINT_TAG_TYPES = new HashSet<String>();
     
     static {
         IMAGE_SUFFIX_SET.add("gif");
@@ -136,25 +135,13 @@ public class Constants {
 
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
         VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
-
-        VALID_CHECKPOINT_TAG_TYPES.add("input");
-        VALID_CHECKPOINT_TAG_TYPES.add("select");
     }
     
-    
-    public static final String HTML_TAG_TYPE_INPUT = "input";
-    public static final String HTML_INPUT_TYPE_IMAGE = "image";
-    public static final String HTML_INPUT_TYPE_HIDDEN = "hidden";
-    public static final String HTML_INPUT_TYPE_SUBMIT = "submit";
-    public static final String HTML_INPUT_TYPE_RADIO = "radio";
-    public static final String HTML_INPUT_TYPE_CHECKBOX = "checkbox";
-    public static final String HTML_TAG_TYPE_SELECT = "select";
+
     public static final String HTML_TAG_TYPE_OPTION = "option";
-    public static final String HTML_TAG_TYPE_DIV = "div";
-    public static final String HTML_TAG_TYPE_TABLE = "table";
-    
-    public static final String HTML_ATTRIBUTE_CLASS_DATATABLE = "datatable";
-    
+    public static final String HTML_TAG_TYPE_LABEL = "label";
+    public static final String HTML_TAG_TYPE_IFRAME = "iframe";
+    public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     

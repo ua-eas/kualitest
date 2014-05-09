@@ -14,9 +14,25 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.comparators;
+
+import java.util.Comparator;
+import org.kuali.test.utils.Constants;
 
 
-public interface DisplayGenerator {
-    public String getDisplayString(Object base);
+public class HtmlCheckpointTabComparator implements Comparator<String>{
+
+    @Override
+    public int compare(String o1, String o2) {
+        int retval = 0;
+        if (Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(o1)) {
+            retval = -1;
+        } else if (Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(o2)) {
+            retval = 1;
+        } else {
+            retval = o1.compareTo(o2);
+        }
+        
+        return retval;
+    }
 }

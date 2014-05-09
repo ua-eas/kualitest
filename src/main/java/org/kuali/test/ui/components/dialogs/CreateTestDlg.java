@@ -25,6 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestType;
@@ -40,6 +41,7 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public class CreateTestDlg extends BaseSetupDlg {
+    private static final Logger LOG = Logger.getLogger(CreateTestDlg.class);
     private Platform platform;
     private JTextField testName;
     private JComboBox testType;

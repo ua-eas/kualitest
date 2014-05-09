@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.handlers;
 
-import java.util.Comparator;
+import org.htmlcleaner.TagNode;
+import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Utils;
 
 
-public class HtmlCheckpointTabComparator implements Comparator<String>{
+public class KualiHeaderInfoCellTagHandler extends DefaultHtmlTagHandler {
 
     @Override
-    public int compare(String o1, String o2) {
-        int retval = 0;
-        if (Constants.DEFAULT_HTML_GROUP.equals(o1)) {
-            retval = -1;
-        } else if (Constants.DEFAULT_HTML_GROUP.equals(o2)) {
-            retval = 1;
-        } else {
-            retval = o1.compareTo(o2);
-        }
-        
+    public CheckpointProperty getCheckpointProperty(TagNode tag) {
+        CheckpointProperty retval = super.getCheckpointProperty(tag);
+        retval.setPropertyValue(Utils.cleanDisplayText(tag.getText().toString()));
         return retval;
     }
 }

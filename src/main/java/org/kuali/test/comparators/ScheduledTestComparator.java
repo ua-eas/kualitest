@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.comparators;
 
-import org.apache.commons.lang3.StringUtils;
+import java.util.Comparator;
+import org.kuali.test.ScheduledTest;
 
 
-public class KualiTabDisplayGenerator implements DisplayGenerator {
+public class ScheduledTestComparator implements Comparator <ScheduledTest> {
     @Override
-    public String getDisplayString(Object base) {
-        String retval = (String)base;
-        
-        if (StringUtils.isNotBlank(retval) && (retval.length() > 9)) {
-            retval = retval.substring(4, retval.length() - 4);
-        }
-        
-        return retval;
+    public int compare(ScheduledTest o1, ScheduledTest o2) {
+        return o1.getStartTime().compareTo(o2.getStartTime());
     }
 }

@@ -14,15 +14,21 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.handlers;
 
-import java.util.Comparator;
-import org.kuali.test.ScheduledTest;
+import javax.swing.JComponent;
+import org.htmlcleaner.TagNode;
 
 
-public class ScheduledTestComparator implements Comparator <ScheduledTest> {
+public class KualiWorkareaTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public int compare(ScheduledTest o1, ScheduledTest o2) {
-        return o1.getStartTime().compareTo(o2.getStartTime());
+    public JComponent getContainerComponent(TagNode tag) {
+        return getNewTabbedPane();
     }
+
+    @Override
+    public boolean isContainer() {
+        return true;
+    }
+    
 }

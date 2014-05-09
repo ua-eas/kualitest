@@ -34,6 +34,11 @@ public class BasePanel extends JPanel {
         replaceComponent(newComponent, BorderLayout.CENTER);
     }
     
+    public JComponent getCenterComponent() {
+        BorderLayout l = (BorderLayout)getLayout();
+        return (JComponent)l.getLayoutComponent(BorderLayout.CENTER);
+    }
+    
     public void replaceComponent(JComponent newComponent, Object constraints) {
         BorderLayout l = (BorderLayout)getLayout();
         remove(l.getLayoutComponent(constraints));

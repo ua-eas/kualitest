@@ -226,12 +226,12 @@
     
     <xs:complexType name="checkpoint-property">
         <xs:sequence>
+            <xs:element name="key" type="xs:string"/>
             <xs:element name="property-name" type="xs:string"/>
             <xs:element name="property-value" type="xs:string"/>
+            <xs:element name="property-group" type="xs:string"/>
+            <xs:element name="property-section" type="xs:string"/>
             <xs:element name="display-name" type="xs:string"/>
-            <xs:element name="group" minOccurs="0" type="xs:string"/>
-            <xs:element name="subgroup" minOccurs="0" type="xs:string"/>
-            <xs:element name="additional-identifiers" type="xs:string"/>
             <xs:element name="value-type" type="value-type"/>
             <xs:element name="operator" type="comparison-operator"/>
             <xs:element name="on-failure" type="failure-action"/>

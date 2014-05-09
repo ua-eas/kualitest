@@ -28,7 +28,7 @@
                 <xs:element name="database-connections" type="database-connections" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="modified" type="xs:boolean" minOccurs="1" maxOccurs="1"/>
                 <xs:element name="email-setup" type="email-setup"/>
-                <xs:element name="custom-html-tag-handlers" type="custom-html-tag-handlers"/>
+                <xs:element name="tag-handlers" type="tag-handlers"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
         </xs:complexType>
@@ -50,24 +50,64 @@
     </xs:simpleType>
 
 
-    <xs:complexType name="custom-html-tag-handlers">
+    <xs:complexType name="tag-handlers">
         <xs:sequence>
-            <xs:element name="html-tag-handler" type="custom-html-tag-handler" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="handler" type="tag-handler" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="custom-html-tag-handler">
+    <xs:complexType name="tag-handler-class">
+        <xs:sequence>
+            <xs:any minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="tag-handler">
+        <xs:sequence>
+            <xs:element name="tag-name" type="xs:string"/>
+            <xs:element name="handler-class-name" type="xs:string"/>
+            <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
+            <xs:element name="label-matcher" type="tag-matcher" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:simpleType name="tag-match-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="current"/>
+            <xs:enumeration value="parent"/>
+            <xs:enumeration value="child"/>
+            <xs:enumeration value="previous-sibling"/>
+            <xs:enumeration value="next-sibling"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="tag-matchers">
+        <xs:sequence>
+            <xs:element name="tag-matcher" type="tag-matcher" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="tag-matcher">
+        <xs:sequence>
+            <xs:element name="match-type" type="tag-match-type"/>
+            <xs:element name="tag-name" type="xs:string"/>
+            <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tag-match-attributes">
+        <xs:sequence>
+            <xs:element name="match-attribute" type="tag-match-attribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tag-match-attribute">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
-            <xs:element name="tag-type" type="xs:string"/>
-            <xs:element name="display-generator-class" type="xs:string" minOccurs="0"/>
-            <xs:element name="id-match-expression" type="xs:string" minOccurs="0"/>
-            <xs:element name="name-match-expression" type="xs:string" minOccurs="0"/>
-            <xs:element name="class-match-expression" type="xs:string" minOccurs="0"/>
-            <xs:element name="parent-tag-definition" type="xs:string" minOccurs="0"/>
+            <xs:element name="value" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
-
 
     <xs:complexType name="platforms">
         <xs:sequence>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.comparators;
 
 import java.util.Comparator;
 import org.kuali.test.CheckpointProperty;
@@ -23,7 +23,12 @@ import org.kuali.test.CheckpointProperty;
 public class CheckpointPropertyComparator implements Comparator <CheckpointProperty> {
     @Override
     public int compare(CheckpointProperty o1, CheckpointProperty o2) {
-        int retval = o1.getSubgroup().compareTo(o2.getSubgroup());
+        
+        int retval = o1.getPropertyGroup().compareTo(o2.getPropertyGroup());
+
+        if (retval == 0) {
+            retval = o1.getPropertySection().compareTo(o2.getPropertySection());
+        }
         
         if (retval == 0) {
             retval = o1.getPropertyName().toLowerCase().compareTo(o2.getPropertyName().toLowerCase());

@@ -14,28 +14,22 @@
  * limitations under the License.
  */
 
-package org.kuali.test.utils;
+package org.kuali.test.handlers;
 
 import org.apache.commons.lang3.StringUtils;
 import org.htmlcleaner.TagNode;
+import org.kuali.test.CheckpointProperty;
 
 
-public class KualiDatatableDisplayGenerator implements DisplayGenerator {
+public class TextInputTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public String getDisplayString(Object o) {
-        String retval = "";
-        if ((o != null) && (o instanceof TagNode)) {
-            TagNode tag = (TagNode)o;
-            String s = tag.getAttributeByName("summary");
-            if (StringUtils.isNotBlank(s)) {
-                int pos = s.lastIndexOf(' ');
-                
-                if ((pos > -1) && "section".equals(s.substring(pos+1).toLowerCase().trim())) {
-                    retval = s.substring(0, pos).trim();
-                } else {
-                    retval = s;
-                }
-            }
+    public CheckpointProperty getCheckpointProperty(TagNode tag) {
+        CheckpointProperty retval = super.getCheckpointProperty(tag);
+        retval.setPropertyValue(tag.getAttributeByName("value"));
+        retval.setPropertyName(tag.getAttributeByName("id"));
+        
+        if (StringUtils.isBlank(retval.getPropertyName())) {
+            retval.setPropertyName(tag.getAttributeByName("name"));
         }
         
         return retval;

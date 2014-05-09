@@ -63,7 +63,7 @@ public class CheckpointTable extends BaseTable {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel retval = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (Constants.DEFAULT_HTML_SUBGROUP.equals(value)) {
+                if (Constants.DEFAULT_HTML_PROPERTY_SECTION.equals(value)) {
                     retval.setText("");
                 }
                 

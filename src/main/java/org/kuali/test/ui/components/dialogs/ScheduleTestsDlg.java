@@ -43,7 +43,7 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.renderers.CalendarTableCellRenderer;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.ScheduledTestComparator;
+import org.kuali.test.comparators.ScheduledTestComparator;
 import org.kuali.test.utils.Utils;
 
 /**
