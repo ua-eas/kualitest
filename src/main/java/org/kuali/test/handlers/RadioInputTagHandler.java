@@ -25,7 +25,7 @@ public class RadioInputTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyName(node.attributes().get("name"));
+        retval.setPropertyName(node.attr("name"));
         retval.setPropertyValue(getSelectedRadioValue(node, retval.getPropertyName()));
         return retval;
     }

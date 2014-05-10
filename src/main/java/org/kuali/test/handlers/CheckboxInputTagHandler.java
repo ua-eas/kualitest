@@ -28,7 +28,7 @@ public class CheckboxInputTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyName(node.attributes().get("name"));
+        retval.setPropertyName(node.attr("name"));
         retval.setPropertyValue(getSelectedCheckboxValues(node, retval.getPropertyName()));
         return retval;
     }

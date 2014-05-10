@@ -172,12 +172,16 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private void processNode(String groupName, Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, Node node) {
         HtmlTagHandler th = Utils.getHtmlTagHandler(node);
         
-        if (th != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("tag handler: " + th.getTagHandler().getHandlerClassName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("incoming node: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name"));
+            if (th == null) {
+                LOG.debug("no tag handler found");
+            } else {
+                LOG.debug("tag handler: " + th.getClass().getName());
             }
-            
-            if (th.isContainer()) {
+        }
+        if (th != null) {
+            if (th.isContainer(node)) {
                 for (Node child : node.childNodes()) {
                     processNode(th.getGroupName(node), labelMap, checkpointProperties, child);
                 }
@@ -189,8 +193,13 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                     cp.setDisplayName(Utils.getLabelText(th.getTagHandler().getLabelMatcher(), node));
                 } else if (labelMap.containsKey(cp.getPropertyName())) {
                     cp.setDisplayName(labelMap.get(cp.getPropertyName()));
+                } else {
+                    cp.setDisplayName(cp.getPropertyName());
                 }
                 
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("checkpoint: " + cp.getPropertyName());
+                }
                 checkpointProperties.add(cp);
             }
         } else {

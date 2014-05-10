@@ -125,8 +125,17 @@ public class Constants {
     public static final String CSS_SUFFIX = "css";
     public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();
     public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
+    public static final Set <String> DEFAULT_HTML_CONTAINER_TAGS = new HashSet<String>();
     
     static {
+        DEFAULT_HTML_CONTAINER_TAGS.add("body");
+        DEFAULT_HTML_CONTAINER_TAGS.add("table");
+        DEFAULT_HTML_CONTAINER_TAGS.add("tr");
+        DEFAULT_HTML_CONTAINER_TAGS.add("iframe");
+        DEFAULT_HTML_CONTAINER_TAGS.add("div");
+        DEFAULT_HTML_CONTAINER_TAGS.add("span");
+        
+        
         IMAGE_SUFFIX_SET.add("gif");
         IMAGE_SUFFIX_SET.add("ico");
         IMAGE_SUFFIX_SET.add("jpg");
@@ -148,5 +157,24 @@ public class Constants {
     
     public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
     public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
-
+    public static final String[] DEFAULT_HTML_WHITELIST_TAGS = {
+        "input", 
+        "div", 
+        "label", 
+        "span", 
+        "tr", 
+        "th", 
+        "td", 
+        "select", 
+        "option", 
+        "iframe", 
+        "body"
+    };
+    
+    public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {
+        "id", 
+        "name", 
+        "class", 
+        "test-id"
+    };
 }

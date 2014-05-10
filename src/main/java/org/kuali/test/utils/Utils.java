@@ -57,6 +57,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
 
 
@@ -712,16 +713,40 @@ public class Utils {
         boolean retval = true;
         
         for (TagMatchAttribute att : attributes) {
-            String tagatt = node.attributes().get(att.getName());
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("tag: " + node.nodeName() + ", att: " + att.getName() + ", value: " + tagatt);
-            }
-            if ((tagatt == null) || !att.getValue().equals(tagatt)) {
+            if (!node.hasAttr(att.getName())) {
                 retval = false;
                 break;
+            } else {
+                if (!att.getValue().contains("|")) {
+                    if (!att.getValue().equals(node.attr(att.getName()))) {
+                        retval = false;
+                        break;
+                    }
+                } else {
+                    // can use "|" to seperate "or" values for matching
+                    String[] vals = att.getValue().split("|");
+
+                    boolean foundit = false;
+                    for (String s : vals) {
+                        if (s.equalsIgnoreCase(node.attr(att.getName()))) {
+                            foundit = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundit) {
+                        retval = false;
+                        break;
+                    }
+                }
             }
         }
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("tag: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name") + ", type=" + node.attr("type") + ", retval=" + retval);
+        }
+
+        
         return retval;
     }
     
@@ -803,7 +828,7 @@ public class Utils {
         Node labelNode = getMatchingTagNode(labelMatcher, node);
         
         if (labelNode != null) {
-            retval = node.attributes().get("value");
+            retval = node.attr("value");
             
             if (StringUtils.isBlank(retval) && (labelNode instanceof Element)) {
                 retval = cleanDisplayText(((Element)labelNode).data());
@@ -847,7 +872,7 @@ public class Utils {
         if (LOG.isDebugEnabled()) {
             LOG.debug("getHtmlTagHandler - " + node.nodeName());
         }
-        List <HtmlTagHandler> thl = TAG_HANDLERS.get(node.nodeName().toLowerCase());
+        List <HtmlTagHandler> thl = TAG_HANDLERS.get(node.nodeName().trim().toLowerCase());
         
         if (thl != null) {
             for (HtmlTagHandler hth : thl) {
@@ -869,6 +894,16 @@ public class Utils {
             }
         }
         
+        if (retval == null) {
+            if (isHtmlContainer(node)) {
+                retval = new DefaultContainerTagHandler();
+            }
+        }
+        
         return retval;
+    }
+    
+    public static boolean isHtmlContainer(Node node) {
+        return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.nodeName().toLowerCase().trim());
     }
 }

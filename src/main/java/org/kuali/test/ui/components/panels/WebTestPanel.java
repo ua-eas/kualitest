@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
@@ -214,10 +215,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         node.traverse(new NodeVisitor() {
             @Override
             public void head(Node node, int depth) {
+                node.attributes().put("test-id", node.nodeName() + "[" + depth + "][" + node.siblingIndex() + "]");
                 // if this tag is an iframe we will load by javascript call
                 if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(node.nodeName())) {
-                    String id = node.attributes().get("id");
-                    String name = node.attributes().get("name");
+                    String id = node.attr("id");
+                    String name = node.attr("name");
 
                     // if we have an iframe try to load the body
                     if ((StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name))) {
@@ -247,13 +249,14 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                             if (LOG.isDebugEnabled()) {
                                 LOG.debug("iframe clean html: " + iframeCleanHtml);
                             }
+                            
                             Node iframeNode = Jsoup.parse(iframeCleanHtml).body();
                             rootNodes.add(iframeNode);
                             traverseNode(webBrowser, whitelist, iframeNode, rootNodes, labelNodes);
                         }
                     }
                 } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(node.nodeName())) {
-                    String att = node.attributes().get(Constants.HTML_TAG_ATTRIBUTE_FOR);
+                    String att = node.attr(Constants.HTML_TAG_ATTRIBUTE_FOR);
 
                     if (StringUtils.isNotBlank(att)) {
                         labelNodes.add(node);
@@ -270,13 +273,21 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private Whitelist getHtmlWhitelist() {
         Whitelist retval = Whitelist.none();
         
-        retval.addTags("input", "div", "label", "span", "tr", "th", "td", "select", "option", "iframe", "body");
-        retval.addAttributes("input", "id", "name", "value", "type", "class", "checked");
-        retval.addAttributes("div", "id", "name", "class");
-        retval.addAttributes("span", "id", "name", "class");
-        retval.addAttributes("label", "id", "for", "name");
-        retval.addAttributes("select", "id", "name");
-        retval.addAttributes("iframe", "id", "name");
+        retval.addTags(Constants.DEFAULT_HTML_WHITELIST_TAGS);
+
+        for (String tag : Constants.DEFAULT_HTML_WHITELIST_TAGS) {
+            List <String> atts = new ArrayList(Arrays.asList(Constants.DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES));
+            if ("input".equals(tag)) {
+                atts.add("value");
+                atts.add("type");
+                atts.add("checked");
+            } else if ("label".equals(tag)) {
+                atts.add("for");
+            } 
+            
+            retval.addAttributes(tag, atts.toArray(new String[atts.size()]));
+        }
+
         
         return retval;
     }

@@ -29,7 +29,7 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     private TagHandler tagHandler;
     
     @Override
-    public boolean isContainer() {
+    public boolean isContainer(Node node) {
         return false;
     }
 

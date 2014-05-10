@@ -27,10 +27,10 @@ public class SelectInputTagHandler extends DefaultHtmlTagHandler {
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
 
-        retval.setPropertyName(node.attributes().get("id"));
+        retval.setPropertyName(node.attr("id"));
         
         if (StringUtils.isBlank(retval.getPropertyName())) {
-            retval.setPropertyName(node.attributes().get("name"));
+            retval.setPropertyName(node.attr("name"));
         }
         
         retval.setPropertyValue(getSelectedOption(node));

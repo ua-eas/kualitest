@@ -16,18 +16,14 @@
 
 package org.kuali.test.handlers;
 
-import javax.swing.JComponent;
 import org.jsoup.nodes.Node;
-import org.kuali.test.CheckpointProperty;
-import org.kuali.test.TagHandler;
 
 
-public interface HtmlTagHandler {
-    public boolean isContainer(Node tag);
-    public JComponent getContainerComponent(Node tag);
-    public String getGroupName(Node tag);
-    public String getSectionName(Node tag);
-    public CheckpointProperty getCheckpointProperty(Node tag);
-    public TagHandler getTagHandler();
-    public void setTagHandler(TagHandler tagHandler);
+public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
+
+    @Override
+    public boolean isContainer(Node node) {
+        return true;
+    }
+    
 }

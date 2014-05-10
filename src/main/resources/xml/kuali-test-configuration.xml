@@ -37,6 +37,34 @@
             </tag-matchers>
         </handler>
         <handler>
+            <tag-name>div</tag-name>
+            <handler-class-name>org.kuali.test.handlers.KualiWorkareaTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>div</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>workarea</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+        </handler>
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+        </handler>
+        <handler>
             <tag-name>input</tag-name>
             <handler-class-name>org.kuali.test.handlers.RadioInputTagHandler</handler-class-name>
             <tag-matchers>
@@ -79,6 +107,11 @@
                         <match-attribute>
                             <name>type</name>
                             <value>hidden</value>
+                        </match-attribute>
+                        <match-attribute>
+                            <name>name</name>
+                            <!--  can use "|" to seperate "or" values for matching -->
+                            <value>docNum|businessObjectClassName</value>
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>

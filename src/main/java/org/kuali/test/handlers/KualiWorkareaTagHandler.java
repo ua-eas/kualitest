@@ -27,7 +27,7 @@ public class KualiWorkareaTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public boolean isContainer() {
+    public boolean isContainer(Node node) {
         return true;
     }
     

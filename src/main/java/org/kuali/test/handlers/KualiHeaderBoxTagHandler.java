@@ -28,7 +28,7 @@ public class KualiHeaderBoxTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public boolean isContainer() {
+    public boolean isContainer(Node node) {
         return true;
     }
 
