@@ -16,18 +16,27 @@
 
 package org.kuali.test.handlers;
 
-import javax.swing.JComponent;
 import org.jsoup.nodes.Node;
+import org.kuali.test.utils.Utils;
 
 
-public class KualiWorkareaTagHandler extends DefaultHtmlTagHandler {
-    @Override
-    public JComponent getContainerComponent(Node node) {
-        return getNewTabbedPane();
-    }
-
+public class KualiTabTagHandler extends DefaultHtmlTagHandler {
     @Override
     public boolean isContainer(Node node) {
         return true;
+    }
+
+    @Override
+    public String getGroupName(Node node) {
+        String retval = super.getGroupName(node);
+        if (getTagHandler().getLabelMatcher() != null) {
+            retval = Utils.getLabelText(getTagHandler().getLabelMatcher(), node);
+        }
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("group: " + retval);
+        }
+        
+        return retval;
     }
 }

@@ -168,7 +168,10 @@ public class Constants {
         "select", 
         "option", 
         "iframe", 
-        "body"
+        "body",
+        "h2",
+        "table",
+        "tbody"
     };
     
     public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,10 +31,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.ComparisonOperator;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
@@ -52,7 +53,7 @@ import org.kuali.test.utils.Utils;
  */
 public class HtmlCheckPointDlg extends BaseSetupDlg {
     private static final Logger LOG = Logger.getLogger(HtmlCheckPointDlg.class);
-    private TestHeader testHeader;
+    private final TestHeader testHeader;
     private Checkpoint checkpoint;
     private JTextField name;
     
@@ -111,7 +112,9 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         List <CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
 
         for (Node node : rootNodes) {
-            processNode(Constants.DEFAULT_HTML_PROPERTY_GROUP, labelMap, checkpointProperties, node);
+            Stack <String> stack = new Stack();
+            stack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+            processNode(stack, labelMap, checkpointProperties, node);
         }
 
         Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
@@ -132,14 +135,14 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 List <CheckpointProperty> props = pmap.get(s);
                 
                 if ((props != null) && !props.isEmpty()) {
-                    tp.addTab(s, new TablePanel(this.buildParameterTable(s, props)));
+                    tp.addTab(s, new TablePanel(buildParameterTable(s, props, true)));
                 }
             }
             
             retval.add(tp, BorderLayout.CENTER);
             
         } else if (pmap.size() == 1) {
-            TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP)));
+            TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
             retval.add(p, BorderLayout.CENTER);
         } else {
             retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
@@ -169,7 +172,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private void processNode(String groupName, Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, Node node) {
+    private void processNode(Stack <String> groupName, Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, Node node) {
         HtmlTagHandler th = Utils.getHtmlTagHandler(node);
         
         if (LOG.isDebugEnabled()) {
@@ -182,24 +185,46 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         }
         if (th != null) {
             if (th.isContainer(node)) {
+                String gn = th.getGroupName(node);
+                if (StringUtils.isNotBlank(gn) 
+                    && !Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(gn)) {
+                    groupName.push(gn);
+                }
+                
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("group name: " + gn);
+                }
+                
                 for (Node child : node.childNodes()) {
-                    processNode(th.getGroupName(node), labelMap, checkpointProperties, child);
+                    processNode(groupName, labelMap, checkpointProperties, child);
+                }
+
+                if (StringUtils.isNotBlank(gn) 
+                    && !Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(gn)) {
+                    groupName.pop();
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-                cp.setPropertyGroup(groupName);
+                cp.setPropertyGroup(groupName.peek());
                 
                 if (th.getTagHandler().getLabelMatcher() != null) {
                     cp.setDisplayName(Utils.getLabelText(th.getTagHandler().getLabelMatcher(), node));
                 } else if (labelMap.containsKey(cp.getPropertyName())) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("label: (" + labelMap.get(cp.getPropertyName()) +")");
+                    }
+
                     cp.setDisplayName(labelMap.get(cp.getPropertyName()));
-                } else {
-                    cp.setDisplayName(cp.getPropertyName());
+                } 
+                
+                if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                    cp.setOperator(ComparisonOperator.EQUAL_TO);
                 }
                 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("checkpoint: " + cp.getPropertyName());
+                    LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: " + cp.getPropertyName() + ", value: " + cp.getPropertyValue());
                 }
+                
                 checkpointProperties.add(cp);
             }
         } else {
@@ -213,20 +238,22 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         Map <String, String> retval = new HashMap<String, String>();
         
         for (Node label : labelNodes) {
-            String key = label.attributes().get("for");
+            String key = label.attr("for");
             
-            if (StringUtils.isNotBlank(key) && (label instanceof Element)) {
-                retval.put(key, Utils.cleanDisplayText(((Element)label).data()));
+            if (StringUtils.isNotBlank(key)) {
+                retval.put(key, Utils.cleanDisplayText(label.toString()));
             }
         }
         
         return retval;
     }
     
-    private CheckpointTable buildParameterTable(String groupName, List <CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTable(String groupName, List <CheckpointProperty> checkpointProperties, boolean forTab) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties");
-        config.setDisplayName("Checkpoint Properties - " + groupName);
+        if (!forTab) {
+            config.setDisplayName("Checkpoint Properties - " + groupName);
+        }
         
         int[] alignment = new int[7];
         for (int i = 0; i < alignment.length; ++i) {

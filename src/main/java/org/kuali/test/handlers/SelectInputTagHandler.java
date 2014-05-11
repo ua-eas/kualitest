@@ -26,13 +26,6 @@ public class SelectInputTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
-
-        retval.setPropertyName(node.attr("id"));
-        
-        if (StringUtils.isBlank(retval.getPropertyName())) {
-            retval.setPropertyName(node.attr("name"));
-        }
-        
         retval.setPropertyValue(getSelectedOption(node));
         return retval;
     }
@@ -42,8 +35,8 @@ public class SelectInputTagHandler extends DefaultHtmlTagHandler {
         
         for (Node sibling : node.siblingNodes()) {
             if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.nodeName())) {
-                if (StringUtils.isNotBlank(sibling.attributes().get("selected"))) {
-                    retval = sibling.attributes().get("value");
+                if (StringUtils.isNotBlank(sibling.attr("selected"))) {
+                    retval = sibling.attr("value");
                     break;
                 }
             }

@@ -19,6 +19,7 @@ package org.kuali.test.handlers;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import org.apache.log4j.Logger;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
@@ -26,6 +27,7 @@ import org.kuali.test.utils.Constants;
 
 
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
+    protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
     private TagHandler tagHandler;
     
     @Override
@@ -43,6 +45,19 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
         retval.setPropertyGroup(getGroupName(node));
         retval.setPropertySection(getSectionName(node));
+        if (node.hasAttr("value")) {
+            retval.setPropertyValue(node.attr("value"));
+        }
+        
+        if (node.hasAttr("id")) {
+            retval.setPropertyName(node.attr("id"));
+        } else if (node.hasAttr("name")) {
+            retval.setPropertyName(node.attr("name"));
+        } else {
+            retval.setPropertyName(node.attr("test-id"));
+        }
+        
+        retval.setDisplayName(retval.getPropertyName());
 
         return retval;
     }

@@ -16,7 +16,6 @@
 
 package org.kuali.test.handlers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
@@ -25,13 +24,6 @@ public class TextInputTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyValue(node.attr("value"));
-        retval.setPropertyName(node.attr("id"));
-        
-        if (StringUtils.isBlank(retval.getPropertyName())) {
-            retval.setPropertyName(node.attr("name"));
-        }
-        
         return retval;
     }
 }

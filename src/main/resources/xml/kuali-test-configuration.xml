@@ -138,6 +138,28 @@
             </tag-matchers>
         </handler>
         <handler>
+            <tag-name>table</tag-name>
+            <handler-class-name>org.kuali.test.handlers.KualiTabTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>tab</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <match-type>child</match-type>
+                <!-- comma delimited list indicates pare/child relationships -->
+                <tag-name>tbody,tr,td,h2</tag-name>
+                <match-attributes></match-attributes>
+            </label-matcher>
+        </handler>
+        <handler>
             <tag-name>div</tag-name>
             <handler-class-name>org.kuali.test.handlers.KualiWorkareaTagHandler</handler-class-name>
             <tag-matchers>

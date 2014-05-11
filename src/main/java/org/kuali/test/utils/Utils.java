@@ -31,13 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.safety.Whitelist;
 import org.kuali.test.DatabaseConnection;
@@ -667,6 +667,10 @@ public class Utils {
     public static String cleanDisplayText(String input) {
         String retval = "";
         
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("cleanDisplayText: input=" + input);
+        }
+        
         if (StringUtils.isNotBlank(input)) {
             retval = Jsoup.clean(input, Whitelist.none());  
         }
@@ -718,17 +722,17 @@ public class Utils {
                 break;
             } else {
                 if (!att.getValue().contains("|")) {
-                    if (!att.getValue().equals(node.attr(att.getName()))) {
+                    if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
                         retval = false;
                         break;
                     }
                 } else {
                     // can use "|" to seperate "or" values for matching
-                    String[] vals = att.getValue().split("|");
+                    StringTokenizer st = new StringTokenizer(att.getValue(), "|");
 
                     boolean foundit = false;
-                    for (String s : vals) {
-                        if (s.equalsIgnoreCase(node.attr(att.getName()))) {
+                    while (st.hasMoreTokens()) {
+                        if (st.nextToken().equalsIgnoreCase(node.attr(att.getName()))) {
                             foundit = true;
                             break;
                         }
@@ -750,12 +754,41 @@ public class Utils {
         return retval;
     }
     
-    public static Node getMatchingChild(TagMatcher tm, Node node) {
+    public static Node getMatchingChildByName(String childNodeName, Node node) {
         Node retval = null;
     
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("childNodeName: " + childNodeName + ", node: " + node.nodeName() + ", children: " + node.childNodes());
+        }
+        
         for (Node child : node.childNodes()) {
-            if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+            if (child.nodeName().equalsIgnoreCase(childNodeName)) {
+                retval = child;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static Node getMatchingChild(TagMatcher tm, Node node) {
+        Node retval = null;
+
+        String[] nodeNames = tm.getTagName().split(",");
+        Node curnode = node;
+
+        // if we have a comma delimited list move down the tree to find the correct node
+        for (int i = 0; i < (nodeNames.length - 1); ++i) {
+            curnode = getMatchingChildByName(nodeNames[i], curnode);
+        }
+        for (Node child : curnode.childNodes()) {
+            if (child.nodeName().equalsIgnoreCase(nodeNames[nodeNames.length-1])) {
+                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                    if (isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = child;
+                        break;
+                    }
+                } else {
                     retval = child;
                     break;
                 }
@@ -828,10 +861,10 @@ public class Utils {
         Node labelNode = getMatchingTagNode(labelMatcher, node);
         
         if (labelNode != null) {
-            retval = node.attr("value");
+            retval = labelNode.attr("value");
             
-            if (StringUtils.isBlank(retval) && (labelNode instanceof Element)) {
-                retval = cleanDisplayText(((Element)labelNode).data());
+            if (StringUtils.isBlank(retval)) {
+                retval = cleanDisplayText(labelNode.toString());
             }
         }
         
