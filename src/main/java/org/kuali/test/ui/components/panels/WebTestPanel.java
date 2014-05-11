@@ -182,19 +182,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
+        List <Node> labelNodes = new ArrayList<Node>();
+        Node rootNode = getRootNodeFromHtml(wb, labelNodes, wb.getHTMLContent());
         
-        List <Node>[] nodeList = getRootNodesFromHtml(wb, wb.getHTMLContent());
-        
-        if (!nodeList[0].isEmpty()) {
-            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), nodeList[0], nodeList[1]);
+        if (rootNode != null) {
+            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
 
             if (dlg.isSaved()) {
                 TestOperation op = TestOperation.Factory.newInstance();
                 Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
 //                testProxyServer.getTestOperations();
             }
-        } else {
-            
         }
     }
 
@@ -207,52 +205,65 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void createWebServiceCheckpoint() {
     }
     
+    private Node getIframeBody(JWebBrowser webBrowser, Whitelist whitelist, Node iframeNode) {
+        Node retval = null;
+        String id = iframeNode.attr("id");
+        String name = iframeNode.attr("name");
+
+        // if we have an iframe try to load the body
+        if ((StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name))) {
+            StringBuilder js = new StringBuilder(256);
+            js.append("");
+
+            if (StringUtils.isNotBlank(id)) {
+                js.append("return document.getElementById('");
+                js.append(id);
+                js.append("')");
+            } else {
+                js.append("return document.getElementsByTagName('");
+                js.append(name);
+                js.append("')[0]");
+            }
+
+            js.append(".contentDocument.body.innerHTML;");
+
+            Object o = webBrowser.executeJavascriptWithResult(js.toString());
+
+            if (LOG.isDebugEnabled()){
+                LOG.debug("iframe call: " + js.toString());
+            }
+
+            if (o != null) {
+                String iframeCleanHtml = Jsoup.clean(o.toString(), whitelist);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("iframe clean html: " + iframeCleanHtml);
+                }
+
+                retval = Jsoup.parse(iframeCleanHtml).body();
+            }
+        }
+        
+        return retval;
+    }
+    
     private void traverseNode(final JWebBrowser webBrowser, 
         final Whitelist whitelist, 
-        Node node, 
-        final List <Node> rootNodes, 
-        final List <Node> labelNodes) {
+        final List <Node> labelNodes,
+        Node node) {
         node.traverse(new NodeVisitor() {
             @Override
             public void head(Node node, int depth) {
                 node.attributes().put("test-id", node.nodeName() + "[" + depth + "][" + node.siblingIndex() + "]");
                 // if this tag is an iframe we will load by javascript call
                 if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(node.nodeName())) {
-                    String id = node.attr("id");
-                    String name = node.attr("name");
-
-                    // if we have an iframe try to load the body
-                    if ((StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name))) {
-                        StringBuilder js = new StringBuilder(256);
-                        js.append("");
-
-                        if (StringUtils.isNotBlank(id)) {
-                            js.append("return document.getElementById('");
-                            js.append(id);
-                            js.append("')");
-                        } else {
-                            js.append("return document.getElementsByTagName('");
-                            js.append(name);
-                            js.append("')[0]");
-                        }
-
-                        js.append(".contentDocument.body.innerHTML;");
-
-                        Object o = webBrowser.executeJavascriptWithResult(js.toString());
-
-                        if (LOG.isDebugEnabled()){
-                            LOG.debug("iframe call: " + js.toString());
-                        }
-
-                        if (o != null) {
-                            String iframeCleanHtml = Jsoup.clean(o.toString(), whitelist);
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("iframe clean html: " + iframeCleanHtml);
-                            }
-                            
-                            Node iframeNode = Jsoup.parse(iframeCleanHtml).body();
-                            rootNodes.add(iframeNode);
-                            traverseNode(webBrowser, whitelist, iframeNode, rootNodes, labelNodes);
+                    Node iframeBody = getIframeBody(webBrowser, whitelist, node);
+                    
+                    if (iframeBody != null) {
+                        ((Element)node).prependChild(iframeBody);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("--------------------- iframe -----------------------");
+                            LOG.debug(node.toString());
+                            LOG.debug("----------------------------------------------------");
                         }
                     }
                 } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(node.nodeName())) {
@@ -292,10 +303,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
     
-    private List <Node> [] getRootNodesFromHtml(final JWebBrowser webBrowser, String html) {
-        // will return 2 lists - 1st is list of root nodes, 2nd is list of label nodes (will use for display names
-        final List [] retval = {new ArrayList<Element>(), new ArrayList<Element>()};
-        
+    private Node getRootNodeFromHtml(final JWebBrowser webBrowser, List <Node> labelNodes, String html) {
         Whitelist whitelist = getHtmlWhitelist();
         String cleanHtml = Jsoup.clean(html, whitelist);
         
@@ -303,12 +311,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             LOG.debug("clean html: " + cleanHtml);
         }
         
-        Node node = Jsoup.parse(cleanHtml).body();
+        Node retval = Jsoup.parse(cleanHtml).body();
 
-        if (node != null) {
-            retval[0].add(node);
-            traverseNode(webBrowser, whitelist, node, retval[0], retval[1]);
-        }
+        traverseNode(webBrowser, whitelist, labelNodes, retval);
 
         return retval;
     }

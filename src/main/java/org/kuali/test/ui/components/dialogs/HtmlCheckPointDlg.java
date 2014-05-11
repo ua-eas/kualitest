@@ -57,7 +57,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private Checkpoint checkpoint;
     private JTextField name;
     
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, List<Node> rootNodes, List<Node>labelNodes) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, Node rootNode, List<Node>labelNodes) {
         super(mainFrame);
         this.testHeader= testHeader;
         
@@ -71,11 +71,11 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             this.checkpoint.setTestName(testHeader.getTestName());
         }
         
-        initComponents(rootNodes, labelNodes);
+        initComponents(rootNode, labelNodes);
     }
     
     @SuppressWarnings("unchecked")
-    private void initComponents(List <Node> rootNodes, List <Node> labelNodes) {
+    private void initComponents(Node rootNode, List <Node> labelNodes) {
         String[] labels = new String[] {
             "Checkpoint Name" 
         };
@@ -90,7 +90,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
         
-        BasePanel propertyContainer = buildPropertyContainer(rootNodes, labelNodes);
+        BasePanel propertyContainer = buildPropertyContainer(rootNode, labelNodes);
         
         p.add(propertyContainer, BorderLayout.CENTER);
         getContentPane().add(p, BorderLayout.CENTER);
@@ -104,23 +104,21 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         setResizable(true);
     }
     
-    private BasePanel buildPropertyContainer(List <Node> rootNodes, List <Node> labelNodes) {
+    private BasePanel buildPropertyContainer(Node rootNode, List <Node> labelNodes) {
         BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
         Map <String, String> labelMap = buildLabelMap(labelNodes);
         List <CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
 
-        for (Node node : rootNodes) {
-            Stack <String> stack = new Stack();
-            stack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-            processNode(stack, labelMap, checkpointProperties, node);
-        }
+        Stack <String> stack = new Stack();
+        stack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+        processNode(stack, labelMap, checkpointProperties, rootNode);
 
         Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
         
         if (LOG.isDebugEnabled()) {
-            LOG.debug("rootNodes.size(): " + rootNodes.size() + ", labelNodes.size(): " + labelNodes.size());
+            LOG.debug("labelNodes.size(): " + labelNodes.size());
             LOG.debug("CheckpointProperty list size: " + checkpointProperties.size());
             LOG.debug("CheckpointProperty map.size: " + pmap.size());
         }
@@ -183,6 +181,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 LOG.debug("tag handler: " + th.getClass().getName());
             }
         }
+        
         if (th != null) {
             if (th.isContainer(node)) {
                 String gn = th.getGroupName(node);
