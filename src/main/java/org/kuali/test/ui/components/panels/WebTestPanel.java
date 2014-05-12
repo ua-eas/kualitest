@@ -19,6 +19,9 @@ import chrriis.dj.nativeswing.NativeSwing;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserCommandEvent;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
+import chrriis.dj.nativeswing.swtimpl.components.WebBrowserListener;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
@@ -49,7 +52,7 @@ import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
-public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener {
+public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener, WebBrowserListener  {
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
 
     private TestProxyServer testProxyServer;
@@ -207,36 +210,23 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private Node getIframeBody(JWebBrowser webBrowser, Whitelist whitelist, Node iframeNode) {
         Node retval = null;
-        String id = iframeNode.attr("id");
-        String name = iframeNode.attr("name");
+            
+        String js = getJsIframeDataCall(iframeNode);
 
-        // if we have an iframe try to load the body
-        if ((StringUtils.isNotBlank(id) || StringUtils.isNotBlank(name))) {
-            StringBuilder js = new StringBuilder(256);
-            js.append("");
+        Object o = webBrowser.executeJavascriptWithResult(js);
 
-            if (StringUtils.isNotBlank(id)) {
-                js.append("return document.getElementById('");
-                js.append(id);
-                js.append("')");
-            } else {
-                js.append("return document.getElementsByTagName('");
-                js.append(name);
-                js.append("')[0]");
-            }
+        // if we get html back then clean and get the iframe body node
+        if (o != null) {
+            retval = Jsoup.parse(Jsoup.clean(o.toString(), whitelist)).body();
+        }
 
-            js.append(".contentDocument.body.innerHTML;");
-
-            Object o = webBrowser.executeJavascriptWithResult(js.toString());
-
-            if (LOG.isDebugEnabled()){
-                LOG.debug("iframe call: " + js.toString());
-            }
-
-            // if we get html back then clean and get the iframe body node
-            if (o != null) {
-                retval = Jsoup.parse(Jsoup.clean(o.toString(), whitelist)).body();
-            }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("*********************** iframe ****************************");
+            LOG.debug("id: " + iframeNode.attr("id"));
+            LOG.debug("name: " + iframeNode.attr("name"));
+            LOG.debug("jscall: " + js);
+            LOG.debug("html: " + o);
+            LOG.debug("**********************************************************");
         }
         
         return retval;
@@ -258,7 +248,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                         // set the iframe node we loaded
                         ((Element)node).prependChild(iframeBody);
                         
-                       // traverseNode(webBrowser, whitelist, labelNodes, iframeBody);
+                        traverseNode(webBrowser, whitelist, labelNodes, iframeBody);
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("--------------------- iframe -----------------------");
@@ -294,6 +284,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 atts.add("checked");
             } else if ("label".equals(tag)) {
                 atts.add("for");
+            } else if ("iframe".equals(tag)) {
+                atts.add("src");
             } 
             
             retval.addAttributes(tag, atts.toArray(new String[atts.size()]));
@@ -391,5 +383,81 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         if (e.getComponent() instanceof JWebBrowser) {
             browserRemoved();
         }
+    }
+
+    @Override
+    public void windowWillOpen(WebBrowserWindowWillOpenEvent wbwwoe) {
+    }
+
+    @Override
+    public void windowOpening(WebBrowserWindowOpeningEvent wbwoe) {
+    }
+
+    @Override
+    public void windowClosing(WebBrowserEvent wbe) {
+    }
+
+    @Override
+    public void locationChanging(WebBrowserNavigationEvent wbne) {
+    }
+
+    @Override
+    public void locationChanged(WebBrowserNavigationEvent wbne) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void locationChangeCanceled(WebBrowserNavigationEvent wbne) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void loadingProgressChanged(WebBrowserEvent wbe) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void titleChanged(WebBrowserEvent wbe) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void statusChanged(WebBrowserEvent wbe) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void commandReceived(WebBrowserCommandEvent wbce) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private String getJsIframeDataCall(Node iframeNode) {
+        StringBuilder retval = new StringBuilder(512);
+        String src = iframeNode.attr("src");
+        
+        if (!src.startsWith("http")) {
+            String id = iframeNode.attr("id");
+            String name = iframeNode.attr("name");
+            if (StringUtils.isNotBlank(id)) {
+                retval.append("return document.getElementById('");
+                retval.append(id);
+                retval.append("')");
+            } else {
+                retval.append("return document.getElementsByTagName('");
+                retval.append(name);
+                retval.append("')[0]");
+            }
+
+            retval.append(".contentDocument.body.innerHTML;");
+        } else {
+            retval.append("var xmlhttp=new XMLHttpRequest();");
+            retval.append("xmlhttp.open('GET','");
+            retval.append(src);
+            retval.append("',false);");
+            retval.append("xmlhttp.send();");
+            retval.append("if (xmlhttp.status==200) { return xmlhttp.responseText; } else { return null; };");
+        }
+        
+        return retval.toString();
     }
 }
