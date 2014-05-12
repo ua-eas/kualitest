@@ -185,21 +185,19 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         if (th != null) {
             if (th.isContainer(node)) {
                 String gn = th.getGroupName(node);
-                if (StringUtils.isNotBlank(gn) 
-                    && !Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(gn)) {
+                if (StringUtils.isNotBlank(gn)) {
                     groupName.push(gn);
                 }
                 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("group name: " + gn);
+                    LOG.debug("tag handler: " + th.getClass().getName() + ", group name: " + groupName.peek());
                 }
                 
                 for (Node child : node.childNodes()) {
                     processNode(groupName, labelMap, checkpointProperties, child);
                 }
 
-                if (StringUtils.isNotBlank(gn) 
-                    && !Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(gn)) {
+                if (StringUtils.isNotBlank(gn)) {
                     groupName.pop();
                 }
             } else {
@@ -221,7 +219,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
                 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: " + cp.getPropertyName() + ", value: " + cp.getPropertyValue());
+                    LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: " + cp.getPropertyName() + ", value: " + cp.getPropertyValue() + ", propertyGroup: " + cp.getPropertyGroup());
                 }
                 
                 checkpointProperties.add(cp);

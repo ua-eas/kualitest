@@ -233,13 +233,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 LOG.debug("iframe call: " + js.toString());
             }
 
+            // if we get html back then clean and get the iframe body node
             if (o != null) {
-                String iframeCleanHtml = Jsoup.clean(o.toString(), whitelist);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("iframe clean html: " + iframeCleanHtml);
-                }
-
-                retval = Jsoup.parse(iframeCleanHtml).body();
+                retval = Jsoup.parse(Jsoup.clean(o.toString(), whitelist)).body();
             }
         }
         
@@ -259,6 +255,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     Node iframeBody = getIframeBody(webBrowser, whitelist, node);
                     
                     if (iframeBody != null) {
+                        // set the iframe bode node we loaded
                         ((Element)node).prependChild(iframeBody);
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("--------------------- iframe -----------------------");

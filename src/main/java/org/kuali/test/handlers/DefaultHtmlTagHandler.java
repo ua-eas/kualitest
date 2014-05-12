@@ -23,7 +23,6 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
-import org.kuali.test.utils.Constants;
 
 
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
@@ -43,8 +42,7 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
-        retval.setPropertyGroup(getGroupName(node));
-        retval.setPropertySection(getSectionName(node));
+
         if (node.hasAttr("value")) {
             retval.setPropertyValue(node.attr("value"));
         }
@@ -84,11 +82,11 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     
     @Override
     public String getGroupName(Node node) {
-        return Constants.DEFAULT_HTML_PROPERTY_GROUP;
+        return null;
     }
 
     @Override
     public String getSectionName(Node node) {
-        return Constants.DEFAULT_HTML_PROPERTY_SECTION;
+        return null;
     }
 }

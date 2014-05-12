@@ -99,7 +99,7 @@ public class Utils {
                     retval = (Platform)userObject;
                 } else if (userObject instanceof TestSuite) {
                     TestSuite testSuite = (TestSuite)userObject;
-                    retval = findPlatform(configuration, testSuite.getPlatformName());;
+                    retval = findPlatform(configuration, testSuite.getPlatformName());
                 } else if (userObject instanceof SuiteTest) {
                     SuiteTest test = (SuiteTest)userObject;
                     retval = findPlatform(configuration, test.getTestHeader().getPlatformName());
@@ -672,7 +672,7 @@ public class Utils {
         }
         
         if (StringUtils.isNotBlank(input)) {
-            retval = Jsoup.clean(input, Whitelist.none());  
+            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", "");  
         }
         
         return retval;
@@ -721,12 +721,7 @@ public class Utils {
                 retval = false;
                 break;
             } else {
-                if (!att.getValue().contains("|")) {
-                    if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
-                        retval = false;
-                        break;
-                    }
-                } else {
+                if (att.getValue().contains("|")) {
                     // can use "|" to seperate "or" values for matching
                     StringTokenizer st = new StringTokenizer(att.getValue(), "|");
 
@@ -739,6 +734,38 @@ public class Utils {
                     }
 
                     if (!foundit) {
+                        retval = false;
+                        break;
+                    }
+                } else if (att.getValue().contains("*")) {
+                    String nodeData = node.attr(att.getName());
+                    int pos = att.getValue().indexOf("*");
+                    if (StringUtils.isBlank(nodeData)) {
+                        retval = false;
+                    } else {
+                        if (pos == 0) {
+                            if (!nodeData.endsWith(att.getValue().substring(1))) {
+                                retval = false;
+                            }
+                        } else if (pos == (att.getValue().length() - 1)) {
+                            if (!nodeData.startsWith(att.getValue().substring(0, pos))) {
+                                retval = false;
+                            }
+                        } else {
+                            String s1 = att.getValue().substring(0, pos);
+                            String s2 = att.getValue().substring(pos+1);
+                            
+                            if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
+                                retval = false;
+                            }
+                        }
+                    }
+                        
+                    if (!retval) {
+                        break;
+                    }
+                } else {
+                    if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
                         retval = false;
                         break;
                     }
@@ -781,6 +808,7 @@ public class Utils {
         for (int i = 0; i < (nodeNames.length - 1); ++i) {
             curnode = getMatchingChildByName(nodeNames[i], curnode);
         }
+        
         for (Node child : curnode.childNodes()) {
             if (child.nodeName().equalsIgnoreCase(nodeNames[nodeNames.length-1])) {
                 if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
@@ -820,19 +848,30 @@ public class Utils {
     public static Node getPreviousMatchingSibling(TagMatcher tm, Node node) {
         Node retval = null;
 
-        int indx = node.siblingIndex();
-        List <Node> siblingNodes = node.siblingNodes();
-        for (int i = indx - 1; i > -1; ++i) {
-            Node sibling = siblingNodes.get(i);
-            if (sibling != null) {
-                if (sibling.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                    if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = sibling;
-                        break;
-                    }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("tag names: " + tm.getTagName());
+        }
+        
+        Node prev = node.previousSibling();
+        String[] tags = tm.getTagName().split(",");
+        
+        while (prev != null) {
+            if (tags[0].equalsIgnoreCase(prev.nodeName())) {
+                if (isTagMatch(prev, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    retval = prev;
+                    break;
                 }
             }
+            
+            prev = prev.previousSibling();
         }
+        
+        if (LOG.isDebugEnabled()) {
+            if (retval != null) {
+                LOG.debug("retval: " + retval.toString());
+            }
+        }
+
         
         return retval;
     }
@@ -840,14 +879,12 @@ public class Utils {
     public static Node getNextMatchingSibling(TagMatcher tm, Node node) {
         Node retval = null;
 
-        int indx = node.siblingIndex();
-        List <Node> siblingNodes = node.siblingNodes();
+        Node next = node.nextSibling();
         
-        for (int i = indx+1; i < siblingNodes.size(); ++i) {
-            Node sibling = siblingNodes.get(i);
-            if (sibling.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (isTagMatch(sibling, tm.getMatchAttributes().getMatchAttributeArray())) {
-                    retval = sibling;
+        while (next != null) {
+            if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                if (isTagMatch(next, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    retval = next;
                     break;
                 }
             }

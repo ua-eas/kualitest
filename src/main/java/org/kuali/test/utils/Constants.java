@@ -130,6 +130,8 @@ public class Constants {
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add("body");
         DEFAULT_HTML_CONTAINER_TAGS.add("table");
+        DEFAULT_HTML_CONTAINER_TAGS.add("th");
+        DEFAULT_HTML_CONTAINER_TAGS.add("td");
         DEFAULT_HTML_CONTAINER_TAGS.add("tr");
         DEFAULT_HTML_CONTAINER_TAGS.add("iframe");
         DEFAULT_HTML_CONTAINER_TAGS.add("div");

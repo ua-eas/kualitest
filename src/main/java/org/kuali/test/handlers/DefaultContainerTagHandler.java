@@ -20,10 +20,8 @@ import org.jsoup.nodes.Node;
 
 
 public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
-
     @Override
     public boolean isContainer(Node node) {
         return true;
     }
-    
 }

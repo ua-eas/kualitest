@@ -29,7 +29,7 @@ public class KualiHeaderInfoCellTagHandler extends DefaultHtmlTagHandler {
         CheckpointProperty retval = super.getCheckpointProperty(node);
         
         if (node instanceof Element) {
-            retval.setPropertyValue(Utils.cleanDisplayText(((Element)node).data()));
+            retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
         }
         
         return retval;

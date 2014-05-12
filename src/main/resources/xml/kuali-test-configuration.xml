@@ -60,9 +60,55 @@
                     <match-type>current</match-type>
                     <tag-name>td</tag-name>
                     <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datacell</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
                     </match-attributes>
                 </tag-matcher>
             </tag-matchers>
+            <label-matcher>
+                <match-type>previous-sibling</match-type>
+                <tag-name>th</tag-name>
+                <match-attributes></match-attributes>
+            </label-matcher>
+        </handler>
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>headerinfo</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <match-type>previous-sibling</match-type>
+                <tag-name>th</tag-name>
+                <match-attributes></match-attributes>
+            </label-matcher>
         </handler>
         <handler>
             <tag-name>input</tag-name>
@@ -138,26 +184,20 @@
             </tag-matchers>
         </handler>
         <handler>
-            <tag-name>table</tag-name>
+            <tag-name>div</tag-name>
             <handler-class-name>org.kuali.test.handlers.KualiTabTagHandler</handler-class-name>
             <tag-matchers>
                 <tag-matcher>
                     <match-type>current</match-type>
-                    <tag-name>table</tag-name>
+                    <tag-name>div</tag-name>
                     <match-attributes>
                         <match-attribute>
-                            <name>class</name>
-                            <value>tab</value>
+                            <name>id</name>
+                            <value>tab-*-div</value>
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
             </tag-matchers>
-            <label-matcher>
-                <match-type>child</match-type>
-                <!-- comma delimited list indicates pare/child relationships -->
-                <tag-name>tbody,tr,td,h2</tag-name>
-                <match-attributes></match-attributes>
-            </label-matcher>
         </handler>
         <handler>
             <tag-name>div</tag-name>

@@ -17,17 +17,41 @@
 package org.kuali.test.comparators;
 
 import java.util.Comparator;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Constants;
 
 
 public class CheckpointPropertyComparator implements Comparator <CheckpointProperty> {
     @Override
     public int compare(CheckpointProperty o1, CheckpointProperty o2) {
+        String g1 = o1.getPropertyGroup();
+        String g2 = o2.getPropertyGroup();
         
-        int retval = o1.getPropertyGroup().compareTo(o2.getPropertyGroup());
+        if (StringUtils.isBlank(g1)) {
+            g1 = Constants.DEFAULT_HTML_PROPERTY_GROUP;
+        }
+        
+        if (StringUtils.isBlank(g2)) {
+            g2 = Constants.DEFAULT_HTML_PROPERTY_GROUP;
+        }
+
+        int retval = g1.compareTo(g2);
 
         if (retval == 0) {
-            retval = o1.getPropertySection().compareTo(o2.getPropertySection());
+            String s1 = o1.getPropertySection();
+            String s2 = o2.getPropertySection();
+            
+            if (StringUtils.isBlank(s1)) {
+                s1 = Constants.DEFAULT_HTML_PROPERTY_SECTION;
+            }
+
+            if (StringUtils.isBlank(s2)) {
+                s2 = Constants.DEFAULT_HTML_PROPERTY_SECTION;
+            }
+            
+            
+            retval = s1.compareTo(s2);
         }
         
         if (retval == 0) {

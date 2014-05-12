@@ -17,24 +17,26 @@
 package org.kuali.test.handlers;
 
 import org.jsoup.nodes.Node;
-import org.kuali.test.utils.Utils;
 
 
 public class KualiTabTagHandler extends DefaultHtmlTagHandler {
     @Override
     public boolean isContainer(Node node) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("tag: " + node.nodeName() + ", id=" + node.attr("id") + ", name=" + node.attr("name"));
+        }
         return true;
     }
 
     @Override
     public String getGroupName(Node node) {
-        String retval = super.getGroupName(node);
-        if (getTagHandler().getLabelMatcher() != null) {
-            retval = Utils.getLabelText(getTagHandler().getLabelMatcher(), node);
-        }
+        String id = node.attr("id");
+        String retval = id;
+        int pos1 = id.indexOf("-");
+        int pos2 = id.lastIndexOf("-");
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("group: " + retval);
+        if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
+            retval = id.substring(pos1+1, pos2);
         }
         
         return retval;
