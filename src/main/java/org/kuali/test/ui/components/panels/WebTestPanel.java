@@ -255,8 +255,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     Node iframeBody = getIframeBody(webBrowser, whitelist, node);
                     
                     if (iframeBody != null) {
-                        // set the iframe bode node we loaded
+                        // set the iframe node we loaded
                         ((Element)node).prependChild(iframeBody);
+                        
+                       // traverseNode(webBrowser, whitelist, labelNodes, iframeBody);
+                        
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("--------------------- iframe -----------------------");
                             LOG.debug(node.toString());
