@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -74,8 +73,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         initComponents(rootNode, labelNodes);
     }
     
-    @SuppressWarnings("unchecked")
-    private void initComponents(Node rootNode, List <Node> labelNodes) {
+    private void initComponents(Node rootNode, List<Node>labelNodes) {
         String[] labels = new String[] {
             "Checkpoint Name" 
         };
@@ -87,23 +85,24 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             name,
         };
         
-        JPanel p = new JPanel(new BorderLayout(3, 3));
+        BasePanel p = new BasePanel(getMainframe());
+        
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
-        
+
         BasePanel propertyContainer = buildPropertyContainer(rootNode, labelNodes);
-        
+
         p.add(propertyContainer, BorderLayout.CENTER);
+
         getContentPane().add(p, BorderLayout.CENTER);
 
         addStandardButtons();
         
-        // if propertyContainer is a JLabel then we did not find any checkpoint properties
         getSaveButton().setEnabled(!JLabel.class.equals(propertyContainer.getCenterComponent().getClass()));
-        
+
         setDefaultBehavior();
         setResizable(true);
     }
-    
+
     private BasePanel buildPropertyContainer(Node rootNode, List <Node> labelNodes) {
         BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
@@ -113,7 +112,8 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         Stack <String> groupStack = new Stack();
         groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        processNode(groupStack, new Stack(), labelMap, checkpointProperties, rootNode);
+        
+        processNode(groupStack, labelMap, checkpointProperties, rootNode);
 
         Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
         
@@ -170,8 +170,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private void processNode(Stack <String> groupStack, Stack <String> sectionStack, 
-        Map<String, String> labelMap, List <CheckpointProperty> checkpointProperties, Node node) {
+    private void processNode(Stack <String> groupStack, 
+        Map<String, String> labelMap, 
+        List <CheckpointProperty> checkpointProperties, 
+        Node node) {
         HtmlTagHandler th = Utils.getHtmlTagHandler(node);
         
         if (LOG.isDebugEnabled()) {
@@ -196,7 +198,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
                 
                 for (Node child : node.childNodes()) {
-                    processNode(groupStack, sectionStack, labelMap, checkpointProperties, child);
+                    processNode(groupStack, labelMap, checkpointProperties, child);
                 }
 
                 if (StringUtils.isNotBlank(groupName)) {
@@ -204,38 +206,34 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-                cp.setPropertyGroup(groupStack.peek());
-                cp.setPropertySection(th.getSectionName(node));
-                
-                if (!sectionStack.isEmpty()) {
-                    cp.setPropertySection(sectionStack.peek());
-                }
-                
-                if (th.getTagHandler().getLabelMatcher() != null) {
-                    cp.setDisplayName(Utils.getLabelText(th.getTagHandler().getLabelMatcher(), node));
-                } else if (labelMap.containsKey(cp.getPropertyName())) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("label: (" + labelMap.get(cp.getPropertyName()) +")");
+                if (cp != null) {
+                    cp.setPropertyGroup(groupStack.peek());
+                    cp.setPropertySection(th.getSectionName(node));
+
+                    if (th.getTagHandler().getLabelMatcher() != null) {
+                        cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node)); 
+                    } else if (labelMap.containsKey(cp.getPropertyName())) {
+                        cp.setDisplayName(labelMap.get(cp.getPropertyName()));
+                    } 
+
+                    if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                        cp.setOperator(ComparisonOperator.EQUAL_TO);
                     }
 
-                    cp.setDisplayName(labelMap.get(cp.getPropertyName()));
-                } 
-                
-                if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                    cp.setOperator(ComparisonOperator.EQUAL_TO);
+                    if (StringUtils.isNotBlank(cp.getDisplayName())) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: " 
+                                + cp.getPropertyName() + ", value: " + cp.getPropertyValue() 
+                                + ", propertyGroup: " + cp.getPropertyGroup());
+                        }
+                        
+                        checkpointProperties.add(cp);
+                    }
                 }
-                
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: " 
-                        + cp.getPropertyName() + ", value: " + cp.getPropertyValue() 
-                        + ", propertyGroup: " + cp.getPropertyGroup());
-                }
-                
-                checkpointProperties.add(cp);
             }
         } else {
             for (Node child : node.childNodes()) {
-                processNode(groupStack, sectionStack, labelMap, checkpointProperties, child);
+                processNode(groupStack, labelMap, checkpointProperties, child);
             }
         }
     }
@@ -380,4 +378,5 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     public boolean isResizable() {
         return true;
     }
+    
 }

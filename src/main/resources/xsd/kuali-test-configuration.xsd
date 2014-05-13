@@ -67,8 +67,8 @@
             <xs:element name="tag-name" type="xs:string"/>
             <xs:element name="handler-class-name" type="xs:string"/>
             <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
-            <xs:element name="label-matcher" type="tag-matcher" minOccurs="0"/>
-            <xs:element name="section-matcher" type="section-matcher" minOccurs="0"/>
+            <xs:element name="label-matcher" type="tag-matchers" minOccurs="0"/>
+            <xs:element name="section-matcher" type="tag-matchers" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -84,12 +84,6 @@
             <xs:enumeration value="table-column-header"/>
         </xs:restriction>
     </xs:simpleType>
-
-    <xs:complexType name="section-matcher">
-        <xs:sequence>
-            <xs:element name="tag-matcher" type="tag-matcher" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
 
     <xs:complexType name="tag-matchers">
         <xs:sequence>

@@ -18,33 +18,11 @@ package org.kuali.test.handlers;
 
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
-import org.kuali.test.utils.Utils;
 
 
-public class TdTagHandler extends DefaultHtmlTagHandler {
-    @Override
-    public boolean isContainer(Node node) {
-        return false;
-    }
-
+public class NoopTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node); 
-        retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
-        return retval;
-    }
-
-    @Override
-    public String getSectionName(Node node) {
-        String retval = null;
-        if (getTagHandler().getSectionMatcher() != null) {
-            retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("section: " + retval);
-        }
-        
-        return retval;
+        return null;
     }
 }

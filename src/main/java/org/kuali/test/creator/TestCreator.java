@@ -532,7 +532,14 @@ public class TestCreator extends JFrame implements WindowListener {
                     if (args.length > 0) {
                         filename = args[0];
                     }
-                    new TestCreator(filename).setVisible(true);
+                    try {
+                        new TestCreator(filename).setVisible(true);
+                    }
+                    
+                    catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                        System.exit(-1);
+                    }
                 }
             });
 

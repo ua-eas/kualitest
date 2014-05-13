@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +58,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
 
@@ -672,25 +674,12 @@ public class Utils {
         }
         
         if (StringUtils.isNotBlank(input)) {
-            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", "");  
+            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", " ").trim();  
         }
         
         return retval;
     }
 
-    public static String formatDisplayName(String name) {
-        String retval = name;
-        
-        if (StringUtils.isNotBlank(name)) {
-            String s = name.trim();
-            if (s.endsWith(":")) {
-                retval = s.substring(0, s.length()-1);
-            }
-        }
-        
-        return retval;
-    }
-    
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
@@ -711,6 +700,12 @@ public class Utils {
                 LOG.warn(ex.toString(), ex);
             }
         }
+        
+        // sort the handler so we hit most contrained matching test first the 
+        // fall through to more generic tests
+        for (List <HtmlTagHandler> l : TAG_HANDLERS.values()) {
+            Collections.sort(l, new HtmlTagHandlerComparator());
+        }
     }
 
     public static boolean isTagMatch(Node node, TagMatchAttribute[] attributes) {
@@ -727,7 +722,9 @@ public class Utils {
 
                         boolean foundit = false;
                         while (st.hasMoreTokens()) {
-                            if (st.nextToken().equalsIgnoreCase(node.attr(att.getName()))) {
+                            String token = st.nextToken();
+
+                            if (token.equalsIgnoreCase(node.attr(att.getName()))) {
                                 foundit = true;
                                 break;
                             }
@@ -739,21 +736,23 @@ public class Utils {
                         }
                     } else if (att.getValue().contains("*")) {
                         String nodeData = node.attr(att.getName());
-                        int pos = att.getValue().indexOf("*");
+                        String attData = att.getValue();
+                        
+                        int pos = attData.indexOf("*");
                         if (StringUtils.isBlank(nodeData)) {
                             retval = false;
                         } else {
                             if (pos == 0) {
-                                if (!nodeData.endsWith(att.getValue().substring(1))) {
+                                if (!nodeData.endsWith(attData.substring(1))) {
                                     retval = false;
                                 }
-                            } else if (pos == (att.getValue().length() - 1)) {
-                                if (!nodeData.startsWith(att.getValue().substring(0, pos))) {
+                            } else if (pos == (attData.length() - 1)) {
+                                if (!nodeData.startsWith(attData.substring(0, pos))) {
                                     retval = false;
                                 }
                             } else {
-                                String s1 = att.getValue().substring(0, pos);
-                                String s2 = att.getValue().substring(pos+1);
+                                String s1 = attData.substring(0, pos);
+                                String s2 = attData.substring(pos+1);
 
                                 if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
                                     retval = false;
@@ -765,7 +764,8 @@ public class Utils {
                             break;
                         }
                     } else {
-                        if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
+                        String val = att.getValue();
+                        if (!val.equalsIgnoreCase(node.attr(att.getName()))) {
                             retval = false;
                             break;
                         }
@@ -833,7 +833,12 @@ public class Utils {
         
         while (parent != null) {
             if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (isTagMatch(parent, tm.getMatchAttributes().getMatchAttributeArray())) {
+                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                    if (isTagMatch(parent, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = parent;
+                        break;
+                    }
+                } else {
                     retval = parent;
                     break;
                 }
@@ -855,8 +860,14 @@ public class Utils {
         Node prev = node.previousSibling();
         
         while (prev != null) {
+LOG.debug("================================>" + prev.nodeName());
             if (tm.getTagName().equalsIgnoreCase(prev.nodeName())) {
-                if (isTagMatch(prev, tm.getMatchAttributes().getMatchAttributeArray())) {
+                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                    if (isTagMatch(prev, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = prev;
+                        break;
+                    }
+                } else {
                     retval = prev;
                     break;
                 }
@@ -882,7 +893,12 @@ public class Utils {
         
         while (next != null) {
             if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (isTagMatch(next, tm.getMatchAttributes().getMatchAttributeArray())) {
+                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                    if (isTagMatch(next, tm.getMatchAttributes().getMatchAttributeArray())) {
+                        retval = next;
+                        break;
+                    }
+                } else {
                     retval = next;
                     break;
                 }
@@ -982,15 +998,22 @@ public class Utils {
         return retval;
     }
 
-    public static String getLabelText(TagMatcher labelMatcher, Node node) {
-        String retval = "";
-        Node labelNode = getMatchingTagNode(labelMatcher, node);
-        
-        if (labelNode != null) {
-            retval = labelNode.attr("value");
+    public static String getMatchedNodeText(TagMatcher[] tagMatchers, Node node) {
+        String retval = null;
+
+        if ((tagMatchers != null) && (tagMatchers.length > 0)) {
+            Node curnode = node;
             
-            if (StringUtils.isBlank(retval)) {
-                retval = cleanDisplayText(labelNode.toString());
+            for (int i = 0; i < tagMatchers.length; ++i) {
+                curnode = Utils.getMatchingTagNode(tagMatchers[i], curnode);
+            }
+
+            if (curnode != null) {
+                retval = Utils.cleanDisplayText(curnode.toString());
+            }
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("getMatchedNodeText: tag=" + node.nodeName() + ", text=" + retval);
             }
         }
         
@@ -999,32 +1022,35 @@ public class Utils {
     
     public static Node getMatchingTagNode(TagMatcher tm, Node node) {
         Node retval = null;
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.nodeName());
+        
+        if ((tm != null) && (node != null)) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.nodeName());
+            }
+            switch(tm.getMatchType().intValue()) {
+                case TagMatchType.INT_CHILD:
+                    retval = getMatchingChild(tm, node);
+                    break;
+                case TagMatchType.INT_PARENT:
+                    retval = getMatchingParent(tm, node);
+                    break;
+                case TagMatchType.INT_PREVIOUS_SIBLING:
+                    retval = getPreviousMatchingSibling(tm, node);
+                    break;
+                case TagMatchType.INT_NEXT_SIBLING:
+                    retval = getNextMatchingSibling(tm, node);
+                    break;
+                case TagMatchType.INT_TABLE_COLUMN_HEADER:
+                    retval = getMatchingTableColumnHeader(tm, node);
+                    break;
+                default:
+                    if (isTagMatch(node, tm.getMatchAttributes().getMatchAttributeArray())) {
+                       retval = node;
+                    }
+                    break;
+            }
         }
-        switch(tm.getMatchType().intValue()) {
-            case TagMatchType.INT_CHILD:
-                retval = getMatchingChild(tm, node);
-                break;
-            case TagMatchType.INT_PARENT:
-                retval = getMatchingParent(tm, node);
-                break;
-            case TagMatchType.INT_PREVIOUS_SIBLING:
-                retval = getPreviousMatchingSibling(tm, node);
-                break;
-            case TagMatchType.INT_NEXT_SIBLING:
-                retval = getNextMatchingSibling(tm, node);
-                break;
-            case TagMatchType.INT_TABLE_COLUMN_HEADER:
-                retval = getMatchingTableColumnHeader(tm, node);
-                break;
-            default:
-                if (isTagMatch(node, tm.getMatchAttributes().getMatchAttributeArray())) {
-                   retval = node;
-                }
-                break;
-        }
-
+        
         return retval;
     }
     

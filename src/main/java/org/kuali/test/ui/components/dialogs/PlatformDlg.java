@@ -23,8 +23,8 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.KualiApplication;
-import org.kuali.test.creator.TestCreator;
 import org.kuali.test.Platform;
+import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Utils;
 
@@ -86,13 +86,15 @@ public class PlatformDlg extends BaseSetupDlg {
         name = new JTextField(platform.getName(), 20);
         name.setEditable(!isEditmode());
         application = new JComboBox(Utils.getXmlEnumerations(KualiApplication.class));
-        application.setSelectedItem(platform.getApplication());
+        application.setSelectedItem(platform.getApplication().toString());
         version = new JTextField(platform.getVersion(), 10);
         weburl = new JTextField(platform.getWebUrl(), 30);
         wsurl = new JTextField(platform.getWebServiceUrl(), 30);
         emailAddresses = new JTextField(platform.getEmailAddresses(), 30);
         dbconnection = new JComboBox<String>(getDatabaseConnectionNames());
-        dbconnection.setSelectedItem(platform.getDatabaseConnectionName());
+        if (platform.getDatabaseConnectionName() != null) {
+            dbconnection.setSelectedItem(platform.getDatabaseConnectionName().toString());
+        }
 
         JComponent[] components = new JComponent[] {
             name,

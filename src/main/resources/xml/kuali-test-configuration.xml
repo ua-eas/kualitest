@@ -60,10 +60,6 @@
                     <match-type>current</match-type>
                     <tag-name>td</tag-name>
                     <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>datacell</value>
-                        </match-attribute>
                     </match-attributes>
                 </tag-matcher>
                 <tag-matcher>
@@ -78,9 +74,11 @@
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
-                <match-type>previous-sibling</match-type>
-                <tag-name>th</tag-name>
-                <match-attributes></match-attributes>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
             </label-matcher>
             <section-matcher>
                 <tag-matcher>
@@ -95,7 +93,7 @@
                 </tag-matcher>
                 <tag-matcher>
                     <match-type>previous-sibling</match-type>
-                    <tag-name>h3</tag-name>
+                    <tag-name>#text</tag-name>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </section-matcher>
@@ -122,9 +120,12 @@
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
-                <match-type>previous-sibling</match-type>
-                <tag-name>th</tag-name>
-                <match-attributes></match-attributes>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
             </label-matcher>
         </handler>
         <handler>
@@ -153,10 +154,112 @@
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
-                <match-type>table-column-header</match-type>
-                <tag-name>th</tag-name>
-                <match-attributes></match-attributes>
+                <tag-matcher>
+                    <match-type>table-column-header</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
             </label-matcher>
+            <section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>tr</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>tr</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>tab-subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </section-matcher>
+        </handler>
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.NoopTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>*subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+        </handler>
+
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datacell center</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>div</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>id</name>
+                            <value>tab-AccountSummary-div</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <tag-matcher>
+                    <match-type>table-column-header</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+            </label-matcher>
+            <section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>tr</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>tab-subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </section-matcher>
         </handler>
         <handler>
             <tag-name>td</tag-name>
@@ -174,21 +277,41 @@
                 </tag-matcher>
                 <tag-matcher>
                     <match-type>parent</match-type>
-                    <tag-name>div</tag-name>
+                    <tag-name>table</tag-name>
                     <match-attributes>
                         <match-attribute>
                             <name>id</name>
-                            <value>tab-ViewRelatedDocuments-div</value>
+                            <value>datatable</value>
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
-                <match-type>table-column-header</match-type>
-                <tag-name>th</tag-name>
-                <match-attributes></match-attributes>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
             </label-matcher>
+            <section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>#text</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+            </section-matcher>
         </handler>
+
         <handler>
             <tag-name>input</tag-name>
             <handler-class-name>org.kuali.test.handlers.RadioInputTagHandler</handler-class-name>
@@ -330,9 +453,11 @@
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
-                <match-type>previous-sibling</match-type>
-                <tag-name>th</tag-name>
-                <match-attributes></match-attributes>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
             </label-matcher>
         </handler>
         <handler>
