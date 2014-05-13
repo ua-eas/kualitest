@@ -82,6 +82,23 @@
                 <tag-name>th</tag-name>
                 <match-attributes></match-attributes>
             </label-matcher>
+            <section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>previous-sibling</match-type>
+                    <tag-name>h3</tag-name>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+            </section-matcher>
         </handler>
         <handler>
             <tag-name>td</tag-name>
@@ -106,6 +123,68 @@
             </tag-matchers>
             <label-matcher>
                 <match-type>previous-sibling</match-type>
+                <tag-name>th</tag-name>
+                <match-attributes></match-attributes>
+            </label-matcher>
+        </handler>
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>infoline</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <match-type>table-column-header</match-type>
+                <tag-name>th</tag-name>
+                <match-attributes></match-attributes>
+            </label-matcher>
+        </handler>
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datacell</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>div</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>id</name>
+                            <value>tab-ViewRelatedDocuments-div</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <match-type>table-column-header</match-type>
                 <tag-name>th</tag-name>
                 <match-attributes></match-attributes>
             </label-matcher>
@@ -158,6 +237,26 @@
                             <name>name</name>
                             <!--  can use "|" to seperate "or" values for matching -->
                             <value>docNum|businessObjectClassName</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
+        </handler>
+        <handler>
+            <tag-name>iframe</tag-name>
+            <handler-class-name>org.kuali.test.handlers.KualiRouteLogIframeTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>iframe</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>name</name>
+                            <value></value>
+                        </match-attribute>
+                        <match-attribute>
+                            <name>name</name>
+                            <value>routeLogIFrame</value>
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
@@ -235,6 +334,18 @@
                 <tag-name>th</tag-name>
                 <match-attributes></match-attributes>
             </label-matcher>
+        </handler>
+        <handler>
+            <tag-name>textarea</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TextareaTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>textarea</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+            </tag-matchers>
         </handler>
     </tag-handlers>
     <platforms>

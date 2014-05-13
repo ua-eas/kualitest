@@ -17,33 +17,19 @@
 package org.kuali.test.handlers;
 
 import org.jsoup.nodes.Node;
+import org.kuali.test.utils.Constants;
 
 
-public class KualiTabTagHandler extends DefaultHtmlTagHandler {
+public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
     @Override
     public boolean isContainer(Node node) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("tag: " + node.nodeName() + ", id=" + node.attr("id") + ", name=" + node.attr("name"));
-        }
         return true;
     }
 
     @Override
     public String getGroupName(Node node) {
-        String id = node.attr("id");
-        String retval = id;
-        int pos1 = id.indexOf("-");
-        int pos2 = id.lastIndexOf("-");
-        
-        if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-            retval = id.substring(pos1+1, pos2);
-        }
-        
-        // hack to handle generated tab names in kuali
-        if (retval.startsWith("ID")) {
-            retval = null;
-        }
-        
-        return retval;
+        return Constants.ROUTELOG_HTML_PROPERTY_GROUP;
     }
+    
+    
 }

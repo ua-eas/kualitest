@@ -19,6 +19,7 @@ package org.kuali.test.handlers;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.TagMatcher;
 import org.kuali.test.utils.Utils;
 
 
@@ -37,5 +38,26 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         
         return retval;
     }
-    
+
+    @Override
+    public String getSectionName(Node node) {
+        String retval = super.getSectionName(node); 
+        
+        if (getTagHandler().getSectionMatcher() != null) {
+            Node curnode = node;
+            for (TagMatcher tm : getTagHandler().getSectionMatcher().getTagMatcherArray()) {
+                curnode = Utils.getMatchingTagNode(tm, curnode);
+                
+                if (curnode == null) {
+                    break;
+                }
+            }
+            
+            if (curnode != null) {
+                retval = Utils.cleanDisplayText(curnode.toString());
+            }
+        }
+        
+        return retval;
+    }
 }

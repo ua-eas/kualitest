@@ -113,6 +113,7 @@ public class Constants {
     public static final String HEADER_INFO_PANEL_NAME = "Header Info";
     public static final String DEFAULT_HTML_PROPERTY_GROUP = "main";
     public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
+    public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
     
     
     public static final String HTTP_REQUEST_METHOD_GET = "GET";
@@ -152,7 +153,13 @@ public class Constants {
     public static final String HTML_TAG_TYPE_OPTION = "option";
     public static final String HTML_TAG_TYPE_LABEL = "label";
     public static final String HTML_TAG_TYPE_IFRAME = "iframe";
+    public static final String HTML_TAG_TYPE_TABLE = "table";
+    public static final String HTML_TAG_TYPE_TR = "tr";
+    public static final String HTML_TAG_TYPE_TH = "th";
+    public static final String HTML_TAG_TYPE_H2 = "h2";
+    public static final String HTML_TAG_TYPE_H3 = "h3";
     public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
+    public static final String HTML_TAG_TYPE_TBODY = "tbody";
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     
@@ -173,7 +180,8 @@ public class Constants {
         "body",
         "h2",
         "table",
-        "tbody"
+        "tbody",
+        "textarea"
     };
     
     public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {

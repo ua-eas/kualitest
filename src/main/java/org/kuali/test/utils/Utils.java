@@ -715,68 +715,68 @@ public class Utils {
 
     public static boolean isTagMatch(Node node, TagMatchAttribute[] attributes) {
         boolean retval = true;
-        
-        for (TagMatchAttribute att : attributes) {
-            if (!node.hasAttr(att.getName())) {
-                retval = false;
-                break;
-            } else {
-                if (att.getValue().contains("|")) {
-                    // can use "|" to seperate "or" values for matching
-                    StringTokenizer st = new StringTokenizer(att.getValue(), "|");
+        if (attributes != null) {
+            for (TagMatchAttribute att : attributes) {
+                if (!node.hasAttr(att.getName())) {
+                    retval = false;
+                    break;
+                } else {
+                    if (att.getValue().contains("|")) {
+                        // can use "|" to seperate "or" values for matching
+                        StringTokenizer st = new StringTokenizer(att.getValue(), "|");
 
-                    boolean foundit = false;
-                    while (st.hasMoreTokens()) {
-                        if (st.nextToken().equalsIgnoreCase(node.attr(att.getName()))) {
-                            foundit = true;
+                        boolean foundit = false;
+                        while (st.hasMoreTokens()) {
+                            if (st.nextToken().equalsIgnoreCase(node.attr(att.getName()))) {
+                                foundit = true;
+                                break;
+                            }
+                        }
+
+                        if (!foundit) {
+                            retval = false;
+                            break;
+                        }
+                    } else if (att.getValue().contains("*")) {
+                        String nodeData = node.attr(att.getName());
+                        int pos = att.getValue().indexOf("*");
+                        if (StringUtils.isBlank(nodeData)) {
+                            retval = false;
+                        } else {
+                            if (pos == 0) {
+                                if (!nodeData.endsWith(att.getValue().substring(1))) {
+                                    retval = false;
+                                }
+                            } else if (pos == (att.getValue().length() - 1)) {
+                                if (!nodeData.startsWith(att.getValue().substring(0, pos))) {
+                                    retval = false;
+                                }
+                            } else {
+                                String s1 = att.getValue().substring(0, pos);
+                                String s2 = att.getValue().substring(pos+1);
+
+                                if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
+                                    retval = false;
+                                }
+                            }
+                        }
+
+                        if (!retval) {
+                            break;
+                        }
+                    } else {
+                        if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
+                            retval = false;
                             break;
                         }
                     }
-
-                    if (!foundit) {
-                        retval = false;
-                        break;
-                    }
-                } else if (att.getValue().contains("*")) {
-                    String nodeData = node.attr(att.getName());
-                    int pos = att.getValue().indexOf("*");
-                    if (StringUtils.isBlank(nodeData)) {
-                        retval = false;
-                    } else {
-                        if (pos == 0) {
-                            if (!nodeData.endsWith(att.getValue().substring(1))) {
-                                retval = false;
-                            }
-                        } else if (pos == (att.getValue().length() - 1)) {
-                            if (!nodeData.startsWith(att.getValue().substring(0, pos))) {
-                                retval = false;
-                            }
-                        } else {
-                            String s1 = att.getValue().substring(0, pos);
-                            String s2 = att.getValue().substring(pos+1);
-                            
-                            if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
-                                retval = false;
-                            }
-                        }
-                    }
-                        
-                    if (!retval) {
-                        break;
-                    }
-                } else {
-                    if (!att.getValue().equalsIgnoreCase(node.attr(att.getName()))) {
-                        retval = false;
-                        break;
-                    }
                 }
             }
-        }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("tag: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name") + ", type=" + node.attr("type") + ", retval=" + retval);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("tag: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name") + ", type=" + node.attr("type") + ", retval=" + retval);
+            }
         }
-
         
         return retval;
     }
@@ -853,10 +853,9 @@ public class Utils {
         }
         
         Node prev = node.previousSibling();
-        String[] tags = tm.getTagName().split(",");
         
         while (prev != null) {
-            if (tags[0].equalsIgnoreCase(prev.nodeName())) {
+            if (tm.getTagName().equalsIgnoreCase(prev.nodeName())) {
                 if (isTagMatch(prev, tm.getMatchAttributes().getMatchAttributeArray())) {
                     retval = prev;
                     break;
@@ -888,11 +887,101 @@ public class Utils {
                     break;
                 }
             }
+            
+            next = next.nextSibling();
+        }
+        
+        return retval;
+    }
+
+    public static int getChildNodeCountByType(String nodeType, Node parentNode) {
+        int retval = 0;
+    
+        for (Node child : parentNode.childNodes()) {
+            if (nodeType.equalsIgnoreCase(child.nodeName())) {
+                retval++;
+            }
+        }
+        
+        return retval;
+    }
+
+    public static Node getTableBodyNode(Node tableNode) {
+        Node retval = null;
+        
+        if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(tableNode.nodeName())) {
+            for (Node child : tableNode.childNodes()) {
+                if (Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(child.nodeName())) {
+                    retval = child;
+                    break;
+                }
+            }
         }
         
         return retval;
     }
     
+    public static Node getMatchingTableColumnHeader(TagMatcher tm, Node node) {
+        Node retval = null;
+
+        Node parent = node.parentNode();
+        Node tableNode = null;
+        Node headerRow = null;
+        
+        while (parent != null) {
+            if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(parent.nodeName())) {
+                tableNode = parent;
+                break;
+            }
+            parent = parent.parentNode();
+        }
+        
+        if (tableNode != null) {
+            Node parentNode = getTableBodyNode(tableNode);
+            
+            if (parentNode == null) {
+                parentNode = tableNode;
+            }
+            
+            for (Node child : parentNode.childNodes()) {
+                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(child.nodeName())) {
+                    int cnt = getChildNodeCountByType(Constants.HTML_TAG_TYPE_TH, child);
+                    
+                    if (cnt > 1) {
+                        headerRow = child;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (headerRow != null) {
+            int pos= node.siblingIndex();
+            int cnt = 0;
+                        
+            for (Node child : headerRow.childNodes()) {
+                if (Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(child.nodeName())) {
+                    int colspan= 1;
+                    
+                    try {
+                        colspan = Integer.parseInt(child.attr("colspan"));
+                    }
+                    
+                    catch (NumberFormatException ex) {};
+
+                    if (pos == cnt) {
+                        retval = child;
+                        break;
+                    }
+                    
+                    cnt += colspan;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
     public static String getLabelText(TagMatcher labelMatcher, Node node) {
         String retval = "";
         Node labelNode = getMatchingTagNode(labelMatcher, node);
@@ -925,6 +1014,9 @@ public class Utils {
                 break;
             case TagMatchType.INT_NEXT_SIBLING:
                 retval = getNextMatchingSibling(tm, node);
+                break;
+            case TagMatchType.INT_TABLE_COLUMN_HEADER:
+                retval = getMatchingTableColumnHeader(tm, node);
                 break;
             default:
                 if (isTagMatch(node, tm.getMatchAttributes().getMatchAttributeArray())) {
