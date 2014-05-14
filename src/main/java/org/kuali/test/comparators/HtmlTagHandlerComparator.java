@@ -22,38 +22,55 @@ import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
 import org.kuali.test.handlers.HtmlTagHandler;
 
-
+/**
+ * this class is used to order the HtmlTagHandler classes to the most granular tag comparisons
+ * are done first and the more generic checks are done later
+ * @author rbtucker
+ */
 public class HtmlTagHandlerComparator implements Comparator <HtmlTagHandler>{
     @Override
     public int compare(HtmlTagHandler o1, HtmlTagHandler o2) {
 
+        // check for same tag name
         int retval = o1.getTagHandler().getTagName().compareTo(o2.getTagHandler().getTagName());
         
         if (retval == 0) {
+            // check for same handler class
             retval = o1.getTagHandler().getHandlerClassName().compareTo(o2.getTagHandler().getHandlerClassName());
 
-            TagMatcher tm1 = getCurrentNodeTagMatcher(o1);
-            TagMatcher tm2 = getCurrentNodeTagMatcher(o2);
-            
             if (retval == 0) {
-                // need to sort so we hit most specific matchers first then fall through to more generic
-                if (tm1.getMatchAttributes().sizeOfMatchAttributeArray() > tm2.getMatchAttributes().sizeOfMatchAttributeArray()) {
+                // check for # of tag matchers
+                if (o1.getTagHandler().getTagMatchers().sizeOfTagMatcherArray() 
+                    > o2.getTagHandler().getTagMatchers().sizeOfTagMatcherArray()) {
                     retval = -1;
-                } else if (tm1.getMatchAttributes().sizeOfMatchAttributeArray() < tm2.getMatchAttributes().sizeOfMatchAttributeArray()) {
+                } else if (o1.getTagHandler().getTagMatchers().sizeOfTagMatcherArray() 
+                    < o2.getTagHandler().getTagMatchers().sizeOfTagMatcherArray()) {
                     retval = 1;
                 } else {
-                    retval = 0;
-                }
-            }
-            
-            if (retval == 0) {
-                boolean o1HasWildcards = hasWildcardMatchAttributes(tm1);
-                boolean o2HasWildcards = hasWildcardMatchAttributes(tm2);
-                
-                if (!o1HasWildcards && o2HasWildcards) {
-                    retval = -1;
-                } else if (o1HasWildcards && !o2HasWildcards) {
-                    retval = 1;
+                    if (o1.getTagHandler().getTagMatchers().sizeOfTagMatcherArray() > 0) {
+                        // check for # of tag match attributes
+                        TagMatcher[] tm1 = o1.getTagHandler().getTagMatchers().getTagMatcherArray();
+                        TagMatcher[] tm2 = o2.getTagHandler().getTagMatchers().getTagMatcherArray();
+                        for (int i = 0; (retval == 0) && (i < tm1.length); ++i) {
+                            // need to sort so we hit most specific matchers first then fall through to more generic
+                            if (tm1[i].getMatchAttributes().sizeOfMatchAttributeArray() > tm2[i].getMatchAttributes().sizeOfMatchAttributeArray()) {
+                                retval = -1;
+                            } else if (tm1[i].getMatchAttributes().sizeOfMatchAttributeArray() < tm2[i].getMatchAttributes().sizeOfMatchAttributeArray()) {
+                                retval = 1;
+                            } else {
+                                
+                                // check for wildcards
+                                boolean o1HasWildcards = hasWildcardMatchAttributes(tm1[i]);
+                                boolean o2HasWildcards = hasWildcardMatchAttributes(tm2[i]);
+
+                                if (!o1HasWildcards && o2HasWildcards) {
+                                    retval = -1;
+                                } else if (o1HasWildcards && !o2HasWildcards) {
+                                    retval = 1;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

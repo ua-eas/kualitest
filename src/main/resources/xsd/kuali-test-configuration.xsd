@@ -98,12 +98,20 @@
             <xs:element name="search-definition" type="xs:string" minOccurs="0"/>
             <xs:element name="matcher-class" type="xs:string" minOccurs="0"/>
             <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
+            <xs:element name="child-tag-match" type="child-tag-match" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="tag-match-attributes">
         <xs:sequence>
             <xs:element name="match-attribute" type="tag-match-attribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="child-tag-match">
+        <xs:sequence>
+            <xs:element name="child-tag-name" type="xs:string"/>
+            <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

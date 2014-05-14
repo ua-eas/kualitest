@@ -288,6 +288,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 atts.add("src");
             } else if ("th".equals(tag)) {
                 atts.add("colspan");
+            } else if ("table".equals(tag)) {
+                atts.add("summary");
             } 
             
             retval.addAttributes(tag, atts.toArray(new String[atts.size()]));

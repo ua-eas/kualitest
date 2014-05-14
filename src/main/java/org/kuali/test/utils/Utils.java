@@ -42,6 +42,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;
 import org.jsoup.safety.Whitelist;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -710,9 +711,9 @@ public class Utils {
         }
     }
 
-    public static boolean isTagMatch(Node node, TagMatchAttribute[] attributes) {
+    public static boolean isTagMatch(Node node, ChildTagMatch childTagMatch, TagMatchAttribute[] attributes) {
         boolean retval = true;
-        if (attributes != null) {
+        if ((attributes != null) && (attributes.length > 0)) {
             for (TagMatchAttribute att : attributes) {
                 if (!node.hasAttr(att.getName())) {
                     retval = false;
@@ -780,6 +781,33 @@ public class Utils {
             }
         }
         
+        // if we have a match and a child tag matcher - check the children
+        if (retval) {
+            if ((childTagMatch != null) && (node != null)) {
+                if (node.childNodeSize() > 0) {
+                    for (Node child : node.childNodes()) {
+                        if (child.nodeName().equalsIgnoreCase(childTagMatch.getChildTagName())) {
+                            if (childTagMatch.getMatchAttributes() != null) {
+                                if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                                    for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
+                                        String childAttr = child.attr(att.getName());
+                                        if (StringUtils.isBlank(childAttr) || !childAttr.equalsIgnoreCase(att.getValue())) {
+                                            retval = false;
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    retval = false;
+                }
+            }
+        }   
+        
         return retval;
     }
     
@@ -817,12 +845,7 @@ public class Utils {
         
         while (parent != null) {
             if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
-                    if (isTagMatch(parent, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = parent;
-                        break;
-                    }
-                } else {
+                if (isTagMatch(parent, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                     retval = parent;
                     break;
                 }
@@ -845,6 +868,7 @@ public class Utils {
                 case '+':
                     retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT;
                     break;
+                case '*':
                 case '0':
                 case '1':
                 case '2':
@@ -874,50 +898,76 @@ public class Utils {
         switch(getSiblingNodeSearchDirection(searchDefinition)) {
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS:
                 if (startIndex > -1) {
-                    int targetCnt = Integer.parseInt(searchDefinition.substring(1));
-
-                    Node child = node.previousSibling();
+                    int targetCnt = Integer.MAX_VALUE;
+                    boolean limited = true;
+                    // if we have an * then loop through all siblings
+                    if (searchDefinition.substring(1).equals("*")) {
+                        limited = false;
+                    } else {
+                        targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                    }
                     
-                    while ((child != null) && (cnt < targetCnt)) {
-                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                    Node prev = node.previousSibling();
+                    
+                    while ((prev != null) && (!limited || (cnt < targetCnt))) {
+                        if (prev.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
-                                retval = child;
+                            if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                                retval = prev;
                                 break;
                             } 
                         }
                     
-                        child = child.previousSibling();
+                        prev = prev.previousSibling();
                     }
                 }
                 break;
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT:
                 if (startIndex > -1) {
-                    int targetCnt = Integer.parseInt(searchDefinition.substring(1));
-                    Node child = node.nextSibling();
+                    int targetCnt = Integer.MAX_VALUE;
                     
-                    while ((child != null) && (cnt < targetCnt)) {
-                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                    boolean limited = true;
+                    // if we have an * then loop through all siblins
+                    if (searchDefinition.substring(1).equals("*")) {
+                        limited = false;
+                    } else {
+                        targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                    }
+
+                    
+                    Node next = node.nextSibling();
+                    
+                    while ((next != null) && (!limited || (cnt < targetCnt))) {
+                        if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
-                                retval = child;
+                            if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                                retval = next;
                                 break;
                             } 
                         }
                     
-                        child = child.nextSibling();
+                        next = next.nextSibling();
                     }
                 }
                 break;
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE:
                 if (startIndex > -1) {
-                    int targetCnt = Integer.parseInt(searchDefinition);
+                    int targetCnt = Integer.MAX_VALUE;
+                    
+                    boolean limited = true;
+                    // if we have an * then loop through all chiildren
+                    if (searchDefinition.equals("*")) {
+                        limited = false;
+                    } else {
+                        targetCnt = Integer.parseInt(searchDefinition);
+                    }
+                    
                     Node child = node.parentNode().childNode(0);
                     
-                    while ((child != null) && (cnt < targetCnt)) {
+                    while ((child != null) && (!limited || (cnt < targetCnt))) {
                         if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                            if ((!limited || (cnt == targetCnt)) && isTagMatch(child, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                                 retval = child;
                                 break;
                             } 
@@ -1028,7 +1078,17 @@ public class Utils {
             Node curnode = node;
             
             for (int i = 0; i < tagMatchers.length; ++i) {
-                curnode = Utils.getMatchingTagNode(tagMatchers[i], curnode);
+                TagMatcher tm = tagMatchers[i];
+                
+                // "M" is a key to match to same sibling index as parent
+                // used for table column header matching. Will need to clone
+                // original matcher in this case
+                if ("M".equals(tm.getSearchDefinition())) {
+                    tm = (TagMatcher)tm.copy();
+                    tm.setSearchDefinition("" + (node.siblingIndex() + 1));
+                } 
+                
+                curnode = Utils.getMatchingTagNode(tm, curnode);
             }
 
             if (curnode != null) {
@@ -1064,7 +1124,7 @@ public class Utils {
                     retval = getMatchingTableColumnHeader(tm, node);
                     break;
                 default:
-                    if (isTagMatch(node, tm.getMatchAttributes().getMatchAttributeArray())) {
+                    if (isTagMatch(node, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                        retval = node;
                     }
                     break;
@@ -1161,24 +1221,27 @@ public class Utils {
         StringBuilder retval = new StringBuilder(128);
 
         String subSectionName = th.getSubSectionName(node);
-        
-        
-        
         String sectionName = th.getSectionName(node);
+
+        retval.append("<html>");
         
-        
-        if (StringUtils.isNotBlank(sectionName)) {
+        boolean haveSection = StringUtils.isNotBlank(sectionName);
+        if (haveSection) {
+            retval.append("<span style='color: #000099; font-weight: 700;'>");
             retval.append(sectionName);
+            retval.append("");
         }
         
         if (StringUtils.isNotBlank(subSectionName)) {
-            if (retval.length() > 0) { 
-                retval.append(": ");
+            if (haveSection) { 
+                retval.append(": </span>");
             }
-            
             retval.append(subSectionName);
+        } else if (haveSection) {
+           retval.append("</span>");
         }
-        
+
+        retval.append("</html>");
         return retval.toString();
     }
 }

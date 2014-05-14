@@ -61,6 +61,4 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         
         return retval;
     }
-    
-    
 }
