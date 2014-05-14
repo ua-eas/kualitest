@@ -114,6 +114,11 @@ public class Constants {
     public static final String DEFAULT_HTML_PROPERTY_GROUP = "main";
     public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
     public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
+
+    public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
+    public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;
+    public static final int SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE = 0;
+    public static final int SIBLING_NODE_SEARCH_DIRECTION_NEXT = 1;
     
     
     public static final String HTTP_REQUEST_METHOD_GET = "GET";

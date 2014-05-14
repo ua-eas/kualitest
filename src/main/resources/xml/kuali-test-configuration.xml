@@ -75,8 +75,9 @@
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>
@@ -92,8 +93,9 @@
                     </match-attributes>
                 </tag-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>#text</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </section-matcher>
@@ -121,8 +123,9 @@
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes>
                     </match-attributes>
                 </tag-matcher>
@@ -163,18 +166,62 @@
             <section-matcher>
                 <tag-matcher>
                     <match-type>parent</match-type>
-                    <tag-name>tr</tag-name>
+                    <tag-name>table</tag-name>
                     <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
                     </match-attributes>
                 </tag-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>child</match-type>
+                    <tag-name>tbody</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
                     <tag-name>tr</tag-name>
+                    <search-definition>2</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>td</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>span</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+            </section-matcher>
+            <sub-section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>tr</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>tr</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>td</tag-name>
+                    <search-definition>1</search-definition>
                     <match-attributes>
                         <match-attribute>
                             <name>class</name>
@@ -182,7 +229,7 @@
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
-            </section-matcher>
+            </sub-section-matcher>
         </handler>
         <handler>
             <tag-name>td</tag-name>
@@ -246,12 +293,20 @@
                 </tag-matcher>
                 <tag-matcher>
                     <match-type>child</match-type>
+                    <tag-name>tbody</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
                     <tag-name>tr</tag-name>
+                    <search-definition>1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>td</tag-name>
+                    <search-definition>1</search-definition>
                     <match-attributes>
                         <match-attribute>
                             <name>class</name>
@@ -288,8 +343,9 @@
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>
@@ -305,8 +361,9 @@
                     </match-attributes>
                 </tag-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>#text</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </section-matcher>
@@ -454,8 +511,9 @@
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
-                    <match-type>previous-sibling</match-type>
+                    <match-type>sibling</match-type>
                     <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>

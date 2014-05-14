@@ -22,6 +22,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.utils.Constants;
@@ -34,20 +35,19 @@ import org.kuali.test.utils.Utils;
 public class CheckPointTypeSelectDlg extends BaseSetupDlg {
     private JComboBox checkPointTypes;
     
-    public CheckPointTypeSelectDlg(TestCreator mainFrame) {
+    public CheckPointTypeSelectDlg(TestCreator mainFrame, Platform platform) {
         super(mainFrame);
         setTitle("Select Check Point Type");
         
-        initComponents();
+        initComponents(platform);
     }
 
-    @SuppressWarnings("unchecked")
-    private void initComponents() {
+    private void initComponents(Platform platform) {
         String[] labels = new String[] {
             "Check Point Type", 
         };
         
-        checkPointTypes = new JComboBox(Utils.getXmlEnumerations(CheckpointType.class));
+        checkPointTypes = new JComboBox(Utils.getValidCheckpointTypesForPlatform(platform));
 
         JComponent[] components = new JComponent[] {
             checkPointTypes

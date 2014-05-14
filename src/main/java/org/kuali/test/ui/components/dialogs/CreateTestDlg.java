@@ -76,7 +76,7 @@ public class CreateTestDlg extends BaseSetupDlg {
         
         JLabel platformName = new JLabel(platform.getName());
         testName = new JTextField("new test", 20);
-        testType = new JComboBox(Utils.getXmlEnumerations(TestType.class));
+        testType = new JComboBox(Utils.getValidTestTypesForPlatform(platform));
         testType.setSelectedItem(TestType.WEB.toString());
         description = new JTextField("new test description", 30);
         maxRunTime= new IntegerTextField();

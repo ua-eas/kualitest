@@ -27,6 +27,7 @@ public interface HtmlTagHandler {
     public JComponent getContainerComponent(Node tag);
     public String getGroupName(Node tag);
     public String getSectionName(Node tag);
+    public String getSubSectionName(Node tag);
     public CheckpointProperty getCheckpointProperty(Node tag);
     public TagHandler getTagHandler();
     public void setTagHandler(TagHandler tagHandler);

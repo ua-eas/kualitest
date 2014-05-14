@@ -41,6 +41,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Node;
 import org.jsoup.safety.Whitelist;
+import org.kuali.test.CheckpointType;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -58,6 +59,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.TestType;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
@@ -800,27 +802,9 @@ public class Utils {
     
     public static Node getMatchingChild(TagMatcher tm, Node node) {
         Node retval = null;
-
-        String[] nodeNames = tm.getTagName().split(",");
-        Node curnode = node;
-
-        // if we have a comma delimited list move down the tree to find the correct node
-        for (int i = 0; i < (nodeNames.length - 1); ++i) {
-            curnode = getMatchingChildByName(nodeNames[i], curnode);
-        }
         
-        for (Node child : curnode.childNodes()) {
-            if (child.nodeName().equalsIgnoreCase(nodeNames[nodeNames.length-1])) {
-                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
-                    if (isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = child;
-                        break;
-                    }
-                } else {
-                    retval = child;
-                    break;
-                }
-            }
+        if (node.childNodeSize() > 0) {
+            retval = getMatchingSibling(tm, node.childNode(0));
         }
         
         return retval;
@@ -850,62 +834,101 @@ public class Utils {
         return retval;
     }
 
-    public static Node getPreviousMatchingSibling(TagMatcher tm, Node node) {
-        Node retval = null;
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("tag names: " + tm.getTagName());
-        }
+    public static int getSiblingNodeSearchDirection(String searchDefinition) {
+        int retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_INVALID;
         
-        Node prev = node.previousSibling();
-        
-        while (prev != null) {
-LOG.debug("================================>" + prev.nodeName());
-            if (tm.getTagName().equalsIgnoreCase(prev.nodeName())) {
-                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
-                    if (isTagMatch(prev, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = prev;
-                        break;
-                    }
-                } else {
-                    retval = prev;
+        if (StringUtils.isNotBlank(searchDefinition)) {
+            switch(searchDefinition.charAt(0)) {
+                case '-':
+                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS;
                     break;
-                }
+                case '+':
+                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT;
+                    break;
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE;
+                    break;
+                    
             }
-            
-            prev = prev.previousSibling();
         }
-        
-        if (LOG.isDebugEnabled()) {
-            if (retval != null) {
-                LOG.debug("retval: " + retval.toString());
-            }
-        }
-
         
         return retval;
     }
-
-    public static Node getNextMatchingSibling(TagMatcher tm, Node node) {
+    
+    public static Node getMatchingSibling(TagMatcher tm, Node node) {
         Node retval = null;
 
-        Node next = node.nextSibling();
+        String searchDefinition = tm.getSearchDefinition().trim();
+        int startIndex = node.siblingIndex();
+        int cnt = 0;
         
-        while (next != null) {
-            if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
-                    if (isTagMatch(next, tm.getMatchAttributes().getMatchAttributeArray())) {
-                        retval = next;
-                        break;
+        switch(getSiblingNodeSearchDirection(searchDefinition)) {
+            case Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS:
+                if (startIndex > -1) {
+                    int targetCnt = Integer.parseInt(searchDefinition.substring(1));
+
+                    Node child = node.previousSibling();
+                    
+                    while ((child != null) && (cnt < targetCnt)) {
+                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                            cnt++;
+                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                                retval = child;
+                                break;
+                            } 
+                        }
+                    
+                        child = child.previousSibling();
                     }
-                } else {
-                    retval = next;
-                    break;
                 }
-            }
-            
-            next = next.nextSibling();
+                break;
+            case Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT:
+                if (startIndex > -1) {
+                    int targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                    Node child = node.nextSibling();
+                    
+                    while ((child != null) && (cnt < targetCnt)) {
+                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                            cnt++;
+                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                                retval = child;
+                                break;
+                            } 
+                        }
+                    
+                        child = child.nextSibling();
+                    }
+                }
+                break;
+            case Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE:
+                if (startIndex > -1) {
+                    int targetCnt = Integer.parseInt(searchDefinition);
+                    Node child = node.parentNode().childNode(0);
+                    
+                    while ((child != null) && (cnt < targetCnt)) {
+                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                            cnt++;
+                            if ((cnt == targetCnt) && isTagMatch(child, tm.getMatchAttributes().getMatchAttributeArray())) {
+                                retval = child;
+                                break;
+                            } 
+                        }
+                    
+                        child = child.nextSibling();
+                    }
+                }
+                break;
         }
+
         
         return retval;
     }
@@ -1034,11 +1057,8 @@ LOG.debug("================================>" + prev.nodeName());
                 case TagMatchType.INT_PARENT:
                     retval = getMatchingParent(tm, node);
                     break;
-                case TagMatchType.INT_PREVIOUS_SIBLING:
-                    retval = getPreviousMatchingSibling(tm, node);
-                    break;
-                case TagMatchType.INT_NEXT_SIBLING:
-                    retval = getNextMatchingSibling(tm, node);
+                case TagMatchType.INT_SIBLING:
+                    retval = getMatchingSibling(tm, node);
                     break;
                 case TagMatchType.INT_TABLE_COLUMN_HEADER:
                     retval = getMatchingTableColumnHeader(tm, node);
@@ -1093,5 +1113,72 @@ LOG.debug("================================>" + prev.nodeName());
     
     public static boolean isHtmlContainer(Node node) {
         return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.nodeName().toLowerCase().trim());
+    }
+    
+    public static String[] getValidTestTypesForPlatform(Platform platform) {
+        List <String> retval = new ArrayList<String>();
+        String[] testTypes = Utils.getXmlEnumerations(TestType.class);
+
+        for (String testType : testTypes) {
+            if (TestType.DATABASE.toString().equals(testType)) {
+                if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+                    retval.add(testType);
+                }
+            } else if (TestType.WEB_SERVICE.toString().equals(testType)) {
+                if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
+                    retval.add(testType);
+                }
+            } else {
+                retval.add(testType);
+            }
+        }
+        
+        return retval.toArray(new String[retval.size()]);
+    }
+
+    public static String[] getValidCheckpointTypesForPlatform(Platform platform) {
+        List <String> retval = new ArrayList<String>();
+        String[] checkpointTypes = Utils.getXmlEnumerations(CheckpointType.class);
+
+        for (String checkpointType : checkpointTypes) {
+            if (CheckpointType.SQL.toString().equals(checkpointType)) {
+                if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+                    retval.add(checkpointType);
+                }
+            } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
+                if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
+                    retval.add(checkpointType);
+                }
+            } else {
+                retval.add(checkpointType);
+            }
+        }
+        
+        return retval.toArray(new String[retval.size()]);
+    }
+
+    public static String buildCheckpointSectionName(HtmlTagHandler th, Node node) {
+        StringBuilder retval = new StringBuilder(128);
+
+        String subSectionName = th.getSubSectionName(node);
+        
+        
+        
+        String sectionName = th.getSectionName(node);
+        
+        
+        if (StringUtils.isNotBlank(sectionName)) {
+            retval.append(sectionName);
+        }
+        
+        if (StringUtils.isNotBlank(subSectionName)) {
+            if (retval.length() > 0) { 
+                retval.append(": ");
+            }
+            
+            retval.append(subSectionName);
+        }
+        
+        return retval.toString();
     }
 }

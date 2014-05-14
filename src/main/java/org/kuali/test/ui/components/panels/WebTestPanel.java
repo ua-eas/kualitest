@@ -157,7 +157,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             LOG.debug("in handleCreateCheckpoint()");
         }
         
-        CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe());
+        CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe(), getPlatform());
 
         if (dlg.isSaved()) {
             int cptype = dlg.getCheckpointType().intValue();

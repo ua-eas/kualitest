@@ -47,4 +47,20 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         
         return retval;
     }
+
+    @Override
+    public String getSubSectionName(Node node) {
+        String retval = null;
+        if (getTagHandler().getSubSectionMatcher() != null) {
+            retval = Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node); 
+        }
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("subsection: " + retval);
+        }
+        
+        return retval;
+    }
+    
+    
 }
