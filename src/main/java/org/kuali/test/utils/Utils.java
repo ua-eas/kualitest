@@ -680,6 +680,10 @@ public class Utils {
             retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", " ").trim();  
         }
         
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("cleanDisplayText: retval=" + retval);
+        }
+
         return retval;
     }
 
@@ -807,23 +811,6 @@ public class Utils {
                 }
             }
         }   
-        
-        return retval;
-    }
-    
-    public static Node getMatchingChildByName(String childNodeName, Node node) {
-        Node retval = null;
-    
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("childNodeName: " + childNodeName + ", node: " + node.nodeName() + ", children: " + node.childNodes());
-        }
-        
-        for (Node child : node.childNodes()) {
-            if (child.nodeName().equalsIgnoreCase(childNodeName)) {
-                retval = child;
-                break;
-            }
-        }
         
         return retval;
     }
@@ -967,7 +954,8 @@ public class Utils {
                     while ((child != null) && (!limited || (cnt < targetCnt))) {
                         if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) && isTagMatch(child, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                            if ((!limited || (cnt == targetCnt)) 
+                                && isTagMatch(child, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                                 retval = child;
                                 break;
                             } 
@@ -983,94 +971,6 @@ public class Utils {
         return retval;
     }
 
-    public static int getChildNodeCountByType(String nodeType, Node parentNode) {
-        int retval = 0;
-    
-        for (Node child : parentNode.childNodes()) {
-            if (nodeType.equalsIgnoreCase(child.nodeName())) {
-                retval++;
-            }
-        }
-        
-        return retval;
-    }
-
-    public static Node getTableBodyNode(Node tableNode) {
-        Node retval = null;
-        
-        if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(tableNode.nodeName())) {
-            for (Node child : tableNode.childNodes()) {
-                if (Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(child.nodeName())) {
-                    retval = child;
-                    break;
-                }
-            }
-        }
-        
-        return retval;
-    }
-    
-    public static Node getMatchingTableColumnHeader(TagMatcher tm, Node node) {
-        Node retval = null;
-
-        Node parent = node.parentNode();
-        Node tableNode = null;
-        Node headerRow = null;
-        
-        while (parent != null) {
-            if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(parent.nodeName())) {
-                tableNode = parent;
-                break;
-            }
-            parent = parent.parentNode();
-        }
-        
-        if (tableNode != null) {
-            Node parentNode = getTableBodyNode(tableNode);
-            
-            if (parentNode == null) {
-                parentNode = tableNode;
-            }
-            
-            for (Node child : parentNode.childNodes()) {
-                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(child.nodeName())) {
-                    int cnt = getChildNodeCountByType(Constants.HTML_TAG_TYPE_TH, child);
-                    
-                    if (cnt > 1) {
-                        headerRow = child;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        if (headerRow != null) {
-            int pos= node.siblingIndex();
-            int cnt = 0;
-                        
-            for (Node child : headerRow.childNodes()) {
-                if (Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(child.nodeName())) {
-                    int colspan= 1;
-                    
-                    try {
-                        colspan = Integer.parseInt(child.attr("colspan"));
-                    }
-                    
-                    catch (NumberFormatException ex) {};
-
-                    if (pos == cnt) {
-                        retval = child;
-                        break;
-                    }
-                    
-                    cnt += colspan;
-                }
-            }
-        }
-        
-        return retval;
-    }
-
     public static String getMatchedNodeText(TagMatcher[] tagMatchers, Node node) {
         String retval = null;
 
@@ -1079,13 +979,17 @@ public class Utils {
             
             for (int i = 0; i < tagMatchers.length; ++i) {
                 TagMatcher tm = tagMatchers[i];
-                
+                String sdef = tm.getSearchDefinition();
                 // "M" is a key to match to same sibling index as parent
                 // used for table column header matching. Will need to clone
                 // original matcher in this case
-                if ("M".equals(tm.getSearchDefinition())) {
+                if (StringUtils.isNotBlank(sdef) && sdef.startsWith("M")) {
                     tm = (TagMatcher)tm.copy();
-                    tm.setSearchDefinition("" + (node.siblingIndex() + 1));
+                    if (sdef.length() > 1) {
+                        tm.setSearchDefinition("" + (node.siblingIndex() + Integer.parseInt(sdef.substring(1))));
+                    } else {
+                        tm.setSearchDefinition("" + (node.siblingIndex()+1));
+                    }
                 } 
                 
                 curnode = Utils.getMatchingTagNode(tm, curnode);
@@ -1119,9 +1023,6 @@ public class Utils {
                     break;
                 case TagMatchType.INT_SIBLING:
                     retval = getMatchingSibling(tm, node);
-                    break;
-                case TagMatchType.INT_TABLE_COLUMN_HEADER:
-                    retval = getMatchingTableColumnHeader(tm, node);
                     break;
                 default:
                     if (isTagMatch(node, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {

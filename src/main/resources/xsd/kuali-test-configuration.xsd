@@ -81,7 +81,6 @@
             <xs:enumeration value="parent"/>
             <xs:enumeration value="child"/>
             <xs:enumeration value="sibling"/>
-            <xs:enumeration value="table-column-header"/>
         </xs:restriction>
     </xs:simpleType>
 

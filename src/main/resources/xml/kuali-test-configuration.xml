@@ -196,6 +196,7 @@
                 </tag-matcher>
             </label-matcher>
         </handler>
+        <!-- items handler -->
         <handler>
             <tag-name>td</tag-name>
             <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
@@ -223,8 +224,31 @@
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
-                    <match-type>table-column-header</match-type>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>tbody</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>tr</tag-name>
+                    <search-definition>3</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
                     <tag-name>th</tag-name>
+                    <search-definition>M</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>
