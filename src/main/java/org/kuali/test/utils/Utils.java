@@ -789,8 +789,10 @@ public class Utils {
         if (retval) {
             if ((childTagMatch != null) && (node != null)) {
                 if (node.childNodeSize() > 0) {
+                    boolean foundone = false;
                     for (Node child : node.childNodes()) {
                         if (child.nodeName().equalsIgnoreCase(childTagMatch.getChildTagName())) {
+                            foundone = true;
                             if (childTagMatch.getMatchAttributes() != null) {
                                 if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
                                     for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
@@ -805,6 +807,10 @@ public class Utils {
                                 break;
                             }
                         }
+                    }
+                    
+                    if (!foundone) {
+                        retval = false;
                     }
                 } else {
                     retval = false;
@@ -843,7 +849,7 @@ public class Utils {
         
         return retval;
     }
-
+    
     public static int getSiblingNodeSearchDirection(String searchDefinition) {
         int retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_INVALID;
         
@@ -878,7 +884,7 @@ public class Utils {
     public static Node getMatchingSibling(TagMatcher tm, Node node) {
         Node retval = null;
 
-        String searchDefinition = tm.getSearchDefinition().trim();
+        String searchDefinition = tm.getSearchDefinition();
         int startIndex = node.siblingIndex();
         int cnt = 0;
         
@@ -980,10 +986,11 @@ public class Utils {
             for (int i = 0; i < tagMatchers.length; ++i) {
                 TagMatcher tm = tagMatchers[i];
                 String sdef = tm.getSearchDefinition();
-                // "M" is a key to match to same sibling index as parent
+                
+                // "I" is a key to match to same sibling index as parent
                 // used for table column header matching. Will need to clone
                 // original matcher in this case
-                if (StringUtils.isNotBlank(sdef) && sdef.startsWith("M")) {
+                if (StringUtils.isNotBlank(sdef) && sdef.startsWith(Constants.NODE_INDEX_MATCHER_CODE)) {
                     tm = (TagMatcher)tm.copy();
                     if (sdef.length() > 1) {
                         tm.setSearchDefinition("" + (node.siblingIndex() + Integer.parseInt(sdef.substring(1))));
@@ -1144,5 +1151,17 @@ public class Utils {
 
         retval.append("</html>");
         return retval.toString();
+    }
+    
+    public static boolean isValidContainerNode(Node node) {
+        boolean retval = true;
+        
+        if (node.childNodeSize() == 1) {
+            if (Constants.HTML_TEXT_NODE_NAME.equals(node.childNode(0).nodeName())) {
+                retval = false;
+            }
+        }
+        
+        return retval;
     }
 }

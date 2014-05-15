@@ -228,12 +228,18 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                         }
                         
                         checkpointProperties.add(cp);
+                    } else {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("no display value for - " + cp.getPropertyName() + "=" + cp.getPropertyValue());
+                        }
                     }
                 }
             }
         } else {
-            for (Node child : node.childNodes()) {
-                processNode(groupStack, labelMap, checkpointProperties, child);
+            if (Utils.isValidContainerNode(node)) {
+                for (Node child : node.childNodes()) {
+                    processNode(groupStack, labelMap, checkpointProperties, child);
+                }
             }
         }
     }

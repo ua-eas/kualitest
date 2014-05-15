@@ -114,6 +114,7 @@ public class Constants {
     public static final String DEFAULT_HTML_PROPERTY_GROUP = "main";
     public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
     public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
+    public static final String NODE_INDEX_MATCHER_CODE = "I";
 
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;
@@ -136,12 +137,11 @@ public class Constants {
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add("body");
         DEFAULT_HTML_CONTAINER_TAGS.add("table");
-        DEFAULT_HTML_CONTAINER_TAGS.add("th");
-        DEFAULT_HTML_CONTAINER_TAGS.add("td");
         DEFAULT_HTML_CONTAINER_TAGS.add("tr");
         DEFAULT_HTML_CONTAINER_TAGS.add("iframe");
         DEFAULT_HTML_CONTAINER_TAGS.add("div");
         DEFAULT_HTML_CONTAINER_TAGS.add("span");
+        DEFAULT_HTML_CONTAINER_TAGS.add("tbody");
         
         
         IMAGE_SUFFIX_SET.add("gif");
@@ -163,8 +163,10 @@ public class Constants {
     public static final String HTML_TAG_TYPE_TH = "th";
     public static final String HTML_TAG_TYPE_H2 = "h2";
     public static final String HTML_TAG_TYPE_H3 = "h3";
+    public static final String HTML_TAG_TYPE_TD = "td";
     public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
     public static final String HTML_TAG_TYPE_TBODY = "tbody";
+    public static final String HTML_TEXT_NODE_NAME = "#text";
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     

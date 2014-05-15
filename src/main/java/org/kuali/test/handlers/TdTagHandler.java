@@ -30,7 +30,13 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
+        
         retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(retval.getPropertyName() + "=" + retval.getPropertyValue());
+        }
+        
         return retval;
     }
 

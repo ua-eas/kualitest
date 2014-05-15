@@ -72,6 +72,12 @@
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
@@ -100,6 +106,8 @@
                 </tag-matcher>
             </section-matcher>
         </handler>
+        
+        <!-- handler for vendor tab -->
         <handler>
             <tag-name>td</tag-name>
             <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
@@ -123,6 +131,12 @@
                             <value>Vendor Section</value>
                         </match-attribute>
                     </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
@@ -185,6 +199,13 @@
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
             </tag-matchers>
             <label-matcher>
                 <tag-matcher>
@@ -196,7 +217,8 @@
                 </tag-matcher>
             </label-matcher>
         </handler>
-        <!-- items handler -->
+        
+        <!-- handler for items tab - any tds with "Items Section" table -->
         <handler>
             <tag-name>td</tag-name>
             <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
@@ -218,6 +240,10 @@
                         <match-attribute>
                             <name>class</name>
                             <value>datatable</value>
+                        </match-attribute>
+                        <match-attribute>
+                            <name>summary</name>
+                            <value>Items Section</value>
                         </match-attribute>
                     </match-attributes>
                 </tag-matcher>
@@ -248,7 +274,7 @@
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>th</tag-name>
-                    <search-definition>M</search-definition>
+                    <search-definition>I</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>
@@ -320,6 +346,153 @@
                 </tag-matcher>
             </sub-section-matcher>
         </handler>
+
+        <!-- handler for items tab - totals section -->
+        <handler>
+            <tag-name>td</tag-name>
+            <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+            <tag-matchers>
+                <tag-matcher>
+                    <match-type>current</match-type>
+                    <tag-name>td</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datacell</value>
+                        </match-attribute>
+                    </match-attributes>
+                    <child-tag-match>
+                        <child-tag-name>div</child-tag-name>
+                        <match-attributes></match-attributes>
+                    </child-tag-match>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                        <match-attribute>
+                            <name>summary</name>
+                            <value>Items Section</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
+                    <child-tag-match>
+                        <child-tag-name>div</child-tag-name>
+                        <match-attributes></match-attributes>
+                    </child-tag-match>
+                </tag-matcher>
+            </tag-matchers>
+            <label-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
+                    <child-tag-match>
+                        <child-tag-name>div</child-tag-name>
+                        <match-attributes></match-attributes>
+                    </child-tag-match>
+                </tag-matcher>
+            </label-matcher>
+            <section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>table</tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>tbody</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>tr</tag-name>
+                    <search-definition>2</search-definition>
+                    <match-attributes></match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>td</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>span</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+            </section-matcher>
+            <sub-section-matcher>
+                <tag-matcher>
+                    <match-type>parent</match-type>
+                    <tag-name>tr</tag-name>
+                    <match-attributes>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>tr</tag-name>
+                    <search-definition>-*</search-definition>
+                    <match-attributes></match-attributes>
+                    <child-tag-match>
+                        <child-tag-name>td</child-tag-name>
+                        <match-attributes>
+                            <match-attribute>
+                                <name>class</name>
+                                <value>subhead</value>
+                            </match-attribute>
+                        </match-attributes>
+                    </child-tag-match>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>td</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>subhead</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>child</match-type>
+                    <tag-name>span</tag-name>
+                    <search-definition>1</search-definition>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>subhead-left</value>
+                        </match-attribute>
+                    </match-attributes>
+                </tag-matcher>
+            </sub-section-matcher>
+        </handler>
+        
+        <!-- account lines handler for items -->
         <handler>
             <tag-name>td</tag-name>
             <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
@@ -368,6 +541,7 @@
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>tr</tag-name>
+                    <search-definition>I</search-definition>
                     <match-attributes>
                     </match-attributes>
                     <child-tag-match>
@@ -383,7 +557,7 @@
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>th</tag-name>
-                    <search-definition>M</search-definition>
+                    <search-definition>I</search-definition>
                     <match-attributes>
                         <match-attribute>
                             <name>class</name>
@@ -460,24 +634,6 @@
                 </tag-matcher>
             </sub-section-matcher>
         </handler>
-        <!--
-        <handler>
-            <tag-name>td</tag-name>
-            <handler-class-name>org.kuali.test.handlers.NoopTagHandler</handler-class-name>
-            <tag-matchers>
-                <tag-matcher>
-                    <match-type>current</match-type>
-                    <tag-name>td</tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>*subhead</value>
-                        </match-attribute>
-                    </match-attributes>
-                </tag-matcher>
-            </tag-matchers>
-        </handler>
-        -->
         <handler>
             <tag-name>td</tag-name>
             <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
@@ -533,7 +689,7 @@
                 <tag-matcher>
                     <match-type>child</match-type>
                     <tag-name>th</tag-name>
-                    <search-definition>M</search-definition>
+                    <search-definition>I</search-definition>
                     <match-attributes></match-attributes>
                 </tag-matcher>
             </label-matcher>
@@ -589,6 +745,12 @@
                             <value>datatable</value>
                         </match-attribute>
                     </match-attributes>
+                </tag-matcher>
+                <tag-matcher>
+                    <match-type>sibling</match-type>
+                    <tag-name>th</tag-name>
+                    <search-definition>-1</search-definition>
+                    <match-attributes></match-attributes>
                 </tag-matcher>
             </tag-matchers>
             <label-matcher>
