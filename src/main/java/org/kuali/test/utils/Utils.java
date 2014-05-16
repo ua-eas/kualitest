@@ -1011,6 +1011,25 @@ public class Utils {
         
         return retval;
     }
+    
+    public static int getSiblingIndexByTagType(Node node) {
+        int retval = 0;
+        
+        Node parent = node.parentNode();
+        
+        for (Node sibling : parent.childNodes()) {
+            if (sibling.siblingIndex() == node.siblingIndex()) {
+                break;
+            }
+            
+            if (sibling.nodeName().equals(node.nodeName())) {
+                retval++;
+            }
+        }
+        
+        
+        return retval;
+    }
 
     public static String getMatchedNodeText(TagMatcher[] tagMatchers, Node node) {
         String retval = null;
@@ -1028,9 +1047,9 @@ public class Utils {
                 if (StringUtils.isNotBlank(sdef) && sdef.startsWith(Constants.NODE_INDEX_MATCHER_CODE)) {
                     tm = (TagMatcher)tm.copy();
                     if (sdef.length() > 1) {
-                        tm.setSearchDefinition("" + (node.siblingIndex() + Integer.parseInt(sdef.substring(1))));
+                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node) + Integer.parseInt(sdef.substring(1))));
                     } else {
-                        tm.setSearchDefinition("" + (node.siblingIndex()+1));
+                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node)+1));
                     }
                 } 
                 
@@ -1177,15 +1196,6 @@ public class Utils {
 
     public static String buildCheckpointSectionName(HtmlTagHandler th, Node node) {
         StringBuilder retval = new StringBuilder(128);
-
-        if (node.attr("class").equals("datacell center") && node.toString().contains("3.60")) {
-            String s = "xxx";
-            if (s != null) {
-                int g = 0;
-            }
-                
-        }
-
         
         String subSectionName = th.getSubSectionName(node);
         String sectionName = th.getSectionName(node);
