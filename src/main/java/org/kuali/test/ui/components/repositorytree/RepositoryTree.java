@@ -150,8 +150,12 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             List<XmlError> xmlValidationErrorList = new ArrayList<XmlError>();
 
             try {
-                configuration = KualiTestConfigurationDocument.Factory.parse(configFile).getKualiTestConfiguration();
-
+                // Create an XmlOptions instance for load
+                XmlOptions loadOptions = new XmlOptions();
+                loadOptions.setLoadUseDefaultResolver();
+                
+                configuration = KualiTestConfigurationDocument.Factory.parse(configFile, loadOptions).getKualiTestConfiguration();
+                
                 // Create an XmlOptions instance and set the error listener.
                 XmlOptions validateOptions = new XmlOptions();
                 validateOptions.setErrorListener(xmlValidationErrorList);

@@ -189,6 +189,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         Node rootNode = getRootNodeFromHtml(wb, labelNodes, wb.getHTMLContent());
         
         if (rootNode != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(rootNode.toString());
+            }
+            
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
 
             if (dlg.isSaved()) {
