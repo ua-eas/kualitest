@@ -19,9 +19,6 @@ import chrriis.dj.nativeswing.NativeSwing;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserCommandEvent;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserEvent;
-import chrriis.dj.nativeswing.swtimpl.components.WebBrowserListener;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
@@ -52,12 +49,13 @@ import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
-public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener, WebBrowserListener  {
+public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener  {
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
 
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
-
+    private int nodeId = 0;
+    
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
         getStartTest().setEnabled(false);
@@ -186,6 +184,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
         List <Node> labelNodes = new ArrayList<Node>();
+        nodeId = 1;
+        
         Node rootNode = getRootNodeFromHtml(wb, labelNodes, wb.getHTMLContent());
         
         if (rootNode != null) {
@@ -243,7 +243,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         node.traverse(new NodeVisitor() {
             @Override
             public void head(Node node, int depth) {
-                node.attributes().put("test-id", node.nodeName() + "[" + depth + "][" + node.siblingIndex() + "]");
+                node.attributes().put(Constants.NODE_ID, Constants.NODE_ID + (nodeId++));
                 // if this tag is an iframe we will load by javascript call
                 if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(node.nodeName())) {
                     Node iframeBody = getIframeBody(webBrowser, whitelist, node);
@@ -282,17 +282,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         for (String tag : Constants.DEFAULT_HTML_WHITELIST_TAGS) {
             List <String> atts = new ArrayList(Arrays.asList(Constants.DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES));
-            if ("input".equals(tag)) {
+            if (Constants.HTML_TAG_TYPE_INPUT.equals(tag)) {
                 atts.add("value");
                 atts.add("type");
                 atts.add("checked");
-            } else if ("label".equals(tag)) {
+            } else if (Constants.HTML_TAG_TYPE_LABEL.equals(tag)) {
                 atts.add("for");
-            } else if ("iframe".equals(tag)) {
+            } else if (Constants.HTML_TAG_TYPE_IFRAME.equals(tag)) {
                 atts.add("src");
-            } else if ("th".equals(tag)) {
+            } else if (Constants.HTML_TAG_TYPE_TH.equals(tag) || Constants.HTML_TAG_TYPE_TD.equals(tag)) {
                 atts.add("colspan");
-            } else if ("table".equals(tag)) {
+            } else if (Constants.HTML_TAG_TYPE_TABLE.equals(tag)) {
                 atts.add("summary");
             } 
             
@@ -323,6 +323,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().clear();
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
+        closeProxyServer();
     }
 
     @Override
@@ -351,7 +352,21 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
         }
 
+        closeProxyServer();
+        
         return retval;
+    }
+    
+    private void closeProxyServer() {
+        try {
+            if (testProxyServer != null) {
+                testProxyServer.stop();
+            }
+        }
+        
+        catch (Throwable t) {
+            LOG.warn(t.toString(), t);
+        }
     }
 
     private void initializeNativeBrowser() {
@@ -368,10 +383,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         try {
             if (NativeInterface.isOpen()) {
                 NativeInterface.close();
-            }
-
-            if (testProxyServer != null) {
-                testProxyServer.stop();
             }
         } catch (Exception ex) {
             LOG.warn(ex.toString());
@@ -393,52 +404,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
-    @Override
-    public void windowWillOpen(WebBrowserWindowWillOpenEvent wbwwoe) {
-    }
-
-    @Override
-    public void windowOpening(WebBrowserWindowOpeningEvent wbwoe) {
-    }
-
-    @Override
-    public void windowClosing(WebBrowserEvent wbe) {
-    }
-
-    @Override
-    public void locationChanging(WebBrowserNavigationEvent wbne) {
-    }
-
-    @Override
-    public void locationChanged(WebBrowserNavigationEvent wbne) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void locationChangeCanceled(WebBrowserNavigationEvent wbne) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void loadingProgressChanged(WebBrowserEvent wbe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void titleChanged(WebBrowserEvent wbe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void statusChanged(WebBrowserEvent wbe) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void commandReceived(WebBrowserCommandEvent wbce) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
     private String getJsIframeDataCall(Node iframeNode) {
         StringBuilder retval = new StringBuilder(512);
         String src = iframeNode.attr("src");

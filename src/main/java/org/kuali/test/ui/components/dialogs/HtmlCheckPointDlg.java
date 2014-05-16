@@ -21,8 +21,10 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -106,9 +108,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private BasePanel buildPropertyContainer(final Node rootNode, final List <Node> labelNodes) {
         final BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        
-        new SplashDisplay(this, "Parsing HTML", "Parsing inpt HTML...") {
-
+        new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
             @Override
             protected void runProcess() {
                 Map <String, String> labelMap = buildLabelMap(labelNodes);
@@ -117,7 +117,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 Stack <String> groupStack = new Stack();
                 groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
 
-                processNode(groupStack, labelMap, checkpointProperties, rootNode);
+                processNode(groupStack, labelMap, checkpointProperties,  new HashSet<String>(), rootNode);
 
                 Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
 
@@ -183,6 +183,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private void processNode(Stack <String> groupStack, 
         Map<String, String> labelMap, 
         List <CheckpointProperty> checkpointProperties, 
+        Set <String> processedNodes,
         Node node) {
         Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
         
@@ -210,7 +211,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
                 
                 for (Node child : node.childNodes()) {
-                    processNode(groupStack, labelMap, checkpointProperties, child);
+                    processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
                 }
 
                 if (StringUtils.isNotBlank(groupName)) {
@@ -218,7 +219,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-                if (cp != null) {
+                if ((cp != null) && !processedNodes.contains(node.attr(Constants.NODE_ID))) {
+                    // track which nodes we have already seen
+                    processedNodes.add(node.attr(Constants.NODE_ID));
+                    
                     cp.setPropertyGroup(groupStack.peek());
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
@@ -250,7 +254,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         } else {
             if (Utils.isValidContainerNode(node)) {
                 for (Node child : node.childNodes()) {
-                    processNode(groupStack, labelMap, checkpointProperties, child);
+                    processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
                 }
             }
         }
@@ -289,7 +293,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
-            "Select",
+            "Use",
             "Section",
             "Property Name",
             "Type",

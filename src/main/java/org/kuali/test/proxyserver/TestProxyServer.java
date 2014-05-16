@@ -145,8 +145,14 @@ public class TestProxyServer {
     }
 
     public void stop() {
-        proxyServer.stop();
-        proxyServerRunning = false;
+        try {
+            proxyServer.stop();
+            proxyServerRunning = false;
+        }
+        
+        catch (Throwable t) {
+            LOG.warn(t.toString());
+        }
     }
 
     public boolean isProxyServerRunning() {

@@ -726,6 +726,7 @@ public class Utils {
 
     public static boolean isTagMatch(Node node, ChildTagMatch childTagMatch, TagMatchAttribute[] attributes) {
         boolean retval = true;
+        
         if ((attributes != null) && (attributes.length > 0)) {
             for (TagMatchAttribute att : attributes) {
                 if (!node.hasAttr(att.getName())) {
@@ -928,15 +929,15 @@ public class Utils {
                     int targetCnt = Integer.MAX_VALUE;
                     boolean limited = true;
                     // if we have an * then loop through all siblings
-                    if (searchDefinition.substring(1).equals("*")) {
-                        limited = false;
-                    } else {
+                    if (!searchDefinition.substring(1).equals("*")) {
                         targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                    } else {
+                        limited = false;
                     }
                     
                     Node prev = node.previousSibling();
                     
-                    while ((prev != null) && (!limited || (cnt < targetCnt))) {
+                    while ((prev != null) && (cnt < targetCnt)) {
                         if (prev.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
@@ -955,16 +956,16 @@ public class Utils {
                     
                     boolean limited = true;
                     // if we have an * then loop through all siblins
-                    if (searchDefinition.substring(1).equals("*")) {
-                        limited = false;
-                    } else {
+                    if (!searchDefinition.substring(1).equals("*")) {
                         targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                    } else {
+                        limited = false;
                     }
 
                     
                     Node next = node.nextSibling();
                     
-                    while ((next != null) && (!limited || (cnt < targetCnt))) {
+                    while ((next != null) && (cnt < targetCnt)) {
                         if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
@@ -983,15 +984,15 @@ public class Utils {
                     
                     boolean limited = true;
                     // if we have an * then loop through all chiildren
-                    if (searchDefinition.equals("*")) {
-                        limited = false;
-                    } else {
+                    if (!searchDefinition.equals("*")) {
                         targetCnt = Integer.parseInt(searchDefinition);
+                    } else {
+                        limited = false;
                     }
                     
                     Node child = node.parentNode().childNode(0);
                     
-                    while ((child != null) && (!limited || (cnt < targetCnt))) {
+                    while ((child != null) && (cnt < targetCnt)) {
                         if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt)) 
@@ -1065,7 +1066,7 @@ public class Utils {
                 case TagMatchType.INT_SIBLING:
                     retval = getMatchingSibling(tm, node);
                     break;
-                default:
+                case TagMatchType.INT_CURRENT:
                     if (isTagMatch(node, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                        retval = node;
                     }
@@ -1177,6 +1178,15 @@ public class Utils {
     public static String buildCheckpointSectionName(HtmlTagHandler th, Node node) {
         StringBuilder retval = new StringBuilder(128);
 
+        if (node.attr("class").equals("datacell center") && node.toString().contains("3.60")) {
+            String s = "xxx";
+            if (s != null) {
+                int g = 0;
+            }
+                
+        }
+
+        
         String subSectionName = th.getSubSectionName(node);
         String sectionName = th.getSectionName(node);
 

@@ -516,6 +516,7 @@
         <tag-matcher>
             <match-type>parent</match-type>
             <tag-name>div</tag-name>
+            <search-definition>2</search-definition>
             <match-attributes>
                 <match-attribute>
                     <name>id</name>
@@ -551,12 +552,13 @@
         <tag-matcher>
             <match-type>parent</match-type>
             <tag-name>tr</tag-name>
+            <search-definition>1</search-definition>
             <match-attributes></match-attributes>
         </tag-matcher>
         <tag-matcher>
             <match-type>sibling</match-type>
             <tag-name>tr</tag-name>
-            <search-definition>-*</search-definition>
+            <search-definition>-2</search-definition>
             <match-attributes></match-attributes>
             <child-tag-match>
                 <child-tag-name>td</child-tag-name>
@@ -565,18 +567,26 @@
                         <name>class</name>
                         <value>tab-subhead</value>
                     </match-attribute>
+                    <match-attribute>
+                        <name>colspan</name>
+                        <value>9</value>
+                    </match-attribute>
                 </match-attributes>
             </child-tag-match>
         </tag-matcher>
         <tag-matcher>
             <match-type>child</match-type>
             <tag-name>td</tag-name>
-            <search-definition></search-definition>
+            <search-definition>1</search-definition>
             <match-attributes>
                 <match-attribute>
                     <name>class</name>
                     <value>tab-subhead</value>
                 </match-attribute>
+                    <match-attribute>
+                        <name>colspan</name>
+                        <value>9</value>
+                    </match-attribute>
             </match-attributes>
         </tag-matcher>
     </section-matcher>

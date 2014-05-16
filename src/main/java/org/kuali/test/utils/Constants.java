@@ -115,7 +115,8 @@ public class Constants {
     public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
     public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
     public static final String NODE_INDEX_MATCHER_CODE = "I";
-
+    public static final String NODE_ID = "nodeid";
+    
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE = 0;
@@ -156,6 +157,7 @@ public class Constants {
 
     public static final String HTML_TAG_TYPE_OPTION = "option";
     public static final String HTML_TAG_TYPE_LABEL = "label";
+    public static final String HTML_TAG_TYPE_INPUT = "input";
     public static final String HTML_TAG_TYPE_IFRAME = "iframe";
     public static final String HTML_TAG_TYPE_TABLE = "table";
     public static final String HTML_TAG_TYPE_TR = "tr";
@@ -187,13 +189,14 @@ public class Constants {
         "h2",
         "table",
         "tbody",
-        "textarea"
+        "textarea",
+        "a"
     };
     
     public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {
         "id", 
         "name", 
         "class", 
-        "test-id"
+        NODE_ID
     };
 }

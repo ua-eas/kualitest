@@ -152,6 +152,8 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             try {
                 // Create an XmlOptions instance for load
                 XmlOptions loadOptions = new XmlOptions();
+                
+                // want to resolve entities - used to import handler definitions
                 loadOptions.setLoadUseDefaultResolver();
                 
                 configuration = KualiTestConfigurationDocument.Factory.parse(configFile, loadOptions).getKualiTestConfiguration();
