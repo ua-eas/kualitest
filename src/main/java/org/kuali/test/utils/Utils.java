@@ -28,10 +28,12 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.StringTokenizer;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
@@ -693,10 +695,17 @@ public class Utils {
     
     public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         for (TagHandler th :configuration.getTagHandlers().getHandlerArray()) {
-            List <HtmlTagHandler> thl = TAG_HANDLERS.get(th.getTagName());
+            String key = null;
+            if (StringUtils.isBlank(th.getApplication())) {
+                key = ("all." + th.getTagName());
+            } else {
+                key = (th.getApplication() + "." + th.getTagName());
+            }
 
+            List <HtmlTagHandler> thl =  TAG_HANDLERS.get(key);
+                 
             if (thl == null) {
-                TAG_HANDLERS.put(th.getTagName(), thl = new ArrayList<HtmlTagHandler>());
+                TAG_HANDLERS.put(key, thl = new ArrayList<HtmlTagHandler>());
             }
 
             try {
@@ -779,48 +788,62 @@ public class Utils {
                     }
                 }
             }
-
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("tag: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name") + ", type=" + node.attr("type") + ", retval=" + retval);
-            }
         }
         
         // if we have a match and a child tag matcher - check the children
         if (retval) {
-            if ((childTagMatch != null) && (node != null)) {
-                if (node.childNodeSize() > 0) {
-                    boolean foundone = false;
-                    for (Node child : node.childNodes()) {
-                        if (child.nodeName().equalsIgnoreCase(childTagMatch.getChildTagName())) {
-                            foundone = true;
-                            if (childTagMatch.getMatchAttributes() != null) {
-                                if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
-                                    for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
-                                        String childAttr = child.attr(att.getName());
-                                        if (StringUtils.isBlank(childAttr) || !childAttr.equalsIgnoreCase(att.getValue())) {
-                                            retval = false;
-                                            break;
-                                        }
-                                    }
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-                    
-                    if (!foundone) {
-                        retval = false;
-                    }
-                } else {
-                    retval = false;
-                }
+            if (isChildTagMatchFailure(node, childTagMatch)) {
+                retval = false;
             }
         }   
         
         return retval;
     }
     
+    public static boolean isChildTagMatchFailure(Node node, ChildTagMatch childTagMatch) {
+        boolean retval = false;
+        
+        if ((childTagMatch != null) && (node != null)) {
+            if (node.childNodeSize() > 0) {
+                boolean foundone = false;
+                Set <String> childTagNames = new HashSet<String>();
+
+                StringTokenizer st = new StringTokenizer(childTagMatch.getChildTagName(), "|");
+
+                while (st.hasMoreTokens()) {
+                    childTagNames.add(st.nextToken());
+                }
+
+                for (Node child : node.childNodes()) {
+                    if (childTagNames.contains(child.nodeName())) {
+                        foundone = true;
+                        if (childTagMatch.getMatchAttributes() != null) {
+                            if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
+                                for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
+                                    String childAttr = child.attr(att.getName());
+                                    if (StringUtils.isBlank(childAttr) || !childAttr.equalsIgnoreCase(att.getValue())) {
+                                        retval = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                if (!foundone) {
+                    retval = true;
+                }
+            } else {
+                retval = true;
+            }
+        }
+        
+        return retval;
+    }
+   
     public static Node getMatchingChild(TagMatcher tm, Node node) {
         Node retval = null;
         
@@ -835,10 +858,21 @@ public class Utils {
         Node retval = null;
     
         Node parent = node.parentNode();
+        int cnt = 0;
+        int totalCnt = Integer.MAX_VALUE;
         
-        while (parent != null) {
+        boolean limited = false;
+        String sdef = tm.getSearchDefinition();
+        if (StringUtils.isNotBlank(sdef)) {
+            if (StringUtils.isNumeric(sdef)) {
+                totalCnt = Integer.parseInt(sdef);
+            }
+        }
+        
+        while ((cnt < totalCnt) && (parent != null)) {
             if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
-                if (isTagMatch(parent, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                cnt++;
+                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
                     retval = parent;
                     break;
                 }
@@ -1042,16 +1076,31 @@ public class Utils {
         return retval;
     }
     
-    public static HtmlTagHandler getHtmlTagHandler(Node node) {
+    public static HtmlTagHandler getHtmlTagHandler(String app, Node node) {
         HtmlTagHandler retval = null;
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("getHtmlTagHandler - " + node.nodeName());
         }
-        List <HtmlTagHandler> thl = TAG_HANDLERS.get(node.nodeName().trim().toLowerCase());
+        
+        List <HtmlTagHandler> handlerList = new ArrayList<HtmlTagHandler>();
+        
+        // add the application specific handlers first
+        List <HtmlTagHandler> thl = TAG_HANDLERS.get(app + "." + node.nodeName().trim().toLowerCase());
         
         if (thl != null) {
-            for (HtmlTagHandler hth : thl) {
+            handlerList.addAll(thl);
+        }
+        
+        // add the general handlers
+        thl = TAG_HANDLERS.get("all." + node.nodeName().trim().toLowerCase());
+        
+        if (thl != null) {
+            handlerList.addAll(thl);
+        }
+        
+        if (!handlerList.isEmpty()) {
+            for (HtmlTagHandler hth : handlerList) {
                 boolean match = true;
                 TagHandler th = hth.getTagHandler();
                 if (th.getTagMatchers() != null) {
@@ -1135,7 +1184,7 @@ public class Utils {
         
         boolean haveSection = StringUtils.isNotBlank(sectionName);
         if (haveSection) {
-            retval.append("<span style='color: #000099; font-weight: 700;'>");
+            retval.append("<span style='color: #000099; font-weight: 700; white-space: nowrap;'>");
             retval.append(sectionName);
             retval.append("");
         }

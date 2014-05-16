@@ -51,23 +51,38 @@ public class HtmlTagHandlerComparator implements Comparator <HtmlTagHandler>{
                         // check for # of tag match attributes
                         TagMatcher[] tm1 = o1.getTagHandler().getTagMatchers().getTagMatcherArray();
                         TagMatcher[] tm2 = o2.getTagHandler().getTagMatchers().getTagMatcherArray();
+                        
+                        int tmattrcnt1 = 0;
+                        int tmattrcnt2 = 0;
+                        
                         for (int i = 0; (retval == 0) && (i < tm1.length); ++i) {
-                            // need to sort so we hit most specific matchers first then fall through to more generic
-                            if (tm1[i].getMatchAttributes().sizeOfMatchAttributeArray() > tm2[i].getMatchAttributes().sizeOfMatchAttributeArray()) {
-                                retval = -1;
-                            } else if (tm1[i].getMatchAttributes().sizeOfMatchAttributeArray() < tm2[i].getMatchAttributes().sizeOfMatchAttributeArray()) {
-                                retval = 1;
-                            } else {
-                                
-                                // check for wildcards
-                                boolean o1HasWildcards = hasWildcardMatchAttributes(tm1[i]);
-                                boolean o2HasWildcards = hasWildcardMatchAttributes(tm2[i]);
+                            tmattrcnt1 += tm1[i].getMatchAttributes().sizeOfMatchAttributeArray();
+                            tmattrcnt2 += tm2[i].getMatchAttributes().sizeOfMatchAttributeArray();
+                        }
+                        
+                        if (tmattrcnt1 > tmattrcnt2) {
+                            retval = -1;
+                        } else if (tmattrcnt1 < tmattrcnt2) {
+                            retval = 1;
+                        } else {
+                            int wccnt1 = 0;
+                            int wccnt2 = 0;
 
-                                if (!o1HasWildcards && o2HasWildcards) {
-                                    retval = -1;
-                                } else if (o1HasWildcards && !o2HasWildcards) {
-                                    retval = 1;
+                            for (int i = 0; (retval == 0) && (i < tm1.length); ++i) {
+                                // check for wildcards
+                                if (hasWildcardMatchAttributes(tm1[i])) {
+                                    wccnt1++;
                                 }
+
+                                if (hasWildcardMatchAttributes(tm2[i])) {
+                                    wccnt2++;
+                                }
+                            }
+
+                            if (wccnt1 > wccnt2) {
+                                retval = 1;
+                            } else if (wccnt2 > wccnt1) {
+                                retval = -1;
                             }
                         }
                     }

@@ -19,8 +19,10 @@ package org.kuali.test.ui.base;
 import java.awt.Component;
 import java.util.List;
 import java.util.prefs.Preferences;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -105,7 +107,7 @@ public class BaseTable extends JTable {
     }
 
     protected TableCellEditor getTableCellEditor(TableConfiguration config, int col) {
-        return null;
+        return new DefaultCellEditor(new JTextField());
     }
  
     @Override

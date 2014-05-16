@@ -34,6 +34,7 @@ import org.jsoup.nodes.Node;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
+import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
@@ -43,6 +44,7 @@ import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -97,55 +99,63 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         addStandardButtons();
         
-        getSaveButton().setEnabled(!JLabel.class.equals(propertyContainer.getCenterComponent().getClass()));
-
         setDefaultBehavior();
         setResizable(true);
     }
 
-    private BasePanel buildPropertyContainer(Node rootNode, List <Node> labelNodes) {
-        BasePanel retval = new BasePanel(getMainframe());
+    private BasePanel buildPropertyContainer(final Node rootNode, final List <Node> labelNodes) {
+        final BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
-        Map <String, String> labelMap = buildLabelMap(labelNodes);
-        List <CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
+        new SplashDisplay(this, "Parsing HTML", "Parsing inpt HTML...") {
 
-        Stack <String> groupStack = new Stack();
-        groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        
-        processNode(groupStack, labelMap, checkpointProperties, rootNode);
+            @Override
+            protected void runProcess() {
+                Map <String, String> labelMap = buildLabelMap(labelNodes);
+                List <CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
 
-        Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("labelNodes.size(): " + labelNodes.size());
-            LOG.debug("CheckpointProperty list size: " + checkpointProperties.size());
-            LOG.debug("CheckpointProperty map.size: " + pmap.size());
-        }
-        
-        // if we have more than 1 group then we will use tabs
-        if (pmap.size() > 1) {
-            JTabbedPane tp = new JTabbedPane();
-            List <String> tabNames = new ArrayList(pmap.keySet());
-            Collections.sort(tabNames, new HtmlCheckpointTabComparator());
-            
-            for (String s : tabNames) {
-                List <CheckpointProperty> props = pmap.get(s);
-                
-                if ((props != null) && !props.isEmpty()) {
-                    tp.addTab(s, new TablePanel(buildParameterTable(s, props, true)));
+                Stack <String> groupStack = new Stack();
+                groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+
+                processNode(groupStack, labelMap, checkpointProperties, rootNode);
+
+                Map <String, List <CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("labelNodes.size(): " + labelNodes.size());
+                    LOG.debug("CheckpointProperty list size: " + checkpointProperties.size());
+                    LOG.debug("CheckpointProperty map.size: " + pmap.size());
                 }
+
+                // if we have more than 1 group then we will use tabs
+                if (pmap.size() > 1) {
+                    JTabbedPane tp = new JTabbedPane();
+                    List <String> tabNames = new ArrayList(pmap.keySet());
+                    Collections.sort(tabNames, new HtmlCheckpointTabComparator());
+
+                    for (String s : tabNames) {
+                        List <CheckpointProperty> props = pmap.get(s);
+
+                        if ((props != null) && !props.isEmpty()) {
+                            tp.addTab(s, new TablePanel(buildParameterTable(s, props, true)));
+                        }
+                    }
+
+                    retval.add(tp, BorderLayout.CENTER);
+
+                } else if (pmap.size() == 1) {
+                    TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+                    retval.add(p, BorderLayout.CENTER);
+                } else {
+                    retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
+                }
+                
+                retval.getParent().validate();
+                getSaveButton().setEnabled(!JLabel.class.equals(retval.getCenterComponent().getClass()));
+
             }
+        };
             
-            retval.add(tp, BorderLayout.CENTER);
-            
-        } else if (pmap.size() == 1) {
-            TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
-            retval.add(p, BorderLayout.CENTER);
-        } else {
-            retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
-        }
-    
         return retval;
     }
     
@@ -174,7 +184,9 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         Map<String, String> labelMap, 
         List <CheckpointProperty> checkpointProperties, 
         Node node) {
-        HtmlTagHandler th = Utils.getHtmlTagHandler(node);
+        Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
+        
+        HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("incoming node: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name"));

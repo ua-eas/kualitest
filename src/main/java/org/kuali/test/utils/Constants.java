@@ -140,7 +140,6 @@ public class Constants {
         DEFAULT_HTML_CONTAINER_TAGS.add("tr");
         DEFAULT_HTML_CONTAINER_TAGS.add("iframe");
         DEFAULT_HTML_CONTAINER_TAGS.add("div");
-        DEFAULT_HTML_CONTAINER_TAGS.add("span");
         DEFAULT_HTML_CONTAINER_TAGS.add("tbody");
         
         

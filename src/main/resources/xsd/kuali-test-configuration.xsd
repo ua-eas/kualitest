@@ -64,6 +64,7 @@
     
     <xs:complexType name="tag-handler">
         <xs:sequence>
+            <xs:element name="application" type="xs:string" minOccurs="0"/>
             <xs:element name="tag-name" type="xs:string"/>
             <xs:element name="handler-class-name" type="xs:string"/>
             <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
