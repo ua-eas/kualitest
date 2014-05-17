@@ -359,7 +359,7 @@
 <handler>
     <application>KFS</application>
     <tag-name>td</tag-name>
-    <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+    <handler-class-name>org.kuali.test.handlers.KualiItemAccountTagHandler</handler-class-name>
     <tag-matchers>
         <tag-matcher>
             <match-type>current</match-type>
@@ -382,11 +382,12 @@
         </tag-matcher>
         <tag-matcher>
             <match-type>parent</match-type>
-            <tag-name>table</tag-name>
+            <tag-name>tr</tag-name>
+            <search-definition>*</search-definition>
             <match-attributes>
                 <match-attribute>
-                    <name>class</name>
-                    <value>datatable</value>
+                    <name>id</name>
+                    <value>tab-AccountingLines*-div</value>
                 </match-attribute>
             </match-attributes>
         </tag-matcher>
@@ -395,12 +396,28 @@
         <tag-matcher>
             <match-type>parent</match-type>
             <tag-name>tr</tag-name>
+            <search-definition>*</search-definition>
             <match-attributes></match-attributes>
         </tag-matcher>
         <tag-matcher>
-            <match-type>child</match-type>
+            <match-type>sibling</match-type>
             <tag-name>tr</tag-name>
-            <search-definition>-1</search-definition>
+            <search-definition>-*</search-definition>
+            <match-attributes></match-attributes>
+            <child-tag-match>
+                <child-tag-name>td</child-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>tab-subhead</value>
+                    </match-attribute>
+                </match-attributes>
+            </child-tag-match>
+        </tag-matcher>
+        <tag-matcher>
+            <match-type>sibling</match-type>
+            <tag-name>tr</tag-name>
+            <search-definition>+1</search-definition>
             <match-attributes></match-attributes>
             <child-tag-match>
                 <child-tag-name>th</child-tag-name>
@@ -427,25 +444,37 @@
     <section-matcher>
         <tag-matcher>
             <match-type>parent</match-type>
-            <tag-name>table</tag-name>
-            <match-attributes>
-                <match-attribute>
-                    <name>class</name>
-                    <value>datatable</value>
-                </match-attribute>
-            </match-attributes>
-        </tag-matcher>
-        <tag-matcher>
-            <match-type>child</match-type>
-            <tag-name>tbody</tag-name>
-            <search-definition>1</search-definition>
-            <match-attributes></match-attributes>
-        </tag-matcher>
-        <tag-matcher>
-            <match-type>child</match-type>
             <tag-name>tr</tag-name>
-            <search-definition>1</search-definition>
+            <search-definition>*</search-definition>
             <match-attributes></match-attributes>
+            <parent-tag-match>
+                <parent-tag-name>table</parent-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datatable</value>
+                    </match-attribute>
+                    <match-attribute>
+                        <name>summary</name>
+                        <value>Items Section</value>
+                    </match-attribute>
+                </match-attributes>
+            </parent-tag-match>
+        </tag-matcher>
+        <tag-matcher>
+            <match-type>sibling</match-type>
+            <tag-name>tr</tag-name>
+            <search-definition>-*</search-definition>
+            <match-attributes></match-attributes>
+            <child-tag-match>
+                <child-tag-name>td</child-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>subhead</value>
+                    </match-attribute>
+                </match-attributes>
+            </child-tag-match>
         </tag-matcher>
         <tag-matcher>
             <match-type>child</match-type>
@@ -457,31 +486,51 @@
                     <value>subhead</value>
                 </match-attribute>
             </match-attributes>
-        </tag-matcher>
-        <tag-matcher>
-            <match-type>child</match-type>
-            <tag-name>span</tag-name>
-            <search-definition>1</search-definition>
-            <match-attributes>
-                <match-attribute>
-                    <name>class</name>
-                    <value>subhead-left</value>
-                </match-attribute>
-            </match-attributes>
+            <child-tag-match>
+                <child-tag-name>span</child-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>subhead-left</value>
+                    </match-attribute>
+                </match-attributes>
+            </child-tag-match>
         </tag-matcher>
     </section-matcher>
     <sub-section-matcher>
         <tag-matcher>
             <match-type>parent</match-type>
             <tag-name>tr</tag-name>
-            <match-attributes>
-            </match-attributes>
+            <search-definition>*</search-definition>
+            <match-attributes></match-attributes>
+            <parent-tag-match>
+                <parent-tag-name>table</parent-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datatable</value>
+                    </match-attribute>
+                    <match-attribute>
+                        <name>summary</name>
+                        <value>Items Section</value>
+                    </match-attribute>
+                </match-attributes>
+            </parent-tag-match>
         </tag-matcher>
         <tag-matcher>
             <match-type>sibling</match-type>
             <tag-name>tr</tag-name>
-            <search-definition>-1</search-definition>
+            <search-definition>-*</search-definition>
             <match-attributes></match-attributes>
+            <child-tag-match>
+                <child-tag-name>td</child-tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>tab-subhead</value>
+                    </match-attribute>
+                </match-attributes>
+            </child-tag-match>
         </tag-matcher>
         <tag-matcher>
             <match-type>child</match-type>
@@ -583,10 +632,10 @@
                     <name>class</name>
                     <value>tab-subhead</value>
                 </match-attribute>
-                    <match-attribute>
-                        <name>colspan</name>
-                        <value>9</value>
-                    </match-attribute>
+                <match-attribute>
+                    <name>colspan</name>
+                    <value>9</value>
+                </match-attribute>
             </match-attributes>
         </tag-matcher>
     </section-matcher>

@@ -28,6 +28,7 @@ public interface HtmlTagHandler {
     public String getGroupName(Node tag);
     public String getSectionName(Node tag);
     public String getSubSectionName(Node tag);
+    public String getSubSectionAdditional(Node tag);
     public CheckpointProperty getCheckpointProperty(Node tag);
     public TagHandler getTagHandler();
     public void setTagHandler(TagHandler tagHandler);

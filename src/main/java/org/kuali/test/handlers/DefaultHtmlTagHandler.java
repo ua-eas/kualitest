@@ -94,4 +94,9 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     public String getSubSectionName(Node node) {
         return null;
     }
+
+    @Override
+    public String getSubSectionAdditional(Node node) {
+        return null;
+    }
 }

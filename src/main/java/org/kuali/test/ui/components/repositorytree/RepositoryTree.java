@@ -47,6 +47,7 @@ import org.kuali.test.ui.dnd.RepositoryDropTargetAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -67,6 +68,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_LINK, this);
     }
 
+    @Override
     public void dragGestureRecognized(DragGestureEvent event) {
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getSelectionPath().getLastPathComponent();
         
@@ -155,6 +157,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 
                 // want to resolve entities - used to import handler definitions
                 loadOptions.setLoadUseDefaultResolver();
+                loadOptions.setLoadEntityBytesLimit(Constants.EXTERNAL_ENTITY_MAX_SIZE);
                 
                 configuration = KualiTestConfigurationDocument.Factory.parse(configFile, loadOptions).getKualiTestConfiguration();
                 

@@ -58,6 +58,8 @@ public class Constants {
     public static final int MAINFRAME_DEFAULT_WIDTH = 800;
     public static final int MAINFRAME_DEFAULT_HEIGHT = 600;
     
+    public static final int EXTERNAL_ENTITY_MAX_SIZE = 40000;
+    
     public static final String KUALI_TEST_TITLE = "Kuali Test Framework";
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
     public static final String PREFS_TABLE_NODE = "kualitest/tables";
@@ -117,6 +119,8 @@ public class Constants {
     public static final String NODE_INDEX_MATCHER_CODE = "I";
     public static final String NODE_ID = "nodeid";
     
+    public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
+    
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE = 0;
@@ -165,9 +169,20 @@ public class Constants {
     public static final String HTML_TAG_TYPE_H2 = "h2";
     public static final String HTML_TAG_TYPE_H3 = "h3";
     public static final String HTML_TAG_TYPE_TD = "td";
-    public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
     public static final String HTML_TAG_TYPE_TBODY = "tbody";
     public static final String HTML_TEXT_NODE_NAME = "#text";
+    public static final String HTML_TAG_TYPE_DIV = "div";
+    public static final String HTML_TAG_TYPE_SPAN = "span";
+    public static final String HTML_TAG_TYPE_ANCHOR = "a";
+    public static final String HTML_TAG_TYPE_SELECT = "select";
+    public static final String HTML_TAG_TYPE_BODY = "body";
+    public static final String HTML_TAG_TYPE_TEXTAREA = "textarea";
+    
+    public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
+    public static final String HTML_TAG_ATTRIBUTE_ID = "id";
+    public static final String HTML_TAG_ATTRIBUTE_NAME = "name";
+    public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
+
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     
@@ -175,28 +190,28 @@ public class Constants {
     public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
     public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
     public static final String[] DEFAULT_HTML_WHITELIST_TAGS = {
-        "input", 
-        "div", 
-        "label", 
-        "span", 
-        "tr", 
-        "th", 
-        "td", 
-        "select", 
-        "option", 
-        "iframe", 
-        "body",
-        "h2",
-        "table",
-        "tbody",
-        "textarea",
-        "a"
+        HTML_TAG_TYPE_INPUT, 
+        HTML_TAG_TYPE_DIV, 
+        HTML_TAG_TYPE_LABEL, 
+        HTML_TAG_TYPE_SPAN, 
+        HTML_TAG_TYPE_TR, 
+        HTML_TAG_TYPE_TH, 
+        HTML_TAG_TYPE_TD, 
+        HTML_TAG_TYPE_SELECT, 
+        HTML_TAG_TYPE_OPTION, 
+        HTML_TAG_TYPE_IFRAME, 
+        HTML_TAG_TYPE_BODY,
+        HTML_TAG_TYPE_H2,
+        HTML_TAG_TYPE_TABLE,
+        HTML_TAG_TYPE_TBODY,
+        HTML_TAG_TYPE_TEXTAREA,
+        HTML_TAG_TYPE_ANCHOR
     };
     
     public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {
-        "id", 
-        "name", 
-        "class", 
+        HTML_TAG_ATTRIBUTE_ID, 
+        HTML_TAG_ATTRIBUTE_NAME, 
+        HTML_TAG_ATTRIBUTE_CLASS, 
         NODE_ID
     };
 }

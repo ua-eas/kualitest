@@ -226,14 +226,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
                     if (th.getTagHandler().getLabelMatcher() != null) {
-                        if (node.attr("class").equals("datacell center") && node.toString().contains("3.60")) {
-                            String s = "xxx";
-                            if (s != null) {
-                                int g = 0;
-                            }
-
-                        }
-
                         cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
                     } else if (labelMap.containsKey(cp.getPropertyName())) {
                         cp.setDisplayName(labelMap.get(cp.getPropertyName()));
