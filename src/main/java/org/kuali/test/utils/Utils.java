@@ -1317,9 +1317,8 @@ public class Utils {
         }
 
         if (StringUtils.isNotBlank(subSectionAdditional)) {
-            retval.append(" (");
+            retval.append(" - ");
             retval.append(subSectionAdditional);
-            retval.append(")");
         }
         
         retval.append("</html>");

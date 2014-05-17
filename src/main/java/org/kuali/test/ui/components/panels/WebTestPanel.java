@@ -38,14 +38,17 @@ import org.jsoup.safety.Whitelist;
 import org.jsoup.select.NodeVisitor;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
+import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
@@ -181,6 +184,15 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
+    private void addCheckpoint(Checkpoint checkpoint) {
+        TestOperation testOp = TestOperation.Factory.newInstance();
+        testOp.setOperationType(TestOperationType.CHECKPOINT);
+        Operation op = testOp.addNewOperation();
+        op.addNewCheckpointOperation();
+        op.setCheckpointOperation(checkpoint);
+        testProxyServer.getTestOperations().add(testOp);
+    }
+    
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
         List <Node> labelNodes = new ArrayList<Node>();
@@ -196,14 +208,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
 
             if (dlg.isSaved()) {
-                TestOperation op = TestOperation.Factory.newInstance();
-                Checkpoint checkpoint = (Checkpoint)dlg.getNewRepositoryObject();
-//                testProxyServer.getTestOperations();
+                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
             }
         }
     }
 
     private void createMemoryCheckpoint() {
+        MemoryCheckPointDlg dlg = new MemoryCheckPointDlg(getMainframe(), getTestHeader());
+
+        if (dlg.isSaved()) {
+            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+        }
     }
     
     private void createSqlCheckpoint() {

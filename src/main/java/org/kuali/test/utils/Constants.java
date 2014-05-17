@@ -118,6 +118,7 @@ public class Constants {
     public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
     public static final String NODE_INDEX_MATCHER_CODE = "I";
     public static final String NODE_ID = "nodeid";
+    public static final String SYSTEM_PROPERTY_GROUP = "system";
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

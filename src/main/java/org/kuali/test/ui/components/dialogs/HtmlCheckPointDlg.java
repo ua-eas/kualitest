@@ -59,6 +59,8 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private final TestHeader testHeader;
     private Checkpoint checkpoint;
     private JTextField name;
+    List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
+
 
     public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, Node rootNode, List<Node> labelNodes) {
         super(mainFrame);
@@ -136,7 +138,9 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                         List<CheckpointProperty> props = pmap.get(s);
 
                         if ((props != null) && !props.isEmpty()) {
-                            tp.addTab(s, new TablePanel(buildParameterTable(s, props, true)));
+                            CheckpointTable t = buildParameterTable(s, props, true);
+                            checkpointTables.add(t);
+                            tp.addTab(s, new TablePanel(t));
                         }
                     }
 
@@ -360,7 +364,18 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         if (oktosave) {
             if (!isEditmode()) {
             }
-
+            checkpoint.setName(name.getText());
+            List <CheckpointProperty> cpprops = new ArrayList<CheckpointProperty>();
+            for (CheckpointTable t : checkpointTables) {
+                for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
+                    if (p.getSelected()) {
+                        cpprops.add(p);
+                    }
+                }
+            }
+            
+            checkpoint.addNewCheckpointProperties().setCheckpointPropertyArray(cpprops.toArray(new CheckpointProperty[cpprops.size()]));
+            
             getConfiguration().setModified(true);
             setSaved(true);
             dispose();
@@ -377,6 +392,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private boolean checkpointNameExists() {
         boolean retval = false;
         String newname = name.getText();
+        
         return retval;
     }
 
