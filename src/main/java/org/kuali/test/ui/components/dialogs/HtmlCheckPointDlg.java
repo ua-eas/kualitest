@@ -343,8 +343,9 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     protected boolean save() {
         boolean retval = false;
         boolean oktosave = true;
+        List <CheckpointProperty> selectedProperties = getSelectedProperties();
         if (StringUtils.isNotBlank(name.getText())
-            && haveSelectedParameters()) {
+            && !selectedProperties.isEmpty()) {
             if (!isEditmode()) {
                 if (checkpointNameExists()) {
                     oktosave = false;
@@ -365,21 +366,27 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             if (!isEditmode()) {
             }
             checkpoint.setName(name.getText());
-            List <CheckpointProperty> cpprops = new ArrayList<CheckpointProperty>();
-            for (CheckpointTable t : checkpointTables) {
-                for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
-                    if (p.getSelected()) {
-                        cpprops.add(p);
-                    }
-                }
-            }
             
-            checkpoint.addNewCheckpointProperties().setCheckpointPropertyArray(cpprops.toArray(new CheckpointProperty[cpprops.size()]));
+            checkpoint.addNewCheckpointProperties().setCheckpointPropertyArray(selectedProperties.toArray(new CheckpointProperty[selectedProperties.size()]));
             
             getConfiguration().setModified(true);
             setSaved(true);
             dispose();
             retval = true;
+        }
+
+        return retval;
+    }
+    
+    private List <CheckpointProperty> getSelectedProperties() {
+        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+    
+        for (CheckpointTable t : checkpointTables) {
+            for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
+                if (p.getSelected()) {
+                    retval.add(p);
+                }
+            }
         }
 
         return retval;

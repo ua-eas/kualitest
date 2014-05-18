@@ -23,11 +23,6 @@ import org.kuali.test.utils.Utils;
 
 public class TdTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public boolean isContainer(Node node) {
-        return false;
-    }
-
-    @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
         
