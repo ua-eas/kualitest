@@ -50,7 +50,9 @@ public class Constants {
     public static final ImageIcon ADD_ICON = new ImageIcon(TestCreator.class.getResource("/images/add.png"));
     public static final ImageIcon DELETE_ICON = new ImageIcon(TestCreator.class.getResource("/images/delete.png"));
 
-    
+    public static final ImageIcon DATABASE_ICON = new ImageIcon(TestCreator.class.getResource("/images/database.png"));
+    public static final ImageIcon DATABASE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/database-setting.png"));
+
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;

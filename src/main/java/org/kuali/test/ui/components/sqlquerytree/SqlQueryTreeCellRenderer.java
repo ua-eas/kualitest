@@ -19,6 +19,7 @@ package org.kuali.test.ui.components.sqlquerytree;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.ui.base.BaseTreeCellRenderer;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -32,6 +33,9 @@ public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
     protected ImageIcon getIcon(DefaultMutableTreeNode node) {
         ImageIcon retval = null;
         if (node != null) {
+            if (node.isRoot()) {
+                retval = Constants.DATABASE_ICON;
+            }
         }
         
         return retval;

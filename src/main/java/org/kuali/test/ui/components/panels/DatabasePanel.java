@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AdditionalDatabaseInfoDocument;
@@ -50,6 +51,7 @@ import org.kuali.test.utils.XMLFileFilter;
 public class DatabasePanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
 
+    private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
     private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
@@ -62,13 +64,12 @@ public class DatabasePanel extends BaseCreateTestPanel {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         p.add(new JLabel("Base Table:", JLabel.RIGHT));
         
-        JComboBox cb;
-        p.add(cb = new JComboBox(getAvailableDatabaseTables()));
-        cb.addActionListener(this);
+        p.add(tableDropdown = new JComboBox(getAvailableDatabaseTables()));
+        tableDropdown.addActionListener(this);
 
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
-        p2.add(new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe())), BorderLayout.CENTER);
+        p2.add(new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), getPlatform())), BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
     }
@@ -81,9 +82,11 @@ public class DatabasePanel extends BaseCreateTestPanel {
         ResultSet res = null;
         
         try {
-            // load any additional database info - this will give us user-friendly nameds
+            // load any additional database info - this will give us user-friendly names
             loadAdditionalDbInfo();
 
+            retval.add(new TableDisplay("", ""));
+            
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             
             if (dbconn != null) {
@@ -159,8 +162,21 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        TableDisplay td = (TableDisplay)tableDropdown.getSelectedItem();
+        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
+        rootNode.removeAllChildren();
+        
+        if (StringUtils.isNotBlank(td.getTableName())) {
+            loadTables(td.getTableName());
+        }
+        
+        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
     }
 
+    private void loadTables(String baseTable) {
+        
+    }
+    
     @Override
     protected void handleStartTest() {
     }

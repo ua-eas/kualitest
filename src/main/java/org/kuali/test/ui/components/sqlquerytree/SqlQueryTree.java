@@ -20,7 +20,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.SuiteTest;
+import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 
@@ -32,18 +32,16 @@ public class SqlQueryTree extends BaseTree {
     private static final Logger LOG = Logger.getLogger(SqlQueryTree.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private final SqlQueryPopupMenu popupMenu;
-
-    public SqlQueryTree(TestCreator mainframe) {
+    private Platform platform;
+    
+    public SqlQueryTree(TestCreator mainframe, Platform platform) {
         super(mainframe);
+        this.platform = platform;
         popupMenu = new SqlQueryPopupMenu(mainframe);
         init();
         addTreeSelectionListener(mainframe.getPlatformTestsPanel());
     }
 
-    private boolean isSuiteTest(DefaultMutableTreeNode node) {
-        return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof SuiteTest));
-    }
-    
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
@@ -55,7 +53,7 @@ public class SqlQueryTree extends BaseTree {
 
     @Override
     protected DefaultTreeModel getTreeModel() {
-        return new SqlQueryTreeModel(new SqlQueryNode(configuration, null));
+        return new SqlQueryTreeModel(new SqlQueryNode(configuration, platform.getDatabaseConnectionName()));
     }
 
     @Override

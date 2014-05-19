@@ -20,14 +20,13 @@ import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.ui.base.BaseTreeCellRenderer;
+import org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
 public class DatabaseTreeCellRenderer extends BaseTreeCellRenderer {
-    private static final ImageIcon DATABASE_ICON = new ImageIcon(DatabaseTreeCellRenderer.class.getResource("/images/database.png"));
-    private static final ImageIcon DATABASE_SETTING_ICON = new ImageIcon(DatabaseTreeCellRenderer.class.getResource("/images/database-setting.png"));
 
     public DatabaseTreeCellRenderer() {
     }
@@ -38,9 +37,9 @@ public class DatabaseTreeCellRenderer extends BaseTreeCellRenderer {
 
         if (node != null) {
             if (node.getUserObject() instanceof DatabaseConnection) {
-                retval = DATABASE_ICON;
+                retval = Constants.DATABASE_ICON;
             } else if (node.getUserObject() instanceof String) {
-                retval = DATABASE_SETTING_ICON;
+                retval = Constants.DATABASE_SETTING_ICON;
             }
         }
         

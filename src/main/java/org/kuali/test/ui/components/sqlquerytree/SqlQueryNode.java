@@ -41,7 +41,18 @@ public class SqlQueryNode extends DefaultMutableTreeNode {
         }
     }
 
+    @Override
+    public boolean isRoot() {
+        return (getUserObject() instanceof String);
+    }
+
+    
+    
     public String toString() {
-        return null;
+        if (isRoot()) {
+            return getUserObject().toString();
+        } else {
+            return null;
+        }
     }
 }
