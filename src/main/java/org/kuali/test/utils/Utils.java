@@ -523,8 +523,8 @@ public class Utils {
 
         String method = request.getMethod().name();
         
-        op.setMethod("method");
-        op.setUri("uri");
+        op.setMethod(method);
+        op.setUri(request.getUri());
         
         // if this is a post then try to get content
         if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
