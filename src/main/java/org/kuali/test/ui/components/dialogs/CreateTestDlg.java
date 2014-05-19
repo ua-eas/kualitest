@@ -125,13 +125,16 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setPlatformName(platform.getName());
                 testHeader.setTestSuiteName("no-test-suite");
                 testHeader.setCreatedBy("default-user");
-                testHeader.setMaxRunTime(0);
+                if (StringUtils.isBlank(maxRunTime.getText())) {
+                    testHeader.setMaxRunTime(0);
+                }
                 
                 if (runtimeFailure.getSelectedIndex() > 0) {
                     testHeader.setOnRuntimeFailure(FailureAction.Enum.forString((String)runtimeFailure.getSelectedItem()));
                 } else {
                     testHeader.setOnRuntimeFailure(null);
                 }
+                
                 testHeader.setTestFileName(File.createTempFile("temp-test", "xml").getPath());
                 setSaved(true);
                 retval = true;
