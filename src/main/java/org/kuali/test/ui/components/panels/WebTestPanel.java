@@ -363,7 +363,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             getTestHeader(), testProxyServer.getTestOperations());
 
         if (retval) {
-            getMainframe().getSaveConfigurationButton().setEnabled(true);
+            getMainframe().getTestRepositoryTree().saveConfiguration();
             getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
         }
 

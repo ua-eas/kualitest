@@ -123,6 +123,10 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setDescription(description.getText());
                 testHeader.setDateCreated(Calendar.getInstance());
                 testHeader.setPlatformName(platform.getName());
+                testHeader.setTestSuiteName("no-test-suite");
+                testHeader.setCreatedBy("default-user");
+                testHeader.setMaxRunTime(0);
+                
                 if (runtimeFailure.getSelectedIndex() > 0) {
                     testHeader.setOnRuntimeFailure(FailureAction.Enum.forString((String)runtimeFailure.getSelectedItem()));
                 } else {
