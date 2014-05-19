@@ -36,6 +36,7 @@ public class DatabaseDlg extends BaseSetupDlg {
     private DatabaseConnection dbconnection;
     private JTextField name;
     private JTextField url;
+    private JTextField schema;
     private JTextField driver;
     private JTextField username;
     private JPasswordField password;
@@ -79,6 +80,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             "DB Type",
             "Connection URL", 
             "Driver",
+            "Schema",
             "User Name",
             "Password"};
         
@@ -89,10 +91,11 @@ public class DatabaseDlg extends BaseSetupDlg {
         type.setSelectedItem(dbconnection.getType());
         url = new JTextField(dbconnection.getJdbcUrl(), 30);
         driver = new JTextField(dbconnection.getJdbcDriver(), 30);
+        schema = new JTextField(dbconnection.getUsername(), 15);
         username = new JTextField(dbconnection.getUsername(), 20);
         password = new JPasswordField(dbconnection.getPassword(), 20);
         
-        JComponent[] components = {name, type, url, driver, username, password};
+        JComponent[] components = {name, type, url, driver, schema, username, password};
 
         
         getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
@@ -107,6 +110,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         boolean oktosave = true;
         if (StringUtils.isNotBlank(name.getText()) 
             && StringUtils.isNotBlank(url.getText())
+            && StringUtils.isNotBlank(schema.getText())
             && StringUtils.isNotBlank(username.getText())
             && StringUtils.isNotBlank(password.getText())
             && StringUtils.isNotBlank(driver.getText())) {
@@ -118,7 +122,7 @@ public class DatabaseDlg extends BaseSetupDlg {
                 }
             }
         } else {
-            displayRequiredFieldsMissingAlert("Database Connection", "name, type, url, driver user name password");
+            displayRequiredFieldsMissingAlert("Database Connection", "name, type, url, driver, schema, user name, password");
             oktosave = false;
         }
         
@@ -127,6 +131,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             dbconnection.setName(name.getText());
             dbconnection.setJdbcUrl(url.getText());
             dbconnection.setJdbcDriver(driver.getText());
+            dbconnection.setSchema(schema.getText());
             dbconnection.setUsername(username.getText());
             dbconnection.setPassword(password.getText());
             dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
@@ -161,7 +166,7 @@ public class DatabaseDlg extends BaseSetupDlg {
     
     @Override
     protected String getDialogName() {
-        return "databasesetup";
+        return "database-connection-setup";
     }
 
 }

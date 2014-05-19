@@ -448,4 +448,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         return retval.toString();
     }
+
+    @Override
+    protected boolean isStartTestRequired() {
+        return true;
+    }
 }

@@ -66,7 +66,6 @@ public class CreateTestDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
         String[] labels = new String[] {
             "Platform",

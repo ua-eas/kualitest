@@ -21,11 +21,17 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
+import java.io.FileFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,6 +62,7 @@ import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TagHandler;
+import org.kuali.test.TagHandlersDocument;
 import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
@@ -65,6 +72,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
+import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
 
@@ -695,26 +703,54 @@ public class Utils {
     }
     
     public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
-        for (TagHandler th :configuration.getTagHandlers().getHandlerArray()) {
-            String key = null;
-            if (StringUtils.isBlank(th.getApplication())) {
-                key = ("all." + th.getTagName());
-            } else {
-                key = (th.getApplication() + "." + th.getTagName());
-            }
+        File handlerDir = new File(configuration.getTagHandlersLocation());
+LOG.error("---------------------------------->1=" + handlerDir.getPath());
+        
+        if (handlerDir.exists() && handlerDir.isDirectory()) {
+            File[] files = handlerDir.listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return (f.isFile() && f.getName().endsWith(".xml"));
+                }
+            });
 
-            List <HtmlTagHandler> thl =  TAG_HANDLERS.get(key);
-                 
-            if (thl == null) {
-                TAG_HANDLERS.put(key, thl = new ArrayList<HtmlTagHandler>());
-            }
+            Arrays.sort(files, new TagHandlerFileComparator());
+            
+            for (File f : files) {
+LOG.error("---------------------------------->2=" + f.getPath());
+                try {
+                    TagHandlersDocument doc = TagHandlersDocument.Factory.parse(f);
 
-            try {
-                HtmlTagHandler hth = (HtmlTagHandler)Class.forName(th.getHandlerClassName()).newInstance();
-                hth.setTagHandler(th);
-                thl.add(hth);
-            } catch (Exception ex) {
-                LOG.warn(ex.toString(), ex);
+                    if (doc != null) {
+                        for (TagHandler th : doc.getTagHandlers().getHandlerArray()) {
+LOG.error("---------------------------------->3");
+                            String key = null;
+                            if (StringUtils.isBlank(th.getApplication())) {
+                                key = ("all." + th.getTagName());
+                            } else {
+                                key = (th.getApplication() + "." + th.getTagName());
+                            }
+
+                            List <HtmlTagHandler> thl =  TAG_HANDLERS.get(key);
+
+                            if (thl == null) {
+                                TAG_HANDLERS.put(key, thl = new ArrayList<HtmlTagHandler>());
+                            }
+
+                            try {
+                                HtmlTagHandler hth = (HtmlTagHandler)Class.forName(th.getHandlerClassName()).newInstance();
+                                hth.setTagHandler(th);
+                                thl.add(hth);
+                            } catch (Exception ex) {
+                                LOG.warn(ex.toString(), ex);
+                            }
+                        }
+                    }
+                }
+                
+                catch (Exception ex) {
+                    LOG.error("Error loading tag handler file", ex);
+                }
             }
         }
         
@@ -1335,5 +1371,35 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    public static DatabaseConnection findDatabaseConnectionByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String dbname) {
+        DatabaseConnection retval = null;
+        
+        if ((configuration != null) && StringUtils.isNotBlank(dbname)) {
+            if ((configuration.getDatabaseConnections() != null) 
+                && (configuration.getDatabaseConnections().sizeOfDatabaseConnectionArray() > 0)) {
+                for (DatabaseConnection db : configuration.getDatabaseConnections().getDatabaseConnectionArray()) {
+                    if (dbname.equalsIgnoreCase(db.getName())) {
+                        retval = db;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static void closeDatabaseResources(Connection conn, Statement stmt, ResultSet res) {
+        try { if (res != null) { res.close(); } ; } catch (Exception ex) {};
+        try { if (stmt != null) { stmt.close(); } ; } catch (Exception ex) {};
+        try { if (conn != null) { conn.close(); } ; } catch (Exception ex) {};
+    } 
+
+    public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        DatabaseConnection dbconn) throws Exception {
+        Class.forName(dbconn.getJdbcDriver());
+        return DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
     }
 }

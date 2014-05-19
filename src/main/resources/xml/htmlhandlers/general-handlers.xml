@@ -1,69 +1,70 @@
-<handler>
-    <tag-name>input</tag-name>
-    <handler-class-name>org.kuali.test.handlers.TextInputTagHandler</handler-class-name>
-    <tag-matchers>
-        <tag-matcher>
-            <match-type>current</match-type>
-            <tag-name>input</tag-name>
-            <match-attributes>
-                <match-attribute>
-                    <name>type</name>
-                    <value>text</value>
-                </match-attribute>
-            </match-attributes>
-        </tag-matcher>
-    </tag-matchers>
-</handler>
+<?xml version="1.0" encoding="UTF-8"?>
+<tag-handlers xmlns="test.kuali.org">
+    <handler>
+        <tag-name>input</tag-name>
+        <handler-class-name>org.kuali.test.handlers.TextInputTagHandler</handler-class-name>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>input</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>type</name>
+                        <value>text</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+    </handler>
+    <handler>
+        <tag-name>input</tag-name>
+        <handler-class-name>org.kuali.test.handlers.RadioInputTagHandler</handler-class-name>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>input</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>type</name>
+                        <value>radio</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+    </handler>
 
+    <handler>
+        <tag-name>input</tag-name>
+        <handler-class-name>org.kuali.test.handlers.CheckboxInputTagHandler</handler-class-name>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>input</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>type</name>
+                        <value>checkbox</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+    </handler>
 
-<handler>
-    <tag-name>input</tag-name>
-    <handler-class-name>org.kuali.test.handlers.RadioInputTagHandler</handler-class-name>
-    <tag-matchers>
-        <tag-matcher>
-            <match-type>current</match-type>
-            <tag-name>input</tag-name>
-            <match-attributes>
-                <match-attribute>
-                    <name>type</name>
-                    <value>radio</value>
-                </match-attribute>
-            </match-attributes>
-        </tag-matcher>
-    </tag-matchers>
-</handler>
+    <handler>
+        <tag-name>select</tag-name>
+        <handler-class-name>org.kuali.test.handlers.SelectInputTagHandler</handler-class-name>
+    </handler>
 
-<handler>
-    <tag-name>input</tag-name>
-    <handler-class-name>org.kuali.test.handlers.CheckboxInputTagHandler</handler-class-name>
-    <tag-matchers>
-        <tag-matcher>
-            <match-type>current</match-type>
-            <tag-name>input</tag-name>
-            <match-attributes>
-                <match-attribute>
-                    <name>type</name>
-                    <value>checkbox</value>
-                </match-attribute>
-            </match-attributes>
-        </tag-matcher>
-    </tag-matchers>
-</handler>
-
-<handler>
-    <tag-name>select</tag-name>
-    <handler-class-name>org.kuali.test.handlers.SelectInputTagHandler</handler-class-name>
-</handler>
-
-<handler>
-    <tag-name>textarea</tag-name>
-    <handler-class-name>org.kuali.test.handlers.TextareaTagHandler</handler-class-name>
-    <tag-matchers>
-        <tag-matcher>
-            <match-type>current</match-type>
-            <tag-name>textarea</tag-name>
-            <match-attributes>
-            </match-attributes>
-        </tag-matcher>
-    </tag-matchers>
-</handler>
+    <handler>
+        <tag-name>textarea</tag-name>
+        <handler-class-name>org.kuali.test.handlers.TextareaTagHandler</handler-class-name>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>textarea</tag-name>
+                <match-attributes>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+    </handler>
+</tag-handlers>

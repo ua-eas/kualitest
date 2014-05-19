@@ -69,10 +69,12 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         JToolBar retval = new JToolBar();
         retval.setFloatable(false);
         
-        startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
-        startTest.addActionListener(this);
-        retval.add(startTest);
-        retval.addSeparator();
+        if (isStartTestRequired()) {
+            startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
+            startTest.addActionListener(this);
+            retval.add(startTest);
+            retval.addSeparator();
+        }
         
         createCheckpoint = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
         createCheckpoint.addActionListener(this);
@@ -215,6 +217,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         saveTest.setEnabled(false);
     }
 
+    protected boolean isStartTestRequired() { return false; }
     protected abstract void handleStartTest();
     protected abstract void handleCancelTest();
     protected abstract void handleCreateCheckpoint();

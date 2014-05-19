@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<!--
+ Copyright 2014 The Kuali Foundation
+
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl2.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="test.kuali.org"
+           targetNamespace="test.kuali.org"
+           elementFormDefault="qualified">
+    <xs:element name="tag-handlers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="handler" type="tag-handler" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="tag-handler">
+        <xs:sequence>
+            <xs:element name="application" type="xs:string" minOccurs="0"/>
+            <xs:element name="tag-name" type="xs:string"/>
+            <xs:element name="handler-class-name" type="xs:string"/>
+            <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
+            <xs:element name="label-matcher" type="tag-matchers" minOccurs="0"/>
+            <xs:element name="section-matcher" type="tag-matchers" minOccurs="0"/>
+            <xs:element name="sub-section-matcher" type="tag-matchers" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="tag-match-type">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="current"/>
+            <xs:enumeration value="parent"/>
+            <xs:enumeration value="child"/>
+            <xs:enumeration value="sibling"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="tag-matchers">
+        <xs:sequence>
+            <xs:element name="tag-matcher" type="tag-matcher" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="tag-matcher">
+        <xs:sequence>
+            <xs:element name="match-type" type="tag-match-type"/>
+            <xs:element name="tag-name" type="xs:string"/>
+            <xs:element name="search-definition" type="xs:string" minOccurs="0"/>
+            <xs:element name="matcher-class" type="xs:string" minOccurs="0"/>
+            <xs:element name="match-attributes" type="tag-match-attributes"/>
+            <xs:element name="child-tag-match" type="child-tag-match" minOccurs="0"/>
+            <xs:element name="parent-tag-match" type="parent-tag-match" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tag-match-attributes">
+        <xs:sequence>
+            <xs:element name="match-attribute" type="tag-match-attribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="child-tag-match">
+        <xs:sequence>
+            <xs:element name="child-tag-name" type="xs:string"/>
+            <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="parent-tag-match">
+        <xs:sequence>
+            <xs:element name="parent-tag-name" type="xs:string"/>
+            <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tag-match-attribute">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

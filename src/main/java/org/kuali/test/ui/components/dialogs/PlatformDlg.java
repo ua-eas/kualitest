@@ -37,6 +37,7 @@ public class PlatformDlg extends BaseSetupDlg {
     private JTextField name;
     private JTextField weburl;
     private JTextField wsurl;
+    private JTextField jmxurl;
     private JTextField emailAddresses;
     private JTextField version;
     private JComboBox <String> application;
@@ -79,6 +80,7 @@ public class PlatformDlg extends BaseSetupDlg {
             "Version",
             "Web URL",
             "Web Service URL",
+            "JMX URL",
             "Email Addresses",
             "DB Connection"
         };
@@ -90,6 +92,7 @@ public class PlatformDlg extends BaseSetupDlg {
         version = new JTextField(platform.getVersion(), 10);
         weburl = new JTextField(platform.getWebUrl(), 30);
         wsurl = new JTextField(platform.getWebServiceUrl(), 30);
+        jmxurl = new JTextField(platform.getJmxUrl(), 30);
         emailAddresses = new JTextField(platform.getEmailAddresses(), 30);
         dbconnection = new JComboBox<String>(getDatabaseConnectionNames());
         if (platform.getDatabaseConnectionName() != null) {
@@ -102,6 +105,7 @@ public class PlatformDlg extends BaseSetupDlg {
             version,
             weburl,
             wsurl,
+            jmxurl,
             emailAddresses,
             dbconnection};
 
@@ -131,11 +135,14 @@ public class PlatformDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            platform = getConfiguration().getPlatforms().addNewPlatform();
-            platform.setName(name.getText());
+            if (!isEditmode()) {
+                platform = getConfiguration().getPlatforms().addNewPlatform();
+                platform.setName(name.getText());
+            }
             platform.setApplication(KualiApplication.Enum.forString(application.getSelectedItem().toString()));
             platform.setWebServiceUrl(wsurl.getText());
             platform.setWebUrl(weburl.getText());
+            platform.setJmxUrl(jmxurl.getText());
             platform.setVersion(version.getText());
             platform.addNewPlatformTests();
             platform.addNewTestSuites();
