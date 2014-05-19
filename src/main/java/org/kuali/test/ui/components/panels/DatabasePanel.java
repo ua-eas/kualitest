@@ -19,30 +19,40 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.kuali.test.AdditionalDatabaseInfoDocument;
+import org.kuali.test.Application;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.Platform;
+import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
+import org.kuali.test.utils.XMLFileFilter;
 
 
 public class DatabasePanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
 
     private SqlQueryTree sqlQueryTree;
-
+    private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
+    
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
         initComponents();
@@ -64,13 +74,16 @@ public class DatabasePanel extends BaseCreateTestPanel {
     }
     
     
-    private String[] getAvailableDatabaseTables() {
-        List <String> retval = new ArrayList<String>();
+    private TableDisplay[] getAvailableDatabaseTables() {
+        List <TableDisplay> retval = new ArrayList<TableDisplay>();
         
         Connection conn = null;
         ResultSet res = null;
         
         try {
+            // load any additional database info - this will give us user-friendly nameds
+            loadAdditionalDbInfo();
+
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             
             if (dbconn != null) {
@@ -79,11 +92,16 @@ public class DatabasePanel extends BaseCreateTestPanel {
                 res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
 
                 while (res.next()) {
-                    String tname = res.getString(3);
-                    retval.add(tname);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("table: " + tname);
-                    }
+                    String tableName = res.getString(3);
+                    String displayName = null;
+                    
+                    
+                    Table t = additionalDbInfo.get(tableName);
+                    
+                    if (t != null) {
+                        displayName= t.getDisplayName();
+                        retval.add(new TableDisplay(tableName, displayName));
+                    } 
                 }
             }
         }
@@ -96,7 +114,47 @@ public class DatabasePanel extends BaseCreateTestPanel {
             Utils.closeDatabaseResources(conn, null, res);
         }
         
-        return retval.toArray(new String[retval.size()]);
+        Collections.sort(retval);
+        
+        return retval.toArray(new TableDisplay[retval.size()]);
+    }
+
+        private void loadAdditionalDbInfo() {
+        File fdir = new File(getMainframe().getConfiguration().getAdditionalDbInfoLocation());
+        if (fdir.exists() && fdir.isDirectory()) {
+            File f = null;
+            File[] files = fdir.listFiles(new XMLFileFilter());
+            
+            for (int i = 0; i < files.length; ++i) {
+
+                if (files[i].getName().toLowerCase().startsWith(getPlatform().getApplication().toString().toLowerCase())) {
+                    f = files[i];
+                }
+            }
+            
+            if (f != null) {
+                try {
+                    AdditionalDatabaseInfoDocument doc = AdditionalDatabaseInfoDocument.Factory.parse(f);
+
+                    if (doc != null) {
+                        Application app = doc.getAdditionalDatabaseInfo().getApplication();
+                        if (app != null) {
+                            if (app.getApplicationName().equalsIgnoreCase(getPlatform().getApplication().toString())) {
+                                if (app.getTables().sizeOfTableArray() > 0) {
+                                    for (Table table : app.getTables().getTableArray()) {
+                                        additionalDbInfo.put(table.getTableName(), table);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                catch (Exception ex) {
+                    LOG.warn("Error reading additional database info file", ex);
+                }
+            }
+        }
     }
 
     @Override
@@ -118,5 +176,48 @@ public class DatabasePanel extends BaseCreateTestPanel {
     @Override
     protected boolean handleSaveTest() {
         return false;
+    }
+    
+    private class TableDisplay implements Comparable <TableDisplay> {
+        String tableName;
+        String displayName;
+        public TableDisplay(String tableName, String displayName) {
+            this.tableName = tableName;
+            this.displayName = displayName;
+        }
+        
+        public String getTableName() {
+            return tableName;
+        }
+
+        public void setTableName(String tableName) {
+            this.tableName = tableName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public void setDisplayName(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String toString() {
+            String retval = tableName;
+            if (StringUtils.isNotBlank(displayName)) {
+                if (displayName.endsWith("Impl")) {
+                    retval = displayName.substring(0, displayName.length() - 4);
+                } else {
+                    retval =  displayName;
+                }
+            } 
+            
+            return retval;
+        }
+
+        @Override
+        public int compareTo(TableDisplay o) {
+            return toString().compareTo(o.toString());
+        }
     }
 }

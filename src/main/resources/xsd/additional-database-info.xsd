@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!--
+ Copyright 2014 The Kuali Foundation
+
+ Licensed under the Educational Community License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.opensource.org/licenses/ecl2.php
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="test.kuali.org"
+           targetNamespace="test.kuali.org"
+           elementFormDefault="qualified">
+    <xs:element name="additional-database-info">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="application" type="application"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="application">
+        <xs:sequence>
+            <xs:element name="application-name" type="xs:string"/>
+            <xs:element name="tables" type="tables"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="tables">
+        <xs:sequence>
+            <xs:element name="table" type="table" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="table">
+        <xs:sequence>
+            <xs:element name="table-name" type="xs:string"/>
+            <xs:element name="display-name" type="xs:string"/>
+            <xs:element name="columns" type="columns"/>
+            <xs:element name="custom-foreign-keys" type="custom-foreign-keys"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="columns">
+        <xs:sequence>
+            <xs:element name="column" type="column" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="column">
+        <xs:sequence>
+            <xs:element name="column-name" type="xs:string"/>
+            <xs:element name="display-name" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="custom-foreign-keys">
+        <xs:sequence>
+            <xs:element name="custom-foreign-key" type="custom-foreign-key" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="custom-foreign-key">
+        <xs:sequence>
+            <xs:element name="primary-table-name" type="xs:string"/>
+            <xs:element name="foreign-key-column-pair" type="foreign-key-column-pair" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="foreign-key-column-pair">
+        <xs:sequence>
+            <xs:element name="primary-column" type="xs:string"/>
+            <xs:element name="primary-column-type" type="xs:string"/>
+            <xs:element name="foeign-column" type="xs:string"/>
+            <xs:element name="foreign-column-type" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

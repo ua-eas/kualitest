@@ -21,7 +21,6 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
-import java.io.FileFilter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -704,26 +703,18 @@ public class Utils {
     
     public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         File handlerDir = new File(configuration.getTagHandlersLocation());
-LOG.error("---------------------------------->1=" + handlerDir.getPath());
         
         if (handlerDir.exists() && handlerDir.isDirectory()) {
-            File[] files = handlerDir.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    return (f.isFile() && f.getName().endsWith(".xml"));
-                }
-            });
+            File[] files = handlerDir.listFiles(new XMLFileFilter());
 
             Arrays.sort(files, new TagHandlerFileComparator());
             
             for (File f : files) {
-LOG.error("---------------------------------->2=" + f.getPath());
                 try {
                     TagHandlersDocument doc = TagHandlersDocument.Factory.parse(f);
 
                     if (doc != null) {
                         for (TagHandler th : doc.getTagHandlers().getHandlerArray()) {
-LOG.error("---------------------------------->3");
                             String key = null;
                             if (StringUtils.isBlank(th.getApplication())) {
                                 key = ("all." + th.getTagName());

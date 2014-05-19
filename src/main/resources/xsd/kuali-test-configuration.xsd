@@ -26,6 +26,7 @@
                 <xs:element name="repository-location" type="xs:string"/>
                 <xs:element name="test-result-location" type="xs:string"/>
                 <xs:element name="tag-handlers-location" type="xs:string"/>
+                <xs:element name="additional-db-info-location" type="xs:string"/>
                 <xs:element name="database-connections" type="database-connections"/>
                 <xs:element name="modified" type="xs:boolean"/>
                 <xs:element name="email-setup" type="email-setup"/>
