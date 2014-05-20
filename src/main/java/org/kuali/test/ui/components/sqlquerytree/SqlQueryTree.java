@@ -53,7 +53,7 @@ public class SqlQueryTree extends BaseTree {
 
     @Override
     protected DefaultTreeModel getTreeModel() {
-        return new SqlQueryTreeModel(new SqlQueryNode(configuration, platform.getDatabaseConnectionName()));
+        return new SqlQueryTreeModel(new SqlQueryNode(configuration, new TableData(null, platform.getDatabaseConnectionName())));
     }
 
     @Override

@@ -43,6 +43,7 @@ import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
+import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 import org.kuali.test.utils.XMLFileFilter;
@@ -75,8 +76,8 @@ public class DatabasePanel extends BaseCreateTestPanel {
     }
     
     
-    private TableDisplay[] getAvailableDatabaseTables() {
-        List <TableDisplay> retval = new ArrayList<TableDisplay>();
+    private TableData[] getAvailableDatabaseTables() {
+        List <TableData> retval = new ArrayList<TableData>();
         
         Connection conn = null;
         ResultSet res = null;
@@ -85,7 +86,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
             // load any additional database info - this will give us user-friendly names
             loadAdditionalDbInfo();
 
-            retval.add(new TableDisplay("", ""));
+            retval.add(new TableData("", ""));
             
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             
@@ -103,7 +104,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
                     
                     if (t != null) {
                         displayName= t.getDisplayName();
-                        retval.add(new TableDisplay(tableName, displayName));
+                        retval.add(new TableData(tableName, displayName));
                     } 
                 }
             }
@@ -119,10 +120,10 @@ public class DatabasePanel extends BaseCreateTestPanel {
         
         Collections.sort(retval);
         
-        return retval.toArray(new TableDisplay[retval.size()]);
+        return retval.toArray(new TableData[retval.size()]);
     }
 
-        private void loadAdditionalDbInfo() {
+    private void loadAdditionalDbInfo() {
         File fdir = new File(getMainframe().getConfiguration().getAdditionalDbInfoLocation());
         if (fdir.exists() && fdir.isDirectory()) {
             File f = null;
@@ -162,18 +163,41 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        TableDisplay td = (TableDisplay)tableDropdown.getSelectedItem();
+        TableData td = (TableData)tableDropdown.getSelectedItem();
         DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
         rootNode.removeAllChildren();
         
-        if (StringUtils.isNotBlank(td.getTableName())) {
-            loadTables(td.getTableName());
+        if (StringUtils.isNotBlank(td.getName())) {
+            loadTables(td);
         }
         
         sqlQueryTree.getModel().nodeStructureChanged(rootNode);
     }
 
-    private void loadTables(String baseTable) {
+    private void loadTables(TableData td) {
+        Connection conn = null;
+        ResultSet res = null;
+        
+        try {
+            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
+            
+            if (dbconn != null) {
+                conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                DatabaseMetaData dmd = conn.getMetaData();
+                loadTableRelationships(dmd, td);
+            }
+        }
+        
+        catch (Exception ex) {
+            UIUtils.showError(this, "Error loading table relationships", "An error occurred while loading table relationships - " + ex.toString());
+        }
+        
+        finally {
+            Utils.closeDatabaseResources(conn, null, res);
+        }        
+    }
+    
+    private void loadTableRelationships(DatabaseMetaData dmd, TableData td) {
         
     }
     
@@ -192,48 +216,5 @@ public class DatabasePanel extends BaseCreateTestPanel {
     @Override
     protected boolean handleSaveTest() {
         return false;
-    }
-    
-    private class TableDisplay implements Comparable <TableDisplay> {
-        String tableName;
-        String displayName;
-        public TableDisplay(String tableName, String displayName) {
-            this.tableName = tableName;
-            this.displayName = displayName;
-        }
-        
-        public String getTableName() {
-            return tableName;
-        }
-
-        public void setTableName(String tableName) {
-            this.tableName = tableName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-
-        public void setDisplayName(String displayName) {
-            this.displayName = displayName;
-        }
-        
-        public String toString() {
-            String retval = tableName;
-            if (StringUtils.isNotBlank(displayName)) {
-                if (displayName.endsWith("Impl")) {
-                    retval = displayName.substring(0, displayName.length() - 4);
-                } else {
-                    retval =  displayName;
-                }
-            } 
-            
-            return retval;
-        }
-
-        @Override
-        public int compareTo(TableDisplay o) {
-            return toString().compareTo(o.toString());
-        }
     }
 }
