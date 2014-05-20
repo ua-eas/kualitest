@@ -37,14 +37,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AdditionalDatabaseInfoDocument;
 import org.kuali.test.Application;
+import org.kuali.test.Column;
+import org.kuali.test.CustomForeignKey;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.components.sqlquerytree.ColumnData;
+import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.kuali.test.utils.XMLFileFilter;
 
@@ -54,7 +60,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
-    private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
+    private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
@@ -86,7 +92,8 @@ public class DatabasePanel extends BaseCreateTestPanel {
             // load any additional database info - this will give us user-friendly names
             loadAdditionalDbInfo();
 
-            retval.add(new TableData("", ""));
+            // this is the empty place holder for base table selection
+            retval.add(new TableData());
             
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             
@@ -97,14 +104,11 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
                 while (res.next()) {
                     String tableName = res.getString(3);
-                    String displayName = null;
-                    
                     
                     Table t = additionalDbInfo.get(tableName);
                     
                     if (t != null) {
-                        displayName= t.getDisplayName();
-                        retval.add(new TableData(tableName, displayName));
+                        retval.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
                     } 
                 }
             }
@@ -163,18 +167,30 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        TableData td = (TableData)tableDropdown.getSelectedItem();
-        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-        rootNode.removeAllChildren();
+        final TableData td = (TableData)tableDropdown.getSelectedItem();
         
         if (StringUtils.isNotBlank(td.getName())) {
-            loadTables(td);
+            new SplashDisplay(getMainframe(), "Related Tables", "Loading table relationships...") {
+                @Override
+                protected void runProcess() {
+                    try {
+                        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
+                        rootNode.removeAllChildren();
+                        loadTables(td, rootNode);
+                        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
+                        
+                        getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                    }
+
+                    catch (Exception ex) {
+                        UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + ex.toString());
+                    }
+                }
+            };
         }
-        
-        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
     }
 
-    private void loadTables(TableData td) {
+    private void loadTables(TableData td, DefaultMutableTreeNode rootNode) throws Exception {
         Connection conn = null;
         ResultSet res = null;
         
@@ -184,7 +200,9 @@ public class DatabasePanel extends BaseCreateTestPanel {
             if (dbconn != null) {
                 conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
                 DatabaseMetaData dmd = conn.getMetaData();
-                loadTableRelationships(dmd, td);
+                SqlQueryNode baseTableNode = new SqlQueryNode(getMainframe().getConfiguration(), td);
+                rootNode.add(baseTableNode);
+                loadTableRelationships(dmd, td, 0, baseTableNode);
             }
         }
         
@@ -197,8 +215,172 @@ public class DatabasePanel extends BaseCreateTestPanel {
         }        
     }
     
-    private void loadTableRelationships(DatabaseMetaData dmd, TableData td) {
+    private void loadTableRelationships(DatabaseMetaData dmd, TableData td, 
+        int currentDepth, SqlQueryNode parentNode) throws Exception {
+        ResultSet res = null;
         
+        try {
+            res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
+            currentDepth++;
+            
+            Map <String, TableData> map = new HashMap<String, TableData>();
+            
+            while (res.next()) {
+                String schema = res.getString(2);
+                String tname = res.getString(3);
+                
+                // for now do not follow links to self
+                if (!tname.equals(td.getName())) {
+                    String pkcname = res.getString(4);
+                    String fkcname = res.getString(8);
+                    String fkname = res.getString(12);
+
+                    String key = fkname;
+                    if (StringUtils.isBlank(key)) {
+                        key = (td.getName() + "-" + tname);
+                    }
+
+                    TableData tdata = map.get(key);
+
+                    if (tdata == null) {
+                        Table t = additionalDbInfo.get(tname);
+
+                        if (t != null) {
+                            map.put(key, tdata = new TableData(schema, tname, t.getDisplayName()));
+                        } else {
+                            map.put(key, tdata = new TableData(schema, tname, tname));
+                        }
+
+                        td.getRelatedTables().add(tdata);
+                        SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
+                        parentNode.add(curnode);
+
+                        if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
+                            loadTableRelationships(dmd, tdata, currentDepth, curnode);
+                        } 
+                        
+                        tdata.setForeignKeyName(fkname);
+                    }
+
+                    tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
+                }
+            }
+
+            if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
+                CustomForeignKey[] customForeignKeys = getCustomForeignKeys(td);
+
+                if (customForeignKeys != null) {
+                    for (CustomForeignKey cfk : customForeignKeys) {
+                        TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
+                        loadTableRelationships(dmd, tdata, currentDepth, parentNode);
+                    }
+                }
+            }
+
+            loadTableColumns(dmd, parentNode);
+        }
+        
+        finally {
+            Utils.closeDatabaseResources(null, null, res);
+        }
+    }
+
+    private String getTableDisplayName(String tname) {
+        String retval = tname;
+        
+        Table t = additionalDbInfo.get(tname);
+
+        if (t != null) {
+            retval = t.getDisplayName();
+        }
+        
+        return retval;
+    }
+    
+    private CustomForeignKey[] getCustomForeignKeys(TableData td) {
+        CustomForeignKey[] retval = null;
+        
+        Table t = additionalDbInfo.get(td.getName());
+        
+        if (t != null) {
+            if ((t.getCustomForeignKeys() != null) 
+                && (t.getCustomForeignKeys().sizeOfCustomForeignKeyArray() > 0)) {
+                retval = t.getCustomForeignKeys().getCustomForeignKeyArray();
+            }
+        }
+        
+        return retval;
+    }
+    
+    private void loadTableColumns(DatabaseMetaData dmd, SqlQueryNode node) throws Exception {
+        ResultSet res = null;
+        
+        try {
+            TableData td = (TableData)node.getUserObject();
+            res = dmd.getColumns(null, td.getSchema(), td.getName(), null);
+            
+            while (res.next()) {
+                String cname = res.getString(4);
+                int dataType = res.getInt(5);
+                
+                ColumnData cd = new ColumnData(td.getSchema(), cname, getColumnDisplayName(td.getName(), cname));
+                cd.setDataType(dataType);
+                td.getColumns().add(cd);
+            }
+            
+            HashMap <String, ColumnData> map = new HashMap<String, ColumnData>();
+            for (ColumnData cd : td.getColumns()) {
+                map.put(cd.getName(), cd);
+            }
+            
+            res.close();
+            try {
+                res = dmd.getPrimaryKeys(null, td.getSchema(), td.getName());
+                while (res.next()) {
+                    String cname = res.getString(4);
+                    int seq = res.getInt(5);
+
+                    ColumnData cd = map.get(cname);
+                    
+                    if (cd!= null) {
+                        cd.setPrimaryKeyIndex(seq);
+                    }
+                }
+            }
+            
+            catch (Exception ex) {
+                LOG.warn("error obtaining primary keys for table " + td.getName());
+            }
+            
+            Collections.sort(td.getColumns());
+            
+            for (ColumnData cd : td.getColumns()) {
+                node.add(new SqlQueryNode(getMainframe().getConfiguration(), cd));
+            }
+        }
+        
+        finally {
+            Utils.closeDatabaseResources(null, null, res);
+        }
+    }
+    
+    protected String getColumnDisplayName(String tname, String cname) {
+        String retval = cname;
+        
+        Table t = additionalDbInfo.get(tname);
+        
+        if (t != null) {
+            if (t.getColumns().sizeOfColumnArray() > 0) {
+                for (Column c : t.getColumns().getColumnArray()) {
+                    if (c.getColumnName().equals(cname)) {
+                        retval = c.getDisplayName();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
     }
     
     @Override

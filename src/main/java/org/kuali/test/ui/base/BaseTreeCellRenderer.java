@@ -22,6 +22,7 @@ import javax.swing.JTree;
 import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import org.apache.commons.lang3.StringUtils;
 
 
 public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
@@ -54,6 +55,12 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
 
         setSelectionDisplay();
         
+        String tooltip = getTooltip(value);
+        
+        if (StringUtils.isNotBlank(tooltip)) {
+            setToolTipText(tooltip);
+        }
+        
         return this;
     }
 
@@ -75,6 +82,10 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
     }
     
     protected ImageIcon getIcon(DefaultMutableTreeNode nod) {
+        return null;
+    }
+    
+    protected String getTooltip(Object value) {
         return null;
     }
 }

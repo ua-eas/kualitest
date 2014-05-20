@@ -35,6 +35,16 @@ public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
         if (node != null) {
             if (node.isRoot()) {
                 retval = Constants.DATABASE_ICON;
+            } else if (node.isLeaf()) {
+                ColumnData cd = (ColumnData)node.getUserObject();
+                
+                if (cd.getPrimaryKeyIndex() < Integer.MAX_VALUE) {
+                    retval = Constants.DATABASE_PKCOLUMN_ICON;
+                } else {
+                    retval = Constants.DATABASE_COLUMN_ICON;
+                }
+            } else {
+                retval = Constants.DATABASE_TABLE_ICON;
             }
         }
         

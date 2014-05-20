@@ -16,13 +16,17 @@
 
 package org.kuali.test.ui.components.sqlquerytree;
 
+import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.utils.Utils;
+
 
 public class ColumnData extends DBObjectData {
     private Integer primaryKeyIndex = Integer.MAX_VALUE;
     private int dataType;
+    boolean selected = false;
 
-    public ColumnData(String name, String displayName) {
-        super(name, displayName);
+    public ColumnData(String schema, String name, String displayName) {
+        super(schema, name, displayName);
     }
 
     public Integer getPrimaryKeyIndex() {
@@ -53,4 +57,28 @@ public class ColumnData extends DBObjectData {
         return retval;
     }
 
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+    
+    
+    public String toString() {
+        StringBuilder retval = new StringBuilder(64);
+        
+        if (StringUtils.isNotBlank(getDisplayName())) {
+            retval.append(getDisplayName());
+        } else {
+            retval.append(getName());
+        }
+        
+        retval.append("[");
+        retval.append(Utils.getJdbcTypeName(getDataType()));
+        retval.append("]");
+        
+        return retval.toString();
+    }
 }

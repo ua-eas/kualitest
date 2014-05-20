@@ -22,11 +22,18 @@ import org.apache.commons.lang3.StringUtils;
 
 
 public class TableData extends DBObjectData {
+    private String schema;
     private List <ColumnData> columns = new ArrayList<ColumnData>();
     private List <TableData> relatedTables = new ArrayList<TableData>();
+    private List <String[]> linkColumns = null;
+    private String foreignKeyName = null;
+    
+    public TableData() {
+        super(null, null, null);
+    }
 
-    public TableData(String name, String displayName) {
-        super(name, displayName);
+    public TableData(String schema, String name, String displayName) {
+        super(schema, name, displayName);
     }
 
     @Override
@@ -40,6 +47,10 @@ public class TableData extends DBObjectData {
             }
         } 
 
+        if (retval == null) {
+            retval = "";
+        }
+        
         return retval;
     }
 
@@ -70,6 +81,22 @@ public class TableData extends DBObjectData {
     
     public void addRelatedTable(TableData table) {
         relatedTables.add(table);
+    }
+    
+    public List <String[]> getLinkColumns() {
+        if (linkColumns == null) {
+            linkColumns = new ArrayList<String[]>();
+        }
+        
+        return linkColumns;
+    }
+
+    public String getForeignKeyName() {
+        return foreignKeyName;
+    }
+
+    public void setForeignKeyName(String foreignKeyName) {
+        this.foreignKeyName = foreignKeyName;
     }
 }
 

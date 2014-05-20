@@ -20,6 +20,7 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTree;
+import javax.swing.ToolTipManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -30,13 +31,15 @@ import org.kuali.test.creator.TestCreator;
 
 
 public abstract class BaseTree extends JTree {
-    private TestCreator mainframe;
+    private final TestCreator mainframe;
     
     public BaseTree(TestCreator mainframe) {
         this.mainframe = mainframe;
     }
 
     protected void init() {
+        ToolTipManager.sharedInstance().registerComponent(this);
+
         getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         setCellRenderer(getTreeCellRenderer());
         setModel(getTreeModel());
@@ -94,5 +97,25 @@ public abstract class BaseTree extends JTree {
     
     public DefaultMutableTreeNode getRootNode() {
         return (DefaultMutableTreeNode)getModel().getRoot();
+    }
+
+    @Override
+    public String getToolTipText(MouseEvent event) {
+        String retval = null;
+        TreePath treePath = getPathForLocation(event.getX(), event.getY());
+        
+        if (treePath != null) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePath.getLastPathComponent();
+        
+            if (node != null) {
+                retval = getTooltip(node.getUserObject());
+            }
+        }
+        
+        return retval;
+    }
+
+    protected String getTooltip(Object value) {
+        return null;
     }
 }

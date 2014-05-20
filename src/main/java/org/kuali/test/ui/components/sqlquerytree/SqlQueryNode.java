@@ -19,6 +19,7 @@ package org.kuali.test.ui.components.sqlquerytree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.Platform;
 
 /**
  *
@@ -42,17 +43,22 @@ public class SqlQueryNode extends DefaultMutableTreeNode {
     }
 
     @Override
+    public boolean isLeaf() {
+        return (getUserObject() instanceof ColumnData);
+    }
+    
+    @Override
     public boolean isRoot() {
-        return (getUserObject() instanceof String);
+        return (getUserObject() instanceof Platform);
     }
 
-    
-    
+    @Override
     public String toString() {
         if (isRoot()) {
-            return getUserObject().toString();
+            Platform p = (Platform)getUserObject();
+            return p.getDatabaseConnectionName();
         } else {
-            return null;
+            return getUserObject().toString();
         }
     }
 }

@@ -1393,4 +1393,58 @@ public class Utils {
         Class.forName(dbconn.getJdbcDriver());
         return DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
     }
+    
+    public static String getJdbcTypeName(int jdbcType) {
+        String retval = "other";
+        
+        switch(jdbcType) {
+            case java.sql.Types.BIGINT:
+            case java.sql.Types.INTEGER:
+            case java.sql.Types.SMALLINT:
+            case java.sql.Types.TINYINT:
+                retval = "integer";
+                break;
+            case java.sql.Types.DOUBLE:
+            case java.sql.Types.FLOAT:
+            case java.sql.Types.DECIMAL:
+            case java.sql.Types.NUMERIC:
+            case java.sql.Types.REAL:
+                retval = "float";
+                break;
+            case java.sql.Types.LONGNVARCHAR:
+            case java.sql.Types.LONGVARCHAR:
+            case java.sql.Types.NCHAR:
+            case java.sql.Types.NCLOB:
+            case java.sql.Types.NVARCHAR:
+            case java.sql.Types.VARCHAR:         
+            case java.sql.Types.SQLXML:
+            case java.sql.Types.CHAR:
+                retval = "string";
+                break;
+            case java.sql.Types.DATE:
+            case java.sql.Types.TIME:
+            case java.sql.Types.TIMESTAMP:
+                retval = "date/time";
+                break;
+            case java.sql.Types.BINARY:
+            case java.sql.Types.BIT:
+            case java.sql.Types.BLOB:
+            case java.sql.Types.BOOLEAN:
+            case java.sql.Types.CLOB:
+            case java.sql.Types.DATALINK:
+            case java.sql.Types.DISTINCT:
+            case java.sql.Types.JAVA_OBJECT:
+            case java.sql.Types.LONGVARBINARY:
+            case java.sql.Types.NULL:
+            case java.sql.Types.OTHER:
+            case java.sql.Types.REF:
+            case java.sql.Types.ROWID:
+            case java.sql.Types.STRUCT:
+            case java.sql.Types.VARBINARY:
+                retval = "other";
+                break;
+        }
+        
+        return retval;
+    }
 }

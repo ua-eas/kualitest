@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.sqlquerytree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
@@ -53,11 +54,40 @@ public class SqlQueryTree extends BaseTree {
 
     @Override
     protected DefaultTreeModel getTreeModel() {
-        return new SqlQueryTreeModel(new SqlQueryNode(configuration, new TableData(null, platform.getDatabaseConnectionName())));
+        return new SqlQueryTreeModel(new SqlQueryNode(configuration, platform));
     }
 
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         popupMenu.show(this, node, x, y);
+    }
+
+    @Override
+    protected String getTooltip(Object value) {
+        String retval = null;
+        
+        if (value instanceof TableData) {
+            TableData td = (TableData)value;
+            
+            if (StringUtils.isNotBlank(td.getForeignKeyName())) {
+                StringBuilder buf = new StringBuilder(128);
+                buf.append("<html>foreign key: ");
+                buf.append(td.getForeignKeyName());
+                buf.append("<br />");
+                
+                for (String[] s : td.getLinkColumns()) {
+                    buf.append(s[0]);
+                    buf.append("=");
+                    buf.append(s[1]);
+                    buf.append("<br />");
+                }
+                
+                buf.append("</html>");
+                
+                retval = buf.toString();
+            }
+        }
+        
+        return retval;
     }
 }

@@ -17,11 +17,13 @@
 package org.kuali.test.ui.components.sqlquerytree;
 
 
-public abstract class DBObjectData implements Comparable {
+public abstract class DBObjectData implements Comparable  {
+    private String schema;
     private String name;
     private String displayName;
     
-    public DBObjectData(String name, String displayName) {
+    public DBObjectData(String schema, String name, String displayName) {
+        this.schema = schema;
         this.name = name;
         this.displayName = displayName;
     }
@@ -40,5 +42,13 @@ public abstract class DBObjectData implements Comparable {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getSchema() {
+        return schema;
+    }
+
+    public void setSchema(String schema) {
+        this.schema = schema;
     }
 }

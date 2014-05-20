@@ -52,6 +52,9 @@ public class Constants {
 
     public static final ImageIcon DATABASE_ICON = new ImageIcon(TestCreator.class.getResource("/images/database.png"));
     public static final ImageIcon DATABASE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/database-setting.png"));
+    public static final ImageIcon DATABASE_TABLE_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbtable.png"));
+    public static final ImageIcon DATABASE_COLUMN_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbcolumn.png"));
+    public static final ImageIcon DATABASE_PKCOLUMN_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbpkcolumn.png"));
 
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
@@ -59,8 +62,8 @@ public class Constants {
     public static final int MAINFRAME_DEFAULT_TOP = 100;
     public static final int MAINFRAME_DEFAULT_WIDTH = 800;
     public static final int MAINFRAME_DEFAULT_HEIGHT = 600;
-    
-    public static final int EXTERNAL_ENTITY_MAX_SIZE = 40000;
+
+    public static final int MAX_TABLE_RELATIONSHIP_DEPTH = 6;
     
     public static final String KUALI_TEST_TITLE = "Kuali Test Framework";
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
