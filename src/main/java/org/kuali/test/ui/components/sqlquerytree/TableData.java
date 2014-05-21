@@ -98,5 +98,17 @@ public class TableData extends DBObjectData {
     public void setForeignKeyName(String foreignKeyName) {
         this.foreignKeyName = foreignKeyName;
     }
+    
+    public String getFullTableName() {
+        StringBuilder retval = new StringBuilder(128);
+        
+        retval.append(schema);
+        retval.append(".");
+        retval.append(getName());
+        retval.append(".");
+        retval.append(getDisplayName());
+        
+        return retval.toString();
+    }
 }
 

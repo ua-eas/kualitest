@@ -230,4 +230,20 @@ public class Constants {
         HTML_TAG_ATTRIBUTE_CLASS, 
         NODE_ID
     };
+    
+    public static final String[] AGGREGATE_FUNCTIONS = {
+        "",
+        "AVG",
+        "COUNT",
+        "MAX",
+        "MIN",
+        "SUM"
+    };
+
+    public static final String[] ASC_DESC = {
+        "",
+        "ASC",
+        "DESC"
+    };
+
 }

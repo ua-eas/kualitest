@@ -106,4 +106,8 @@ public class TablePanel extends JPanel implements ListSelectionListener {
     public JButton getDeleteButton() {
         return deleteButton;
     }
+
+    public BaseTable getTable() {
+        return table;
+    }
 }

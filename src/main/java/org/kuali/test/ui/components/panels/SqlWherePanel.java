@@ -19,8 +19,6 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
@@ -91,24 +89,14 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         tc.setTableName("sql-where-column-table");
         tc.setDisplayName("Where Comparisons");
 
-        return new BaseTable(tc) {
-            @Override
-            protected TableCellEditor getTableCellEditor(TableConfiguration config, int col) {
-                return super.getTableCellEditor(config, col); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            protected TableCellRenderer getTableCellRenderer(TableConfiguration config, int col) {
-                return super.getTableCellRenderer(config, col); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
+        return new BaseTable(tc);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (Constants.ADD_COMPARISON_ACTION.equals(e.getSource())) {
+        if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
             
-        } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getSource())) {
+        } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getActionCommand())) {
             
         }
     }

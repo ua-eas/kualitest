@@ -1467,4 +1467,74 @@ public class Utils {
         
         return retval;
     }
+
+    public static boolean isNumericJdbcType(int jdbcType) {
+        boolean retval = false;
+        
+        switch(jdbcType) {
+            case java.sql.Types.BIGINT:
+            case java.sql.Types.INTEGER:
+            case java.sql.Types.SMALLINT:
+            case java.sql.Types.TINYINT:
+            case java.sql.Types.DOUBLE:
+            case java.sql.Types.FLOAT:
+            case java.sql.Types.DECIMAL:
+            case java.sql.Types.NUMERIC:
+            case java.sql.Types.REAL:
+                retval = true;
+                break;
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isStringJdbcType(int jdbcType) {
+        boolean retval = false;
+        
+        switch(jdbcType) {
+            case java.sql.Types.LONGNVARCHAR:
+            case java.sql.Types.LONGVARCHAR:
+            case java.sql.Types.NCHAR:
+            case java.sql.Types.NCLOB:
+            case java.sql.Types.NVARCHAR:
+            case java.sql.Types.VARCHAR:         
+            case java.sql.Types.SQLXML:
+                retval = true;
+                break;
+        }
+        
+        return retval;
+    }
+
+    public static boolean isDateTimeJdbcType(int jdbcType) {
+        boolean retval = false;
+        
+        switch(jdbcType) {
+            case java.sql.Types.DATE:
+            case java.sql.Types.TIME:
+            case java.sql.Types.TIMESTAMP:
+                retval = true;
+                break;
+        }
+        
+        return retval;
+    }
+    
+    public static List<String> getAggregateFunctionsForType(int jdbcType) {
+        List <String> retval = new ArrayList<String>();
+        
+        for (String s : Constants.AGGREGATE_FUNCTIONS) {
+        
+            if (StringUtils.isBlank(s) || isNumericJdbcType(jdbcType) || "COUNT".equals(s)) {
+                retval.add(s);
+            } else if (isDateTimeJdbcType(jdbcType)) {
+                if (!"SUM".equals(s) && !"AVG".equals(s)) {
+                    retval.add(s);
+                }
+            }
+        }
+        
+        
+        return retval;
+    }
 }

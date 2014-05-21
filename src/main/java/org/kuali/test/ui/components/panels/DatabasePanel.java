@@ -438,4 +438,40 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     public boolean haveSelectedColumns() {
         return (sqlQueryTree.getSelectedColumnsCount() > 0);
     }
+    
+    public Map <String, List <ColumnData>> getAvailableColumnMap() {
+        Map <String, List <ColumnData>> retval = new HashMap<String, List <ColumnData>>();
+        
+        loadSelectedColumns(sqlQueryTree.getRootNode(), retval);
+        
+        return retval;
+    }
+    
+    
+    private void loadSelectedColumns(DefaultMutableTreeNode node, Map <String, List <ColumnData>> selectedColumnMap) {
+        if (node.getUserObject() instanceof TableData) {
+            TableData td = (TableData)node.getUserObject();
+            List <ColumnData> selcols = getSelectedColumns(td);
+            
+            if (!selcols.isEmpty()) {
+                selectedColumnMap.put(td.getFullTableName(), selcols);
+            }
+        }
+        
+        for (int i = 0; i < node.getChildCount(); ++i) {
+             loadSelectedColumns((DefaultMutableTreeNode)node.getChildAt(i), selectedColumnMap);
+        }
+    }
+    
+    private List <ColumnData> getSelectedColumns(TableData td) {
+        List <ColumnData> retval = new ArrayList<ColumnData>();
+        
+        for (ColumnData cd : td.getColumns()) {
+            if (cd.isSelected()) {
+                retval.add(cd);
+            }
+        }
+        
+        return retval;
+    }
 }

@@ -119,7 +119,7 @@ public class BaseTable extends JTable {
     }
 
     public List getTableData() {
-        BaseTableModel tm = (BaseTableModel)getModel();
+        BaseTableModel tm = getModel();
         return tm.getData();
     }
 
@@ -132,5 +132,10 @@ public class BaseTable extends JTable {
         }
         
         return retval;
+    }
+
+    @Override
+    public BaseTableModel getModel() {
+        return (BaseTableModel)super.getModel();
     }
 }
