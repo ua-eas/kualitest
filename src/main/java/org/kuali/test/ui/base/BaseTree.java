@@ -108,14 +108,14 @@ public abstract class BaseTree extends JTree {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode)treePath.getLastPathComponent();
         
             if (node != null) {
-                retval = getTooltip(node.getUserObject());
+                retval = getTooltip(node);
             }
         }
         
         return retval;
     }
 
-    protected String getTooltip(Object value) {
+    protected String getTooltip(DefaultMutableTreeNode node) {
         return null;
     }
 }

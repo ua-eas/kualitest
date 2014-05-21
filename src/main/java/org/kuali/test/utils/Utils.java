@@ -1447,4 +1447,16 @@ public class Utils {
         
         return retval;
     }
+
+    public static String cleanTableDisplayName(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            if (input.endsWith("Impl")) {
+                retval = input.substring(0, input.length() - 4);
+            }
+        }
+        
+        return retval;
+    }
 }

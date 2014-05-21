@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
     public BaseTreeCellRenderer() {
-        
     }
     
     @Override
@@ -52,7 +51,7 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
         
         this.selected = selected;
         this.hasFocus = hasFocus;
-
+        
         setSelectionDisplay();
         
         String tooltip = getTooltip(value);

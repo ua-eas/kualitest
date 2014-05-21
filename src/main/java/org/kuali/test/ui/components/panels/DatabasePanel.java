@@ -76,7 +76,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
-        p2.add(new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), getPlatform())), BorderLayout.CENTER);
+        p2.add(new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())), BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
     }
@@ -285,18 +285,18 @@ public class DatabasePanel extends BaseCreateTestPanel {
         }
     }
 
-    private String getTableDisplayName(String tname) {
+    public String getTableDisplayName(String tname) {
         String retval = tname;
         
         Table t = additionalDbInfo.get(tname);
 
         if (t != null) {
-            retval = t.getDisplayName();
+            retval = Utils.cleanTableDisplayName(t.getDisplayName());
         }
         
         return retval;
     }
-    
+
     private CustomForeignKey[] getCustomForeignKeys(TableData td) {
         CustomForeignKey[] retval = null;
         
@@ -364,7 +364,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
         }
     }
     
-    protected String getColumnDisplayName(String tname, String cname) {
+    public String getColumnDisplayName(String tname, String cname) {
         String retval = cname;
         
         Table t = additionalDbInfo.get(tname);

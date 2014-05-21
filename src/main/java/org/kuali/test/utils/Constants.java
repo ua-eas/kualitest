@@ -55,6 +55,8 @@ public class Constants {
     public static final ImageIcon DATABASE_TABLE_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbtable.png"));
     public static final ImageIcon DATABASE_COLUMN_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbcolumn.png"));
     public static final ImageIcon DATABASE_PKCOLUMN_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbpkcolumn.png"));
+    public static final ImageIcon DATABASE_COLUMN_SELECTED_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbcolumnsel.png"));
+    public static final ImageIcon DATABASE_PKCOLUMN_SELECTED_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbpkcolumnsel.png"));
 
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;

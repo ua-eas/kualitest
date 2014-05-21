@@ -39,9 +39,17 @@ public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
                 ColumnData cd = (ColumnData)node.getUserObject();
                 
                 if (cd.getPrimaryKeyIndex() < Integer.MAX_VALUE) {
-                    retval = Constants.DATABASE_PKCOLUMN_ICON;
+                    if (cd.isSelected()) {
+                        retval = Constants.DATABASE_PKCOLUMN_SELECTED_ICON;
+                    } else {
+                        retval = Constants.DATABASE_PKCOLUMN_ICON;
+                    }
                 } else {
-                    retval = Constants.DATABASE_COLUMN_ICON;
+                    if (cd.isSelected()) {
+                        retval = Constants.DATABASE_COLUMN_SELECTED_ICON;
+                    } else {
+                        retval = Constants.DATABASE_COLUMN_ICON;
+                    }
                 }
             } else {
                 retval = Constants.DATABASE_TABLE_ICON;
