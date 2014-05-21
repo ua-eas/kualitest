@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -85,7 +86,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             "Schema",
             "User Name",
             "Password",
-            "Show Configured Tables Only"};
+            "Configured Tables Only"};
         
         name = new JTextField(dbconnection.getName(), 20);
         name.setEditable(!isEditmode());
@@ -174,6 +175,11 @@ public class DatabaseDlg extends BaseSetupDlg {
     @Override
     protected String getDialogName() {
         return "database-connection-setup";
+    }
+
+        @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 375);
     }
 
 }

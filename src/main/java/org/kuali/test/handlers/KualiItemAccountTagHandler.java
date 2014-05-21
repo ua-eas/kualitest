@@ -116,7 +116,7 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
             
             if ((pos2 > -1) && (pos2 > pos1)) {
                 int indx = Integer.parseInt(data.substring(pos1 + Constants.SOURCE_ACCOUNTING_LINE_MATCH.length(), pos2));
-                retval = "<span style='color: #680000;'>account[" + (indx+1) + "]</span>";
+                retval = "<span style='color: " + Constants.COLOR_DARK_RED + ";'>account[" + (indx+1) + "]</span>";
             }
         }
 

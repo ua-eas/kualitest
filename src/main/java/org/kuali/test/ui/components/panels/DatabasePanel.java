@@ -56,10 +56,14 @@ import org.kuali.test.utils.Utils;
 import org.kuali.test.utils.XMLFileFilter;
 
 
-public class DatabasePanel extends BaseCreateTestPanel {
+public class DatabasePanel extends BaseCreateTestPanel  {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
+    private SqlSelectPanel sqlSelectPanel;
+    private SqlWherePanel sqlWherePanel;
+    private SqlDisplayPanel sqlDisplayPanel;
+    
     private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
@@ -80,10 +84,9 @@ public class DatabasePanel extends BaseCreateTestPanel {
         
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Columns", new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())));
-        tabbedPane.addTab("Select", new JPanel());
-        tabbedPane.addTab("Where", new JPanel());
-        tabbedPane.addTab("Order By", new JPanel());
-        tabbedPane.addTab("SQL", new JPanel());
+        tabbedPane.addTab("Select", sqlSelectPanel = new SqlSelectPanel(getMainframe(), this));
+        tabbedPane.addTab("Where", sqlWherePanel = new SqlWherePanel(getMainframe(), this));
+        tabbedPane.addTab("SQL", new JScrollPane(sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this)));
 
         p2.add(tabbedPane, BorderLayout.CENTER);
         
@@ -116,7 +119,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
                     
                     Table t = additionalDbInfo.get(tableName);
                     
-                    if (t != null) {
+                    if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
                         retval.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
                     } 
                 }
@@ -187,7 +190,6 @@ public class DatabasePanel extends BaseCreateTestPanel {
                         rootNode.removeAllChildren();
                         loadTables(td, rootNode);
                         sqlQueryTree.getModel().nodeStructureChanged(rootNode);
-                        
                         getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
                     }
 
@@ -211,7 +213,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
                 DatabaseMetaData dmd = conn.getMetaData();
                 SqlQueryNode baseTableNode = new SqlQueryNode(getMainframe().getConfiguration(), td);
                 rootNode.add(baseTableNode);
-                loadTableRelationships(dmd, td, 0, baseTableNode);
+                loadTableRelationships(dbconn, dmd, td, 0, baseTableNode);
             }
         }
         
@@ -224,7 +226,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
         }        
     }
     
-    private void loadTableRelationships(DatabaseMetaData dmd, TableData td, 
+    private void loadTableRelationships(DatabaseConnection dbconn, DatabaseMetaData dmd, TableData td, 
         int currentDepth, SqlQueryNode parentNode) throws Exception {
         ResultSet res = null;
         
@@ -265,7 +267,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
                         parentNode.add(curnode);
 
                         if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
-                            loadTableRelationships(dmd, tdata, currentDepth, curnode);
+                            loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
                         } 
                         
                         tdata.setForeignKeyName(fkname);
@@ -281,12 +283,12 @@ public class DatabasePanel extends BaseCreateTestPanel {
                 if (customForeignKeys != null) {
                     for (CustomForeignKey cfk : customForeignKeys) {
                         TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
-                        loadTableRelationships(dmd, tdata, currentDepth, parentNode);
+                        loadTableRelationships(dbconn, dmd, tdata, currentDepth, parentNode);
                     }
                 }
             }
 
-            loadTableColumns(dmd, parentNode);
+            loadTableColumns(dbconn, dmd, parentNode);
         }
         
         finally {
@@ -321,7 +323,7 @@ public class DatabasePanel extends BaseCreateTestPanel {
         return retval;
     }
     
-    private void loadTableColumns(DatabaseMetaData dmd, SqlQueryNode node) throws Exception {
+    private void loadTableColumns(DatabaseConnection dbconn, DatabaseMetaData dmd, SqlQueryNode node) throws Exception {
         ResultSet res = null;
         
         try {
@@ -331,10 +333,14 @@ public class DatabasePanel extends BaseCreateTestPanel {
             while (res.next()) {
                 String cname = res.getString(4);
                 int dataType = res.getInt(5);
+
+                String displayName = getColumnDisplayName(td.getName(), cname, dbconn.getConfiguredTablesOnly());
                 
-                ColumnData cd = new ColumnData(td.getSchema(), cname, getColumnDisplayName(td.getName(), cname));
-                cd.setDataType(dataType);
-                td.getColumns().add(cd);
+                if (StringUtils.isNotBlank(displayName)) {
+                    ColumnData cd = new ColumnData(td.getSchema(), cname, displayName);
+                    cd.setDataType(dataType);
+                    td.getColumns().add(cd);
+                }
             }
             
             HashMap <String, ColumnData> map = new HashMap<String, ColumnData>();
@@ -373,8 +379,12 @@ public class DatabasePanel extends BaseCreateTestPanel {
         }
     }
     
-    public String getColumnDisplayName(String tname, String cname) {
-        String retval = cname;
+    public String getColumnDisplayName(String tname, String cname, boolean configuredTablesOnly) {
+        String retval = null;
+        
+        if (!configuredTablesOnly) {
+            retval = cname;
+        }
         
         Table t = additionalDbInfo.get(tname);
         
@@ -407,5 +417,25 @@ public class DatabasePanel extends BaseCreateTestPanel {
     @Override
     protected boolean handleSaveTest() {
         return false;
+    }
+
+    public SqlQueryTree getSqlQueryTree() {
+        return sqlQueryTree;
+    }
+
+    public SqlSelectPanel getSqlSelectPanel() {
+        return sqlSelectPanel;
+    }
+
+    public SqlWherePanel getSqlWherePanel() {
+        return sqlWherePanel;
+    }
+
+    public SqlDisplayPanel getSqlDisplayPanel() {
+        return sqlDisplayPanel;
+    }
+
+    public boolean haveSelectedColumns() {
+        return (sqlQueryTree.getSelectedColumnsCount() > 0);
     }
 }

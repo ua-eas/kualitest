@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.sqlquerytree;
 
 import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
@@ -69,15 +70,19 @@ public class ColumnData extends DBObjectData {
     public String toString() {
         StringBuilder retval = new StringBuilder(64);
         
+        retval.append("<html>");
+        
         if (StringUtils.isNotBlank(getDisplayName())) {
             retval.append(getDisplayName());
         } else {
             retval.append(getName());
         }
         
-        retval.append("[");
+        retval.append("[<span style='color: ");
+        retval.append(Constants.COLOR_DARK_RED);
+        retval.append("; font-weight: 700;'>");
         retval.append(Utils.getJdbcTypeName(getDataType()));
-        retval.append("]");
+        retval.append("</span>]");
         
         return retval.toString();
     }

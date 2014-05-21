@@ -40,6 +40,7 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     private Platform platform;
     private DatabasePanel dbPanel;
     private TreeCellRenderer treeCellRenderer;
+    private int columnsSelected =0;
     
     public SqlQueryTree(TestCreator mainframe, DatabasePanel dbPanel, Platform platform) {
         super(mainframe);
@@ -84,16 +85,16 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
             
             if (StringUtils.isNotBlank(td.getForeignKeyName())) {
                 StringBuilder buf = new StringBuilder(128);
-                buf.append("<html>foreign key: ");
+                buf.append("<html><strong>foreign key:</strong> ");
                 buf.append(dbPanel.getTableDisplayName(pdata.getName()));
                 buf.append(" -> ");
                 buf.append(dbPanel.getTableDisplayName(td.getName()));
                 buf.append("<br />");
                 
                 for (String[] s : td.getLinkColumns()) {
-                    buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0]));
+                    buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0], false));
                     buf.append("=");
-                    buf.append(dbPanel.getColumnDisplayName(td.getName(), s[1]));
+                    buf.append(dbPanel.getColumnDisplayName(td.getName(), s[1], false));
                     buf.append("<br />");
                 }
                 
@@ -118,6 +119,13 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
             if (node != null) {
                 if (node.getUserObject() instanceof ColumnData) {
                     ColumnData cd = (ColumnData)node.getUserObject();
+                    
+                    if (cd.isSelected()) {
+                        columnsSelected--;
+                    } else {
+                        columnsSelected++;
+                    }
+                    
                     cd.setSelected(!cd.isSelected());
                     getComponentAt(e.getPoint()).repaint();
                     e.consume();
@@ -136,5 +144,9 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+    
+    public int getSelectedColumnsCount() {
+        return columnsSelected;
     }
 }

@@ -78,6 +78,8 @@ public class Constants {
     public static final String PREFS_MAINFRAME_WIDTH = "mainframe-width";
     public static final String PREFS_MAINFRAME_HEIGHT = "mainframe-height";
     public static final String PREFS_MAINFRAME_WINDOW_STATE = "mainframe-window-state";
+    public static String COLOR_DARK_RED = "#680000";
+    public static String COLOR_DARK_BLUE = "#000099";
     
     
     public static final int DEFAULT_DIALOG_LEFT = 300;
@@ -126,7 +128,13 @@ public class Constants {
     public static final String NODE_INDEX_MATCHER_CODE = "I";
     public static final String NODE_ID = "nodeid";
     public static final String SYSTEM_PROPERTY_GROUP = "system";
-    
+    public static final String ADD_ROW_ACTION = "Add Row";
+    public static final String DELETE_ROW_ACTION = "Delete Row";
+    public static final String ADD_COLUMN_ACTION = "Add Column";
+    public static final String DELETE_COLUMN_ACTION = "Delete Column";
+    public static final String ADD_COMPARISON_ACTION = "Add Comparison";
+    public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
+
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;

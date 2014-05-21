@@ -35,6 +35,7 @@ import org.kuali.test.utils.Constants;
 public class TablePanel extends JPanel implements ListSelectionListener {
     private BaseTable table;
     private JPanel labelPanel;
+    private JButton addButton;
     private JButton deleteButton;
     
     public TablePanel(BaseTable table, int numberOfRowsToDisplay) {
@@ -73,11 +74,11 @@ public class TablePanel extends JPanel implements ListSelectionListener {
     
     public void addAddButton(ActionListener listener, String text, String tooltipText) {;
         JPanel p = getButtonPanel();
-        JButton b = new JButton(text, Constants.ADD_ICON);
-        b.setMargin(new Insets(1, 1, 1, 1));
-        b.setToolTipText(tooltipText);
-        b.addActionListener(listener);
-        p.add(b);
+        addButton = new JButton(text, Constants.ADD_ICON);
+        addButton.setMargin(new Insets(1, 1, 1, 1));
+        addButton.setToolTipText(tooltipText);
+        addButton.addActionListener(listener);
+        p.add(addButton);
     }
     
     public void addDeleteButton(ActionListener listener, String text, String tooltipText) {
@@ -96,5 +97,13 @@ public class TablePanel extends JPanel implements ListSelectionListener {
         if (deleteButton != null) {
             deleteButton.setEnabled(table.getSelectedRow() > -1);
         }
+    }
+
+    public JButton getAddButton() {
+        return addButton;
+    }
+
+    public JButton getDeleteButton() {
+        return deleteButton;
     }
 }
