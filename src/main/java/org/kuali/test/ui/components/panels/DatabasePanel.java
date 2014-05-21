@@ -86,7 +86,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         tabbedPane.addTab("Columns", new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())));
         tabbedPane.addTab("Select", sqlSelectPanel = new SqlSelectPanel(getMainframe(), this));
         tabbedPane.addTab("Where", sqlWherePanel = new SqlWherePanel(getMainframe(), this));
-        tabbedPane.addTab("SQL", new JScrollPane(sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this)));
+        tabbedPane.addTab("SQL", sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this));
 
         p2.add(tabbedPane, BorderLayout.CENTER);
         

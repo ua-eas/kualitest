@@ -78,9 +78,9 @@ public class Constants {
     public static final String PREFS_MAINFRAME_WIDTH = "mainframe-width";
     public static final String PREFS_MAINFRAME_HEIGHT = "mainframe-height";
     public static final String PREFS_MAINFRAME_WINDOW_STATE = "mainframe-window-state";
-    public static String COLOR_DARK_RED = "#680000";
-    public static String COLOR_DARK_BLUE = "#000099";
-    
+    public static final String COLOR_DARK_RED = "#680000";
+    public static final String COLOR_DARK_BLUE = "#000099";
+    public static final String HTML_MIME_TYPE = "text/html";
     
     public static final int DEFAULT_DIALOG_LEFT = 300;
     public static final int DEFAULT_DIALOG_TOP = 200;
