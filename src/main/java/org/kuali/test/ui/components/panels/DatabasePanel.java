@@ -32,6 +32,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -57,7 +58,6 @@ import org.kuali.test.utils.XMLFileFilter;
 
 public class DatabasePanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
-
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
     private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
@@ -76,7 +76,16 @@ public class DatabasePanel extends BaseCreateTestPanel {
 
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
-        p2.add(new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())), BorderLayout.CENTER);
+        
+        
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Columns", new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())));
+        tabbedPane.addTab("Select", new JPanel());
+        tabbedPane.addTab("Where", new JPanel());
+        tabbedPane.addTab("Order By", new JPanel());
+        tabbedPane.addTab("SQL", new JPanel());
+
+        p2.add(tabbedPane, BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
     }
