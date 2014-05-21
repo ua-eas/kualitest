@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPasswordField;
@@ -41,6 +42,7 @@ public class DatabaseDlg extends BaseSetupDlg {
     private JTextField username;
     private JPasswordField password;
     private JComboBox <String> type;
+    private JCheckBox configuredTablesOnly;
     private boolean editmode = false;
     
     /**
@@ -82,7 +84,8 @@ public class DatabaseDlg extends BaseSetupDlg {
             "Driver",
             "Schema",
             "User Name",
-            "Password"};
+            "Password",
+            "Show Configured Tables Only"};
         
         name = new JTextField(dbconnection.getName(), 20);
         name.setEditable(!isEditmode());
@@ -94,8 +97,11 @@ public class DatabaseDlg extends BaseSetupDlg {
         schema = new JTextField(dbconnection.getUsername(), 15);
         username = new JTextField(dbconnection.getUsername(), 20);
         password = new JPasswordField(dbconnection.getPassword(), 20);
+        configuredTablesOnly = new JCheckBox();
         
-        JComponent[] components = {name, type, url, driver, schema, username, password};
+        configuredTablesOnly.setSelected(dbconnection.getConfiguredTablesOnly());
+        
+        JComponent[] components = {name, type, url, driver, schema, username, password, configuredTablesOnly};
 
         
         getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
@@ -134,6 +140,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             dbconnection.setSchema(schema.getText());
             dbconnection.setUsername(username.getText());
             dbconnection.setPassword(password.getText());
+            dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
             dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
             setSaved(true);
             getConfiguration().setModified(true);

@@ -1289,6 +1289,10 @@ public class Utils {
                 if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
                     retval.add(testType);
                 }
+            } else if (TestType.MEMORY.toString().equals(testType)) {
+                if (StringUtils.isNotBlank(platform.getJmxUrl())) {
+                    retval.add(testType);
+                }
             } else {
                 retval.add(testType);
             }
@@ -1308,6 +1312,10 @@ public class Utils {
                 }
             } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
                 if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
+                    retval.add(checkpointType);
+                }
+            } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
+                if (StringUtils.isNotBlank(platform.getJmxUrl())) {
                     retval.add(checkpointType);
                 }
             } else {

@@ -86,6 +86,7 @@
             <xs:element name="schema" type="xs:string"/>
             <xs:element name="username" type="xs:string"/>
             <xs:element name="password" type="xs:string"/>
+            <xs:element name="configured-tables-only" type="xs:boolean" default="false"/>
         </xs:sequence>
     </xs:complexType>
     

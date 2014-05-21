@@ -12,7 +12,8 @@
          <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
          <schema>KULOWNER</schema>
          <username>rbtucker</username>
-         <password>lxamdeoeyx</password>
+         <password>dummy</password>
+         <configured-tables-only>true</configured-tables-only>
       </database-connection>
    </database-connections>
    <modified>false</modified>
