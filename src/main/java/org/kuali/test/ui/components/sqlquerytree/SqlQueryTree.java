@@ -113,26 +113,29 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         if (node.getUserObject() instanceof TableData) {
             TableData td = (TableData)node.getUserObject();
             DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)node.getParent();
-            TableData pdata = (TableData)pnode.getUserObject();
             
-            if (StringUtils.isNotBlank(td.getForeignKeyName())) {
-                StringBuilder buf = new StringBuilder(128);
-                buf.append("<html><span style='font-weight: 700; text-decoration:underline;'>foreign key: ");
-                buf.append(dbPanel.getTableDisplayName(pdata.getName()));
-                buf.append(" -> ");
-                buf.append(dbPanel.getTableDisplayName(td.getName()));
-                buf.append("</span><br />");
-                
-                for (String[] s : td.getLinkColumns()) {
-                    buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0], false));
-                    buf.append("=");
-                    buf.append(dbPanel.getColumnDisplayName(td.getName(), s[1], false));
-                    buf.append("<br />");
+            if (pnode.getUserObject() instanceof TableData) {
+                TableData pdata = (TableData)pnode.getUserObject();
+
+                if (StringUtils.isNotBlank(td.getForeignKeyName())) {
+                    StringBuilder buf = new StringBuilder(128);
+                    buf.append("<html><span style='font-weight: 700; text-decoration:underline;'>foreign key: ");
+                    buf.append(dbPanel.getTableDisplayName(pdata.getName()));
+                    buf.append(" -> ");
+                    buf.append(dbPanel.getTableDisplayName(td.getName()));
+                    buf.append("</span><br />");
+
+                    for (String[] s : td.getLinkColumns()) {
+                        buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0], false));
+                        buf.append("=");
+                        buf.append(dbPanel.getColumnDisplayName(td.getName(), s[1], false));
+                        buf.append("<br />");
+                    }
+
+                    buf.append("</html>");
+
+                    retval = buf.toString();
                 }
-                
-                buf.append("</html>");
-                
-                retval = buf.toString();
             }
         }
         
