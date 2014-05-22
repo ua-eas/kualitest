@@ -158,9 +158,6 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
 
     private void createTableCellEditorRenderer(BaseTable table) {
         JComboBox cb = new JComboBox();
-        
-        
-        
         table.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(cb) {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
