@@ -121,6 +121,24 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
                 
                 return retval;
             }
+
+            @Override
+            protected String getTooltip(int row, int col) {
+                String retval = null;
+                if (col == 0) {
+                    SelectColumnData scd =  (SelectColumnData)getTableData().get(row);
+                    
+                    if (scd != null) {
+                        TableData td = scd.getTableData();
+                        
+                        if (td != null) {
+                            retval = getDbPanel().getTableDataTooltip(td);
+                        }
+                    }
+                }
+                
+                return retval;
+            }
         };
         
         createTableCellEditorRenderer(retval);

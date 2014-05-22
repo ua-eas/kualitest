@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -28,6 +29,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
 
 
@@ -138,4 +140,26 @@ public class BaseTable extends JTable {
     public BaseTableModel getModel() {
         return (BaseTableModel)super.getModel();
     }
+    
+    @Override
+   public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        Component retval = super.prepareRenderer(renderer, row, column);
+        if (retval instanceof JComponent) {
+            JComponent jc = (JComponent)retval;
+            String tooltip = getTooltip(row, column);
+            
+            if (StringUtils.isNotBlank(tooltip)) {
+                jc.setToolTipText(tooltip);
+            }
+            
+        }
+        
+        return retval;
+
+    }
+   
+    protected String getTooltip(int row, int col) {
+        return null;
+    }
+
 }

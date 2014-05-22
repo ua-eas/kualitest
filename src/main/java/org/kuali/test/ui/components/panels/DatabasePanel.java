@@ -439,39 +439,45 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return (sqlQueryTree.getSelectedColumnsCount() > 0);
     }
     
-    public Map <String, List <ColumnData>> getAvailableColumnMap() {
-        Map <String, List <ColumnData>> retval = new HashMap<String, List <ColumnData>>();
+    public List <TableData> getSelectedDbObjects() {
+        List <TableData> retval = new ArrayList<TableData>();
         
-        loadSelectedColumns(sqlQueryTree.getRootNode(), retval);
+        loadSelectedDbObjects(sqlQueryTree.getRootNode(), retval);
+        
+        Collections.sort(retval);
         
         return retval;
     }
     
     
-    private void loadSelectedColumns(DefaultMutableTreeNode node, Map <String, List <ColumnData>> selectedColumnMap) {
+    private void loadSelectedDbObjects(DefaultMutableTreeNode node, List <TableData> selectedDbObjects) {
         if (node.getUserObject() instanceof TableData) {
             TableData td = (TableData)node.getUserObject();
-            List <ColumnData> selcols = getSelectedColumns(td);
             
-            if (!selcols.isEmpty()) {
-                selectedColumnMap.put(td.getFullTableName(), selcols);
+            if (hasSelectedColumns(td)) {
+                selectedDbObjects.add(td);
             }
         }
         
         for (int i = 0; i < node.getChildCount(); ++i) {
-             loadSelectedColumns((DefaultMutableTreeNode)node.getChildAt(i), selectedColumnMap);
+             loadSelectedDbObjects((DefaultMutableTreeNode)node.getChildAt(i), selectedDbObjects);
         }
     }
     
-    private List <ColumnData> getSelectedColumns(TableData td) {
-        List <ColumnData> retval = new ArrayList<ColumnData>();
+    private boolean hasSelectedColumns(TableData td) {
+        boolean retval = false;
         
         for (ColumnData cd : td.getColumns()) {
             if (cd.isSelected()) {
-                retval.add(cd);
+                retval = true;
+                break;
             }
         }
         
         return retval;
+    }
+
+    public String getTableDataTooltip(TableData td) {
+        return sqlQueryTree.getTooltip(td);
     }
 }

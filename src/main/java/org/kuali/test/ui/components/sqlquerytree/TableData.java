@@ -38,17 +38,29 @@ public class TableData extends DBObjectData {
 
     @Override
     public String toString() {
-        String retval = getName();
+        String retval = "";
+        
+        StringBuilder buf = new StringBuilder(128);
         if (StringUtils.isNotBlank(getDisplayName())) {
             if (getDisplayName().endsWith("Impl")) {
-                retval = getDisplayName().substring(0, getDisplayName().length() - 4);
+                buf.append(getDisplayName().substring(0, getDisplayName().length() - 4));
             } else {
-                retval =  getDisplayName();
+                buf.append(getDisplayName());
             }
-        } 
+            
+            retval = buf.toString();
+        } else if (StringUtils.isNotBlank(getName())) {
+            buf.append(getName());
+        }
 
-        if (retval == null) {
-            retval = "";
+        if (buf.length() > 0) {
+            if (StringUtils.isNotBlank(getForeignKeyName())) {
+                buf.append(" (");
+                buf.append(getForeignKeyName());
+                buf.append(")");
+            }
+
+            retval = buf.toString();
         }
         
         return retval;
@@ -98,7 +110,7 @@ public class TableData extends DBObjectData {
     public void setForeignKeyName(String foreignKeyName) {
         this.foreignKeyName = foreignKeyName;
     }
-    
+
     public String getFullTableName() {
         StringBuilder retval = new StringBuilder(128);
         
@@ -106,9 +118,27 @@ public class TableData extends DBObjectData {
         retval.append(".");
         retval.append(getName());
         retval.append(".");
-        retval.append(getDisplayName());
+        retval.append(getForeignKeyName());
         
         return retval.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean retval = false;
+        
+        if (obj == this) {
+            retval = true;
+        } else if (obj instanceof TableData) {
+            retval = getFullTableName().equals(((TableData)obj).getFullTableName());
+        }
+        
+        return retval;
+    }
+
+    @Override
+    public int hashCode() {
+        return getFullTableName().hashCode();
     }
 }
 

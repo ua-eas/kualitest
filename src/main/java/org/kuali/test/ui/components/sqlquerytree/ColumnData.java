@@ -66,6 +66,9 @@ public class ColumnData extends DBObjectData {
         this.selected = selected;
     }
     
+    public String getDataTypeName() {
+        return Utils.getJdbcTypeName(getDataType());
+    }
     
     public String toString() {
         StringBuilder retval = new StringBuilder(64);
@@ -78,10 +81,10 @@ public class ColumnData extends DBObjectData {
             retval.append(getName());
         }
         
-        retval.append("[<span style='color: ");
+        retval.append(" [<span style='color: ");
         retval.append(Constants.COLOR_DARK_RED);
-        retval.append("; font-weight: 700;'>");
-        retval.append(Utils.getJdbcTypeName(getDataType()));
+        retval.append("; font-weight: 700; white-space: nowrap;'>");
+        retval.append(getDataTypeName());
         retval.append("</span>]");
         
         return retval.toString();

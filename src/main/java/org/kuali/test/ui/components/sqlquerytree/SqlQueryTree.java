@@ -74,6 +74,38 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         popupMenu.show(this, node, x, y);
     }
 
+    public String getTooltip(TableData td) {
+        String retval = null;
+        
+        DefaultMutableTreeNode node = findTableDataTreeNode(td, getRootNode());
+        
+        if (node != null) {
+            retval = getTooltip(node);
+        }
+        
+        return retval;
+    }
+
+    private DefaultMutableTreeNode findTableDataTreeNode(TableData td, DefaultMutableTreeNode node) {
+        DefaultMutableTreeNode retval = null;
+        
+        if (node.getChildCount() > 0) {
+            for (int i = 0; i < node.getChildCount(); ++i) {
+                DefaultMutableTreeNode curnode = (DefaultMutableTreeNode)node.getChildAt(i);
+                
+                Object uo = curnode.getUserObject();
+                if ((uo != null) && (uo == td)) {
+                    retval = curnode;
+                    break;
+                } else {
+                    retval = findTableDataTreeNode(td, curnode);
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
     @Override
     protected String getTooltip(DefaultMutableTreeNode node) {
         String retval = null;
@@ -85,11 +117,11 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
             
             if (StringUtils.isNotBlank(td.getForeignKeyName())) {
                 StringBuilder buf = new StringBuilder(128);
-                buf.append("<html><strong>foreign key:</strong> ");
+                buf.append("<html><span style='font-weight: 700; text-decoration:underline;'>foreign key: ");
                 buf.append(dbPanel.getTableDisplayName(pdata.getName()));
                 buf.append(" -> ");
                 buf.append(dbPanel.getTableDisplayName(td.getName()));
-                buf.append("<br />");
+                buf.append("</span><br />");
                 
                 for (String[] s : td.getLinkColumns()) {
                     buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0], false));
