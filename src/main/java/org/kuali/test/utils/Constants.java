@@ -150,6 +150,12 @@ public class Constants {
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "Content-Type";
     public static final String MIME_TYPE_HTML = "text/html";
     
+    public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
+    public static final String HTML_LINE_BREAK = "<br />";
+    public static final String HTML_BOLD_UNDERLINE_STYLE = "<span font-weight: 700; white-space: nowrap; text-decoration: underline;'>";
+    public static final String HTML_BOLD_BLUE_STYLE = "<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 700; white-space: nowrap;'>";
+
+    
     public static final String JAVASCRIPT_SUFFIX = "js";
     public static final String CSS_SUFFIX = "css";
     public static final Set <String> IMAGE_SUFFIX_SET = new HashSet<String>();

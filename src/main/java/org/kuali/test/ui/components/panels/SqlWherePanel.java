@@ -19,10 +19,14 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.sqlquerytree.ColumnData;
+import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.utils.Constants;
 
 
@@ -103,5 +107,44 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
 
     protected void handlePanelShown() {
         tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
+    }
+
+    public class WhereColumnData {
+        private TableData tableData;
+        private ColumnData columnData;
+
+        public TableData getTableData() {
+            return tableData;
+        }
+
+        public void setTableData(TableData tableData) {
+            this.tableData = tableData;
+        }
+
+        public ColumnData getColumnData() {
+            return columnData;
+        }
+
+        public void setColumnData(ColumnData columnData) {
+            this.columnData = columnData;
+        }
+
+    }
+    
+    public List <WhereColumnData> getWhereColumnData() {
+        List <WhereColumnData> retval =  (List<WhereColumnData>)tp.getTable().getTableData();
+        
+        Iterator <WhereColumnData> it = retval.iterator();
+        
+        while (it.hasNext()) {
+            WhereColumnData wcd = it.next();
+            
+            // remove any rows that are incomplete
+            if ((wcd.getColumnData() == null) || (wcd.getTableData() == null)) {
+                it.remove();;
+            }
+        }
+        
+        return retval;
     }
 }

@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -232,16 +233,14 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
                 
                 retval.removeAllItems();
                 
-                if (selectedDbObjects != null) {
-                    List l = ((BaseTable)table).getTableData();
-                    
-                    if ((l != null) && (l.size() > row)) {
-                        SelectColumnData scd = (SelectColumnData)l.get(row);
-                        ColumnData[] selcols = getSelectedColumnData(scd.getTableData());
+                List l = ((BaseTable)table).getTableData();
 
-                        for (ColumnData c : selcols) {
-                            retval.addItem(c);
-                        }
+                if ((l != null) && (l.size() > row)) {
+                    SelectColumnData scd = (SelectColumnData)l.get(row);
+                    ColumnData[] selcols = getSelectedColumnData(scd.getTableData());
+
+                    for (ColumnData c : selcols) {
+                        retval.addItem(c);
                     }
                 }
                 
@@ -373,5 +372,22 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         public void setAscDesc(String ascDesc) {
             this.ascDesc = ascDesc;
         }
+    }
+    
+    public List <SelectColumnData> getSelectColumnData() {
+        List <SelectColumnData> retval =  (List<SelectColumnData>)tp.getTable().getTableData();
+        
+        Iterator <SelectColumnData> it = retval.iterator();
+        
+        while (it.hasNext()) {
+            SelectColumnData scd = it.next();
+            
+            // remove any rows that are incomplete
+            if ((scd.getColumnData() == null) || (scd.getTableData() == null)) {
+                it.remove();;
+            }
+        }
+        
+        return retval;
     }
 }

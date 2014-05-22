@@ -26,8 +26,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,7 +46,9 @@ import org.kuali.test.DatabaseConnection;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
+import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.components.panels.SqlSelectPanel.SelectColumnData;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
@@ -231,6 +235,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         ResultSet res = null;
         
         try {
+            td.setTreeNode(parentNode);
             res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
             currentDepth++;
             
@@ -479,5 +484,242 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
     public String getTableDataTooltip(TableData td) {
         return sqlQueryTree.getTooltip(td);
+    }
+
+    private String getTableAlias(TableData td, List <TableData> tables) {
+        String retval = td.getName();
+        for (int i = 0; i < tables.size(); ++i) {
+            if (td.equals(tables.get(i))) {
+                retval = ("t" + (i+1));
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
+    public String getSqlQueryString(boolean htmlFormat) {
+        StringBuilder retval = new StringBuilder(512);
+
+        List <SelectColumnData> selcols = sqlSelectPanel.getSelectColumnData();
+
+        if ((selcols != null) && !selcols.isEmpty()) {
+            if (htmlFormat) {
+                retval.append("<body>");
+                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
+            }
+
+            retval.append("select ");
+            if (htmlFormat) {
+                retval.append("</span>");
+                retval.append(Constants.HTML_LINE_BREAK);
+            }
+
+            List <TableData> tableList = buildCompleteQueryTableList();
+
+            boolean orderByRequired = false;
+
+            for (int i = 0; i < selcols.size(); ++i) {
+                if (htmlFormat) {
+                    retval.append(Constants.HTML_TAB);
+                }
+
+                SelectColumnData scd = selcols.get(i);
+
+                // see if we need to build order by clause
+                if (!orderByRequired) {
+                    orderByRequired = (StringUtils.isNotBlank(scd.getOrder()) && (Integer.parseInt(scd.getOrder()) > 0));
+                }
+
+                retval.append(getTableAlias(scd.getTableData(), tableList));
+                retval.append(".");
+                retval.append(scd.getColumnData().getName());
+                if (i < (selcols.size() - 1)) {
+                    retval.append(", ");
+                }
+
+                if (htmlFormat) {
+                    retval.append(Constants.HTML_LINE_BREAK);
+                }
+            }
+
+            if (htmlFormat) {    
+                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
+            }
+
+            retval.append("from ");
+
+            if (htmlFormat) {
+                retval.append("</span>");
+                retval.append(Constants.HTML_LINE_BREAK);
+            }
+
+            for (int i = 0; i < tableList.size(); ++i) {
+                TableData td = tableList.get(i);
+                if (htmlFormat) {
+                    retval.append(Constants.HTML_TAB);
+                }
+                String tdAlias = getTableAlias(td, tableList);
+                
+                if (i == 0) {
+                    retval.append(td.getName());
+                    retval.append(" ");
+                    retval.append(tdAlias);
+                    
+                    if (htmlFormat) {
+                        retval.append(Constants.HTML_LINE_BREAK);
+                    }
+                } else {
+                    TableData ptd = getParentTableData(td);
+
+                    // if we are doing a join there must bea parent table
+                    if (ptd != null) {
+                        String ptdAlias = getTableAlias(ptd, tableList);
+
+                        if (htmlFormat) {
+                            retval.append(Constants.HTML_TAB);
+                        }
+                        
+                        if (td.isOuterJoin()) {
+                            retval.append(" left outer");
+                        } 
+
+                        retval.append(" join ");
+                        retval.append(td.getName());
+                        retval.append(" ");
+                        retval.append(tdAlias);
+                        retval.append(" on (");
+                        
+                        String and = "";
+                        List <String[]> linkColumns = td.getLinkColumns();
+                        for (int j = 0; j < linkColumns.size(); ++j) {
+                            retval.append(and);
+                            retval.append(tdAlias);
+                            retval.append(".");
+                            retval.append(linkColumns.get(j)[1]);
+                            retval.append(" = ");
+                            retval.append(ptdAlias);
+                            retval.append(".");
+                            retval.append(linkColumns.get(j)[0]);
+                            and = " and ";
+                        }
+
+                        retval.append(") ");
+                    }
+                    
+                    if (htmlFormat) {
+                        retval.append(Constants.HTML_LINE_BREAK);
+                    }
+                }
+            }
+
+            if (htmlFormat) {
+                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
+            }
+
+            retval.append("where ");
+
+            if (htmlFormat) {
+                retval.append("</span>");
+                retval.append(Constants.HTML_LINE_BREAK);
+            }
+
+            
+            retval.append("column 3 = 'xxx' and column 4 = 'yyy'<br /> ");
+
+            if (htmlFormat) {
+                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
+            }    
+
+            if (orderByRequired) {
+                retval.append("order by ");
+
+                if (htmlFormat) {
+                    retval.append("</span> ");
+                }
+
+                retval.append(" 1 desc");
+            }
+
+            if (htmlFormat) {
+                retval.append("</body>");
+            }
+        } else {
+            retval.append("");
+        }
+        
+        return retval.toString();
+    }
+    
+    private TableData getParentTableData(TableData td) {
+        TableData retval = null;
+        
+        if (td.getTreeNode() != null) {
+            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
+
+            if ((pnode != null) && (pnode.getUserObject() instanceof TableData)) {
+                retval = (TableData)pnode.getUserObject();
+            }
+        }
+        
+        return retval;
+    }
+    
+    private List <TableData> buildCompleteQueryTableList() {
+        List <TableData> retval = new ArrayList<TableData>();
+        
+        Set <TableData> hs = new HashSet<TableData>();
+        
+        for (SqlSelectPanel.SelectColumnData scd : sqlSelectPanel.getSelectColumnData()) {
+            TableData td = scd.getTableData();
+            hs.add(td);
+            
+            // run up the tree for each table to make sure
+            // we have all linking tables even if no columns selected
+            // for intermediate tables
+            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
+            
+            while (pnode != null) {
+                if (pnode.getUserObject() instanceof TableData) {
+                    hs.add((TableData)pnode.getUserObject());
+                }
+                
+                pnode = (DefaultMutableTreeNode)pnode.getParent();
+            }
+        }
+        
+        for (SqlWherePanel.WhereColumnData wcd : sqlWherePanel.getWhereColumnData()) {
+            TableData td = wcd.getTableData();
+            hs.add(td);
+            
+            // run up the tree for each table to make sure
+            // we have all linking tables even if no columns selected
+            // for intermediate tables
+            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
+            
+            while (pnode != null) {
+                if (pnode.getUserObject() instanceof TableData) {
+                    hs.add((TableData)pnode.getUserObject());
+                }
+                
+                pnode = (DefaultMutableTreeNode)pnode.getParent();
+            }
+        }
+
+        
+        retval.addAll(hs);
+        
+        Collections.sort(retval, new SqlHierarchyComparator());
+        
+        for (TableData td : retval) {
+            int level = -1;
+            if (td.getTreeNode() != null) {
+                level = td.getTreeNode().getLevel();
+            }
+            
+            LOG.error("table=" + td.getName() + ", level=" + level);
+        }
+        
+        return retval;
     }
 }

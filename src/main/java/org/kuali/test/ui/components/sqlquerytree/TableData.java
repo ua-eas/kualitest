@@ -18,11 +18,13 @@ package org.kuali.test.ui.components.sqlquerytree;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 
 
 public class TableData extends DBObjectData {
     private String schema;
+    private DefaultMutableTreeNode treeNode;
     private List <ColumnData> columns = new ArrayList<ColumnData>();
     private List <TableData> relatedTables = new ArrayList<TableData>();
     private List <String[]> linkColumns = null;
@@ -142,6 +144,14 @@ public class TableData extends DBObjectData {
 
     public void setOuterJoin(boolean outerJoin) {
         this.outerJoin = outerJoin;
+    }
+
+    public DefaultMutableTreeNode getTreeNode() {
+        return treeNode;
+    }
+
+    public void setTreeNode(DefaultMutableTreeNode treeNode) {
+        this.treeNode = treeNode;
     }
 }
 

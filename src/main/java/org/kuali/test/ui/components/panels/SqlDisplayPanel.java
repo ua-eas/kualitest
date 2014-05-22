@@ -43,24 +43,6 @@ public class SqlDisplayPanel extends BaseSqlPanel {
     }
     
     private String buildHtml() {
-        StringBuilder retval = new StringBuilder(512);
-        retval.append("<body>");
-        retval.append("<span style='color: ");
-        retval.append(Constants.COLOR_DARK_BLUE);
-        retval.append("; font-weight: 700'>select</span><br />&nbsp;&nbsp;&nbsp;&nbsp;");
-        retval.append("column1, column2, column3<br/>");
-        retval.append("<span style='color: ");
-        retval.append(Constants.COLOR_DARK_BLUE);
-        retval.append("; font-weight: 700'>from</span><br />&nbsp;&nbsp;&nbsp;&nbsp;");
-        retval.append("table1 join table2 on (table1.key = table2.key)<br />");
-        retval.append("<span style='color: ");
-        retval.append(Constants.COLOR_DARK_BLUE);
-        retval.append("; font-weight: 700'>where</span><br >&nbsp;&nbsp;&nbsp;&nbsp;");
-        retval.append("column 3 = 'xxx' and column 4 = 'yyy'<br /> ");
-        retval.append("<span style='color: ");
-        retval.append(Constants.COLOR_DARK_BLUE);
-        retval.append("; font-weight: 700'>order by</span> 1 desc");
-        retval.append("</body>");
-        return retval.toString();
+        return getDbPanel().getSqlQueryString(true);
     }
 }

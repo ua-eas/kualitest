@@ -28,6 +28,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 import org.kuali.test.ui.components.panels.DatabasePanel;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -37,8 +38,8 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     private static final Logger LOG = Logger.getLogger(SqlQueryTree.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private final SqlQueryPopupMenu popupMenu;
-    private Platform platform;
-    private DatabasePanel dbPanel;
+    private final Platform platform;
+    private final DatabasePanel dbPanel;
     private TreeCellRenderer treeCellRenderer;
     private int columnsSelected =0;
     
@@ -119,17 +120,20 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
 
                 if (StringUtils.isNotBlank(td.getForeignKeyName())) {
                     StringBuilder buf = new StringBuilder(128);
-                    buf.append("<html><span style='font-weight: 700; text-decoration:underline;'>foreign key: ");
+                    buf.append("<html>");
+                    buf.append(Constants.HTML_BOLD_UNDERLINE_STYLE);
+                    buf.append("foreign key: ");
                     buf.append(dbPanel.getTableDisplayName(pdata.getName()));
                     buf.append(" -> ");
                     buf.append(dbPanel.getTableDisplayName(td.getName()));
-                    buf.append("</span><br />");
+                    buf.append("</span>");
+                    buf.append(Constants.HTML_LINE_BREAK);
 
                     for (String[] s : td.getLinkColumns()) {
                         buf.append(dbPanel.getColumnDisplayName(pdata.getName(), s[0], false));
                         buf.append("=");
                         buf.append(dbPanel.getColumnDisplayName(td.getName(), s[1], false));
-                        buf.append("<br />");
+                        buf.append(Constants.HTML_LINE_BREAK);
                     }
 
                     buf.append("</html>");

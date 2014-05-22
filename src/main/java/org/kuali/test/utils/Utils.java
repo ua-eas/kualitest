@@ -1337,7 +1337,7 @@ public class Utils {
         
         boolean haveSection = StringUtils.isNotBlank(sectionName);
         if (haveSection) {
-            retval.append("<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 700; white-space: nowrap;'>");
+            retval.append(Constants.HTML_BOLD_BLUE_STYLE);
             retval.append(sectionName);
             retval.append("");
         }
