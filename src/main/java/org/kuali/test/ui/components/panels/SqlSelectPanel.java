@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
@@ -155,6 +157,9 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
 
     private void createTableCellEditorRenderer(BaseTable table) {
         JComboBox cb = new JComboBox();
+        
+        
+        
         table.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(cb) {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
@@ -171,6 +176,26 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             
         });
         
+        cb.setRenderer(new BasicComboBoxRenderer () {
+            @Override
+            public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (isSelected) {
+                    setBackground(list.getSelectionBackground());
+                    setForeground(list.getSelectionForeground());
+                    if (value instanceof TableData) {
+                        list.setToolTipText(getDbPanel().getTableDataTooltip((TableData)value));
+                    }
+                } else {
+                   setBackground(list.getBackground());
+                   setForeground(list.getForeground());
+                 }
+                 setFont(list.getFont());
+                 setText((value == null) ? "" : value.toString());
+                 
+                 return this;
+             }
+        });
+
         cb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

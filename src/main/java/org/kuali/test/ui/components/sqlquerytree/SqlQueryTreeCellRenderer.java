@@ -51,8 +51,14 @@ public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
                         retval = Constants.DATABASE_COLUMN_ICON;
                     }
                 }
-            } else {
-                retval = Constants.DATABASE_TABLE_ICON;
+            } else if (node.getUserObject() instanceof TableData) {
+                TableData td = (TableData)node.getUserObject();
+                
+                if (td.isOuterJoin()) {
+                    retval = Constants.DATABASE_TABLE_OUTER_JOIN_ICON;
+                } else {
+                    retval = Constants.DATABASE_TABLE_ICON;
+                }
             }
         }
         

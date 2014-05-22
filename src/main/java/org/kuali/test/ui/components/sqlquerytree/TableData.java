@@ -27,6 +27,7 @@ public class TableData extends DBObjectData {
     private List <TableData> relatedTables = new ArrayList<TableData>();
     private List <String[]> linkColumns = null;
     private String foreignKeyName = null;
+    private boolean outerJoin = false;
     
     public TableData() {
         super(null, null, null);
@@ -54,12 +55,6 @@ public class TableData extends DBObjectData {
         }
 
         if (buf.length() > 0) {
-            if (StringUtils.isNotBlank(getForeignKeyName())) {
-                buf.append(" (");
-                buf.append(getForeignKeyName());
-                buf.append(")");
-            }
-
             retval = buf.toString();
         }
         
@@ -139,6 +134,14 @@ public class TableData extends DBObjectData {
     @Override
     public int hashCode() {
         return getFullTableName().hashCode();
+    }
+
+    public boolean isOuterJoin() {
+        return outerJoin;
+    }
+
+    public void setOuterJoin(boolean outerJoin) {
+        this.outerJoin = outerJoin;
     }
 }
 

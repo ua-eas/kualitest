@@ -184,6 +184,4 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     public int getSelectedColumnsCount() {
         return columnsSelected;
     }
-    
-    
 }

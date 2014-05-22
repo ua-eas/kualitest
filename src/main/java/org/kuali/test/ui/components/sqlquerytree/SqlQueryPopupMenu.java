@@ -17,22 +17,49 @@
 package org.kuali.test.ui.components.sqlquerytree;
 
 import java.awt.event.ActionEvent;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
 
 public class SqlQueryPopupMenu extends BaseTreePopupMenu {
+    public static final String INNER_JOIN_ACTION = "Inner Join";
+    public static final String OUTER_JOIN_ACTION = "Outer Join";
+
     public SqlQueryPopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
+        boolean outerJoin = false;
+        if (e.getActionCommand().equals(OUTER_JOIN_ACTION)) {
+            outerJoin = true;
+        }
+        
+        TableData td = (TableData)actionNode.getUserObject();
+        td.setOuterJoin(outerJoin);
     }
     
     @Override
     protected void populateMenuForNode(DefaultMutableTreeNode node) {
         removeAll();
+        
+        if (node.getUserObject() instanceof TableData) {
+            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)node.getParent();
+            
+            if (pnode.getUserObject() instanceof TableData) {
+                TableData td = (TableData)node.getUserObject();
+                
+                JCheckBoxMenuItem m = new JCheckBoxMenuItem(INNER_JOIN_ACTION, !td.isOuterJoin());
+                add(m);
+                m.addActionListener(this);
+                
+                m = new JCheckBoxMenuItem(OUTER_JOIN_ACTION, td.isOuterJoin());
+                add(m);
+                m.addActionListener(this);
+            }
+        }
     }
 }
