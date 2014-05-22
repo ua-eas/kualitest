@@ -21,10 +21,8 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
 import org.apache.commons.lang3.StringUtils;
@@ -32,17 +30,18 @@ import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
+import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
 public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
     private static final Logger LOG = Logger.getLogger(SqlSelectPanel.class);
-    private Map<String, List<ColumnData>> availableColumns;
-    private List<AvailableTable> availableTables = new ArrayList<AvailableTable>();
+    private List<TableData> selectedDbObjects = new ArrayList<TableData>();
     
     private TablePanel tp;
     public SqlSelectPanel(TestCreator mainframe, DatabasePanel dbPanel) {
@@ -63,37 +62,34 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         
         tc.setHeaders(new String[] {
             "table",
-            "function",
             "column",
-            "type",
+            "function",
             "order",
             "asc/desc"
         });
         
         tc.setPropertyNames(new String[] {
-            "availableTable",
+            "tableData",
+            "columnData",
             "function",
-            "columnDisplayName",
             "order",
-            "typeName",
             "ascDesc"
         });
         
         tc.setColumnTypes(new Class[] {
-            AvailableTable.class,
+            TableData.class,
+            ColumnData.class,
             String.class,
             String.class,
-            Integer.class,
             String.class,
             String.class
         });
         
         tc.setColumnWidths(new int[] {
             30,
-            20,
-            30,
+            40,
             15,
-            20,
+            10,
             15
         });
 
@@ -112,14 +108,14 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
                         retval = true;
                         break;
                     case 1:
-                    case 3:
-                        retval = StringUtils.isNotBlank(scd.getColumnName());
+                        retval = (scd.getTableData() != null);
                         break;
                     case 2:
-                        retval = (scd.getAvailableTable() != null);
+                    case 3:
+                        retval = (scd.getColumnData() != null);
                         break;
-                    case 5:
-                        retval = (StringUtils.isNotBlank(scd.getColumnName()) && (scd.getOrder() != null) && (scd.getOrder() > 0));
+                    case 4:
+                        retval = ((scd.getColumnData() != null) && StringUtils.isNotBlank(scd.getOrder()));
                         break;
                 }
                 
@@ -127,14 +123,28 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             }
         };
         
-        retval.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(new JComboBox()) {
+        createTableCellEditorRenderer(retval);
+        createColumnCellEditorRenderer(retval);
+        createFunctionCellEditorRenderer(retval);
+
+        retval.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new IntegerTextField()));
+        
+        retval.getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.ASC_DESC)));
+        retval.getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(Constants.ASC_DESC));
+        
+        return retval;
+    }
+
+    private void createTableCellEditorRenderer(BaseTable table) {
+        JComboBox cb = new JComboBox();
+        table.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(cb) {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
                 
                 retval.removeAllItems();
 
-                for (AvailableTable t : availableTables) {
+                for (TableData t : selectedDbObjects) {
                     retval.addItem(t);
                 }
                 
@@ -143,40 +153,50 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             
         });
         
-        retval.getColumnModel().getColumn(0).setCellRenderer(new ComboBoxTableCellRenderer(new AvailableTable[0]));
-
-        retval.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(new JComboBox()) {
+        cb.addActionListener(new ActionListener() {
             @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cbs = (JComboBox)e.getSource();
+                TableData td = (TableData)cbs.getSelectedItem();
                 
-                retval.removeAllItems();
-                SelectColumnData scd = (SelectColumnData)value;
-                
-                for (String f : Utils.getAggregateFunctionsForType(scd.getJdbcType())) {
-                    retval.addItem(f);
+                if (td != null) {
+                    tp.getTable().getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(getSelectedColumnData(td)));
                 }
-                
-                return retval;
             }
-            
         });
-        retval.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(Constants.AGGREGATE_FUNCTIONS));
         
-        retval.getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(new JComboBox()) {
+        table.getColumnModel().getColumn(0).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
+    }
+    
+    private ColumnData[] getSelectedColumnData(TableData td) {
+        List <ColumnData> retval = new ArrayList<ColumnData>();
+        
+        for (ColumnData c: td.getColumns()) {
+            if (c.isSelected()) {
+                retval.add(c);
+            }
+        }
+        
+        return retval.toArray(new ColumnData[retval.size()]);
+    }
+
+    private void createColumnCellEditorRenderer(BaseTable table) {
+        JComboBox cb = new JComboBox();
+        table.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cb) {
             @Override
             public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                 JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
                 
                 retval.removeAllItems();
                 
-                if (availableColumns != null) {
-                    SelectColumnData scd = (SelectColumnData)value;
+                if (selectedDbObjects != null) {
+                    List l = ((BaseTable)table).getTableData();
+                    
+                    if ((l != null) && (l.size() > row)) {
+                        SelectColumnData scd = (SelectColumnData)l.get(row);
+                        ColumnData[] selcols = getSelectedColumnData(scd.getTableData());
 
-                    List <ColumnData> columns = availableColumns.get(scd.getAvailableTable().getFullTableName());
-
-                    if (columns != null) {
-                        for (ColumnData c : columns) {
+                        for (ColumnData c : selcols) {
                             retval.addItem(c);
                         }
                     }
@@ -187,24 +207,67 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             
         });
         
-        retval.getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
+        cb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cbs = (JComboBox)e.getSource();
+                ColumnData cd = (ColumnData)cbs.getSelectedItem();
+                
+                if (cd != null) {
+                    List <String> functions = Utils.getAggregateFunctionsForType(cd.getDataType());
+                    
+                    tp.getTable().getColumnModel().getColumn(2).setCellRenderer(
+                        new ComboBoxTableCellRenderer(functions.toArray(new String[functions.size()])));
+                }
+            }
+        });
 
-        
-        
-        retval.getColumnModel().getColumn(5).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.ASC_DESC)));
-        retval.getColumnModel().getColumn(5).setCellRenderer(new ComboBoxTableCellRenderer(Constants.ASC_DESC));
-        
-        return retval;
+        table.getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
     }
 
+    private void createFunctionCellEditorRenderer(BaseTable table) {
+        table.getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(new JComboBox()) {
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                
+                retval.removeAllItems();
+                
+                if (selectedDbObjects != null) {
+                    List l = ((BaseTable)table).getTableData();
+                    
+                    if ((l != null) && (l.size() > row)) {
+                        SelectColumnData scd = (SelectColumnData)l.get(row);
+
+                        if (scd.getColumnData() != null) {
+                            for (String f : Utils.getAggregateFunctionsForType(scd.getColumnData().getDataType())) {
+                                retval.addItem(f);
+                            }
+                        }
+                    }
+                }
+            
+                return retval;
+            }
+        });
+        
+        table.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(Constants.AGGREGATE_FUNCTIONS));
+    }
+    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
+        List l = tp.getTable().getTableData();
         if (Constants.ADD_COLUMN_ACTION.equals(e.getActionCommand())) {
-            List l = tp.getTable().getTableData();
             l.add(new SelectColumnData());
             tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
         } else if (Constants.DELETE_COLUMN_ACTION.equals(e.getActionCommand())) {
+            int row = tp.getTable().getSelectedRow();
             
+            if ((row > -1) && (l.size() > row)) {
+                l.remove(row);
+                tp.getTable().getModel().fireTableRowsDeleted(row, row);
+            }
         }
     }
     
@@ -213,97 +276,35 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
         
         if (getDbPanel().haveSelectedColumns()) {
-            availableColumns = getDbPanel().getAvailableColumnMap();
+            selectedDbObjects = getDbPanel().getSelectedDbObjects();
 
-            availableTables.clear();
-            
-            for (String s : availableColumns.keySet()) {
-                availableTables.add(new AvailableTable(s));
-            }
-            
-            Collections.sort(availableTables);
-            
             tp.getTable().getColumnModel().getColumn(0).setCellRenderer(
-                new ComboBoxTableCellRenderer(availableTables.toArray(
-                    new AvailableTable[availableTables.size()])));
-        }
-    }
-
-    public class AvailableTable implements Comparable <AvailableTable> {
-        private String schema;
-        private String tableDisplayName;
-        private String tableName;
-        private String fullTableName;
-
-        public AvailableTable(String fullTableName) {
-            this.fullTableName = fullTableName;
-            StringTokenizer st = new StringTokenizer(fullTableName, ".");
-            
-            if (st.countTokens() == 3) {
-                schema = st.nextToken();
-                tableName = st.nextToken();
-                tableDisplayName = st.nextToken();
-            }
-        }
-
-        public String getFullTableName() {
-            return fullTableName;
-        }
-
-        public void setFullTableName(String fullTableName) {
-            this.fullTableName = fullTableName;
-        }
-        
-        public String getSchema() {
-            return schema;
-        }
-
-        public void setSchema(String schema) {
-            this.schema = schema;
-        }
-
-        public String getTableDisplayName() {
-            return tableDisplayName;
-        }
-
-        public void setTableDisplayName(String tableDisplayName) {
-            this.tableDisplayName = tableDisplayName;
-        }
-
-        public String getTableName() {
-            return tableName;
-        }
-
-        public void setTableName(String tableName) {
-            this.tableName = tableName;
-        }
-        
-        public String toString() {
-            return tableDisplayName;
-        }
-
-        @Override
-        public int compareTo(AvailableTable o) {
-            return tableDisplayName.compareTo(o.getTableDisplayName());
+                new ComboBoxTableCellRenderer(selectedDbObjects.toArray(
+                    new TableData[selectedDbObjects.size()])));
         }
     }
 
     public class SelectColumnData {
-        private AvailableTable availableTable;
+        private TableData tableData;
+        private ColumnData columnData;
         private String function;
-        private String columnName;
-        private String columnDisplayName;
-        private Integer order;
+        private String order;
         private String ascDesc;
-        private int jdbcType;
-        private String typeName;
 
-        public AvailableTable getAvailableTable() {
-            return availableTable;
+        public TableData getTableData() {
+            return tableData;
         }
 
-        public void setAvailableTable(AvailableTable availableTable) {
-            this.availableTable = availableTable;
+        public void setTableData(TableData tableData) {
+            this.tableData = tableData;
+        }
+
+        public ColumnData getColumnData() {
+            return columnData;
+        }
+
+        public void setColumnData(ColumnData columnData) {
+            this.columnData = columnData;
         }
 
         public String getFunction() {
@@ -314,36 +315,11 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             this.function = function;
         }
 
-        public String getColumnName() {
-            return columnName;
-        }
-
-        public void setColumnName(String columnName) {
-            this.columnName = columnName;
-        }
-
-        public String getColumnDisplayName() {
-            return columnDisplayName;
-        }
-
-        public void setColumnDisplayName(String columnDisplayName) {
-            this.columnDisplayName = columnDisplayName;
-        }
-
-        public int getJdbcType() {
-            return jdbcType;
-        }
-
-        public void setJdbcType(int jdbcType) {
-            this.jdbcType = jdbcType;
-        }
-
-
-        public Integer getOrder() {
+        public String getOrder() {
             return order;
         }
 
-        public void setOrder(Integer order) {
+        public void setOrder(String order) {
             this.order = order;
         }
 
@@ -353,10 +329,6 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
 
         public void setAscDesc(String ascDesc) {
             this.ascDesc = ascDesc;
-        }
-
-        public String getTypeName() {
-            return typeName;
         }
     }
 }
