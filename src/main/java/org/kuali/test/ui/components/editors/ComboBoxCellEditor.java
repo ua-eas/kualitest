@@ -26,6 +26,8 @@ public class ComboBoxCellEditor extends DefaultCellEditor {
         super(cb);
         cb.setUI(new BasicComboBoxUI());
     }
-    
-    
+
+    public JComboBox getComboBox() {
+        return (JComboBox)super.getComponent();
+    }
 }

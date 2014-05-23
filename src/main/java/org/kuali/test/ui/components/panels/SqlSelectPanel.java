@@ -26,7 +26,6 @@ import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JList;
-import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,9 +43,9 @@ import org.kuali.test.utils.Utils;
 
 public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
     private static final Logger LOG = Logger.getLogger(SqlSelectPanel.class);
-    private List<TableData> selectedDbObjects = new ArrayList<TableData>();
-    
     private TablePanel tp;
+    private JComboBox selectedTables;
+    
     public SqlSelectPanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel);
         initComponents();
@@ -146,10 +145,10 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         
         createTableCellEditorRenderer(retval);
         createColumnCellEditorRenderer(retval);
-        createFunctionCellEditorRenderer(retval);
 
         retval.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(new IntegerTextField()));
-        
+        retval.getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(new JComboBox()));
+        retval.getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(Constants.AGGREGATE_FUNCTIONS));
         retval.getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.ASC_DESC)));
         retval.getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(Constants.ASC_DESC));
         
@@ -157,24 +156,11 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
     }
 
     private void createTableCellEditorRenderer(BaseTable table) {
-        JComboBox cb = new JComboBox();
-        table.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(cb) {
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
-                
-                retval.removeAllItems();
-
-                for (TableData t : selectedDbObjects) {
-                    retval.addItem(t);
-                }
-                
-                return retval;
-            }
-            
-        });
+        selectedTables = new JComboBox();
         
-        cb.setRenderer(new BasicComboBoxRenderer () {
+        table.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(selectedTables));
+        
+        selectedTables.setRenderer(new BasicComboBoxRenderer () {
             @Override
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 if (isSelected) {
@@ -194,14 +180,21 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
              }
         });
 
-        cb.addActionListener(new ActionListener() {
+        selectedTables.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JComboBox cbs = (JComboBox)e.getSource();
-                TableData td = (TableData)cbs.getSelectedItem();
+                TableData td = (TableData)selectedTables.getSelectedItem();
                 
                 if (td != null) {
-                    tp.getTable().getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(getSelectedColumnData(td)));
+                    ComboBoxCellEditor editor = (ComboBoxCellEditor)tp.getTable().getColumnModel().getColumn(1).getCellEditor();
+                    editor.getComboBox().removeAllItems();
+                    JComboBox renderer = (JComboBox)tp.getTable().getColumnModel().getColumn(1).getCellRenderer();
+                    renderer.removeAllItems();
+
+                    for (ColumnData cd : getSelectedColumnData(td)) {
+                        renderer.addItem(cd);
+                        editor.getComboBox().addItem(cd);
+                    }
                 }
             }
         });
@@ -209,6 +202,35 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         table.getColumnModel().getColumn(0).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
     }
     
+    private void createColumnCellEditorRenderer(BaseTable table) {
+        JComboBox cb = new JComboBox();
+        table.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cb));
+        
+        cb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComboBox cbs = (JComboBox)e.getSource();
+                ColumnData cd = (ColumnData)cbs.getSelectedItem();
+                
+                if (cd != null) {
+                    List <String> functions = Utils.getAggregateFunctionsForType(cd.getDataType());
+                    ComboBoxCellEditor editor = (ComboBoxCellEditor)tp.getTable().getColumnModel().getColumn(2).getCellEditor();
+                    editor.getComboBox().removeAllItems();
+
+                    ComboBoxTableCellRenderer renderer = (ComboBoxTableCellRenderer)tp.getTable().getColumnModel().getColumn(2).getCellRenderer();
+                    renderer.removeAllItems();
+                    
+                    for (String f : functions) {
+                        renderer.addItem(f);
+                        editor.getComboBox().addItem(f);
+                    }
+                }
+            }
+        });
+
+        table.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
+    }
+
     private ColumnData[] getSelectedColumnData(TableData td) {
         List <ColumnData> retval = new ArrayList<ColumnData>();
         
@@ -221,78 +243,6 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         return retval.toArray(new ColumnData[retval.size()]);
     }
 
-    private void createColumnCellEditorRenderer(BaseTable table) {
-        JComboBox cb = new JComboBox();
-        table.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(cb) {
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
-                
-                retval.removeAllItems();
-                
-                List l = ((BaseTable)table).getTableData();
-
-                if ((l != null) && (l.size() > row)) {
-                    SelectColumnData scd = (SelectColumnData)l.get(row);
-                    ColumnData[] selcols = getSelectedColumnData(scd.getTableData());
-
-                    for (ColumnData c : selcols) {
-                        retval.addItem(c);
-                    }
-                }
-                
-                return retval;
-            }
-            
-        });
-        
-        cb.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JComboBox cbs = (JComboBox)e.getSource();
-                ColumnData cd = (ColumnData)cbs.getSelectedItem();
-                
-                if (cd != null) {
-                    List <String> functions = Utils.getAggregateFunctionsForType(cd.getDataType());
-                    
-                    tp.getTable().getColumnModel().getColumn(2).setCellRenderer(
-                        new ComboBoxTableCellRenderer(functions.toArray(new String[functions.size()])));
-                }
-            }
-        });
-
-        table.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
-    }
-
-    private void createFunctionCellEditorRenderer(BaseTable table) {
-        table.getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(new JComboBox()) {
-            @Override
-            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-                JComboBox retval =  (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
-                
-                retval.removeAllItems();
-                
-                if (selectedDbObjects != null) {
-                    List l = ((BaseTable)table).getTableData();
-                    
-                    if ((l != null) && (l.size() > row)) {
-                        SelectColumnData scd = (SelectColumnData)l.get(row);
-
-                        if (scd.getColumnData() != null) {
-                            for (String f : Utils.getAggregateFunctionsForType(scd.getColumnData().getDataType())) {
-                                retval.addItem(f);
-                            }
-                        }
-                    }
-                }
-            
-                return retval;
-            }
-        });
-        
-        table.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(Constants.AGGREGATE_FUNCTIONS));
-    }
-    
     
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -314,12 +264,19 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
     protected void handlePanelShown() {
         tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
         
+        selectedTables.removeAllItems();
+        
+        // this is the table renderer for "tables" column
+        JComboBox cb = (JComboBox)tp.getTable().getColumnModel().getColumn(0).getCellRenderer();
+        cb.removeAllItems();
+        
         if (getDbPanel().haveSelectedColumns()) {
-            selectedDbObjects = getDbPanel().getSelectedDbObjects();
-
-            tp.getTable().getColumnModel().getColumn(0).setCellRenderer(
-                new ComboBoxTableCellRenderer(selectedDbObjects.toArray(
-                    new TableData[selectedDbObjects.size()])));
+            List <TableData> selectedDbObjects = getDbPanel().getSelectedDbObjects();
+            
+            for (TableData td : selectedDbObjects) {
+                selectedTables.addItem(td);
+                cb.addItem(td);
+            }
         }
     }
 

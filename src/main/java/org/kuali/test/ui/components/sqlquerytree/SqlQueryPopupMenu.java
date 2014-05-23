@@ -16,6 +16,7 @@
 
 package org.kuali.test.ui.components.sqlquerytree;
 
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenuItem;
@@ -57,22 +58,30 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
             for (ColumnData cd : td.getColumns()) {
                 cd.setSelected(e.getActionCommand().equalsIgnoreCase(SELECT_ALL_COLUMNS_ACTION));
                 if (cd.isSelected()) {
-                    tree.incrementColumnSelectedCount();;
+                    tree.incrementColumnSelectedCount();
                 } else {
-                    tree.decrementColumnSelectedCount();;
+                    tree.decrementColumnSelectedCount();
                 }
             }
 
-            DefaultMutableTreeNode lastChild = actionNode.getLastLeaf();
+            try {
+                // figure out area we need to repaint to selections
+                Rectangle rc1 = tree.getRowBounds(tree.getRowForPath(new TreePath(actionNode.getPath())));
+                Rectangle rc2 = tree.getRowBounds(tree.getRowForPath(new TreePath(actionNode.getLastLeaf().getPath())));
 
-            TreePath treePath1 = new TreePath(actionNode.getPath());
-            TreePath treePath2 = new TreePath(lastChild.getPath());
+                if ((rc1 != null) && (rc2 != null)) {
+                    tree.repaint(rc1.union(rc2));
+                } else if (rc1 != null) {
+                    tree.repaint(rc1);
+                } else if (rc2 != null) {
+                    tree.repaint(rc1);
+                }
+            }
             
-            int startRow = tree.getRowForPath(treePath1);
-            int endRow = tree.getRowForPath(treePath2);
-            
-            // union the rectangles for first and last rows and repaint to show select/deselect
-            tree.repaint(tree.getRowBounds(startRow).union(tree.getRowBounds(endRow)));
+            // if we have any problems just repaint everything
+            catch (Exception ex) {
+                tree.repaint();
+            }
         } 
     }
     

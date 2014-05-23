@@ -46,8 +46,11 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
 
         getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
         setCellRenderer(getTreeCellRenderer());
-        setModel(getTreeModel());
-
+        TreeModel myTreeModel = getTreeModel();
+        
+        setModel(myTreeModel);
+        myTreeModel.addTreeModelListener(this);
+        
         MouseAdapter ma = new MouseAdapter() {
             private void myPopupEvent(MouseEvent e) {
                 TreePath path = BaseTree.this.getPathForLocation(e.getX(), e.getY());
