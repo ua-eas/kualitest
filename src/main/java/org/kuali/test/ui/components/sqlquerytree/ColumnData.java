@@ -73,7 +73,7 @@ public class ColumnData extends DBObjectData {
     public String toString() {
         StringBuilder retval = new StringBuilder(64);
         
-        retval.append("<html>");
+        retval.append("<html><span style='white-space: nowrap;'>");
         
         if (StringUtils.isNotBlank(getDisplayName())) {
             retval.append(getDisplayName());
@@ -83,7 +83,7 @@ public class ColumnData extends DBObjectData {
         
         retval.append(" [");
         retval.append(Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, getDataTypeName()));
-        retval.append("]");
+        retval.append("]</span></html>");
         
         return retval.toString();
     }

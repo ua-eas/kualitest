@@ -58,6 +58,7 @@
         <xs:sequence>
             <xs:element name="column-name" type="xs:string"/>
             <xs:element name="display-name" type="xs:string"/>
+            <xs:element name="lookup-sql-select" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -69,6 +70,7 @@
 
     <xs:complexType name="custom-foreign-key">
         <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
             <xs:element name="primary-table-name" type="xs:string"/>
             <xs:element name="foreign-key-column-pair" type="foreign-key-column-pair" maxOccurs="unbounded"/>
         </xs:sequence>

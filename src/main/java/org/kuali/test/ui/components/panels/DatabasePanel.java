@@ -64,6 +64,7 @@ import org.kuali.test.utils.XMLFileFilter;
 
 public class DatabasePanel extends BaseCreateTestPanel  {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
+    
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
     private SqlSelectPanel sqlSelectPanel;
@@ -93,7 +94,6 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         tabbedPane.addTab("Select", sqlSelectPanel = new SqlSelectPanel(getMainframe(), this));
         tabbedPane.addTab("Where", sqlWherePanel = new SqlWherePanel(getMainframe(), this));
         tabbedPane.addTab("SQL", sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this));
-
         p2.add(tabbedPane, BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
@@ -183,30 +183,6 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        final TableData td = (TableData)tableDropdown.getSelectedItem();
-        
-        if (StringUtils.isNotBlank(td.getName())) {
-            new SplashDisplay(getMainframe(), "Related Tables", "Loading table relationships...") {
-                @Override
-                protected void runProcess() {
-                    try {
-                        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-                        rootNode.removeAllChildren();
-                        loadTables(td, rootNode);
-                        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
-                        getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
-                    }
-
-                    catch (Exception ex) {
-                        UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + ex.toString());
-                    }
-                }
-            };
-        }
-    }
-
     private void loadTables(TableData td, DefaultMutableTreeNode rootNode) throws Exception {
         Connection conn = null;
         ResultSet res = null;
@@ -271,6 +247,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
                         td.getRelatedTables().add(tdata);
                         SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
+                        
                         parentNode.add(curnode);
 
                         if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
@@ -290,7 +267,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 if (customForeignKeys != null) {
                     for (CustomForeignKey cfk : customForeignKeys) {
                         TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
-                        loadTableRelationships(dbconn, dmd, tdata, currentDepth, parentNode);
+                        SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
+                        parentNode.add(curnode);
+                        loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
                     }
                 }
             }
@@ -803,5 +782,37 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     
         return retval;
+    }
+    
+    @Override
+    protected void handleUnprocessedActionEvent(ActionEvent e) {
+        if (e.getSource() == tableDropdown) {
+            final TableData td = (TableData)tableDropdown.getSelectedItem();
+
+            if (StringUtils.isNotBlank(td.getName())) {
+                new SplashDisplay(getMainframe(), "Related Tables", "Loading table relationships...") {
+                    @Override
+                    protected void runProcess() {
+                        try {
+                            DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
+                            rootNode.removeAllChildren();
+                            loadTables(td, rootNode);
+                        }
+
+                        catch (Exception ex) {
+                            UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + ex.toString());
+                        }
+                    }
+
+                    @Override
+                    protected void processCompleted() {
+                        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
+                        getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
+                        sqlQueryTree.expandNode(rootNode, 1);
+                    }
+                };
+            }
+        }
     }
 }

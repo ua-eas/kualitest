@@ -114,6 +114,7 @@ public class SplashDisplay {
             @Override
             protected void done() {
                 getDlg().dispose();
+                processCompleted();
             }
         }.execute();
     }
@@ -132,6 +133,7 @@ public class SplashDisplay {
     
     protected void updateProgress() {};
     protected void runProcess() {};
+    protected void processCompleted() {};
 
     public Window getParentWindow() {
         return parentWindow;

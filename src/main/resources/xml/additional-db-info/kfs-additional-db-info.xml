@@ -142,6 +142,18 @@
                            <display-name>batchId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_BATCH_DFLT_T</table-name>
@@ -334,6 +346,18 @@
                            <display-name>disbVchrPdpBankCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_CARD_HLDR_DTL_T</table-name>
@@ -482,6 +506,18 @@
                            <display-name>nextTargetLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_CARD_HLDR_T</table-name>
@@ -568,6 +604,18 @@
                            <display-name>subAccountNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>TAX_PAYER_T</table-name>
@@ -940,6 +988,18 @@
                            <display-name>batchId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_PO_BATCH_DFLT_T</table-name>
@@ -1480,6 +1540,18 @@
                            <display-name>purchaseOrderDocumentCreateTimestamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_GRP_DOCUMENT_T</table-name>
@@ -1522,6 +1594,18 @@
                            <display-name>editing</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_GRP_MBR_T</table-name>
@@ -1572,6 +1656,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PERSON_DOCUMENT_T</table-name>
@@ -1618,6 +1714,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_FA_COST_SUBCAT_T</table-name>
@@ -3440,6 +3548,18 @@
                            <display-name>projectCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DISTRIB_DOC_T</table-name>
@@ -3474,6 +3594,18 @@
                            <display-name>nextTargetLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CASH_RCPT_DOC_T</table-name>
@@ -3520,6 +3652,18 @@
                            <display-name>depositDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_ERROR_CERT_T</table-name>
@@ -3592,6 +3736,18 @@
                            <display-name>errorCertID</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_ADD_T</table-name>
@@ -3658,6 +3814,18 @@
                            <display-name>dutyAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_ADD_ITEM_T</table-name>
@@ -3728,6 +3896,18 @@
                            <display-name>itemExtendedAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_ADD_USER_T</table-name>
@@ -3758,6 +3938,18 @@
                            <display-name>userAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_FUEL_T</table-name>
@@ -3844,6 +4036,18 @@
                            <display-name>totalAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_GENERIC_T</table-name>
@@ -3874,6 +4078,18 @@
                            <display-name>genericData</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_LODGNG_T</table-name>
@@ -3980,6 +4196,18 @@
                            <display-name>adjustmentAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_NON_FUEL_T</table-name>
@@ -4042,6 +4270,18 @@
                            <display-name>itemTotal</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_CAR_RENT_T</table-name>
@@ -4172,6 +4412,18 @@
                            <display-name>totalTaxAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_SHIP_T</table-name>
@@ -4274,6 +4526,18 @@
                            <display-name>customerRefNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_TEMP_T</table-name>
@@ -4364,6 +4628,18 @@
                            <display-name>jobCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_TRNSPT_T</table-name>
@@ -4434,6 +4710,18 @@
                            <display-name>totalTaxes</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_LVL3_TRNSPT_LEG_T</table-name>
@@ -4528,6 +4816,18 @@
                            <display-name>controlCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_TRN_ADD_ITEM_T</table-name>
@@ -5144,6 +5444,18 @@
                            <display-name>transactionNoReceiptIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_CARD_HLDR_LD_T</table-name>
@@ -5950,6 +6262,18 @@
                            <display-name>fringeBenefitIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_ACCT_LINES_T</table-name>
@@ -6028,6 +6352,18 @@
                            <display-name>financialDocumentLineDescription</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_ACCT_LINE_EXT_T</table-name>
@@ -6058,6 +6394,18 @@
                            <display-name>invoiceNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_ACCT_LINES_T</table-name>
@@ -6152,6 +6500,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_INC_TYP_T</table-name>
@@ -6186,6 +6546,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>TAX_INC_TYP_T</table-name>
@@ -6258,6 +6630,18 @@
                            <display-name>errorCertID</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CG_AWD_EXT_T</table-name>
@@ -6782,6 +7166,18 @@
                            <display-name>oldInventoryUnitOrganizationCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_INVN_ERR_DTL_EXT_T</table-name>
@@ -6812,6 +7208,18 @@
                            <display-name>serialNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_INVN_ERR_DTL_T</table-name>
@@ -6878,6 +7286,18 @@
                            <display-name>assetConditionCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_PDF_LANG_T</table-name>
@@ -7294,6 +7714,18 @@
                            <display-name>vendorAttentionName</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_RCVNG_LN_T</table-name>
@@ -7448,6 +7880,18 @@
                            <display-name>lineItemReceivingStatusCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_BLK_RCVNG_T</table-name>
@@ -7662,6 +8106,18 @@
                            <display-name>accountsPayablePurchasingDocumentLinkIdentifier</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>OLD_PAY_REQ_OBJ_USED</table-name>
@@ -7960,6 +8416,18 @@
                            <display-name>payment1099Indicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AP_CRDT_MEMO_T</table-name>
@@ -8138,6 +8606,18 @@
                            <display-name>payment1099Indicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AP_PMT_RQST_ITM_T</table-name>
@@ -8432,6 +8912,18 @@
                            <display-name>transactionEntryOffsetIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AP_PMT_RQST_INC_TYP_T</table-name>
@@ -10200,6 +10692,18 @@
                            <display-name>cashReversionAccountNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_ORG_RVRSN_CHG_DTL_T</table-name>
@@ -10230,6 +10734,18 @@
                            <display-name>organizationReversionObjectCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_ORG_RVRSN_CHG_ORG_T</table-name>
@@ -10256,6 +10772,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>SH_ACCT_PERIOD_T</table-name>
@@ -10470,6 +10998,18 @@
                            <display-name>accountSearchCriteriaTxt</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_ACCT_CHG_DTL_T</table-name>
@@ -10496,6 +11036,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_DLGT_CHG_DOC_T</table-name>
@@ -10538,6 +11090,18 @@
                            <display-name>accountDelegateStartDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_OBJ_CD_CHG_DOC_T</table-name>
@@ -10620,6 +11184,18 @@
                            <display-name>nextYearFinancialObjectCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_OBJ_CD_CHG_DTL_T</table-name>
@@ -10646,6 +11222,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_SUB_OBJ_CD_CHG_DOC_T</table-name>
@@ -10688,6 +11276,18 @@
                            <display-name>active</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_SUB_OBJ_CD_CHG_DTL_T</table-name>
@@ -10718,6 +11318,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_ORG_RTNG_MDL_T</table-name>
@@ -11112,6 +11724,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CA_SUB_FND_GRP_TYP_T</table-name>
@@ -13882,6 +14506,18 @@
                            <display-name>financialDocumentStatusCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRNS_MAINT_DOC_T</table-name>
@@ -14286,6 +14922,18 @@
                            <display-name>transactionEntryProcessedTs</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_ELCTRNC_PMT_CLM_T</table-name>
@@ -14324,6 +14972,18 @@
                            <display-name>paymentClaimStatusCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>SH_UOM_T</table-name>
@@ -14810,6 +15470,18 @@
                            <display-name>transactionScrubberOffsetGenerationIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_ORIGIN_ENTRY_SRC_T</table-name>
@@ -14988,6 +15660,18 @@
                            <display-name>transactionDateTimeStamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_ENTRY_HIST_T</table-name>
@@ -15136,6 +15820,18 @@
                            <display-name>transactionPostingDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_ENCUMBRANCE_T</table-name>
@@ -15206,6 +15902,18 @@
                            <display-name>timestamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_ENCUMBRANCE_HIST_T</table-name>
@@ -15260,6 +15968,18 @@
                            <display-name>accountLineEncumbranceClosedAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_BALANCE_T</table-name>
@@ -15722,6 +16442,18 @@
                            <display-name>correctionBudgetTotalAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_COR_CHG_GRP_T</table-name>
@@ -15752,6 +16484,18 @@
                            <display-name>correctionChangeNextLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_COR_CRTA_T</table-name>
@@ -15798,6 +16542,18 @@
                            <display-name>correctionFieldName</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_COR_CHG_T</table-name>
@@ -15840,6 +16596,18 @@
                            <display-name>correctionFieldName</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_SF_REBUILD_T</table-name>
@@ -15948,6 +16716,18 @@
                            <display-name>collectorDetailNoteText</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>GL_PENDING_BALANCES_MT</table-name>
@@ -16170,6 +16950,18 @@
                            <display-name>nextItemLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_INT_BILL_ITM_T</table-name>
@@ -16216,6 +17008,18 @@
                            <display-name>unitOfMeasureCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_ACRL_VCHR_DOC_T</table-name>
@@ -16254,6 +17058,18 @@
                            <display-name>typeCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRE_ENCUM_DOC_T</table-name>
@@ -16292,6 +17108,18 @@
                            <display-name>nextTargetLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_FND_TRNFR_DOC_T</table-name>
@@ -16326,6 +17154,18 @@
                            <display-name>postingPeriodCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_JRNL_VCHR_DOC_T</table-name>
@@ -16364,6 +17204,18 @@
                            <display-name>balanceTypeCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_DOC_LOC_T</table-name>
@@ -16556,6 +17408,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CR_CARD_DTL_T</table-name>
@@ -16606,6 +17470,18 @@
                            <display-name>creditCardAdvanceDepositAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_ADV_DPST_DTL_T</table-name>
@@ -16656,6 +17532,18 @@
                            <display-name>financialDocumentBankCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CSH_DRWR_T</table-name>
@@ -16776,6 +17664,18 @@
                            <display-name>referenceFinancialDocumentNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DEPOSIT_DOC_T</table-name>
@@ -16818,6 +17718,18 @@
                            <display-name>depositAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DEP_CSH_RCPT_T</table-name>
@@ -16882,6 +17794,18 @@
                            <display-name>nextTargetLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_NCHK_DSBRSDOC_T</table-name>
@@ -16916,6 +17840,18 @@
                            <display-name>financialDocumentBankCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_PAYEE_DTL_T</table-name>
@@ -17006,6 +17942,18 @@
                            <display-name>disbursementVoucherPayeeTypeCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_NRA_TAX_PCT_T</table-name>
@@ -17074,6 +18022,18 @@
                            <display-name>disbVchrExpenseCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_TRVL_CO_NM_T</table-name>
@@ -17158,6 +18118,18 @@
                            <display-name>financialDocumentAccountingLineText</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_WIRE_CHRG_T</table-name>
@@ -17330,6 +18302,18 @@
                            <display-name>disbVchrMileageCalculatedAmt</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_NONEMP_EXP_T</table-name>
@@ -17364,6 +18348,18 @@
                            <display-name>disbVchrExpenseAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_DIEM_T</table-name>
@@ -17432,6 +18428,18 @@
                            <display-name>disbVchrExpenseAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_WIRE_TRNFR_T</table-name>
@@ -17514,6 +18522,18 @@
                            <display-name>disbursementVoucherForeignCurrencyTypeCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_PRCRMNT_VNDR_T</table-name>
@@ -17572,6 +18592,18 @@
                            <display-name>transactionMerchantCategoryCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_DV_ACH_T</table-name>
@@ -17836,6 +18868,18 @@
                            <display-name>postingPeriodCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_FUNC_CTRL_CD_T</table-name>
@@ -17938,6 +18982,18 @@
                            <display-name>financialDocumentBankCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CURRENCY_DTL_T</table-name>
@@ -17996,6 +19052,18 @@
                            <display-name>financialDocumentOtherDollarAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CUST_CC_INFO_T</table-name>
@@ -18088,6 +19156,18 @@
                            <display-name>financialDocumentSaleDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CASHIER_DOC_T</table-name>
@@ -18158,6 +19238,18 @@
                            <display-name>nextRevolvingFundLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_COIN_DTL_T</table-name>
@@ -18212,6 +19304,18 @@
                            <display-name>financialDocumentHundredCentAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CASHIER_ITM_IN_PROC_T</table-name>
@@ -18356,6 +19460,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CPTL_AST_INFO_T</table-name>
@@ -18402,6 +19518,18 @@
                            <display-name>capitalAssetManufacturerModelNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>FP_CPTL_AST_INFO_DTL_T</table-name>
@@ -18448,6 +19576,18 @@
                            <display-name>capitalAssetSerialNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_A21_RPT_TYP_T</table-name>
@@ -18764,6 +19904,18 @@
                            <display-name>emplid</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_A21_DETAIL_LN_T</table-name>
@@ -18834,6 +19986,18 @@
                            <display-name>effortCertificationOriginalPayrollAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_ORG_OPTION_T</table-name>
@@ -18962,6 +20126,18 @@
                            <display-name>financialDocumentExplanationText</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_CUST_T</table-name>
@@ -19124,6 +20300,18 @@
                            <display-name>cashControlTotalAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_CSH_CTRL_DTL_T</table-name>
@@ -19166,6 +20354,18 @@
                            <display-name>customerPaymentDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_INV_DOC_T</table-name>
@@ -19392,6 +20592,18 @@
                            <display-name>recurredInvoiceIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_WRITEOFF_DOC_T</table-name>
@@ -19454,6 +20666,18 @@
                            <display-name>financialDocumentReferenceInvoiceNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_INV_DTL_T</table-name>
@@ -19560,6 +20784,18 @@
                            <display-name>invoiceItemDiscountLineNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_CUST_PRCS_TYP_T</table-name>
@@ -19728,6 +20964,18 @@
                            <display-name>active</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_INV_ITM_CODE_T</table-name>
@@ -19852,6 +21100,18 @@
                            <display-name>invoiceItemAppliedAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_LOCKBOX_T</table-name>
@@ -19998,6 +21258,18 @@
                            <display-name>financialDocumentOverrideCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_NON_APLD_DIST_T</table-name>
@@ -20036,6 +21308,18 @@
                            <display-name>financialDocumentLineAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_NON_INV_DIST_T</table-name>
@@ -20066,6 +21350,18 @@
                            <display-name>financialDocumentLineAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_ORG_ACCTGDFLT_T</table-name>
@@ -20350,6 +21646,18 @@
                            <display-name>financialDocumentReferenceInvoiceNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_CRDT_MEMO_DTL_T</table-name>
@@ -20384,6 +21692,18 @@
                            <display-name>creditMemoItemTotalAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_DOC_RCURRNC_T</table-name>
@@ -20434,6 +21754,18 @@
                            <display-name>active</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AR_CUST_TYP_T</table-name>
@@ -20478,6 +21810,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_LBR_OBJ_BENE_T</table-name>
@@ -20778,6 +22122,18 @@
                            <display-name>transactionDateTimeStamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_LDGR_ENTR_HIST_T</table-name>
@@ -21218,6 +22574,18 @@
                            <display-name>emplid</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_EXP_TRNFR_TO_T</table-name>
@@ -21304,6 +22672,18 @@
                            <display-name>emplid</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_LBR_GL_ENTRY_T</table-name>
@@ -21418,6 +22798,18 @@
                            <display-name>transactionEncumbranceUpdateCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_JULY1_POS_FND_T</table-name>
@@ -21686,6 +23078,18 @@
                            <display-name>transactionDateTimeStamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_LBR_ORIGIN_ENTRY_T</table-name>
@@ -21946,6 +23350,18 @@
                            <display-name>offsetTypeCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_JRNL_VCHR_DTL_T</table-name>
@@ -22116,6 +23532,18 @@
                            <display-name>setid</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_CSF_TRACKER_T</table-name>
@@ -23092,6 +24520,18 @@
                            <display-name>previousTotalCostAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_RETIRE_REAS_T</table-name>
@@ -23412,6 +24852,18 @@
                            <display-name>capitalAssetBuilderOriginIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_CPTLAST_OBJ_T</table-name>
@@ -23660,6 +25112,18 @@
                            <display-name>capitalAssetBuilderOriginIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_PMT_DTL_T</table-name>
@@ -23754,6 +25218,18 @@
                            <display-name>transferPaymentIndicator</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_CPTLAST_DTL_T</table-name>
@@ -23868,6 +25344,18 @@
                            <display-name>separateSourceAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_INVN_ERR_DOC_T</table-name>
@@ -23890,6 +25378,18 @@
                            <display-name>uploaderUniversalIdentifier</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_COMPONENT_T</table-name>
@@ -24200,6 +25700,18 @@
                            <display-name>capitalAssetNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_LOC_T</table-name>
@@ -24276,6 +25788,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_LOC_DTL_T</table-name>
@@ -24318,6 +25842,18 @@
                            <display-name>campusTagNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_RETIRE_DOC_T</table-name>
@@ -24420,6 +25956,18 @@
                            <display-name>paidCaseNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_AST_RETIRE_DTL_T</table-name>
@@ -24442,6 +25990,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CM_CPTLAST_LOCK_T</table-name>
@@ -24620,6 +26180,18 @@
                            <display-name>activityStatusCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CB_PUR_DOC_T</table-name>
@@ -24654,6 +26226,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CB_PUR_LN_AST_ACCT_T</table-name>
@@ -24692,6 +26276,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CB_PUR_ITM_AST_T</table-name>
@@ -24734,6 +26330,18 @@
                            <display-name>capitalAssetManagementDocumentNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>CB_PUR_ACTN_HIST_T</table-name>
@@ -25070,6 +26678,18 @@
                            <display-name>amount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_PO_ITM_T</table-name>
@@ -25172,6 +26792,18 @@
                            <display-name>itemSalesTaxAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_AP_ITM_TYP_T</table-name>
@@ -25744,6 +27376,18 @@
                            <display-name>vendorAttentionName</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_PO_STAT_T</table-name>
@@ -26080,6 +27724,18 @@
                            <display-name>vendorStipulationCreateDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AP_NEG_PMT_RQST_APRVL_LMT_T</table-name>
@@ -26530,6 +28186,18 @@
                            <display-name>vendorAddressInternationalProvinceName</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_PO_QT_STAT_T</table-name>
@@ -26910,6 +28578,18 @@
                            <display-name>accountsPayableApprovalTimestamp</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>AP_ELCTRNC_INV_RJT_ITM_T</table-name>
@@ -27272,6 +28952,18 @@
                            <display-name>contractManagerCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_ASGN_CONTR_MGR_T</table-name>
@@ -27290,6 +28982,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_RCVNG_LN_STAT_T</table-name>
@@ -27848,6 +29552,18 @@
                            <display-name>capitalAssetCountAssetNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_REQS_CPTL_AST_LOC_T</table-name>
@@ -28066,6 +29782,18 @@
                            <display-name>versionNumber</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_THRSHLD_T</table-name>
@@ -28254,6 +29982,18 @@
                            <display-name>financialObjectCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>PUR_REQS_ITM_USE_TAX_T</table-name>
@@ -28512,6 +30252,18 @@
                            <display-name>budgetTransactionLockUserIdentifier</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_PND_BCNSTR_GL_T</table-name>
@@ -28566,6 +30318,18 @@
                            <display-name>financialBeginningBalanceLineAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_BCNSTR_MONTH_T</table-name>
@@ -28660,6 +30424,18 @@
                            <display-name>financialDocumentMonth12LineAmount</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_BCN_ACCTSEL_T</table-name>
@@ -28718,6 +30494,18 @@
                            <display-name>financialDocumentCreateDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_BCN_POS_FND_T</table-name>
@@ -30192,6 +31980,18 @@
                            <display-name>selectedSubFundGroupCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>LD_BCN_FND_LOCK_T</table-name>
@@ -32778,6 +34578,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_EMP_INFO_MT</table-name>
@@ -32840,6 +34652,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_PRIV_PREF_MT</table-name>
@@ -32882,6 +34706,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_NM_MT</table-name>
@@ -32940,6 +34776,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ADDR_MT</table-name>
@@ -33006,6 +34854,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_EMAIL_MT</table-name>
@@ -33052,6 +34912,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_PHONE_MT</table-name>
@@ -33106,6 +34978,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_MT</table-name>
@@ -33148,6 +35032,18 @@
                            <display-name>namespaceCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_MBR_MT</table-name>
@@ -33198,6 +35094,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_MBR_ATTR_DATA_MT</table-name>
@@ -33244,6 +35152,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_RSP_ACTN_MT</table-name>
@@ -33294,6 +35214,18 @@
                            <display-name>edit</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_GRP_PRNCPL_MT</table-name>
@@ -33352,6 +35284,18 @@
                            <display-name>namespaceCode</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_ROLE_DOCUMENT_T</table-name>
@@ -33394,6 +35338,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_PERM_T</table-name>
@@ -33428,6 +35384,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_ROLE_RSP_T</table-name>
@@ -33462,6 +35430,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_DLGN_T</table-name>
@@ -33500,6 +35480,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_DLGN_MBR_T</table-name>
@@ -33554,6 +35546,18 @@
                            <display-name>activeToDate</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_DLGN_MBR_ATTR_DATA_T</table-name>
@@ -33596,6 +35600,18 @@
                            <display-name>active</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRIM_PND_GRP_ATTR_DATA_T</table-name>
@@ -33634,6 +35650,18 @@
                            <display-name>objectId</display-name>
                        </column>
                    </columns>
+                   <custom-foreign-keys>
+                       <custom-foreign-key>
+                           <name>customfk1</name>
+                           <primary-table-name>KREW_DOC_HDR_T</primary-table-name>
+                           <foreign-key-column-pair>
+                               <primary-column>DOC_HDR_ID</primary-column>
+                               <primary-column-type>number</primary-column-type>
+                               <foreign-column>FDOC_NBR</foreign-column>
+                               <foreign-column-type>string</foreign-column-type>
+                           </foreign-key-column-pair>
+                       </custom-foreign-key>
+                   </custom-foreign-keys>
                </table>
                <table>
                    <table-name>KRSB_MSG_QUE_T</table-name>
@@ -33958,8 +35986,8 @@
                    <display-name>DocumentRouteHeaderValue</display-name>
                    <columns>
                        <column>
-                           <column-name>null</column-name>
-                           <display-name>null</display-name>
+                           <column-name>DOC_HDR_ID</column-name>
+                           <display-name>documentHeaderId</display-name>
                        </column>
                        <column>
                            <column-name>DOC_TYP_ID</column-name>

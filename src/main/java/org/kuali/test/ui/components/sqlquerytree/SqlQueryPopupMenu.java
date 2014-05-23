@@ -71,6 +71,7 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
             int startRow = tree.getRowForPath(treePath1);
             int endRow = tree.getRowForPath(treePath2);
             
+            // union the rectangles for first and last rows and repaint to show select/deselect
             tree.repaint(tree.getRowBounds(startRow).union(tree.getRowBounds(endRow)));
         } 
     }

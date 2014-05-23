@@ -68,7 +68,8 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
 
     @Override
     protected DefaultTreeModel getTreeModel() {
-        return new SqlQueryTreeModel(new SqlQueryNode(configuration, platform));
+        DefaultTreeModel retval = new SqlQueryTreeModel(new SqlQueryNode(configuration, platform));
+        return retval;
     }
 
     @Override

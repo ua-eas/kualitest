@@ -119,14 +119,15 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
                 startTest.setText(Constants.START_TEST_ACTION);
                 startTest.setIcon(Constants.START_TEST_ICON);
             }
+            createCheckpoint.setEnabled(startTest.isSelected());
+            saveTest.setEnabled(startTest.isSelected());
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
             handleSaveTest();
+        } else {
+            handleUnprocessedActionEvent(e);
         }
-        
-        createCheckpoint.setEnabled(startTest.isSelected());
-        saveTest.setEnabled(startTest.isSelected());
     }
 
     public ToggleToolbarButton getStartTest() {
@@ -222,4 +223,5 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     protected abstract void handleCancelTest();
     protected abstract void handleCreateCheckpoint();
     protected abstract boolean handleSaveTest();
+    protected void handleUnprocessedActionEvent(ActionEvent e) {};
 }
