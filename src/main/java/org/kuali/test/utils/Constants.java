@@ -255,4 +255,36 @@ public class Constants {
         SQL_ORDER_BY_DESC
     };
 
+    public static final String[] AND_OR = {
+        "AND",
+        "OR"
+    };
+
+    public static final String[] OPEN_PARENTHESIS = {
+        "",
+        "(",
+        "((",
+        "((("
+    };
+
+    public static final String[] CLOSE_PARENTHESIS = {
+        "",
+        ")",
+        "))",
+        ")))"
+    };
+
+
+    public static final String[] OPERATORS = {
+        "=",
+        "<",
+        "<=",
+        ">",
+        ">=",
+        "!=",
+        "in",
+        "like",
+        "null",
+        "not null"
+    };
 }
