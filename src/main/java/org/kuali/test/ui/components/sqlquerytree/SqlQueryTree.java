@@ -29,6 +29,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 import org.kuali.test.ui.components.panels.DatabasePanel;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -41,14 +42,14 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     private final Platform platform;
     private final DatabasePanel dbPanel;
     private TreeCellRenderer treeCellRenderer;
-    private int columnsSelected =0;
+    private int columnsSelected = 0;
     
     public SqlQueryTree(TestCreator mainframe, DatabasePanel dbPanel, Platform platform) {
         super(mainframe);
         this.dbPanel = dbPanel;
         this.platform = platform;
         addMouseListener(this);
-        popupMenu = new SqlQueryPopupMenu(mainframe);
+        popupMenu = new SqlQueryPopupMenu(mainframe, this);
         init();
     }
 
@@ -75,40 +76,8 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         popupMenu.show(this, node, x, y);
     }
 
-    public String getTooltip(TableData td) {
-        String retval = null;
-        
-        DefaultMutableTreeNode node = findTableDataTreeNode(td, getRootNode());
-        
-        if (node != null) {
-            retval = getTooltip(node);
-        }
-        
-        return retval;
-    }
-
-    private DefaultMutableTreeNode findTableDataTreeNode(TableData td, DefaultMutableTreeNode node) {
-        DefaultMutableTreeNode retval = null;
-        
-        if (node.getChildCount() > 0) {
-            for (int i = 0; i < node.getChildCount(); ++i) {
-                DefaultMutableTreeNode curnode = (DefaultMutableTreeNode)node.getChildAt(i);
-                
-                Object uo = curnode.getUserObject();
-                if ((uo != null) && (uo == td)) {
-                    retval = curnode;
-                    break;
-                } else {
-                    retval = findTableDataTreeNode(td, curnode);
-                }
-            }
-        }
-        
-        return retval;
-    }
-    
     @Override
-    protected String getTooltip(DefaultMutableTreeNode node) {
+    public String getTooltip(DefaultMutableTreeNode node) {
         String retval = null;
         
         if (node.getUserObject() instanceof TableData) {
@@ -121,12 +90,10 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
                 if (StringUtils.isNotBlank(td.getForeignKeyName())) {
                     StringBuilder buf = new StringBuilder(128);
                     buf.append("<html>");
-                    buf.append(Constants.HTML_BOLD_UNDERLINE_STYLE);
-                    buf.append("foreign key: ");
-                    buf.append(dbPanel.getTableDisplayName(pdata.getName()));
-                    buf.append(" -> ");
-                    buf.append(dbPanel.getTableDisplayName(td.getName()));
-                    buf.append("</span>");
+                    buf.append(Utils.buildHtmlStyle(Constants.HTML_BOLD_UNDERLINE_STYLE, dbPanel.getTableDisplayName(pdata.getName())
+                        + " -> "
+                        + dbPanel.getTableDisplayName(td.getName())));
+
                     buf.append(Constants.HTML_LINE_BREAK);
 
                     for (String[] s : td.getLinkColumns()) {
@@ -187,5 +154,15 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     
     public int getSelectedColumnsCount() {
         return columnsSelected;
+    }
+
+    public void incrementColumnSelectedCount() {
+        columnsSelected++;
+    }
+
+    public void decrementColumnSelectedCount() {
+        if (columnsSelected > 0) {
+            columnsSelected--;
+        }
     }
 }

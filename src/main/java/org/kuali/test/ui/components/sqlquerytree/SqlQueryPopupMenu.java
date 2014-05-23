@@ -18,7 +18,10 @@ package org.kuali.test.ui.components.sqlquerytree;
 
 import java.awt.event.ActionEvent;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JMenuItem;
+import javax.swing.JSeparator;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
@@ -26,20 +29,50 @@ import org.kuali.test.ui.base.BaseTreePopupMenu;
 public class SqlQueryPopupMenu extends BaseTreePopupMenu {
     public static final String INNER_JOIN_ACTION = "Inner Join";
     public static final String OUTER_JOIN_ACTION = "Outer Join";
-
-    public SqlQueryPopupMenu(TestCreator mainframe) {
+    public static final String SELECT_ALL_COLUMNS_ACTION = "Select All Columns";
+    public static final String DESELECT_ALL_COLUMNS_ACTION = "Deselect All Columns";
+    
+    private final SqlQueryTree tree;
+    
+    public SqlQueryPopupMenu(TestCreator mainframe, SqlQueryTree tree) {
         super(mainframe);
+        this.tree = tree;
     }
 
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
-        boolean outerJoin = false;
-        if (e.getActionCommand().equals(OUTER_JOIN_ACTION)) {
-            outerJoin = true;
-        }
-        
-        TableData td = (TableData)actionNode.getUserObject();
-        td.setOuterJoin(outerJoin);
+        if (e.getActionCommand().equals(OUTER_JOIN_ACTION) 
+            || e.getActionCommand().equals(INNER_JOIN_ACTION)) {
+            boolean outerJoin = false;
+            if (e.getActionCommand().equals(OUTER_JOIN_ACTION)) {
+                outerJoin = true;
+            }
+
+            TableData td = (TableData)actionNode.getUserObject();
+            td.setOuterJoin(outerJoin);
+        } else if (e.getActionCommand().equalsIgnoreCase(SELECT_ALL_COLUMNS_ACTION)
+            || e.getActionCommand().equalsIgnoreCase(DESELECT_ALL_COLUMNS_ACTION)) {
+            TableData td = (TableData)actionNode.getUserObject();
+            
+            for (ColumnData cd : td.getColumns()) {
+                cd.setSelected(e.getActionCommand().equalsIgnoreCase(SELECT_ALL_COLUMNS_ACTION));
+                if (cd.isSelected()) {
+                    tree.incrementColumnSelectedCount();;
+                } else {
+                    tree.decrementColumnSelectedCount();;
+                }
+            }
+
+            DefaultMutableTreeNode lastChild = actionNode.getLastLeaf();
+
+            TreePath treePath1 = new TreePath(actionNode.getPath());
+            TreePath treePath2 = new TreePath(lastChild.getPath());
+            
+            int startRow = tree.getRowForPath(treePath1);
+            int endRow = tree.getRowForPath(treePath2);
+            
+            tree.repaint(tree.getRowBounds(startRow).union(tree.getRowBounds(endRow)));
+        } 
     }
     
     @Override
@@ -59,7 +92,19 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
                 m = new JCheckBoxMenuItem(OUTER_JOIN_ACTION, td.isOuterJoin());
                 add(m);
                 m.addActionListener(this);
+
+                add(new JSeparator());
+                
             }
+
+        
+            JMenuItem m2 = new JMenuItem(SELECT_ALL_COLUMNS_ACTION);
+            add(m2);
+            m2.addActionListener(this);
+
+            m2 = new JMenuItem(DESELECT_ALL_COLUMNS_ACTION);
+            add(m2);
+            m2.addActionListener(this);
         }
     }
 }

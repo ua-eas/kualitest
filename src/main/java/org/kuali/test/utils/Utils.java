@@ -1333,30 +1333,28 @@ public class Utils {
         String sectionName = th.getSectionName(node);
         String subSectionAdditional = th.getSubSectionAdditional(node);
 
-        retval.append("<html>");
+        retval.append("<html><span style='white-space: nowrap;'>");
         
         boolean haveSection = StringUtils.isNotBlank(sectionName);
         if (haveSection) {
-            retval.append(Constants.HTML_BOLD_BLUE_STYLE);
-            retval.append(sectionName);
-            retval.append("");
+            String s =  sectionName;
+            if (StringUtils.isNotBlank(subSectionName)) {
+                s = (sectionName + ": ");
+            } 
+            
+            retval.append(buildHtmlStyle(Constants.HTML_BOLD_BLUE_STYLE, s));
         }
         
         if (StringUtils.isNotBlank(subSectionName)) {
-            if (haveSection) { 
-                retval.append(": </span>");
-            }
             retval.append(subSectionName);
-        } else if (haveSection) {
-           retval.append("</span>");
-        }
+        } 
 
         if (StringUtils.isNotBlank(subSectionAdditional)) {
             retval.append(" - ");
             retval.append(subSectionAdditional);
         }
         
-        retval.append("</html>");
+        retval.append("</span></html>");
         return retval.toString();
     }
     
@@ -1536,5 +1534,9 @@ public class Utils {
         
         
         return retval;
+    }
+    
+    public static String buildHtmlStyle(String style, String data) {
+        return style.replace("^", data);
     }
 }

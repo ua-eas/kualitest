@@ -261,7 +261,7 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
             }
         });
 
-        table.getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
+        table.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
     }
 
     private void createFunctionCellEditorRenderer(BaseTable table) {

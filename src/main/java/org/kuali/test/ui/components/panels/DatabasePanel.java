@@ -25,6 +25,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.panels.SqlSelectPanel.SelectColumnData;
+import org.kuali.test.ui.components.panels.SqlWherePanel.WhereColumnData;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
@@ -483,7 +485,12 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     }
 
     public String getTableDataTooltip(TableData td) {
-        return sqlQueryTree.getTooltip(td);
+        String retval = null;
+        if (td.getTreeNode() != null) {
+            retval = sqlQueryTree.getTooltip(td.getTreeNode());
+        }
+        
+        return retval;
     }
 
     private String getTableAlias(TableData td, List <TableData> tables) {
@@ -498,6 +505,37 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
     
+    public String getSqlTabString(boolean htmlFormat) {
+        if (htmlFormat) {
+            return Constants.HTML_TAB;
+        } else {
+            return Constants.TAB_SPACES;
+        }
+    }
+    
+    public String getSqlLineBreakString(boolean htmlFormat) {
+        if (htmlFormat) {
+            return Constants.HTML_LINE_BREAK;
+        } else {
+            return "\r\n";
+        }
+    }
+
+    public String getSqlKeywordString(boolean htmlFormat, String keyword) {
+        StringBuilder retval = new StringBuilder(64);
+        if (htmlFormat) {
+            retval.append(Utils.buildHtmlStyle(Constants.HTML_BOLD_BLUE_STYLE, keyword));
+            retval.append("&nbsp;");
+        } else {
+            retval.append(keyword);
+            retval.append(" ");
+        }
+        
+        retval.append(getSqlLineBreakString(htmlFormat));
+        
+        return retval.toString();
+    }
+
     public String getSqlQueryString(boolean htmlFormat) {
         StringBuilder retval = new StringBuilder(512);
 
@@ -506,69 +544,57 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         if ((selcols != null) && !selcols.isEmpty()) {
             if (htmlFormat) {
                 retval.append("<body>");
-                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
-            }
-
-            retval.append("select ");
-            if (htmlFormat) {
-                retval.append("</span>");
-                retval.append(Constants.HTML_LINE_BREAK);
-            }
-
+            } 
+            
+            retval.append(getSqlKeywordString(htmlFormat, "select"));
+            
             List <TableData> tableList = buildCompleteQueryTableList();
-
-            boolean orderByRequired = false;
+            List <SelectColumnData> orderbycols = new ArrayList<SelectColumnData>();
+            
 
             for (int i = 0; i < selcols.size(); ++i) {
-                if (htmlFormat) {
-                    retval.append(Constants.HTML_TAB);
-                }
+                retval.append(getSqlTabString(htmlFormat));
 
                 SelectColumnData scd = selcols.get(i);
 
-                // see if we need to build order by clause
-                if (!orderByRequired) {
-                    orderByRequired = (StringUtils.isNotBlank(scd.getOrder()) && (Integer.parseInt(scd.getOrder()) > 0));
+                if (StringUtils.isNotBlank(scd.getOrder()) && (Integer.parseInt(scd.getOrder()) > 0)) {
+                    orderbycols.add(scd);
                 }
 
+                if (StringUtils.isNotBlank(scd.getFunction())) {
+                    retval.append(scd.getFunction());
+                    retval.append("(");
+                }
+                
                 retval.append(getTableAlias(scd.getTableData(), tableList));
                 retval.append(".");
                 retval.append(scd.getColumnData().getName());
+                
+                if (StringUtils.isNotBlank(scd.getFunction())) {
+                    retval.append(")");
+                }
+                
                 if (i < (selcols.size() - 1)) {
                     retval.append(", ");
                 }
 
-                if (htmlFormat) {
-                    retval.append(Constants.HTML_LINE_BREAK);
-                }
+                retval.append(getSqlLineBreakString(htmlFormat));
             }
 
-            if (htmlFormat) {    
-                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
-            }
-
-            retval.append("from ");
-
-            if (htmlFormat) {
-                retval.append("</span>");
-                retval.append(Constants.HTML_LINE_BREAK);
-            }
+            retval.append(getSqlKeywordString(htmlFormat, "from"));
 
             for (int i = 0; i < tableList.size(); ++i) {
                 TableData td = tableList.get(i);
-                if (htmlFormat) {
-                    retval.append(Constants.HTML_TAB);
-                }
+                
+                retval.append(getSqlTabString(htmlFormat));
+
                 String tdAlias = getTableAlias(td, tableList);
                 
                 if (i == 0) {
                     retval.append(td.getName());
                     retval.append(" ");
                     retval.append(tdAlias);
-                    
-                    if (htmlFormat) {
-                        retval.append(Constants.HTML_LINE_BREAK);
-                    }
+                    retval.append(getSqlLineBreakString(htmlFormat));
                 } else {
                     TableData ptd = getParentTableData(td);
 
@@ -576,9 +602,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     if (ptd != null) {
                         String ptdAlias = getTableAlias(ptd, tableList);
 
-                        if (htmlFormat) {
-                            retval.append(Constants.HTML_TAB);
-                        }
+                        retval.append(getSqlTabString(htmlFormat));
                         
                         if (td.isOuterJoin()) {
                             retval.append(" left outer");
@@ -589,10 +613,15 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                         retval.append(" ");
                         retval.append(tdAlias);
                         retval.append(" on (");
+
+                        retval.append(getSqlLineBreakString(htmlFormat));
                         
                         String and = "";
                         List <String[]> linkColumns = td.getLinkColumns();
                         for (int j = 0; j < linkColumns.size(); ++j) {
+                            for (int k = 0; k < 3; ++k) {
+                                retval.append(getSqlTabString(htmlFormat));
+                            }
                             retval.append(and);
                             retval.append(tdAlias);
                             retval.append(".");
@@ -602,45 +631,75 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                             retval.append(".");
                             retval.append(linkColumns.get(j)[0]);
                             and = " and ";
+                            
+                            if (j < (linkColumns.size() - 1)) {
+                                retval.append(getSqlLineBreakString(htmlFormat));
+                            }
                         }
 
                         retval.append(") ");
                     }
                     
-                    if (htmlFormat) {
-                        retval.append(Constants.HTML_LINE_BREAK);
+                    retval.append(getSqlLineBreakString(htmlFormat));
+                }
+            }
+
+            retval.append(getSqlKeywordString(htmlFormat, "where"));
+            
+            List <WhereColumnData> wherecols = sqlWherePanel.getWhereColumnData();
+            
+            for (WhereColumnData wcd : wherecols) {
+                retval.append(getSqlTabString(htmlFormat));
+            }
+            
+            if (isGroupByRequired(selcols)) {
+                retval.append(getSqlKeywordString(htmlFormat, "group by"));
+                retval.append(getSqlTabString(htmlFormat));
+                
+                String comma = "";
+                for (SelectColumnData scd : selcols) {
+                    if (StringUtils.isBlank(scd.getFunction())) {
+                        retval.append(comma);
+                        retval.append(getTableAlias(scd.getTableData(), tableList));
+                        retval.append(".");
+                        retval.append(scd.getColumnData().getName());
+                        comma = ", ";
                     }
                 }
+
+                retval.append(getSqlLineBreakString(htmlFormat));
             }
 
-            if (htmlFormat) {
-                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
-            }
-
-            retval.append("where ");
-
-            if (htmlFormat) {
-                retval.append("</span>");
-                retval.append(Constants.HTML_LINE_BREAK);
-            }
-
-            
-            retval.append("column 3 = 'xxx' and column 4 = 'yyy'<br /> ");
-
-            if (htmlFormat) {
-                retval.append(Constants.HTML_BOLD_BLUE_STYLE);
-            }    
-
-            if (orderByRequired) {
-                retval.append("order by ");
-
-                if (htmlFormat) {
-                    retval.append("</span> ");
+            if (!orderbycols.isEmpty()) {
+                Collections.sort(orderbycols, new Comparator <SelectColumnData> () {
+                    @Override
+                    public int compare(SelectColumnData o1, SelectColumnData o2) {
+                        return Integer.valueOf(o1.getOrder()).compareTo(Integer.valueOf(o2.getOrder()));
+                    }
+                });
+                
+                retval.append(getSqlKeywordString(htmlFormat, "order by"));
+                retval.append(getSqlTabString(htmlFormat));
+                
+                String comma = "";
+                for (SelectColumnData scd : orderbycols) {
+                    retval.append(comma);
+                    retval.append(this.getTableAlias(scd.getTableData(), tableList));
+                    retval.append(".");
+                    retval.append(scd.getColumnData().getName());
+                    
+                    if (Constants.SQL_ORDER_BY_DESC.equals(scd.getAscDesc())) {
+                        retval.append(" ");
+                        retval.append(Constants.SQL_ORDER_BY_DESC);
+                    }
+                    
+                    comma = ", ";
                 }
+                
+                retval.append(getSqlLineBreakString(htmlFormat));
 
-                retval.append(" 1 desc");
             }
-
+            
             if (htmlFormat) {
                 retval.append("</body>");
             }
@@ -649,6 +708,27 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
         
         return retval.toString();
+    }
+    
+    private boolean isGroupByRequired(List <SelectColumnData> selcols) {
+        boolean retval = false;
+        int funccnt = 0;
+        int nonfunccnt = 0;
+        
+        for (SelectColumnData scd : selcols) {
+            if (StringUtils.isNotBlank(scd.getFunction())) {
+                funccnt++;
+            } else {
+                nonfunccnt++;
+            }
+            
+            if ((funccnt > 0) && (nonfunccnt > 0)) {
+                retval = true;
+                break;
+            }
+        }
+        
+        return retval;
     }
     
     private TableData getParentTableData(TableData td) {
@@ -711,15 +791,17 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         Collections.sort(retval, new SqlHierarchyComparator());
         
-        for (TableData td : retval) {
-            int level = -1;
-            if (td.getTreeNode() != null) {
-                level = td.getTreeNode().getLevel();
+        if (LOG.isDebugEnabled()) {
+            for (TableData td : retval) {
+                int level = -1;
+                if (td.getTreeNode() != null) {
+                    level = td.getTreeNode().getLevel();
+                }
+
+                LOG.debug("table=" + td.getName() + ", level=" + level);
             }
-            
-            LOG.error("table=" + td.getName() + ", level=" + level);
         }
-        
+    
         return retval;
     }
 }

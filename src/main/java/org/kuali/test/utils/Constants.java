@@ -151,10 +151,11 @@ public class Constants {
     public static final String MIME_TYPE_HTML = "text/html";
     
     public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
+    public static final String TAB_SPACES = "    ";
     public static final String HTML_LINE_BREAK = "<br />";
-    public static final String HTML_BOLD_UNDERLINE_STYLE = "<span font-weight: 700; white-space: nowrap; text-decoration: underline;'>";
-    public static final String HTML_BOLD_BLUE_STYLE = "<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 700; white-space: nowrap;'>";
-
+    public static final String HTML_BOLD_UNDERLINE_STYLE = "<span style='font-weight: 650; white-space: nowrap; text-decoration: underline;'>^</span>";
+    public static final String HTML_BOLD_BLUE_STYLE = "<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 650; white-space: nowrap;'>^</span>";
+    public static final String HTML_DARK_RED_STYLE = "<span style='color: " + Constants.COLOR_DARK_RED + "; white-space: nowrap;'>^</span>";
     
     public static final String JAVASCRIPT_SUFFIX = "js";
     public static final String CSS_SUFFIX = "css";
@@ -205,6 +206,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_ID = "id";
     public static final String HTML_TAG_ATTRIBUTE_NAME = "name";
     public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
+    public static final String SQL_ORDER_BY_DESC = "DESC";
 
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
@@ -250,7 +252,7 @@ public class Constants {
     public static final String[] ASC_DESC = {
         "",
         "ASC",
-        "DESC"
+        SQL_ORDER_BY_DESC
     };
 
 }

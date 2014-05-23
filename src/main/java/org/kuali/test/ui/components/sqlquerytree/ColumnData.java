@@ -81,12 +81,28 @@ public class ColumnData extends DBObjectData {
             retval.append(getName());
         }
         
-        retval.append(" [<span style='color: ");
-        retval.append(Constants.COLOR_DARK_RED);
-        retval.append("; font-weight: 700; white-space: nowrap;'>");
-        retval.append(getDataTypeName());
-        retval.append("</span>]");
+        retval.append(" [");
+        retval.append(Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, getDataTypeName()));
+        retval.append("]");
         
         return retval.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        boolean retval = false;
+        if (obj == this) {
+            retval = true;
+        } else if (obj instanceof ColumnData) {
+            ColumnData cd = (ColumnData)obj;
+            retval = getName().endsWith(cd.getName());
+        }
+        
+        return retval;
+    }
+
+    @Override
+    public int hashCode() {
+        return getName().hashCode();
     }
 }
