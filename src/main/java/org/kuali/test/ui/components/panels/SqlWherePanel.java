@@ -43,19 +43,19 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     }
 
     private void initComponents() {
-        tp = new TablePanel(getSelectColumnTable());
+        tp = new TablePanel(getWhereColumnTable());
         
-        createTableCellEditorRenderer(tp, 2);
+        createTableCellEditorRenderer(tp, 2, 3);
         createColumnCellEditorRenderer(tp, 3);
-
         
         tp.addAddButton(this, Constants.ADD_COMPARISON_ACTION, "add new where comparison");
         tp.getAddButton().setEnabled(false);
         tp.addDeleteButton(this, Constants.DELETE_COMPARISON_ACTION, "delete selected row");
+        
         add(tp, BorderLayout.CENTER);
     }
     
-    private BaseTable getSelectColumnTable() {
+    private BaseTable getWhereColumnTable() {
         TableConfiguration tc = new TableConfiguration();
         
         tc.setHeaders(new String[] {
@@ -63,7 +63,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             "(",
             "table",
             "column",
-            "oerator",
+            "operator",
             "value",
             ")"
         });
@@ -73,7 +73,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             "openParenthesis", // 1
             "tableData", // 2
             "columnData", // 3
-            "oerator", // 4
+            "operator", // 4
             "value", // 5
             "closeParenthesis" // 6
         });
@@ -81,8 +81,8 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         tc.setColumnTypes(new Class[] {
             String.class,
             String.class,
-            String.class,
-            String.class,
+            TableData.class,
+            ColumnData.class,
             String.class,
             String.class,
             String.class
@@ -106,7 +106,6 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             public boolean isCellEditable(int row, int column) {
                 boolean retval = false;
                 SqlWherePanel.WhereColumnData wcd = (SqlWherePanel.WhereColumnData)getTableData().get(row);
-                
                 
                 switch(column) {
                     case 0:
@@ -146,16 +145,16 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             }
         };
         
-        retval.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(new JComboBox()));
+        retval.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.AND_OR)));
         retval.getColumnModel().getColumn(0).setCellRenderer(new ComboBoxTableCellRenderer(Constants.AND_OR));
-        retval.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(new JComboBox()));
+        
+        retval.getColumnModel().getColumn(1).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.OPEN_PARENTHESIS)));
         retval.getColumnModel().getColumn(1).setCellRenderer(new ComboBoxTableCellRenderer(Constants.OPEN_PARENTHESIS));
 
-        retval.getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(new JComboBox()));
+        retval.getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.OPERATORS)));
         retval.getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(Constants.OPERATORS));
 
-
-        retval.getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(new JComboBox()));
+        retval.getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.CLOSE_PARENTHESIS)));
         retval.getColumnModel().getColumn(6).setCellRenderer(new ComboBoxTableCellRenderer(Constants.CLOSE_PARENTHESIS));
 
         return retval;
@@ -163,10 +162,18 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        List l = tp.getTable().getTableData();
+        
         if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
-            
+            l.add(new WhereColumnData());
+            tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
         } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getActionCommand())) {
+            int row = tp.getTable().getSelectedRow();
             
+            if ((row > -1) && (l.size() > row)) {
+                l.remove(row);
+                tp.getTable().getModel().fireTableRowsDeleted(row, row);
+            }
         }
     }
 
