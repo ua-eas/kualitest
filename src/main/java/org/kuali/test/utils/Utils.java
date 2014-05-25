@@ -410,7 +410,9 @@ public class Utils {
                 if ((retval != null) && (pos > -1)) {
                     retval = getObjectProperty(retval, propertyName.substring(pos+1));
                 }
-            } catch (Exception ex) {
+            } 
+            
+            catch (Exception ex) {
                 LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
             } 
         }
@@ -732,7 +734,9 @@ public class Utils {
                                 HtmlTagHandler hth = (HtmlTagHandler)Class.forName(th.getHandlerClassName()).newInstance();
                                 hth.setTagHandler(th);
                                 thl.add(hth);
-                            } catch (Exception ex) {
+                            } 
+                            
+                            catch (Exception ex) {
                                 LOG.warn(ex.toString(), ex);
                             }
                         }
@@ -1400,57 +1404,20 @@ public class Utils {
         return DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
     }
     
-    public static String getJdbcTypeName(int jdbcType) {
-        String retval = "other";
+    public static String getJdbcTypeName(int jdbcType, int decimalDigits) {
+        String retval = Constants.DATA_TYPE_OTHER;
         
-        switch(jdbcType) {
-            case java.sql.Types.BIGINT:
-            case java.sql.Types.INTEGER:
-            case java.sql.Types.SMALLINT:
-            case java.sql.Types.TINYINT:
-                retval = "integer";
-                break;
-            case java.sql.Types.DOUBLE:
-            case java.sql.Types.FLOAT:
-            case java.sql.Types.DECIMAL:
-            case java.sql.Types.NUMERIC:
-            case java.sql.Types.REAL:
-                retval = "float";
-                break;
-            case java.sql.Types.LONGNVARCHAR:
-            case java.sql.Types.LONGVARCHAR:
-            case java.sql.Types.NCHAR:
-            case java.sql.Types.NCLOB:
-            case java.sql.Types.NVARCHAR:
-            case java.sql.Types.VARCHAR:         
-            case java.sql.Types.SQLXML:
-            case java.sql.Types.CHAR:
-                retval = "string";
-                break;
-            case java.sql.Types.DATE:
-            case java.sql.Types.TIME:
-            case java.sql.Types.TIMESTAMP:
-                retval = "date/time";
-                break;
-            case java.sql.Types.BINARY:
-            case java.sql.Types.BIT:
-            case java.sql.Types.BLOB:
-            case java.sql.Types.BOOLEAN:
-            case java.sql.Types.CLOB:
-            case java.sql.Types.DATALINK:
-            case java.sql.Types.DISTINCT:
-            case java.sql.Types.JAVA_OBJECT:
-            case java.sql.Types.LONGVARBINARY:
-            case java.sql.Types.NULL:
-            case java.sql.Types.OTHER:
-            case java.sql.Types.REF:
-            case java.sql.Types.ROWID:
-            case java.sql.Types.STRUCT:
-            case java.sql.Types.VARBINARY:
-                retval = "other";
-                break;
+        if (isStringJdbcType(jdbcType)) {
+            retval = Constants.DATA_TYPE_STRING;
+        } else if (isIntegerJdbcType(jdbcType, decimalDigits)) {
+            retval = Constants.DATA_TYPE_INT;
+        } else if (isDateJdbcType(jdbcType)) {
+            retval = Constants.DATA_TYPE_DATE;
+        } else if (isTimestampJdbcType(jdbcType)) {
+            retval = Constants.DATA_TYPE_TIMESTAMP;
+        } else if (isFloatJdbcType(jdbcType, decimalDigits)) {
+            retval = Constants.DATA_TYPE_FLOAT;
         }
-        
         return retval;
     }
 
@@ -1466,26 +1433,26 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isNumericJdbcType(int jdbcType) {
+    public static boolean isIntegerJdbcType(int jdbcType, int decimalDigits) {
         boolean retval = false;
         
-        switch(jdbcType) {
-            case java.sql.Types.BIGINT:
-            case java.sql.Types.INTEGER:
-            case java.sql.Types.SMALLINT:
-            case java.sql.Types.TINYINT:
-            case java.sql.Types.DOUBLE:
-            case java.sql.Types.FLOAT:
-            case java.sql.Types.DECIMAL:
-            case java.sql.Types.NUMERIC:
-            case java.sql.Types.REAL:
-                retval = true;
-                break;
+        if (isNumericJdbcType(jdbcType)) {
+            retval = (decimalDigits == 0);
         }
         
         return retval;
     }
     
+    public static boolean isFloatJdbcType(int jdbcType, int decimalDigits) {
+        boolean retval = false;
+        
+        if (isNumericJdbcType(jdbcType)) {
+            retval = (decimalDigits > 0);
+        }
+        
+        return retval;
+    }
+
     public static boolean isStringJdbcType(int jdbcType) {
         boolean retval = false;
         
@@ -1504,29 +1471,49 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isDateTimeJdbcType(int jdbcType) {
+    public static boolean isTimestampJdbcType(int jdbcType) {
+        return (jdbcType == java.sql.Types.TIMESTAMP);
+    }
+    
+    public static boolean isDateJdbcType(int jdbcType) {
+        return (jdbcType == java.sql.Types.DATE);
+    }
+
+    public static boolean isTimeJdbcType(int jdbcType) {
+        return (jdbcType == java.sql.Types.TIME);
+    }
+
+    public static boolean isNumericJdbcType(int jdbcType) {
         boolean retval = false;
         
         switch(jdbcType) {
-            case java.sql.Types.DATE:
-            case java.sql.Types.TIME:
-            case java.sql.Types.TIMESTAMP:
+            case java.sql.Types.BIGINT:
+            case java.sql.Types.INTEGER:
+            case java.sql.Types.SMALLINT:
+            case java.sql.Types.TINYINT:
+            case java.sql.Types.DECIMAL:
+            case java.sql.Types.NUMERIC:
                 retval = true;
                 break;
         }
         
         return retval;
     }
-    
+
+    public static boolean isDateTimeJdbcType(int jdbcType) {
+        return (isDateJdbcType(jdbcType) || isTimestampJdbcType(jdbcType) || isTimeJdbcType(jdbcType));
+    }
+
     public static List<String> getAggregateFunctionsForType(int jdbcType) {
         List <String> retval = new ArrayList<String>();
         
         for (String s : Constants.AGGREGATE_FUNCTIONS) {
-        
-            if (StringUtils.isBlank(s) || isNumericJdbcType(jdbcType) || "COUNT".equals(s)) {
+            if (StringUtils.isBlank(s) 
+                || isNumericJdbcType(jdbcType) 
+                || Constants.COUNT.equals(s)) {
                 retval.add(s);
             } else if (isDateTimeJdbcType(jdbcType)) {
-                if (!"SUM".equals(s) && !"AVG".equals(s)) {
+                if (!Constants.SUM.equals(s) && !Constants.AVG.equals(s)) {
                     retval.add(s);
                 }
             }

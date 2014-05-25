@@ -21,22 +21,34 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import javax.swing.table.TableCellEditor;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.editmasks.DateTimeTextField;
+import org.kuali.test.ui.components.editmasks.FloatTextField;
+import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 
 public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     private static final Logger LOG = Logger.getLogger(SqlWherePanel.class);
     private TablePanel tp;
-
+    private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
+    private final DefaultCellEditor floatCellEditor = new DefaultCellEditor(new FloatTextField());
+    private final DefaultCellEditor dateCellEditor = new DefaultCellEditor(new DateTimeTextField("yyyy-MM-dd"));
+    private final DefaultCellEditor tsCellEditor= new DefaultCellEditor(new DateTimeTextField("yyyy-MM-dd HH:mm"));
+    private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
+    
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel);
         initComponents();
@@ -109,6 +121,8 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
                 
                 switch(column) {
                     case 0:
+                        retval = (row > 0);
+                        break;
                     case 1:
                     case 2:
                     case 6:
@@ -143,6 +157,18 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
                 
                 return retval;
             }
+
+            @Override
+            public Object getValueAt(int row, int column) {
+                // no and/or on first row
+                if ((row == 0) && (column == 0)) {
+                    return null;
+                } else {
+                    return super.getValueAt(row, column); 
+                }
+            }
+            
+            
         };
         
         retval.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.AND_OR)));
@@ -165,7 +191,13 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         List l = tp.getTable().getTableData();
         
         if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
-            l.add(new WhereColumnData());
+            WhereColumnData wcd = new WhereColumnData();
+            if (l.size() > 0) {
+                wcd.setAndOr(Constants.AND);
+            }
+            
+            l.add(wcd);
+            
             tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
         } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getActionCommand())) {
             int row = tp.getTable().getSelectedRow();
@@ -269,18 +301,24 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
 
     @Override
     protected void handleColumnChanged(ColumnData cd) {
-/*
-        List <String> functions = Utils.getAggregateFunctionsForType(cd.getDataType());
-        ComboBoxCellEditor editor = (ComboBoxCellEditor)tp.getTable().getColumnModel().getColumn(2).getCellEditor();
-        editor.getComboBox().removeAllItems();
-
-        ComboBoxTableCellRenderer renderer = (ComboBoxTableCellRenderer)tp.getTable().getColumnModel().getColumn(2).getCellRenderer();
-        renderer.removeAllItems();
-
-        for (String f : functions) {
-            renderer.addItem(f);
-            editor.getComboBox().addItem(f);
+        tp.getTable().getColumnModel().getColumn(5).setCellEditor(getValueCellEditor(cd));
+    }
+    
+    private TableCellEditor getValueCellEditor(ColumnData cd) {
+        TableCellEditor retval = null;
+        
+        if (Utils.isIntegerJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
+            retval = intCellEditor;
+        } else if (Utils.isFloatJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
+            retval = floatCellEditor;
+        } else if (Utils.isDateJdbcType(cd.getDataType())) {
+            retval = dateCellEditor;
+        } else if (Utils.isTimestampJdbcType(cd.getDataType())) {
+            retval = tsCellEditor;
+        } else {
+            retval = defaultCellEditor;
         }
-    */
+        
+        return retval;
     }
 }

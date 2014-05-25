@@ -82,8 +82,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         p.add(new JLabel("Base Table:", JLabel.RIGHT));
         
-        p.add(tableDropdown = new JComboBox(getAvailableDatabaseTables()));
-        tableDropdown.addActionListener(this);
+        p.add(tableDropdown = new JComboBox());
+        loadAvailableDatabaseTables();
 
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
@@ -100,49 +100,63 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     }
     
     
-    private TableData[] getAvailableDatabaseTables() {
-        List <TableData> retval = new ArrayList<TableData>();
-        
-        Connection conn = null;
-        ResultSet res = null;
-        
-        try {
-            // load any additional database info - this will give us user-friendly names
-            loadAdditionalDbInfo();
+    private void loadAvailableDatabaseTables() {
+        new SplashDisplay(getMainframe(), "Loading tables", "Load available database tables...") {
 
-            // this is the empty place holder for base table selection
-            retval.add(new TableData());
-            
-            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
-            
-            if (dbconn != null) {
-                conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
-                DatabaseMetaData dmd = conn.getMetaData();
-                res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
+            @Override
+            protected void processCompleted() {
+                tableDropdown.addActionListener(DatabasePanel.this);
+            }
 
-                while (res.next()) {
-                    String tableName = res.getString(3);
-                    
-                    Table t = additionalDbInfo.get(tableName);
-                    
-                    if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
-                        retval.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
-                    } 
+            @Override
+            protected void runProcess() {
+                List <TableData> tables = new ArrayList<TableData>();
+
+                Connection conn = null;
+                ResultSet res = null;
+
+                try {
+                    // load any additional database info - this will give us user-friendly names
+                    loadAdditionalDbInfo();
+
+                    // this is the empty place holder for base table selection
+                    tables.add(new TableData());
+
+                    DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
+
+                    if (dbconn != null) {
+                        conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                        DatabaseMetaData dmd = conn.getMetaData();
+                        res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
+
+                        while (res.next()) {
+                            String tableName = res.getString(3);
+
+                            Table t = additionalDbInfo.get(tableName);
+
+                            if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
+                                tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
+                            } 
+                        }
+                    }
+                }
+
+                catch (Exception ex) {
+                    UIUtils.showError(getMainframe(), "Database Connection Error", "An error occurred while attemption to connect to database - " + ex.toString());
+                }
+
+                finally {
+                    Utils.closeDatabaseResources(conn, null, res);
+                }
+
+                Collections.sort(tables);
+
+                for (TableData td : tables) {
+                    tableDropdown.addItem(td);
                 }
             }
-        }
-        
-        catch (Exception ex) {
-            UIUtils.showError(this, "Database Connection Error", "An error occurred while attemption to connect to database - " + ex.toString());
-        }
-        
-        finally {
-            Utils.closeDatabaseResources(conn, null, res);
-        }
-        
-        Collections.sort(retval);
-        
-        return retval.toArray(new TableData[retval.size()]);
+
+        };
     }
 
     private void loadAdditionalDbInfo() {
@@ -223,42 +237,44 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 String schema = res.getString(2);
                 String tname = res.getString(3);
                 
-                // for now do not follow links to self
-                if (!tname.equals(td.getName())) {
-                    String pkcname = res.getString(4);
-                    String fkcname = res.getString(8);
-                    String fkname = res.getString(12);
+                String pkcname = res.getString(4);
+                String fkcname = res.getString(8);
+                String fkname = res.getString(12);
 
-                    String key = fkname;
-                    if (StringUtils.isBlank(key)) {
-                        key = (td.getName() + "-" + tname);
-                    }
-
-                    TableData tdata = map.get(key);
-
-                    if (tdata == null) {
-                        Table t = additionalDbInfo.get(tname);
-
-                        if (t != null) {
-                            map.put(key, tdata = new TableData(schema, tname, t.getDisplayName()));
-                        } else {
-                            map.put(key, tdata = new TableData(schema, tname, tname));
-                        }
-
-                        td.getRelatedTables().add(tdata);
-                        SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
-                        
-                        parentNode.add(curnode);
-
-                        if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
-                            loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
-                        } 
-                        
-                        tdata.setForeignKeyName(fkname);
-                    }
-
-                    tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
+                String key = fkname;
+                if (StringUtils.isBlank(key)) {
+                    key = (td.getName() + "-" + tname);
                 }
+
+                TableData tdata = map.get(key);
+
+                if (tdata == null) {
+                    Table t = additionalDbInfo.get(tname);
+
+                    if (t != null) {
+                        map.put(key, tdata = new TableData(schema, tname, t.getDisplayName()));
+                    } else {
+                        map.put(key, tdata = new TableData(schema, tname, tname));
+                    }
+
+                    td.getRelatedTables().add(tdata);
+                    SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
+
+                    parentNode.add(curnode);
+
+                    if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
+                        // only move down the tree if this is not a circular relationship
+                        if (!tdata.equals(td)) {
+                            loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
+                        } else {
+                            loadTableColumns(dbconn, dmd, curnode);
+                        }
+                    } 
+
+                    tdata.setForeignKeyName(fkname);
+                }
+
+                tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
             }
 
             if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
@@ -319,12 +335,16 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             while (res.next()) {
                 String cname = res.getString(4);
                 int dataType = res.getInt(5);
+                int width = res.getInt(7);
+                int decimalDigits = res.getInt(9);
 
                 String displayName = getColumnDisplayName(td.getName(), cname, dbconn.getConfiguredTablesOnly());
                 
                 if (StringUtils.isNotBlank(displayName)) {
                     ColumnData cd = new ColumnData(td.getSchema(), cname, displayName);
                     cd.setDataType(dataType);
+                    cd.setDecimalDigits(decimalDigits);
+                    cd.setWidth(width);
                     td.getColumns().add(cd);
                 }
             }

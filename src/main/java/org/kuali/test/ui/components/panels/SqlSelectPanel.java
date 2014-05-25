@@ -49,7 +49,7 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
     private void initComponents() {
         tp = new TablePanel(getSelectColumnTable());
         
-        createTableCellEditorRenderer(tp, 0);
+        createTableCellEditorRenderer(tp, 0, 1);
         createColumnCellEditorRenderer(tp, 1);
 
         tp.addAddButton(this, Constants.ADD_COLUMN_ACTION, "add new select column");

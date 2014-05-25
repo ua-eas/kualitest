@@ -24,6 +24,8 @@ import org.kuali.test.utils.Utils;
 public class ColumnData extends DBObjectData {
     private Integer primaryKeyIndex = Integer.MAX_VALUE;
     private int dataType;
+    private int width = 0;
+    private int decimalDigits = 0;
     boolean selected = false;
 
     public ColumnData(String schema, String name, String displayName) {
@@ -58,6 +60,22 @@ public class ColumnData extends DBObjectData {
         return retval;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getDecimalDigits() {
+        return decimalDigits;
+    }
+
+    public void setDecimalDigits(int decimalDigits) {
+        this.decimalDigits = decimalDigits;
+    }
+
     public boolean isSelected() {
         return selected;
     }
@@ -67,13 +85,13 @@ public class ColumnData extends DBObjectData {
     }
     
     public String getDataTypeName() {
-        return Utils.getJdbcTypeName(getDataType());
+        return Utils.getJdbcTypeName(getDataType(), getDecimalDigits());
     }
     
     public String toString() {
         StringBuilder retval = new StringBuilder(64);
         
-        retval.append("<html><span style='white-space: nowrap;'>");
+        retval.append("<html><span style='white-space: nowrap; font:10px arial,sans-serif'>");
         
         if (StringUtils.isNotBlank(getDisplayName())) {
             retval.append(getDisplayName());

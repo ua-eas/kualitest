@@ -17,24 +17,8 @@
 package org.kuali.test.ui.components.editmasks;
 
 
-public class IntegerTextField extends BaseEditMaskField {
-    public IntegerTextField() {
-        super("#######", BaseEditMaskField.NUMERIC_MASK);
-    }
-
-    public void setInt(int in) {
-        setText("" + in);
-    }
-    
-    public int getInt() {
-        int retval = 0;
-        try {
-            retval = Integer.parseInt(getText());
-        }
-        
-        catch (Exception ex) {
-        }
-        
-        return retval;
+public class DateTimeTextField extends BaseEditMaskField  {
+    public DateTimeTextField(String formatString) {
+        super(formatString, BaseEditMaskField.DATE_MASK);
     }
 }

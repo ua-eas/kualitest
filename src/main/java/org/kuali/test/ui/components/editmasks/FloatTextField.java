@@ -17,19 +17,19 @@
 package org.kuali.test.ui.components.editmasks;
 
 
-public class IntegerTextField extends BaseEditMaskField {
-    public IntegerTextField() {
-        super("#######", BaseEditMaskField.NUMERIC_MASK);
+public class FloatTextField extends BaseEditMaskField {
+    public FloatTextField() {
+        super("#######.######", BaseEditMaskField.NUMERIC_MASK);
     }
 
-    public void setInt(int in) {
+    public void setDouble(double in) {
         setText("" + in);
     }
     
-    public int getInt() {
-        int retval = 0;
+    public double getDouble() {
+        double retval = 0;
         try {
-            retval = Integer.parseInt(getText());
+            retval = Double.parseDouble(getText());
         }
         
         catch (Exception ex) {

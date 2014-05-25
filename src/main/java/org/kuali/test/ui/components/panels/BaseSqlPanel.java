@@ -35,7 +35,7 @@ import org.kuali.test.ui.components.sqlquerytree.TableData;
 
 
 public class BaseSqlPanel extends BasePanel implements ComponentListener {
-    private DatabasePanel dbPanel;
+    private final DatabasePanel dbPanel;
     private JComboBox selectedTables;
 
     public BaseSqlPanel(TestCreator mainframe, DatabasePanel dbPanel) {
@@ -68,13 +68,13 @@ public class BaseSqlPanel extends BasePanel implements ComponentListener {
     protected void handlePanelShown() {
     }
 
-    protected void populateSelectedTables(TablePanel tp, int col) {
+    protected void populateSelectedTables(TablePanel tp, int tableIndex) {
         tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
         
         selectedTables.removeAllItems();
         
         // this is the table renderer for "tables" column
-        JComboBox cb = (JComboBox)tp.getTable().getColumnModel().getColumn(col).getCellRenderer();
+        JComboBox cb = (JComboBox)tp.getTable().getColumnModel().getColumn(tableIndex).getCellRenderer();
         cb.removeAllItems();
         
         if (getDbPanel().haveSelectedColumns()) {
@@ -87,10 +87,10 @@ public class BaseSqlPanel extends BasePanel implements ComponentListener {
         }
     }
     
-   protected void createTableCellEditorRenderer(final TablePanel tp, final int col) {
+   protected void createTableCellEditorRenderer(final TablePanel tp, final int tableIndex, final int colIndex) {
         selectedTables = new JComboBox();
         
-        tp.getTable().getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(selectedTables));
+        tp.getTable().getColumnModel().getColumn(tableIndex).setCellEditor(new ComboBoxCellEditor(selectedTables));
         
         selectedTables.setRenderer(new BasicComboBoxRenderer () {
             @Override
@@ -118,9 +118,10 @@ public class BaseSqlPanel extends BasePanel implements ComponentListener {
                 TableData td = (TableData)selectedTables.getSelectedItem();
                 
                 if (td != null) {
-                    ComboBoxCellEditor editor = (ComboBoxCellEditor)tp.getTable().getColumnModel().getColumn(col).getCellEditor();
+                    ComboBoxCellEditor editor = (ComboBoxCellEditor)tp.getTable().getColumnModel().getColumn(colIndex).getCellEditor();
                     editor.getComboBox().removeAllItems();
-                    JComboBox renderer = (JComboBox)tp.getTable().getColumnModel().getColumn(col).getCellRenderer();
+                    
+                    JComboBox renderer = (JComboBox)tp.getTable().getColumnModel().getColumn(colIndex).getCellRenderer();
                     renderer.removeAllItems();
 
                     for (ColumnData cd : getSelectedColumnData(td)) {
@@ -131,12 +132,12 @@ public class BaseSqlPanel extends BasePanel implements ComponentListener {
             }
         });
         
-        tp.getTable().getColumnModel().getColumn(0).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
+        tp.getTable().getColumnModel().getColumn(tableIndex).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
     }
     
-    protected void createColumnCellEditorRenderer(final TablePanel tp, final int col) {
+    protected void createColumnCellEditorRenderer(final TablePanel tp, final int colIndex) {
         JComboBox cb = new JComboBox();
-        tp.getTable().getColumnModel().getColumn(col).setCellEditor(new ComboBoxCellEditor(cb));
+        tp.getTable().getColumnModel().getColumn(colIndex).setCellEditor(new ComboBoxCellEditor(cb));
         
         cb.addActionListener(new ActionListener() {
             @Override
@@ -150,7 +151,7 @@ public class BaseSqlPanel extends BasePanel implements ComponentListener {
             }
         });
 
-        tp.getTable().getColumnModel().getColumn(col).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
+        tp.getTable().getColumnModel().getColumn(colIndex).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
     }
 
     private ColumnData[] getSelectedColumnData(TableData td) {

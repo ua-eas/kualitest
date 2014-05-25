@@ -40,7 +40,7 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
         boolean hasFocus) {
 
         // Find out which node we are rendering and get its text
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)value;
         
         ImageIcon icon = getIcon(node);
         if (icon != null) {

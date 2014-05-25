@@ -207,6 +207,20 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_NAME = "name";
     public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
     public static final String SQL_ORDER_BY_DESC = "DESC";
+    public static final String AND = "AND";
+
+    public static final String MAX = "MAX";
+    public static final String MIN = "MIN";
+    public static final String SUM = "SUM";
+    public static final String AVG = "AVG";
+    public static final String COUNT = "COUNT";
+    
+    public static final String DATA_TYPE_OTHER = "other";
+    public static final String DATA_TYPE_STRING = "string";
+    public static final String DATA_TYPE_INT = "int";
+    public static final String DATA_TYPE_DATE = "date";
+    public static final String DATA_TYPE_TIMESTAMP = "timestamp";
+    public static final String DATA_TYPE_FLOAT = "float";
 
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
@@ -242,11 +256,11 @@ public class Constants {
     
     public static final String[] AGGREGATE_FUNCTIONS = {
         "",
-        "AVG",
-        "COUNT",
-        "MAX",
-        "MIN",
-        "SUM"
+        AVG,
+        COUNT,
+        MAX,
+        MIN,
+        SUM
     };
 
     public static final String[] ASC_DESC = {
