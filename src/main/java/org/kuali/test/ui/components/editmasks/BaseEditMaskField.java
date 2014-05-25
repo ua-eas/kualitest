@@ -16,84 +16,96 @@
 
 package org.kuali.test.ui.components.editmasks;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.text.DateFormatter;
-import javax.swing.text.MaskFormatter;
+import java.awt.event.KeyEvent;
+import javax.swing.JTextField;
 
 
-public class BaseEditMaskField extends JFormattedTextField {
+public class BaseEditMaskField extends JTextField {
     private static final int DEFAULT_NUMERIC_COLUMNS = 10;
-    private static final int DEFAULT_DATETIME_COLUMNS = 15;
+    private static final int DEFAULT_DATE_COLUMNS = 15;
+    private static final int DEFAULT_DATE_TIME_COLUMNS = 15;
     public static final int DATE_MASK = 1;
-    public static final int NUMERIC_MASK = 2;
+    public static final int DATE_TIME_MASK = 2;
+    public static final int INTEGER_MASK = 3;
+    public static final int FLOAT_MASK = 4;
+    private int maskType;
     
-    public BaseEditMaskField(String mask, int maskType) {
-        switch(maskType) {
-            case DATE_MASK:
-                initMask(mask, maskType, DEFAULT_DATETIME_COLUMNS);
-                break;
-            case NUMERIC_MASK:
-                initMask(mask, maskType, DEFAULT_NUMERIC_COLUMNS);
-                break;
+    public BaseEditMaskField(int maskType) {
+        initMask(maskType, 0);
+    }
+
+    public BaseEditMaskField(int maskType, int numcols) {
+        initMask(maskType, numcols);
+    }
+    
+    private void initMask(int maskType, int numcols) {
+        this.maskType = maskType;
+        
+        if (numcols == 0) {
+            switch(maskType) {
+                case DATE_MASK:
+                    numcols = DEFAULT_DATE_COLUMNS;
+                    break;
+                case DATE_TIME_MASK:
+                    numcols = DEFAULT_DATE_TIME_COLUMNS;
+                    break;
+                case INTEGER_MASK:
+                case FLOAT_MASK:
+                    numcols = DEFAULT_NUMERIC_COLUMNS;
+                    break;
+            }
+        }
+        
+        setColumns(numcols);
+    }
+    
+    private boolean isValidNumericEntry(char c) {
+        return (Character.isDigit(c) 
+            || ((c == '-') && (getCaretPosition() == 0))
+            || ((c == ',') && (getCaretPosition() > 0))
+            || ((c == '.' && !getText().contains("."))));
+    }
+    
+    private boolean isValidIntegerEntry(char c) {
+        return (isValidNumericEntry(c) && (c != '.'));
+    }
+    
+    @Override
+    protected void processKeyEvent(KeyEvent e) {
+        boolean process = true;
+        if (isMaskInputEvent(e)) {
+            char c = e.getKeyChar();
+            switch(maskType) {
+                case INTEGER_MASK:
+                    process = isValidIntegerEntry(c);
+                    break;
+                case FLOAT_MASK:
+                    process = isValidNumericEntry(c);
+                    break;
+                case DATE_MASK:
+                    break;
+                case DATE_TIME_MASK:
+                    break;
+            }
+        } 
+        
+        
+        if (process) {
+            super.processKeyEvent(e);
         }
     }
-
-    public BaseEditMaskField(String mask, int maskType, int numcols) {
-        initMask(mask, maskType, numcols);
-    }
     
-    private void initMask(String mask, int maskType, int numcols) {
-        switch(maskType) {
-            case DATE_MASK:
-                setFormatter(new DateFormatter(new SimpleDateFormat(mask)));
-                setColumns(numcols);
-                break;
-            case NUMERIC_MASK:
-                try {
-                    setFormatter(new MaskFormatter(mask));
-                }
-                
-                catch (Exception ex) {
-                     setFormatter(new MaskFormatter());
-                }
-                
-                setColumns(numcols);
-                break;
+    private boolean isMaskInputEvent(KeyEvent e) {
+        boolean retval = false;
+        if ((e.getModifiers()!= KeyEvent.CHAR_UNDEFINED) 
+            && (e.getKeyCode() != KeyEvent.VK_BACK_SPACE)
+            && (e.getKeyCode() != KeyEvent.VK_LEFT)
+            && (e.getKeyCode() != KeyEvent.VK_RIGHT)
+            && (e.getKeyCode() != KeyEvent.VK_BACK_SPACE)
+            && (e.getKeyCode() != KeyEvent.VK_DELETE)) {
+            retval = true;
         }
-
-        setInputVerifier(createInputVerifier());
-        setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
-    }
-    
-    private InputVerifier createInputVerifier() {
-        return new InputVerifier() {
-            @Override
-            public boolean verify(JComponent input) {
-                boolean retval = false;
-                String text = getText();
-                try {
-                    AbstractFormatter formatter = getFormatter();
-                    if (formatter != null) {
-                        getFormatter().stringToValue(text);
-                        retval = true;
-                    }
-                 } 
-                
-                 catch (ParseException pe) {
-                     retval = false;
-                 }
-
-                return retval;
-            }
-            
-            @Override
-            public boolean shouldYieldFocus(JComponent input) {
-                return verify(input);
-            }
-        };
+        
+        return retval;
     }
 }

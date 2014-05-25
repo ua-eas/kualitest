@@ -19,7 +19,7 @@ package org.kuali.test.ui.components.editmasks;
 
 public class FloatTextField extends BaseEditMaskField {
     public FloatTextField() {
-        super("#######.######", BaseEditMaskField.NUMERIC_MASK);
+        super(BaseEditMaskField.FLOAT_MASK);
     }
 
     public void setDouble(double in) {

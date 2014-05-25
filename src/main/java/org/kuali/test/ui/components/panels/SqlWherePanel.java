@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.editmasks.BaseEditMaskField;
 import org.kuali.test.ui.components.editmasks.DateTimeTextField;
 import org.kuali.test.ui.components.editmasks.FloatTextField;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
@@ -45,8 +46,8 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     private TablePanel tp;
     private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
     private final DefaultCellEditor floatCellEditor = new DefaultCellEditor(new FloatTextField());
-    private final DefaultCellEditor dateCellEditor = new DefaultCellEditor(new DateTimeTextField("yyyy-MM-dd"));
-    private final DefaultCellEditor tsCellEditor= new DefaultCellEditor(new DateTimeTextField("yyyy-MM-dd HH:mm"));
+    private final DefaultCellEditor dateCellEditor = new DefaultCellEditor(new DateTimeTextField(BaseEditMaskField.DATE_MASK));
+    private final DefaultCellEditor tsCellEditor= new DefaultCellEditor(new DateTimeTextField(BaseEditMaskField.DATE_TIME_MASK));
     private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
     
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {

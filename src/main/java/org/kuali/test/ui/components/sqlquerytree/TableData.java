@@ -110,10 +110,8 @@ public class TableData extends DBObjectData {
 
     public String getFullTableName() {
         StringBuilder retval = new StringBuilder(128);
-        
-        retval.append(schema);
-        retval.append(".");
-        retval.append(getName());
+
+        retval.append(getDbTableName());
         retval.append(".");
         retval.append(getForeignKeyName());
         
@@ -152,6 +150,16 @@ public class TableData extends DBObjectData {
 
     public void setTreeNode(DefaultMutableTreeNode treeNode) {
         this.treeNode = treeNode;
+    }
+    
+    public String getDbTableName() {
+        StringBuilder retval = new StringBuilder(128);
+        
+        retval.append(schema);
+        retval.append(".");
+        retval.append(getName());
+        
+        return retval.toString();
     }
 }
 

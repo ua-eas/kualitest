@@ -18,7 +18,7 @@ package org.kuali.test.ui.components.editmasks;
 
 
 public class DateTimeTextField extends BaseEditMaskField  {
-    public DateTimeTextField(String formatString) {
-        super(formatString, BaseEditMaskField.DATE_MASK);
+    public DateTimeTextField(int maskType) {
+        super(maskType);
     }
 }

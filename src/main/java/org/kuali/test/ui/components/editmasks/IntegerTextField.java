@@ -19,7 +19,7 @@ package org.kuali.test.ui.components.editmasks;
 
 public class IntegerTextField extends BaseEditMaskField {
     public IntegerTextField() {
-        super("#######", BaseEditMaskField.NUMERIC_MASK);
+        super(BaseEditMaskField.INTEGER_MASK);
     }
 
     public void setInt(int in) {

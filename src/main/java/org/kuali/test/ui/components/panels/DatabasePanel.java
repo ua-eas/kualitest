@@ -264,7 +264,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
                     if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
                         // only move down the tree if this is not a circular relationship
-                        if (!tdata.equals(td)) {
+                        if (!isCircularReference(curnode)) {
                             loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
                         } else {
                             loadTableColumns(dbconn, dmd, curnode);
@@ -298,6 +298,24 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
 
+    private boolean isCircularReference(DefaultMutableTreeNode node) {
+        boolean retval = false;
+        
+        TableData td = (TableData)node.getUserObject();
+        DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)node.getParent();
+        
+        while (!retval && (pnode != null)) {
+            if (pnode.getUserObject() instanceof TableData) {
+                TableData tdata = (TableData)pnode.getUserObject();
+                retval = td.getDbTableName().equals(tdata.getDbTableName());
+            }
+
+            pnode = (DefaultMutableTreeNode)pnode.getParent();
+        }
+        
+        return retval;
+    }
+    
     public String getTableDisplayName(String tname) {
         String retval = tname;
         
