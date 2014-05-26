@@ -29,11 +29,10 @@ import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
-import org.kuali.test.ui.components.editmasks.BaseEditMaskField;
-import org.kuali.test.ui.components.editmasks.DateTimeTextField;
 import org.kuali.test.ui.components.editmasks.FloatTextField;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
+import org.kuali.test.ui.components.editors.DateChooserCellEditor;
 import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
@@ -46,8 +45,8 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     private TablePanel tp;
     private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
     private final DefaultCellEditor floatCellEditor = new DefaultCellEditor(new FloatTextField());
-    private final DefaultCellEditor dateCellEditor = new DefaultCellEditor(new DateTimeTextField(BaseEditMaskField.DATE_MASK));
-    private final DefaultCellEditor tsCellEditor= new DefaultCellEditor(new DateTimeTextField(BaseEditMaskField.DATE_TIME_MASK));
+    private final DateChooserCellEditor dateCellEditor = new DateChooserCellEditor();
+    private final DateChooserCellEditor dateCellRenderer = new DateChooserCellEditor();
     private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
     
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
@@ -193,6 +192,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         
         if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
             WhereColumnData wcd = new WhereColumnData();
+            wcd.setOperator(Constants.EQUAL_TO);
             if (l.size() > 0) {
                 wcd.setAndOr(Constants.AND);
             }
@@ -279,8 +279,6 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         public void setOperator(String operator) {
             this.operator = operator;
         }
-
-        
     }
     
     public List <WhereColumnData> getWhereColumnData() {
@@ -293,7 +291,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             
             // remove any rows that are incomplete
             if ((wcd.getColumnData() == null) || (wcd.getTableData() == null)) {
-                it.remove();;
+                it.remove();
             }
         }
         
@@ -303,6 +301,13 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     @Override
     protected void handleColumnChanged(ColumnData cd) {
         tp.getTable().getColumnModel().getColumn(5).setCellEditor(getValueCellEditor(cd));
+        
+        if (Utils.isDateJdbcType(cd.getDataType())
+            || Utils.isTimestampJdbcType(cd.getDataType())) {
+           tp.getTable().getColumnModel().getColumn(5).setCellRenderer(dateCellRenderer);
+        } else {
+            tp.getTable().getColumnModel().getColumn(5).setCellRenderer(null);
+        }
     }
     
     private TableCellEditor getValueCellEditor(ColumnData cd) {
@@ -312,10 +317,8 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             retval = intCellEditor;
         } else if (Utils.isFloatJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
             retval = floatCellEditor;
-        } else if (Utils.isDateJdbcType(cd.getDataType())) {
+        } else if (Utils.isDateJdbcType(cd.getDataType()) || Utils.isTimestampJdbcType(cd.getDataType())) {
             retval = dateCellEditor;
-        } else if (Utils.isTimestampJdbcType(cd.getDataType())) {
-            retval = tsCellEditor;
         } else {
             retval = defaultCellEditor;
         }

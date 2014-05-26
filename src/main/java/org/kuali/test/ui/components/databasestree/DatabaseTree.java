@@ -31,8 +31,8 @@ import org.kuali.test.ui.base.BaseTree;
  */
 public class DatabaseTree extends BaseTree {
     private static final Logger LOG = Logger.getLogger(DatabaseTree.class);
-    private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-    private DatabasePopupMenu popupMenu;
+    private final KualiTestConfigurationDocument.KualiTestConfiguration configuration;
+    private final DatabasePopupMenu popupMenu;
     
     public DatabaseTree(TestCreator mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         super(mainframe);

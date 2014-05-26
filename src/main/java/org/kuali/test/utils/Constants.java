@@ -221,6 +221,7 @@ public class Constants {
     public static final String DATA_TYPE_DATE = "date";
     public static final String DATA_TYPE_TIMESTAMP = "timestamp";
     public static final String DATA_TYPE_FLOAT = "float";
+    public static final String EQUAL_TO = "=";
 
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";

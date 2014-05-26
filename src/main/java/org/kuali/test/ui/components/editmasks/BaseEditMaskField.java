@@ -22,12 +22,8 @@ import javax.swing.JTextField;
 
 public class BaseEditMaskField extends JTextField {
     private static final int DEFAULT_NUMERIC_COLUMNS = 10;
-    private static final int DEFAULT_DATE_COLUMNS = 15;
-    private static final int DEFAULT_DATE_TIME_COLUMNS = 15;
-    public static final int DATE_MASK = 1;
-    public static final int DATE_TIME_MASK = 2;
-    public static final int INTEGER_MASK = 3;
-    public static final int FLOAT_MASK = 4;
+    public static final int INTEGER_MASK = 1;
+    public static final int FLOAT_MASK = 2;
     private int maskType;
     
     public BaseEditMaskField(int maskType) {
@@ -43,12 +39,6 @@ public class BaseEditMaskField extends JTextField {
         
         if (numcols == 0) {
             switch(maskType) {
-                case DATE_MASK:
-                    numcols = DEFAULT_DATE_COLUMNS;
-                    break;
-                case DATE_TIME_MASK:
-                    numcols = DEFAULT_DATE_TIME_COLUMNS;
-                    break;
                 case INTEGER_MASK:
                 case FLOAT_MASK:
                     numcols = DEFAULT_NUMERIC_COLUMNS;
@@ -81,10 +71,6 @@ public class BaseEditMaskField extends JTextField {
                     break;
                 case FLOAT_MASK:
                     process = isValidNumericEntry(c);
-                    break;
-                case DATE_MASK:
-                    break;
-                case DATE_TIME_MASK:
                     break;
             }
         } 
