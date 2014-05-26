@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -44,6 +45,7 @@ import org.kuali.test.Application;
 import org.kuali.test.Column;
 import org.kuali.test.CustomForeignKey;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.DatabaseType;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
@@ -661,18 +663,21 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 }
             }
 
-            retval.append(getSqlKeywordString(htmlFormat, "where"));
-            
             List <WhereColumnData> wherecols = sqlWherePanel.getWhereColumnData();
             
-            for (WhereColumnData wcd : wherecols) {
-                retval.append(getSqlTabString(htmlFormat));
+            if (!wherecols.isEmpty()) {
+                retval.append(getSqlKeywordString(htmlFormat, "where"));
+            
+                for (WhereColumnData wcd : wherecols) {
+                    retval.append(getSqlTabString(htmlFormat));
+                    retval.append(buildWhereClause(tableList, wcd, htmlFormat));
+                }
             }
             
             if (isGroupByRequired(selcols)) {
                 retval.append(getSqlKeywordString(htmlFormat, "group by"));
                 retval.append(getSqlTabString(htmlFormat));
-                
+
                 String comma = "";
                 for (SelectColumnData scd : selcols) {
                     if (StringUtils.isBlank(scd.getFunction())) {
@@ -686,7 +691,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
                 retval.append(getSqlLineBreakString(htmlFormat));
             }
-
+            
             if (!orderbycols.isEmpty()) {
                 Collections.sort(orderbycols, new Comparator <SelectColumnData> () {
                     @Override
@@ -723,6 +728,112 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         } else {
             retval.append("");
         }
+        
+        return retval.toString();
+    }
+    
+    private String buildWhereClause(List <TableData> tableList, WhereColumnData wcd, boolean htmlFormat) {
+        StringBuilder retval = new StringBuilder(128);
+        
+        if (StringUtils.isNotBlank(wcd.getAndOr())) {
+            retval.append(" ");
+            retval.append(wcd.getAndOr());
+        }
+        
+        if (StringUtils.isNotBlank(wcd.getOpenParenthesis())) {
+            retval.append(" ");
+            retval.append(wcd.getOpenParenthesis());
+        }
+        
+        retval.append(" ");
+        retval.append(getTableAlias(wcd.getTableData(), tableList));
+        retval.append(".");
+        retval.append(wcd.getColumnData().getName());
+        retval.append(" ");
+        retval.append(wcd.getOperator());
+        retval.append(" ");
+
+        if (Constants.IN.equals(wcd.getOperator())) {
+            retval.append(buildInString(wcd));
+        } else if (Constants.NULL.equals(wcd.getOperator())) {
+            retval.append(" is null");
+        } else if (Constants.NOT_NULL.equals(wcd.getOperator())){
+            retval.append(" is not null");
+        } else if (Constants.LIKE.equals(wcd.getOperator())) {
+            retval.append(" like ('");
+            retval.append(wcd.getValue());
+            retval.append("')");
+        } else if (Constants.NOT_LIKE.equals(wcd.getOperator())) {
+            retval.append(" not like ('");
+            retval.append(wcd.getValue());
+            retval.append("')");
+        } else {
+            int jdbcType = wcd.getColumnData().getDataType();
+            if (Utils.isNumericJdbcType(jdbcType)) {
+                retval.append(" ");
+                retval.append(wcd.getValue());
+            } else if (Utils.isDateJdbcType(jdbcType) || Utils.isDateTimeJdbcType(jdbcType)) {
+                retval.append(buildDateTimeString(wcd, htmlFormat));
+            } else {
+                retval.append(" '");
+                retval.append(wcd.getValue());
+                retval.append("'");
+            }
+        }
+        
+        retval.append(getSqlLineBreakString(htmlFormat));
+        
+        return retval.toString();
+    }
+    
+    private String buildDateTimeString(WhereColumnData wcd, boolean htmlFormat) {
+        StringBuilder retval = new StringBuilder(64);
+        
+        if (htmlFormat) {
+            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
+            if (DatabaseType.ORACLE.equals(dbconn.getType())) {
+                retval.append(" to_date('");
+                retval.append(wcd.getValue());
+                retval.append("', 'YYYY-MM-DD')");
+            } else {
+                retval.append(" '");
+                retval.append(wcd.getValue());
+                retval.append("'");
+            }
+        } else {
+            retval.append(" {d '");
+            retval.append(wcd.getValue());
+            retval.append("'}");
+        }
+        
+        return retval.toString();
+    }
+    
+    private String buildInString(WhereColumnData wcd) {
+        StringBuilder retval = new StringBuilder(128);
+        retval.append("(");
+        if (Utils.isStringJdbcType(wcd.getColumnData().getDataType())) {
+            StringTokenizer st = new StringTokenizer(wcd.getValue(), ",");
+            String comma = "";
+            
+            while (st.hasMoreTokens()) {
+                retval.append(comma);
+                if (Utils.isStringJdbcType(wcd.getColumnData().getDataType())) {
+                    retval.append("'");
+                }
+
+                retval.append(st.nextToken());
+
+                if (Utils.isStringJdbcType(wcd.getColumnData().getDataType())) {
+                    retval.append("'");
+                }
+                comma = ",";
+            }
+        } else {
+            retval.append(wcd.getValue());
+        }
+        
+        retval.append(")");
         
         return retval.toString();
     }

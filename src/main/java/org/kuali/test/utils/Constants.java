@@ -221,11 +221,8 @@ public class Constants {
     public static final String DATA_TYPE_DATE = "date";
     public static final String DATA_TYPE_TIMESTAMP = "timestamp";
     public static final String DATA_TYPE_FLOAT = "float";
-    public static final String EQUAL_TO = "=";
-
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
-    
     
     public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
     public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
@@ -289,17 +286,33 @@ public class Constants {
         ")))"
     };
 
+    
+    public static final String EQUAL_TO = "=";
+    public static final String NOT_EQUAL_TO = "<>";
+    public static final String LESS_THAN = "<";
+    public static final String LESS_THAN_OR_EQUAL_TO = "<=";
+    public static final String GREATER_THAN = ">";
+    public static final String GREATER_THAN_OR_EQUAL_TO = ">=";
+    public static final String IN = "in";
+    public static final String NOT_INT = "not in";
+    public static final String BETWEEN ="between";
+    public static final String LIKE = "like";
+    public static final String NOT_LIKE = "not like";
+    public static final String NULL = "null";
+    public static final String NOT_NULL = "not null";
+
 
     public static final String[] OPERATORS = {
-        "=",
-        "<",
-        "<=",
-        ">",
-        ">=",
-        "!=",
-        "in",
-        "like",
-        "null",
-        "not null"
+        EQUAL_TO,
+        LESS_THAN,
+        LESS_THAN_OR_EQUAL_TO,
+        GREATER_THAN,
+        GREATER_THAN_OR_EQUAL_TO,
+        NOT_EQUAL_TO,
+        IN,
+        LIKE,
+        NOT_LIKE,
+        NULL,
+        NOT_NULL
     };
 }

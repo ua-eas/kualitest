@@ -19,12 +19,15 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
@@ -48,6 +51,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     private final DateChooserCellEditor dateCellEditor = new DateChooserCellEditor();
     private final DateChooserCellEditor dateCellRenderer = new DateChooserCellEditor();
     private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
+    private final DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
     
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel);
@@ -132,8 +136,16 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
                         retval = (wcd.getTableData() != null);
                         break;
                     case 4:
-                    case 5:
                         retval = (wcd.getColumnData() != null);
+                        break;
+                    case 5:
+                        retval = ((wcd.getColumnData() != null) 
+                            && !Constants.NULL.equals(wcd.getOperator())
+                            && !Constants.NOT_NULL.equals(wcd.getOperator()));
+                        
+                        if (!retval) {
+                            wcd.setValue(null);
+                        }
                         break;
                 }
                 
@@ -167,8 +179,41 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
                     return super.getValueAt(row, column); 
                 }
             }
-            
-            
+
+            @Override
+            public TableCellEditor getCellEditor(int row, int column) {
+                TableCellEditor retval = null;
+                if (column == 5) {
+                    WhereColumnData wcd = (WhereColumnData)tp.getTable().getTableData().get(row);
+                    if (wcd != null) {
+                        retval = getValueCellEditor(wcd.getColumnData());
+                    } else {
+                        retval = defaultCellEditor;
+                    }
+                } else {
+                    retval = super.getCellEditor(row, column); 
+                }
+                
+                return retval;
+            }
+
+            @Override
+            public TableCellRenderer getCellRenderer(int row, int column) {
+                TableCellRenderer retval = null;
+                // handle value entry editor
+                if (column == 5) {
+                    WhereColumnData wcd = (WhereColumnData)tp.getTable().getTableData().get(row);
+                    if (wcd != null) {
+                        retval = getValueCellRenderer(wcd.getColumnData());
+                    } else {
+                        retval = defaultCellRenderer;
+                    }
+                } else {
+                    retval = super.getCellRenderer(row, column); 
+                }
+                
+                return retval;
+            }
         };
         
         retval.getColumnModel().getColumn(0).setCellEditor(new ComboBoxCellEditor(new JComboBox(Constants.AND_OR)));
@@ -185,21 +230,40 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
 
         return retval;
     }
+    private boolean isLastRowComplete(List <WhereColumnData> whereColumns) {
+        WhereColumnData wcd = whereColumns.get(whereColumns.size() - 1);
+        return ((wcd.getTableData() != null)
+            && (wcd.getColumnData() != null)
+            && StringUtils.isNotBlank(wcd.getOperator())
+            && StringUtils.isNotBlank(wcd.getValue()));
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        List l = tp.getTable().getTableData();
+        List <WhereColumnData> l = tp.getTable().getTableData();
         
         if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
-            WhereColumnData wcd = new WhereColumnData();
-            wcd.setOperator(Constants.EQUAL_TO);
+            boolean addRow = false;
             if (l.size() > 0) {
-                wcd.setAndOr(Constants.AND);
+                if (isLastRowComplete(l)) {
+                    addRow = true;
+                } else {
+                    JOptionPane.showMessageDialog(this, "Please complete required entries (table, columns, operator, value)");
+                }
+            } else {
+                addRow = true;
             }
             
-            l.add(wcd);
-            
-            tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
+            if (addRow) {
+                WhereColumnData wcd = new WhereColumnData();
+                wcd.setOperator(Constants.EQUAL_TO);
+                if (!l.isEmpty()) {
+                    wcd.setAndOr(Constants.AND);
+                }
+
+                l.add(wcd);
+                tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
+            }
         } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getActionCommand())) {
             int row = tp.getTable().getSelectedRow();
             
@@ -284,45 +348,55 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     public List <WhereColumnData> getWhereColumnData() {
         List <WhereColumnData> retval =  (List<WhereColumnData>)tp.getTable().getTableData();
         
-        Iterator <WhereColumnData> it = retval.iterator();
-        
-        while (it.hasNext()) {
-            WhereColumnData wcd = it.next();
+        if (!retval.isEmpty()) {
+            int lastRow = retval.size() - 1;
             
-            // remove any rows that are incomplete
-            if ((wcd.getColumnData() == null) || (wcd.getTableData() == null)) {
-                it.remove();
+            WhereColumnData wcd = retval.get(retval.size() -1);
+
+            // if last row is not complete remove it
+            if (!isLastRowComplete(retval)) {
+                retval.remove(lastRow);
+                tp.getTable().getModel().fireTableRowsDeleted(lastRow, lastRow);
             }
         }
         
         return retval;
     }
 
-    @Override
-    protected void handleColumnChanged(ColumnData cd) {
-        tp.getTable().getColumnModel().getColumn(5).setCellEditor(getValueCellEditor(cd));
-        
-        if (Utils.isDateJdbcType(cd.getDataType())
-            || Utils.isTimestampJdbcType(cd.getDataType())) {
-           tp.getTable().getColumnModel().getColumn(5).setCellRenderer(dateCellRenderer);
-        } else {
-            tp.getTable().getColumnModel().getColumn(5).setCellRenderer(null);
-        }
-    }
-    
     private TableCellEditor getValueCellEditor(ColumnData cd) {
         TableCellEditor retval = null;
         
-        if (Utils.isIntegerJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
-            retval = intCellEditor;
-        } else if (Utils.isFloatJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
-            retval = floatCellEditor;
-        } else if (Utils.isDateJdbcType(cd.getDataType()) || Utils.isTimestampJdbcType(cd.getDataType())) {
-            retval = dateCellEditor;
+        if (cd != null) {
+            if (Utils.isIntegerJdbcType(cd.getDataType(), cd.getDecimalDigits())) {
+                retval = intCellEditor;
+            } else if (Utils.isFloatJdbcType(cd.getDataType(),cd.getDecimalDigits())) {
+                retval = floatCellEditor;
+            } else if (Utils.isDateJdbcType(cd.getDataType()) || Utils.isTimestampJdbcType(cd.getDataType())) {
+                retval = dateCellEditor;
+            } else {
+                retval = defaultCellEditor;
+            }
         } else {
             retval = defaultCellEditor;
         }
         
         return retval;
     }
+    
+    private TableCellRenderer getValueCellRenderer(ColumnData cd) {
+        TableCellRenderer retval = null;
+        
+        if (cd == null) {
+            retval = defaultCellRenderer;
+        } else {
+            if (Utils.isDateJdbcType(cd.getDataType()) || Utils.isTimestampJdbcType(cd.getDataType())) {
+                retval = dateCellRenderer;
+            } else {
+                retval = defaultCellRenderer;
+            }
+        }
+        
+        return retval;
+    }
+    
 }
