@@ -287,4 +287,17 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     protected String getRequiredColumnList() {
         return "table, column, operator, value";
     }
+
+    @Override
+    public boolean haveEntries() {
+        return !getTable().getTableData().isEmpty();
+    }
+
+    protected void initializeColumnData(WhereColumnData cd) {
+        if (!getTable().getTableData().isEmpty()) {
+            cd.setAndOr(Constants.AND);
+        }
+        
+        cd.setOperator(Constants.EQUAL_TO);
+    }
 }

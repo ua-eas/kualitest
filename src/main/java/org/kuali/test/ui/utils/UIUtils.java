@@ -19,6 +19,7 @@ package org.kuali.test.ui.utils;
 import java.awt.Component;
 import java.awt.Window;
 import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 
@@ -42,7 +43,7 @@ public class UIUtils {
             buf.append("<html><div style='");
             buf.append(style);
             buf.append("'>");
-            buf.append(msg);
+            buf.append(StringEscapeUtils.escapeHtml4(msg));
             buf.append("</div></html>");
             retval = buf.toString();
         }

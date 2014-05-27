@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -179,7 +180,11 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected JPanel buildLabelGridPanel(String[] labels) {
         JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
         for (String label : labels) {
-            JLabel l = new JLabel(label + ":", JLabel.RIGHT);
+            String colon = ":";
+            if (StringUtils.isBlank(label)) {
+                colon = "";
+            }
+            JLabel l = new JLabel(label + colon, JLabel.RIGHT);
             l.setVerticalAlignment(JLabel.CENTER);
             retval.add(l);
         }

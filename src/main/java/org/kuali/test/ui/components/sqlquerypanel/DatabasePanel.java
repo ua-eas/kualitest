@@ -23,6 +23,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,15 +43,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AdditionalDatabaseInfoDocument;
 import org.kuali.test.Application;
+import org.kuali.test.Checkpoint;
 import org.kuali.test.Column;
 import org.kuali.test.CustomForeignKey;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
+import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
@@ -71,6 +77,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private SqlSelectPanel sqlSelectPanel;
     private SqlWherePanel sqlWherePanel;
     private SqlDisplayPanel sqlDisplayPanel;
+    private List <TestOperation> testOperations = new ArrayList<TestOperation>();
     
     private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
@@ -81,14 +88,13 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
     private void initComponents() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(new JLabel("Base Table:", JLabel.RIGHT));
         
+        p.add(new JLabel("Base Table:", JLabel.RIGHT));
         p.add(tableDropdown = new JComboBox());
         loadAvailableDatabaseTables();
-
+        
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
-        
         
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Columns", new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())));
@@ -437,15 +443,41 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     protected void handleCancelTest() {
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
+        testOperations.clear();
     }
 
     @Override
     protected void handleCreateCheckpoint() {
+        if (isValidSqlQuery()) {
+            SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), this);
+
+            if (dlg.isSaved()) {
+                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+                getSaveTest().setEnabled(true);
+            }
+        }
+    }
+    
+    private void addCheckpoint(Checkpoint checkpoint) {
+        TestOperation testOp = TestOperation.Factory.newInstance();
+        testOp.setOperationType(TestOperationType.CHECKPOINT);
+        Operation op = testOp.addNewOperation();
+        op.addNewCheckpointOperation();
+        op.setCheckpointOperation(checkpoint);
+        testOperations.add(testOp);
     }
 
     @Override
     protected boolean handleSaveTest() {
-        return false;
+        boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
+            getTestHeader(), testOperations);
+
+        if (retval) {
+            getMainframe().getTestRepositoryTree().saveConfiguration();
+            getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+        }
+
+        return retval;
     }
 
     public SqlQueryTree getSqlQueryTree() {
@@ -519,7 +551,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         String retval = td.getName();
         for (int i = 0; i < tables.size(); ++i) {
             if (td.equals(tables.get(i))) {
-                retval = Utils.buildHtmlStyle(Constants.HTML_DARK_GREEN_STYLE, "t"+ (i+1));
+                retval = ("t"+ (i+1));
+                if (htmlFormat) {
+                    retval = Utils.buildHtmlStyle(Constants.HTML_DARK_GREEN_STYLE, retval);
+                } 
                 break;
             } 
         }
@@ -559,6 +594,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     }
 
     public String getSqlQueryString(boolean htmlFormat) {
+        return getSqlQueryString(htmlFormat, false);
+    }
+    
+    public String getSqlQueryString(boolean htmlFormat, boolean forSyntaxCheck) {
         StringBuilder retval = new StringBuilder(512);
 
         List <SelectColumnData> selcols = sqlSelectPanel.getColumnData();
@@ -678,7 +717,12 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             
                 for (WhereColumnData wcd : wherecols) {
                     retval.append(getSqlTabString(htmlFormat));
-                    retval.append(buildWhereClause(tableList, wcd, htmlFormat));
+                    retval.append(buildWhereClause(tableList, wcd, htmlFormat, forSyntaxCheck));
+                }
+                
+                // if we are just doing a syntax check add a condition that will always fail
+                if (forSyntaxCheck) {
+                    retval.append(" and (1 = 0) ");
                 }
             }
             
@@ -740,7 +784,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval.toString();
     }
     
-    private String buildWhereClause(List <TableData> tableList, WhereColumnData wcd, boolean htmlFormat) {
+    private String buildWhereClause(List <TableData> tableList, WhereColumnData wcd, boolean htmlFormat, boolean forSyntaxCheck) {
         StringBuilder retval = new StringBuilder(128);
         
         if (StringUtils.isNotBlank(wcd.getAndOr())) {
@@ -781,7 +825,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 retval.append(" ");
                 retval.append(wcd.getValue());
             } else if (Utils.isDateJdbcType(jdbcType) || Utils.isDateTimeJdbcType(jdbcType)) {
-                retval.append(buildDateTimeString(wcd, htmlFormat));
+                retval.append(buildDateTimeString(wcd, htmlFormat, forSyntaxCheck));
             } else {
                 retval.append(" '");
                 retval.append(wcd.getValue());
@@ -789,15 +833,19 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             }
         }
         
+        if (StringUtils.isNotBlank(wcd.getCloseParenthesis())) {
+            retval.append(wcd.getCloseParenthesis());
+        }
+        
         retval.append(getSqlLineBreakString(htmlFormat));
         
         return retval.toString();
     }
     
-    private String buildDateTimeString(WhereColumnData wcd, boolean htmlFormat) {
+    private String buildDateTimeString(WhereColumnData wcd, boolean htmlFormat, boolean forSyntaxCheck) {
         StringBuilder retval = new StringBuilder(64);
         
-        if (htmlFormat) {
+        if (htmlFormat || forSyntaxCheck) {
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             if (DatabaseType.ORACLE.equals(dbconn.getType())) {
                 retval.append(" to_date('");
@@ -973,5 +1021,47 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 };
             }
         }
+    }
+    
+    public boolean isValidSqlQuery() {
+        boolean retval = false;
+        
+        if (sqlSelectPanel.haveEntries() && sqlWherePanel.haveEntries()) {
+            retval = isGeneratedSqlValid();
+        } else {
+            UIUtils.showError(this, "Incomplete Entry", "SQL select and where column entry required");
+        }
+        
+        return retval;
+    }
+    
+    private boolean isGeneratedSqlValid() {
+        boolean retval = false;
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet res = null;
+        DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
+
+        if (dbconn != null) {
+            try {
+                conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                stmt = conn.createStatement();
+                
+                LOG.error(getSqlQueryString(false, true));
+                res = stmt.executeQuery(getSqlQueryString(false, true));
+                retval = true;
+            }
+            
+            catch (Exception ex) {
+                UIUtils.showError(this, "SQL Syntax Error", ex.toString());
+            }
+            
+            finally {
+                Utils.closeDatabaseResources(conn, stmt, res);
+            }
+        }
+        
+        
+        return retval;
     }
 }

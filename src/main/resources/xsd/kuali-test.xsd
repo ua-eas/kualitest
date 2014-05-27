@@ -164,17 +164,17 @@
             <xs:element name="number" type="xs:int"/>
             <xs:element name="type" type="checkpoint-type"/>
             <xs:element name="checkpoint-properties" type="checkpoint-properties"/>
-            <xs:element name="hidden-fields" type="hidden-fields"/>
+            <xs:element name="input-parameters" type="input-parameters"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="hidden-fields">
+    <xs:complexType name="input-parameters">
         <xs:sequence>
-            <xs:element name="hidden-field" type="hidden-field" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="parameter" type="parameter" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="hidden-field">
+    <xs:complexType name="parameter">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="value" type="xs:string"/>

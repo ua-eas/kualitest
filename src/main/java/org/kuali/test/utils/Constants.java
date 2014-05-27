@@ -130,6 +130,7 @@ public class Constants {
     public static final String NODE_INDEX_MATCHER_CODE = "I";
     public static final String NODE_ID = "nodeid";
     public static final String SYSTEM_PROPERTY_GROUP = "system";
+    public static final String DATABASE_PROPERTY_GROUP = "database";
     public static final String ADD_ROW_ACTION = "Add Row";
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -316,5 +317,16 @@ public class Constants {
         NOT_LIKE,
         NULL,
         NOT_NULL
+    };
+    
+    public static final String SINGLE_ROW_EXISTS = "single row exists";
+    public static final String MULTIPLE_ROWS_EXIST = "multiple rows exist";
+    public static final String NO_ROW_EXISTS = "no rows exist";
+    
+    
+    public static final String[] SQL_CHECKPOINT_PROPERTIES = {
+        SINGLE_ROW_EXISTS,
+        MULTIPLE_ROWS_EXIST,
+        NO_ROW_EXISTS
     };
 }

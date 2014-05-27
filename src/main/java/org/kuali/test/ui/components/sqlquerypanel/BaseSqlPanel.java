@@ -253,7 +253,9 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
                 boolean addRow = (l.isEmpty() || isLastRowComplete(l));
                 if (addRow) {
                     try {
-                        l.add((T)columnTypeClass.newInstance());
+                        T cd = (T)columnTypeClass.newInstance();
+                        initializeColumnData(cd);
+                        l.add(cd);
                         t.getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
                     }
                     
@@ -292,5 +294,12 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
 
     public void setTablePanel(TablePanel tablePanel) {
         this.tablePanel = tablePanel;
+    }
+    
+    public boolean haveEntries() {
+        return false;
+    }
+    
+    protected void initializeColumnData(T cd) {
     }
 }

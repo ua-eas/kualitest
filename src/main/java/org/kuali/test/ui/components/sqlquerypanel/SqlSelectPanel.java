@@ -198,4 +198,9 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     public boolean isDistinct() {
         return distinct.isSelected();
     }
+    
+    @Override
+    public boolean haveEntries() {
+        return !getTable().getTableData().isEmpty();
+    }
 }

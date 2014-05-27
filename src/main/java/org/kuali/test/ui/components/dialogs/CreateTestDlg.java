@@ -131,7 +131,7 @@ public class CreateTestDlg extends BaseSetupDlg {
                 if (runtimeFailure.getSelectedIndex() > 0) {
                     testHeader.setOnRuntimeFailure(FailureAction.Enum.forString((String)runtimeFailure.getSelectedItem()));
                 } else {
-                    testHeader.setOnRuntimeFailure(null);
+                    testHeader.setOnRuntimeFailure(FailureAction.IGNORE);
                 }
                 
                 testHeader.setTestFileName(File.createTempFile("temp-test", "xml").getPath());
