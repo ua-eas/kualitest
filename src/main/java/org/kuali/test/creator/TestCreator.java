@@ -20,6 +20,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -57,11 +60,11 @@ import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
-import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
+import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
@@ -72,7 +75,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class TestCreator extends JFrame implements WindowListener {
+public class TestCreator extends JFrame implements WindowListener, ClipboardOwner {
 
     private static final Logger LOG = Logger.getLogger(TestCreator.class);
 
@@ -235,27 +238,6 @@ public class TestCreator extends JFrame implements WindowListener {
         fileMenu.add(exitMenuItem);
 
         mainMenu.add(fileMenu);
-
-        editMenu.setMnemonic('e');
-        editMenu.setText("Edit");
-
-        cutMenuItem.setMnemonic('t');
-        cutMenuItem.setText("Cut");
-        editMenu.add(cutMenuItem);
-
-        copyMenuItem.setMnemonic('y');
-        copyMenuItem.setText("Copy");
-        editMenu.add(copyMenuItem);
-
-        pasteMenuItem.setMnemonic('p');
-        pasteMenuItem.setText("Paste");
-        editMenu.add(pasteMenuItem);
-
-        deleteMenuItem.setMnemonic('d');
-        deleteMenuItem.setText("Delete");
-        editMenu.add(deleteMenuItem);
-
-        mainMenu.add(editMenu);
 
         helpMenu.setMnemonic('h');
         helpMenu.setText("Help");
@@ -597,4 +579,7 @@ public class TestCreator extends JFrame implements WindowListener {
         super.addWindowStateListener(l); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    }
 }

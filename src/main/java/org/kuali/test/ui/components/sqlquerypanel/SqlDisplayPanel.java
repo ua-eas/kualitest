@@ -17,11 +17,18 @@ package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
@@ -30,9 +37,11 @@ import org.kuali.test.utils.Constants;
 public class SqlDisplayPanel extends BaseSqlPanel {
     private static final Logger LOG = Logger.getLogger(SqlDisplayPanel.class);
     private static final String CHECK_GENERATED_SQL_ACTION = "Check Generated SQL";
+    private static final String COPY_SQL_ACTION = "Copy SQL";
     private JEditorPane editorPane;
     private JButton checkSql;
-    
+    private JPopupMenu popupMenu;
+
     public SqlDisplayPanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, null);
         initComponents();
@@ -44,6 +53,31 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         add(p, BorderLayout.NORTH);
         checkSql.addActionListener(this);
         add(new JScrollPane(editorPane = new JEditorPane(Constants.HTML_MIME_TYPE,"")), BorderLayout.CENTER);
+
+        popupMenu = new JPopupMenu();
+        JMenuItem m =  new JMenuItem(COPY_SQL_ACTION);
+        m.addActionListener(this);
+        popupMenu.add(m);
+        
+        editorPane.addMouseListener(new MouseAdapter() {
+            private void myPopupEvent(MouseEvent e) {
+                popupMenu.show(editorPane, e.getX(), e.getY());
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    myPopupEvent(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    myPopupEvent(e);
+                }
+            }
+        });
     }
 
     @Override
@@ -62,6 +96,10 @@ public class SqlDisplayPanel extends BaseSqlPanel {
             if (getDbPanel().isValidSqlQuery()) {
                 JOptionPane.showMessageDialog(this, "SQL query is valid");
             }
+        } else if (COPY_SQL_ACTION.equals(e.getActionCommand())) {
+            String sql = getDbPanel().getSqlQueryString(false);
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(sql), getMainframe());
         }
     }
 }
