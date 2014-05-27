@@ -27,6 +27,7 @@ import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
@@ -120,32 +121,28 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
              }
         });
 
-        selectedTables.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TableData td = (TableData)selectedTables.getSelectedItem();
-                
-                if (td != null) {
-                    ComboBoxCellEditor editor = (ComboBoxCellEditor)getTable().getColumnModel().getColumn(colIndex).getCellEditor();
-                    editor.getComboBox().removeAllItems();
-                    
-                    JComboBox renderer = (JComboBox)getTable().getColumnModel().getColumn(colIndex).getCellRenderer();
-                    renderer.removeAllItems();
-
-                    for (ColumnData cd : getSelectedColumnData(td)) {
-                        renderer.addItem(cd);
-                        editor.getComboBox().addItem(cd);
-                    }
-                }
-            }
-        });
         
         getTable().getColumnModel().getColumn(tableIndex).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
     }
     
     protected void createColumnCellEditorRenderer(final int colIndex) {
         JComboBox cb = new JComboBox();
-        getTable().getColumnModel().getColumn(colIndex).setCellEditor(new ComboBoxCellEditor(cb));
+        getTable().getColumnModel().getColumn(colIndex).setCellEditor(new ComboBoxCellEditor(cb) {
+
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+                JComboBox retval = (JComboBox)super.getTableCellEditorComponent(table, value, isSelected, row, column);
+                retval.removeAllItems();
+                
+                BaseColumnData bcd = (BaseColumnData)getTable().getTableData().get(row);
+                
+                for (ColumnData cd : getSelectedColumnData(bcd.getTableData())) {
+                    retval.addItem(cd);
+                }
+                
+                return retval;
+            }
+        });
         
         cb.addActionListener(new ActionListener() {
             @Override
@@ -159,7 +156,16 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
             }
         });
 
-        getTable().getColumnModel().getColumn(colIndex).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]));
+        getTable().getColumnModel().getColumn(colIndex).setCellRenderer(new ComboBoxTableCellRenderer(new ColumnData[0]) {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                JComboBox retval =  (JComboBox)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column); //To change body of generated methods, choose Tools | Templates.
+                BaseColumnData cd = (BaseColumnData)getTable().getTableData().get(row);
+                retval.removeAllItems();
+                retval.addItem(cd.getColumnData());
+                return retval;
+            }
+        });
     }
 
     private ColumnData[] getSelectedColumnData(TableData td) {
