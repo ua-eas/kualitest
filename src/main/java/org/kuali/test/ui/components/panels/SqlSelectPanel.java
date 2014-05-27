@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
@@ -151,12 +152,22 @@ public class SqlSelectPanel extends BaseSqlPanel implements ActionListener {
         return retval;
     }
 
+    private boolean isLastRowComplete(List <SelectColumnData> l) {
+        SelectColumnData scd = l.get(l.size() - 1);
+        return ((scd.getTableData() != null) && (scd.getColumnData() != null));
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
-        List l = tp.getTable().getTableData();
+        List <SelectColumnData> l = tp.getTable().getTableData();
         if (Constants.ADD_COLUMN_ACTION.equals(e.getActionCommand())) {
-            l.add(new SelectColumnData());
-            tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
+            boolean addRow = (l.isEmpty() || isLastRowComplete(l));
+            if (addRow) {
+                l.add(new SelectColumnData());
+                tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
+            } else {
+                JOptionPane.showMessageDialog(this, "Please complete required entries (table, column)");
+            }
         } else if (Constants.DELETE_COLUMN_ACTION.equals(e.getActionCommand())) {
             int row = tp.getTable().getSelectedRow();
             

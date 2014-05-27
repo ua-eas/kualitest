@@ -25,6 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
+import org.kuali.test.ui.components.panels.DatabasePanel;
 
 
 public class SqlQueryPopupMenu extends BaseTreePopupMenu {
@@ -34,9 +35,11 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
     public static final String DESELECT_ALL_COLUMNS_ACTION = "Deselect All Columns";
     
     private final SqlQueryTree tree;
+    private DatabasePanel dbPanel;
     
-    public SqlQueryPopupMenu(TestCreator mainframe, SqlQueryTree tree) {
+    public SqlQueryPopupMenu(TestCreator mainframe, DatabasePanel dbPanel, SqlQueryTree tree) {
         super(mainframe);
+        this.dbPanel = dbPanel;
         this.tree = tree;
     }
 

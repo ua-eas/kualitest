@@ -512,13 +512,13 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
 
-    private String getTableAlias(TableData td, List <TableData> tables) {
+    private String getTableAlias(TableData td, List <TableData> tables, boolean htmlFormat) {
         String retval = td.getName();
         for (int i = 0; i < tables.size(); ++i) {
             if (td.equals(tables.get(i))) {
-                retval = ("t" + (i+1));
+                retval = Utils.buildHtmlStyle(Constants.HTML_DARK_GREEN_STYLE, "t"+ (i+1));
                 break;
-            }
+            } 
         }
         
         return retval;
@@ -585,7 +585,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     retval.append("(");
                 }
                 
-                retval.append(getTableAlias(scd.getTableData(), tableList));
+                retval.append(getTableAlias(scd.getTableData(), tableList, htmlFormat));
                 retval.append(".");
                 retval.append(scd.getColumnData().getName());
                 
@@ -607,7 +607,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 
                 retval.append(getSqlTabString(htmlFormat));
 
-                String tdAlias = getTableAlias(td, tableList);
+                String tdAlias = getTableAlias(td, tableList, htmlFormat);
                 
                 if (i == 0) {
                     retval.append(td.getName());
@@ -619,7 +619,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
                     // if we are doing a join there must bea parent table
                     if (ptd != null) {
-                        String ptdAlias = getTableAlias(ptd, tableList);
+                        String ptdAlias = getTableAlias(ptd, tableList, htmlFormat);
 
                         retval.append(getSqlTabString(htmlFormat));
                         
@@ -682,7 +682,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 for (SelectColumnData scd : selcols) {
                     if (StringUtils.isBlank(scd.getFunction())) {
                         retval.append(comma);
-                        retval.append(getTableAlias(scd.getTableData(), tableList));
+                        retval.append(getTableAlias(scd.getTableData(), tableList, htmlFormat));
                         retval.append(".");
                         retval.append(scd.getColumnData().getName());
                         comma = ", ";
@@ -706,7 +706,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 String comma = "";
                 for (SelectColumnData scd : orderbycols) {
                     retval.append(comma);
-                    retval.append(this.getTableAlias(scd.getTableData(), tableList));
+                    retval.append(this.getTableAlias(scd.getTableData(), tableList, htmlFormat));
                     retval.append(".");
                     retval.append(scd.getColumnData().getName());
                     
@@ -746,7 +746,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
         
         retval.append(" ");
-        retval.append(getTableAlias(wcd.getTableData(), tableList));
+        retval.append(getTableAlias(wcd.getTableData(), tableList, htmlFormat));
         retval.append(".");
         retval.append(wcd.getColumnData().getName());
         retval.append(" ");

@@ -49,7 +49,7 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         this.dbPanel = dbPanel;
         this.platform = platform;
         addMouseListener(this);
-        popupMenu = new SqlQueryPopupMenu(mainframe, this);
+        popupMenu = new SqlQueryPopupMenu(mainframe, dbPanel, this);
         init();
     }
 
