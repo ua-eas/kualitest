@@ -22,7 +22,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JList;
@@ -206,7 +205,7 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
     }
     
     
-    public List <T> getWhereColumnData() {
+    public List <T> getColumnData() {
         List <T> retval =  (List<T>)getTable().getTableData();
         
         BaseTable t = getTable();
@@ -293,22 +292,5 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
 
     public void setTablePanel(TablePanel tablePanel) {
         this.tablePanel = tablePanel;
-    }
-
-    public List <T> getColumnData() {
-        List <T> retval =  (List<T>)getTable().getTableData();
-        
-        Iterator <T> it = retval.iterator();
-        
-        while (it.hasNext()) {
-            T cd = it.next();
-            
-            // remove any rows that are incomplete
-            if ((cd.getColumnData() == null) || (cd.getTableData() == null)) {
-                it.remove();
-            }
-        }
-        
-        return retval;
     }
 }

@@ -74,6 +74,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             startTest.addActionListener(this);
             retval.add(startTest);
             retval.addSeparator();
+        } else {
+            ToolbarButton tb = new ToolbarButton(Constants.CANCEL_TEST_ACTION, Constants.CANCEL_TEST_ICON);
+            tb.addActionListener(this);
+            retval.add(tb);
+            retval.addSeparator();
         }
         
         createCheckpoint = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
@@ -107,20 +112,25 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)
-            || e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
-            if (startTest.isSelected()) {
-                handleStartTest();
-                startTest.setText(Constants.CANCEL_TEST_ACTION);
-                startTest.setIcon(Constants.CANCEL_TEST_ICON);
-            } else if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
-                "Are you sure you want to cancel the new test creation?")) {
+        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
+            handleStartTest();
+            startTest.setText(Constants.CANCEL_TEST_ACTION);
+            startTest.setIcon(Constants.CANCEL_TEST_ICON);
+            startTest.setActionCommand(Constants.CANCEL_TEST_ACTION);
+            createCheckpoint.setEnabled(true);
+            saveTest.setEnabled(true);
+        } else if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
+            if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
+                "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
-                startTest.setText(Constants.START_TEST_ACTION);
-                startTest.setIcon(Constants.START_TEST_ICON);
+                if (startTest != null) {
+                    startTest.setText(Constants.START_TEST_ACTION);
+                    startTest.setIcon(Constants.START_TEST_ICON);
+                    startTest.setActionCommand(Constants.START_TEST_ACTION);
+                    createCheckpoint.setEnabled(false);
+                    saveTest.setEnabled(false);
+                }
             }
-            createCheckpoint.setEnabled(startTest.isSelected());
-            saveTest.setEnabled(startTest.isSelected());
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {

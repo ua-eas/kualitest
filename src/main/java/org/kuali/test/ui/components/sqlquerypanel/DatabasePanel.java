@@ -98,6 +98,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         p2.add(tabbedPane, BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
+        
+        getMainframe().getCreateTestButton().setEnabled(true);
     }
     
     
@@ -433,6 +435,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
     @Override
     protected void handleCancelTest() {
+        getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
+        getMainframe().getCreateTestButton().setEnabled(true);
     }
 
     @Override
@@ -662,7 +666,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 }
             }
 
-            List <WhereColumnData> wherecols = sqlWherePanel.getWhereColumnData();
+            List <WhereColumnData> wherecols = sqlWherePanel.getColumnData();
             
             if (!wherecols.isEmpty()) {
                 retval.append(getSqlKeywordString(htmlFormat, "where"));
