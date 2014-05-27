@@ -91,6 +91,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
        return getDbPanel().getSqlQueryString(true);
     }
 
+    @Override
     protected void handleUnprocessedActions(ActionEvent e) {
         if (CHECK_GENERATED_SQL_ACTION.equals(e.getActionCommand())) {
             if (getDbPanel().isValidSqlQuery()) {

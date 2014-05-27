@@ -23,6 +23,19 @@
     <artifactId>kualitest</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <cxf.version>2.2.3</cxf.version>
+        <xmlbeans.version>2.6.0</xmlbeans.version>
+        <xmlbeans.plugin.version>2.3.3</xmlbeans.plugin.version>
+        <poi.version>3.10-FINAL</poi.version>
+        <eclipse.swt.version>4.3</eclipse.swt.version>
+        <littleshoot.proxy.version>1.0.0-beta7</littleshoot.proxy.version>
+        <jcalendar.version>1.4</jcalendar.version>
+        <jsoup.version>1.7.3</jsoup.version>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.jdesktop</groupId>
@@ -32,7 +45,7 @@
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
             <artifactId>xmlbeans</artifactId>
-            <version>2.6.0</version>
+            <version>${xmlbeans.version}</version>
         </dependency>
         <dependency>
             <groupId>xmlbeans</groupId>
@@ -77,12 +90,12 @@
         <dependency>
             <groupId>org.eclipse.swt.org.eclipse.swt.gtk.linux.x86_64.4.3.swt</groupId>
             <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-            <version>4.3</version>
+            <version>${eclipse.swt.version}</version>
         </dependency>    
         <dependency>
             <groupId>org.eclipse.swt.org.eclipse.swt.win32.win32.x86_64.4.3.swt</groupId>
             <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-            <version>4.3</version>
+            <version>${eclipse.swt.version}</version>
         </dependency>    
         <dependency>
             <groupId>io.netty</groupId>
@@ -92,7 +105,7 @@
         <dependency>
             <groupId>org.littleshoot</groupId>
             <artifactId>littleproxy</artifactId>
-            <version>1.0.0-beta7</version>
+            <version>${littleshoot.proxy.version}</version>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -100,30 +113,25 @@
             <version>1.1.3</version>
         </dependency>    
         <dependency>
-            <groupId>com.github.redfish4ktc.soapui</groupId>
-            <artifactId>soapui</artifactId>
-            <version>4.0.1.0</version>
-        </dependency>    
-        <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.10-FINAL</version>
+            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.10-FINAL</version>
+            <version>${poi.version}</version>
         </dependency>    
         <dependency>
             <groupId>com.toedter</groupId>
             <artifactId>jcalendar</artifactId>
-            <version>1.4</version>
+            <version>${jcalendar.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.7.3</version>
+            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>com.oracle</groupId>
@@ -135,19 +143,29 @@
             <artifactId>mail</artifactId>
             <version>1.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <!-- Jetty is needed if you're are not using the CXFServlet -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
     </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <project.licensePath>src/main/resources/kuali-license.txt</project.licensePath>
-    </properties>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xmlbeans-maven-plugin</artifactId>
-                <version>2.3.3</version>
+                <version>${xmlbeans.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
