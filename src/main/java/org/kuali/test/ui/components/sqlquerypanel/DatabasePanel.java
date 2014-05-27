@@ -99,7 +99,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         add(p2, BorderLayout.CENTER);
         
-        getMainframe().getCreateTestButton().setEnabled(true);
+        getMainframe().getCreateTestButton().setEnabled(false);
     }
     
     
@@ -569,6 +569,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             } 
             
             retval.append(getSqlKeywordString(htmlFormat, "select"));
+            
+            if (sqlSelectPanel.isDistinct()) {
+                retval.append(getSqlTabString(htmlFormat));
+                retval.append(getSqlKeywordString(htmlFormat, "distinct"));
+            }
             
             List <TableData> tableList = buildCompleteQueryTableList();
             List <SelectColumnData> orderbycols = new ArrayList<SelectColumnData>();

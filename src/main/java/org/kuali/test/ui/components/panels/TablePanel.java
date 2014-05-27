@@ -67,7 +67,7 @@ public class TablePanel extends JPanel implements ListSelectionListener {
         return new Insets(3, 3, 3, 3);
     }
     
-    private JPanel getButtonPanel() {
+    public JPanel getButtonPanel() {
         BorderLayout l = (BorderLayout)labelPanel.getLayout();
         return (JPanel)l.getLayoutComponent(BorderLayout.SOUTH);
     }

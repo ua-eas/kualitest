@@ -19,6 +19,7 @@ package org.kuali.test.ui.components.sqlquerypanel;
 import java.awt.BorderLayout;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +38,7 @@ import org.kuali.test.utils.Utils;
 
 public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlSelectPanel.class);
+    private JCheckBox distinct;
     
     public SqlSelectPanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, SelectColumnData.class);
@@ -54,6 +56,8 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
         tp.addAddButton(this, Constants.ADD_COLUMN_ACTION, "add new select column");
         tp.getAddButton().setEnabled(false);
         tp.addDeleteButton(this, Constants.DELETE_COLUMN_ACTION, "delete selected row");
+        tp.getButtonPanel().add(distinct = new JCheckBox("DISTINCT"));
+
         add(tp, BorderLayout.CENTER);
     }
     
@@ -150,6 +154,7 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
         return retval;
     }
 
+    @Override
     protected boolean validateRequiredFields(SelectColumnData scd) {
         return ((scd.getTableData() != null) && (scd.getColumnData() != null));
     }
@@ -188,5 +193,9 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     @Override
     protected String getRequiredColumnList() {
         return "table, column";
+    }
+    
+    public boolean isDistinct() {
+        return distinct.isSelected();
     }
 }
