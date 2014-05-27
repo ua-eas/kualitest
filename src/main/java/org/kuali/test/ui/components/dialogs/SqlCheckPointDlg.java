@@ -20,6 +20,7 @@ import java.awt.Dimension;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -75,6 +76,22 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     }
 
     private void initComponents() {
+        if (dbPanel == null) {
+            dbPanel = new DatabasePanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
+                testHeader.getPlatformName()), testHeader, true);
+            dbPanel.addTab("Checkpoint Configuration", getCheckpointPanel());
+            getContentPane().add(dbPanel, BorderLayout.CENTER);
+        } else {
+            getContentPane().add(getCheckpointPanel(), BorderLayout.CENTER);
+        }
+
+        addStandardButtons();
+        setDefaultBehavior();
+    }
+
+    private JPanel getCheckpointPanel() {
+        BasePanel retval = new BasePanel(getMainframe());
+
         String[] labels = new String[]{
             "Checkpoint Name",
             "Checkpoint Property",
@@ -98,14 +115,11 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
             saveQueryResults
         };
 
-        BasePanel p = new BasePanel(getMainframe());
-        p.add(buildEntryPanel(labels, components), BorderLayout.CENTER);
-        getContentPane().add(p, BorderLayout.CENTER);
+        retval.add(buildEntryPanel(labels, components), BorderLayout.CENTER);
 
-        addStandardButtons();
-        setDefaultBehavior();
+        return retval;
     }
-
+    
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -190,11 +204,24 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(500, 300);
+        if (!dbPanel.isForCheckpoint()) {
+            return new Dimension(500, 300);
+        } else {
+            return new Dimension(800, 600);
+        }
     }
 
     @Override
     protected String getDialogName() {
-        return "sql-checkpoint-entry";
+        if (!dbPanel.isForCheckpoint()) {
+            return "sql-checkpoint-entry";
+        } else {
+            return "sql-checkpoint-entry2";
+        }
+    }
+
+    @Override
+    public boolean isResizable() {
+        return dbPanel.isForCheckpoint();
     }
 }

@@ -38,6 +38,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -77,15 +78,32 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private SqlSelectPanel sqlSelectPanel;
     private SqlWherePanel sqlWherePanel;
     private SqlDisplayPanel sqlDisplayPanel;
+    private boolean forCheckpoint = false;
+    private JTabbedPane tabbedPane;
+    
     private List <TestOperation> testOperations = new ArrayList<TestOperation>();
     
     private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
-    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
+        this.forCheckpoint = forCheckpoint;
         initComponents();
     }
 
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+        this(mainframe, platform, testHeader, false);
+    }
+
+    @Override
+    protected JToolBar createToolbar() {
+        if (!forCheckpoint) {
+            return super.createToolbar();
+        } else {
+            return null;
+        }
+    }
+    
     private void initComponents() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
@@ -96,16 +114,20 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
         
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
         tabbedPane.addTab("Columns", new JScrollPane(sqlQueryTree = new SqlQueryTree(getMainframe(), this, getPlatform())));
         tabbedPane.addTab("Select", sqlSelectPanel = new SqlSelectPanel(getMainframe(), this));
         tabbedPane.addTab("Where", sqlWherePanel = new SqlWherePanel(getMainframe(), this));
         tabbedPane.addTab("SQL", sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this));
+        
+        
         p2.add(tabbedPane, BorderLayout.CENTER);
         
         add(p2, BorderLayout.CENTER);
         
-        getMainframe().getCreateTestButton().setEnabled(false);
+        if (!forCheckpoint) {
+            getMainframe().getCreateTestButton().setEnabled(false);
+        }
     }
     
     
@@ -1046,9 +1068,15 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             try {
                 conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
                 stmt = conn.createStatement();
+
+                String sql = getSqlQueryString(false, true);
                 
-                LOG.error(getSqlQueryString(false, true));
-                res = stmt.executeQuery(getSqlQueryString(false, true));
+                if (LOG.isDebugEnabled()) {
+                    LOG.error(sql);
+                }
+                
+                res = stmt.executeQuery(sql);
+                
                 retval = true;
             }
             
@@ -1061,7 +1089,14 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             }
         }
         
-        
         return retval;
+    }
+
+    public boolean isForCheckpoint() {
+        return forCheckpoint;
+    }
+    
+    public void addTab(String title, JPanel panel) {
+        tabbedPane.addTab(title, panel);
     }
 }

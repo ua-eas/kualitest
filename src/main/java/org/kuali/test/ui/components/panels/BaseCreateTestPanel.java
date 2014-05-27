@@ -62,7 +62,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             LOG.debug("creating " + testHeader.getTestType() + " test for platform: " + platform.getName());
         }
         
-        add(createToolbar(), BorderLayout.NORTH);
+        JToolBar tb = createToolbar();
+        
+        if (tb != null) {
+            add(tb, BorderLayout.NORTH);
+        }
     }
 
     protected JToolBar createToolbar() {
