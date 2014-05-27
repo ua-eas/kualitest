@@ -57,7 +57,7 @@ import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
-import org.kuali.test.ui.components.panels.DatabasePanel;
+import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.panels;
+package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -51,8 +51,7 @@ import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
-import org.kuali.test.ui.components.panels.SqlSelectPanel.SelectColumnData;
-import org.kuali.test.ui.components.panels.SqlWherePanel.WhereColumnData;
+import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
@@ -558,7 +557,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     public String getSqlQueryString(boolean htmlFormat) {
         StringBuilder retval = new StringBuilder(512);
 
-        List <SelectColumnData> selcols = sqlSelectPanel.getSelectColumnData();
+        List <SelectColumnData> selcols = sqlSelectPanel.getColumnData();
 
         if ((selcols != null) && !selcols.isEmpty()) {
             if (htmlFormat) {
@@ -878,7 +877,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         Set <TableData> hs = new HashSet<TableData>();
         
-        for (SqlSelectPanel.SelectColumnData scd : sqlSelectPanel.getSelectColumnData()) {
+        for (SelectColumnData scd : sqlSelectPanel.getColumnData()) {
             TableData td = scd.getTableData();
             hs.add(td);
             
@@ -896,7 +895,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             }
         }
         
-        for (SqlWherePanel.WhereColumnData wcd : sqlWherePanel.getWhereColumnData()) {
+        for (WhereColumnData wcd : sqlWherePanel.getColumnData()) {
             TableData td = wcd.getTableData();
             hs.add(td);
             
@@ -959,6 +958,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                         getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
                         sqlQueryTree.getModel().nodeStructureChanged(rootNode);
                         sqlQueryTree.expandNode(rootNode, 1);
+                        sqlSelectPanel.clear();
+                        sqlWherePanel.clear();
                     }
                 };
             }

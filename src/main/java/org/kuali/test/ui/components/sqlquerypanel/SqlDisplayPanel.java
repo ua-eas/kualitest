@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kuali.test.ui.components.panels;
+package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
 import javax.swing.JEditorPane;
@@ -29,7 +29,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
     private JEditorPane editorPane;
 
     public SqlDisplayPanel(TestCreator mainframe, DatabasePanel dbPanel) {
-        super(mainframe, dbPanel);
+        super(mainframe, dbPanel, null);
         initComponents();
     }
 

@@ -25,7 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
-import org.kuali.test.ui.components.panels.DatabasePanel;
+import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 
 
 public class SqlQueryPopupMenu extends BaseTreePopupMenu {

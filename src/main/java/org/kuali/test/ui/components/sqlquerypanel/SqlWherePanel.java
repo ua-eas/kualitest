@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.panels;
+package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -36,6 +32,7 @@ import org.kuali.test.ui.components.editmasks.FloatTextField;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.editors.DateChooserCellEditor;
+import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
@@ -43,9 +40,8 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
-public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
+public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlWherePanel.class);
-    private TablePanel tp;
     private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
     private final DefaultCellEditor floatCellEditor = new DefaultCellEditor(new FloatTextField());
     private final DateChooserCellEditor dateCellEditor = new DateChooserCellEditor();
@@ -54,15 +50,16 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
     private final DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
     
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
-        super(mainframe, dbPanel);
+        super(mainframe, dbPanel, WhereColumnData.class);
         initComponents();
     }
 
     private void initComponents() {
-        tp = new TablePanel(getWhereColumnTable());
+        TablePanel tp = new TablePanel(getWhereColumnTable());
+        setTablePanel(tp);
         
-        createTableCellEditorRenderer(tp, 2, 3);
-        createColumnCellEditorRenderer(tp, 3);
+        createTableCellEditorRenderer(2, 3);
+        createColumnCellEditorRenderer(3);
         
         tp.addAddButton(this, Constants.ADD_COMPARISON_ACTION, "add new where comparison");
         tp.getAddButton().setEnabled(false);
@@ -121,7 +118,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             @Override
             public boolean isCellEditable(int row, int column) {
                 boolean retval = false;
-                SqlWherePanel.WhereColumnData wcd = (SqlWherePanel.WhereColumnData)getTableData().get(row);
+                WhereColumnData wcd = (WhereColumnData)getTableData().get(row);
                 
                 switch(column) {
                     case 0:
@@ -156,7 +153,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             protected String getTooltip(int row, int col) {
                 String retval = null;
                 if (col == 0) {
-                    SqlWherePanel.WhereColumnData wcd =  (SqlWherePanel.WhereColumnData)getTableData().get(row);
+                    WhereColumnData wcd =  (WhereColumnData)getTableData().get(row);
                     
                     if (wcd != null) {
                         TableData td = wcd.getTableData();
@@ -184,7 +181,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
             public TableCellEditor getCellEditor(int row, int column) {
                 TableCellEditor retval = null;
                 if (column == 5) {
-                    WhereColumnData wcd = (WhereColumnData)tp.getTable().getTableData().get(row);
+                    WhereColumnData wcd = (WhereColumnData)getTable().getTableData().get(row);
                     if (wcd != null) {
                         retval = getValueCellEditor(wcd.getColumnData());
                     } else {
@@ -202,7 +199,7 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
                 TableCellRenderer retval = null;
                 // handle value entry editor
                 if (column == 5) {
-                    WhereColumnData wcd = (WhereColumnData)tp.getTable().getTableData().get(row);
+                    WhereColumnData wcd = (WhereColumnData)getTable().getTableData().get(row);
                     if (wcd != null) {
                         retval = getValueCellRenderer(wcd.getColumnData());
                     } else {
@@ -230,137 +227,14 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
 
         return retval;
     }
-    private boolean isLastRowComplete(List <WhereColumnData> whereColumns) {
-        WhereColumnData wcd = whereColumns.get(whereColumns.size() - 1);
-        return ((wcd.getTableData() != null)
-            && (wcd.getColumnData() != null)
-            && StringUtils.isNotBlank(wcd.getOperator())
-            && StringUtils.isNotBlank(wcd.getValue()));
-    }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        List <WhereColumnData> l = tp.getTable().getTableData();
-        
-        if (Constants.ADD_COMPARISON_ACTION.equals(e.getActionCommand())) {
-            boolean addRow = false;
-            if (l.size() > 0) {
-                if (isLastRowComplete(l)) {
-                    addRow = true;
-                } else {
-                    JOptionPane.showMessageDialog(this, "Please complete required entries (table, columns, operator, value)");
-                }
-            } else {
-                addRow = true;
-            }
-            
-            if (addRow) {
-                WhereColumnData wcd = new WhereColumnData();
-                wcd.setOperator(Constants.EQUAL_TO);
-                if (!l.isEmpty()) {
-                    wcd.setAndOr(Constants.AND);
-                }
-
-                l.add(wcd);
-                tp.getTable().getModel().fireTableRowsInserted(l.size()-1, l.size()-1);
-            }
-        } else if (Constants.DELETE_COMPARISON_ACTION.equals(e.getActionCommand())) {
-            int row = tp.getTable().getSelectedRow();
-            
-            if ((row > -1) && (l.size() > row)) {
-                l.remove(row);
-                tp.getTable().getModel().fireTableRowsDeleted(row, row);
-            }
-        }
+    protected boolean validateRequiredFields(WhereColumnData wcd) {
+        return (StringUtils.isNotBlank(wcd.getOperator())  && StringUtils.isNotBlank(wcd.getValue()));
     }
 
     @Override
     protected void handlePanelShown() {
-        populateSelectedTables(tp, 2);
-    }
-
-    public class WhereColumnData {
-        private TableData tableData;
-        private ColumnData columnData;
-        private String openParenthesis;
-        private String closeParenthesis;
-        private String andOr;
-        private String value;
-        private String operator;
-
-        public TableData getTableData() {
-            return tableData;
-        }
-
-        public void setTableData(TableData tableData) {
-            this.tableData = tableData;
-        }
-
-        public ColumnData getColumnData() {
-            return columnData;
-        }
-
-        public void setColumnData(ColumnData columnData) {
-            this.columnData = columnData;
-        }
-
-        public String getOpenParenthesis() {
-            return openParenthesis;
-        }
-
-        public void setOpenParenthesis(String openParenthesis) {
-            this.openParenthesis = openParenthesis;
-        }
-
-        public String getCloseParenthesis() {
-            return closeParenthesis;
-        }
-
-        public void setCloseParenthesis(String closeParenthesis) {
-            this.closeParenthesis = closeParenthesis;
-        }
-
-        public String getAndOr() {
-            return andOr;
-        }
-
-        public void setAndOr(String andOr) {
-            this.andOr = andOr;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-
-        public String getOperator() {
-            return operator;
-        }
-
-        public void setOperator(String operator) {
-            this.operator = operator;
-        }
-    }
-    
-    public List <WhereColumnData> getWhereColumnData() {
-        List <WhereColumnData> retval =  (List<WhereColumnData>)tp.getTable().getTableData();
-        
-        if (!retval.isEmpty()) {
-            int lastRow = retval.size() - 1;
-            
-            WhereColumnData wcd = retval.get(retval.size() -1);
-
-            // if last row is not complete remove it
-            if (!isLastRowComplete(retval)) {
-                retval.remove(lastRow);
-                tp.getTable().getModel().fireTableRowsDeleted(lastRow, lastRow);
-            }
-        }
-        
-        return retval;
+        populateSelectedTables(2);
     }
 
     private TableCellEditor getValueCellEditor(ColumnData cd) {
@@ -399,4 +273,18 @@ public class SqlWherePanel extends BaseSqlPanel implements ActionListener {
         return retval;
     }
     
+    @Override
+    protected String getAddAction() {
+        return Constants.ADD_COMPARISON_ACTION;
+    }
+
+    @Override
+    protected String getDeleteAction() {
+        return Constants.DELETE_COMPARISON_ACTION;
+    }
+
+    @Override
+    protected String getRequiredColumnList() {
+        return "table, column, operator, value";
+    }
 }

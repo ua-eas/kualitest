@@ -27,7 +27,7 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
-import org.kuali.test.ui.components.panels.DatabasePanel;
+import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -85,7 +85,7 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
             TableData td = (TableData)node.getUserObject();
             DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)node.getParent();
             
-            if (pnode.getUserObject() instanceof TableData) {
+            if ((pnode != null) && (pnode.getUserObject() instanceof TableData)) {
                 TableData pdata = (TableData)pnode.getUserObject();
 
                 if (StringUtils.isNotBlank(td.getForeignKeyName())) {
