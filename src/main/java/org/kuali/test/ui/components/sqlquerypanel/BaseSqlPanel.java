@@ -246,10 +246,12 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
     @Override
     public void actionPerformed(ActionEvent e) {
         BaseTable t = getTable();
+        boolean foundHandler = false;
         
         if (t != null) {
             List <T> l = t.getTableData();
             if (e.getActionCommand().equals(getAddAction())) {
+                foundHandler = true;
                 boolean addRow = (l.isEmpty() || isLastRowComplete(l));
                 if (addRow) {
                     try {
@@ -266,6 +268,7 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
                     JOptionPane.showMessageDialog(this, "Please complete required entries (" + getRequiredColumnList() + ")");
                 }
             } else if (e.getActionCommand().equals(getDeleteAction())) {
+                foundHandler = true;
                 int row = t.getSelectedRow();
 
                 if ((row > -1) && (l.size() > row)) {
@@ -274,8 +277,15 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
                 }
             }
         }
+        
+        if (!foundHandler) {
+            handleUnprocessedActions(e);
+        }
     }
 
+    protected void handleUnprocessedActions(ActionEvent e) {
+    }
+    
     protected String getAddAction() {
         return null;
     }
