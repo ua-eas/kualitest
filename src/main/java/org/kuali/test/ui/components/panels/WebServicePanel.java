@@ -85,6 +85,9 @@ public class WebServicePanel extends BaseCreateTestPanel {
                     
                     for (OperationWrapper ow : l) {
                         operations.addItem(ow);
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("operation: " + ow);
+                        }
                     }
                 }
                 
@@ -136,6 +139,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
         if (e.getSource() == operations) {
             OperationWrapper ow = (OperationWrapper)operations.getSelectedItem();
             AxisOperation ao = ow.getOperation();
+            
+            for(org.apache.axis2.description.Parameter param : ao.getParameters()) {
+                LOG.error("param: " + param.getName() + ", type=" + param.getParameterType());
+            }
         }
     }
 }
