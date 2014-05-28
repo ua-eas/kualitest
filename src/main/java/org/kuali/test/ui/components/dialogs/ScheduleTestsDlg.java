@@ -119,14 +119,13 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             alignment[i] = JLabel.LEFT;
         }
          
-        alignment[3] = JLabel.CENTER;
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
             "Type",
             "Name",
             "Scheduled Date/Time",
-            "Test Runs"
+            "Test Runs (multi-threaded)"
         });
         
         config.setPropertyNames(new String[] {

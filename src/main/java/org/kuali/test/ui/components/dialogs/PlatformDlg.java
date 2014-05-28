@@ -79,7 +79,7 @@ public class PlatformDlg extends BaseSetupDlg {
             "Application",
             "Version",
             "Web URL",
-            "Web Service URL",
+            "WSDL URL",
             "JMX URL",
             "Email Addresses",
             "DB Connection"

@@ -16,34 +16,83 @@
 
 package org.kuali.test.ui.components.panels;
 
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.description.AxisOperation;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 
 
 public class WebServicePanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(WebServicePanel.class);
-    
+    private JComboBox operations;
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
+        initComponents();
     }
 
+    private void initComponents() {
+    }
+    
     @Override
     protected void handleCancelTest() {
     }
    
     @Override
     protected void handleStartTest() {
-        DynamicClientFactory dcf = DynamicClientFactory.newInstance();
-
         if (LOG.isDebugEnabled()) {
             LOG.debug("ws url: " + getPlatform().getWebServiceUrl());
         }
         
-        Client client = dcf.createClient(getPlatform().getWebServiceUrl());
+        BasePanel p = new BasePanel(getMainframe());
+        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        p2.add(new JLabel("Web Service Operations: "));
+        p2.add(operations = new JComboBox());
+        operations.addActionListener(this);
+        p.add(p2, BorderLayout.NORTH);
+        p.add(new JSeparator(), BorderLayout.CENTER);
+        add(p, BorderLayout.CENTER);
+        
+        new SplashDisplay(getMainframe(), "Loading WSDL", "Loading web service definition...") {
+            @Override
+            protected void runProcess() {
+                try {
+                    ServiceClient wsClient = new ServiceClient(null, new URL(getPlatform().getWebServiceUrl()), null, null);
+                
+                    Iterator <AxisOperation> it = wsClient.getAxisService().getOperations();
+                    
+                    List <OperationWrapper> l = new ArrayList<OperationWrapper>();
+                    while (it.hasNext()) {
+                       l.add(new OperationWrapper(it.next()));
+                    }
+                    
+                    Collections.sort(l);
+                    
+                    for (OperationWrapper ow : l) {
+                        operations.addItem(ow);
+                    }
+                }
+                
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        };
     }
     
     @Override
@@ -55,7 +104,38 @@ public class WebServicePanel extends BaseCreateTestPanel {
         return false;
     }
 
+    @Override
     protected boolean isStartTestRequired() { 
         return true; 
+    }
+    
+    private class OperationWrapper implements Comparable <OperationWrapper> {
+        private AxisOperation operation;
+        
+        public OperationWrapper(AxisOperation operation) {
+            this.operation = operation;
+        }
+
+        public AxisOperation getOperation() {
+            return operation;
+        }
+
+        @Override
+        public String toString() {
+            return operation.getName().getLocalPart();
+        }
+
+        @Override
+        public int compareTo(OperationWrapper o) {
+            return getOperation().getName().getLocalPart().compareTo(o.getOperation().getName().getLocalPart());
+        }
+    }
+
+    @Override
+    protected void handleUnprocessedActionEvent(ActionEvent e) {
+        if (e.getSource() == operations) {
+            OperationWrapper ow = (OperationWrapper)operations.getSelectedItem();
+            AxisOperation ao = ow.getOperation();
+        }
     }
 }

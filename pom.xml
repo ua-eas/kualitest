@@ -27,7 +27,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
-        <cxf.version>2.2.3</cxf.version>
+        <axis2.version>1.6.2</axis2.version>
         <xmlbeans.version>2.6.0</xmlbeans.version>
         <xmlbeans.plugin.version>2.3.3</xmlbeans.plugin.version>
         <poi.version>3.10-FINAL</poi.version>
@@ -144,20 +144,29 @@
             <version>1.4</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-            <version>${cxf.version}</version>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-kernel</artifactId>
+            <version>${axis2.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-            <version>${cxf.version}</version>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-codegen</artifactId>
+            <version>${axis2.version}</version>
         </dependency>
-        <!-- Jetty is needed if you're are not using the CXFServlet -->
         <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http-jetty</artifactId>
-            <version>${cxf.version}</version>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-adb</artifactId>
+            <version>${axis2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-local</artifactId>
+            <version>${axis2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.axis2</groupId>
+            <artifactId>axis2-transport-http</artifactId>
+            <version>${axis2.version}</version>
         </dependency>
     </dependencies>
     <build>
