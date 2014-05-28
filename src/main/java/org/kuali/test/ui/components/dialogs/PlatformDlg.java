@@ -138,14 +138,14 @@ public class PlatformDlg extends BaseSetupDlg {
             if (!isEditmode()) {
                 platform = getConfiguration().getPlatforms().addNewPlatform();
                 platform.setName(name.getText());
+                platform.addNewPlatformTests();
+                platform.addNewTestSuites();
             }
             platform.setApplication(KualiApplication.Enum.forString(application.getSelectedItem().toString()));
             platform.setWebServiceUrl(wsurl.getText());
             platform.setWebUrl(weburl.getText());
             platform.setJmxUrl(jmxurl.getText());
             platform.setVersion(version.getText());
-            platform.addNewPlatformTests();
-            platform.addNewTestSuites();
 
             String s = emailAddresses.getText();
             

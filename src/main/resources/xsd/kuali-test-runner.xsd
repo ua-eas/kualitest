@@ -46,6 +46,7 @@
             <xs:element name="name" type="xs:string"/>
             <xs:element name="type" type="scheduled-test-type"/>
             <xs:element name="start-time" type="xs:dateTime"/>
+            <xs:element name="test-runs" type="xs:int"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

@@ -16,12 +16,17 @@
 
 package org.kuali.test.ui.components.panels;
 
+import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.dynamic.DynamicClientFactory;
+import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 
 
 public class WebServicePanel extends BaseCreateTestPanel {
+    private static final Logger LOG = Logger.getLogger(WebServicePanel.class);
+    
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
     }
@@ -32,6 +37,13 @@ public class WebServicePanel extends BaseCreateTestPanel {
    
     @Override
     protected void handleStartTest() {
+        DynamicClientFactory dcf = DynamicClientFactory.newInstance();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("ws url: " + getPlatform().getWebServiceUrl());
+        }
+        
+        Client client = dcf.createClient(getPlatform().getWebServiceUrl());
     }
     
     @Override
@@ -43,4 +55,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
         return false;
     }
 
+    protected boolean isStartTestRequired() { 
+        return true; 
+    }
 }

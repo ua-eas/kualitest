@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestRunnerDocument;
 import org.kuali.test.KualiTestRunnerDocument.KualiTestRunner;
 import org.kuali.test.ScheduledTest;
+import org.kuali.test.comparators.ScheduledTestComparator;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
@@ -43,7 +44,6 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.renderers.CalendarTableCellRenderer;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.comparators.ScheduledTestComparator;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -114,35 +114,40 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         config.setTableName("scheduled-tests");
         config.setDisplayName("Scheduled Tests");
         
-        int[] alignment = new int[3];
+        int[] alignment = new int[4];
         for (int i = 0; i < alignment.length; ++i) {
             alignment[i] = JLabel.LEFT;
         }
-            
+         
+        alignment[3] = JLabel.CENTER;
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
             "Type",
             "Name",
-            "Scheduled Date/Time"
+            "Scheduled Date/Time",
+            "Test Runs"
         });
         
         config.setPropertyNames(new String[] {
             "type",
             "name",
             "startTime",
+            "testRuns"
         });
             
         config.setColumnTypes(new Class[] {
             String.class,
             String.class,
             Calendar.class,
+            Integer.class
         });
         
         config.setColumnWidths(new int[] {
             20,
             100,
-            30
+            30,
+            20
         });
 
         if (testRunnerConfiguration != null) {

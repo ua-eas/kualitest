@@ -38,6 +38,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -48,6 +49,7 @@ import org.kuali.test.utils.Utils;
 public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListener {
     private JComboBox platforms;
     private JDateChooser startDateTime;
+    private IntegerTextField testRuns;
     private JList testSuites;
     private JList platformTests;
     private ScheduledTest scheduledTest;
@@ -61,7 +63,8 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
 
         String[] labels = {
             "Platform",
-            "Start Date/Time"
+            "Start Date/Time",
+            "Test Runs"
         };
         
         platforms = new JComboBox(getPlatformArray());
@@ -70,7 +73,9 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         startDateTime.setDateFormatString(Constants.SELECT_DATETIME_FORMAT_STRING);
         startDateTime.setMinSelectableDate(new Date());
         
-        JComponent[] components = {platforms, startDateTime};
+        testRuns = new IntegerTextField();
+        testRuns.setInt(1);
+        JComponent[] components = {platforms, startDateTime, testRuns};
         
         platforms.addActionListener(this);
         platforms.setActionCommand(Constants.PLATFORM_SELECTED_ACTION);
@@ -125,6 +130,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             
             scheduledTest.setPlaformName((String)platforms.getSelectedItem());
             scheduledTest.setStartTime(startDateTime.getCalendar());
+            scheduledTest.setTestRuns(testRuns.getInt());
         } else {
             StringBuilder msg = new StringBuilder(256);
             

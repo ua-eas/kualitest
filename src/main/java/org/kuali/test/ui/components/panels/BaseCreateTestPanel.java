@@ -47,8 +47,8 @@ import org.kuali.test.utils.Utils;
 public abstract class BaseCreateTestPanel extends BasePanel implements ActionListener {
     private static final Logger LOG = Logger.getLogger(BaseCreateTestPanel.class);
     
-    private Platform platform;
-    private TestHeader testHeader;
+    private final Platform platform;
+    private final TestHeader testHeader;
     private ToggleToolbarButton startTest;
     private ToolbarButton createCheckpoint;
     private ToolbarButton saveTest;
@@ -110,6 +110,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         return testHeader;
     }
 
+    @Override
     public Insets getInsets() {
         return new Insets(3, 3, 3, 3);
     }
