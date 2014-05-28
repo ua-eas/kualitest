@@ -53,9 +53,9 @@ public class WebServicePopupMenu extends BaseTreePopupMenu {
         if (ADD_WEB_SERVICE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleAddWebService(null);
         } else if (EDIT_WEB_SERVICE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            getMainframe().handleRemoveWebService(actionNode);
-        } else if (actionNode != null) {
             getMainframe().handleEditWebService((WebService)actionNode.getUserObject());
+        } else if (actionNode != null) {
+            getMainframe().handleRemoveWebService(actionNode);
         }
     }
 }

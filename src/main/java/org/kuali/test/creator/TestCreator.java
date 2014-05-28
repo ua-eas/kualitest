@@ -19,6 +19,7 @@ import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
@@ -308,6 +309,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         saveConfigurationButton.setEnabled(false);
+        saveConfigurationButton.setMargin(new Insets(1, 1, 1, 1));
         saveConfigurationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
@@ -318,6 +320,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         p2.add(createTestButton = new JButton(Constants.CREATE_TEST, Constants.CREATE_TEST_ICON));
         createTestButton.setEnabled(false);
+        createTestButton.setMargin(new Insets(1, 1, 1, 1));
+
         createTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
