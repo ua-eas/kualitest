@@ -36,7 +36,7 @@ public class PlatformDlg extends BaseSetupDlg {
     private Platform platform;
     private JTextField name;
     private JTextField weburl;
-    private JTextField wsurl;
+    private JComboBox webService;
     private JTextField jmxurl;
     private JTextField emailAddresses;
     private JTextField version;
@@ -79,7 +79,7 @@ public class PlatformDlg extends BaseSetupDlg {
             "Application",
             "Version",
             "Web URL",
-            "WSDL URL",
+            "Web Service",
             "JMX URL",
             "Email Addresses",
             "DB Connection"
@@ -91,12 +91,19 @@ public class PlatformDlg extends BaseSetupDlg {
         application.setSelectedItem(platform.getApplication().toString());
         version = new JTextField(platform.getVersion(), 10);
         weburl = new JTextField(platform.getWebUrl(), 30);
-        wsurl = new JTextField(platform.getWebServiceUrl(), 30);
+        webService = new JComboBox(getWebServiceNames());
+
+        if (StringUtils.isNotBlank(platform.getWebServiceName())) {
+            webService.setSelectedItem(platform.getWebServiceName());
+        } else {
+            webService.setSelectedIndex(0);
+        }
+        
         jmxurl = new JTextField(platform.getJmxUrl(), 30);
         emailAddresses = new JTextField(platform.getEmailAddresses(), 30);
         dbconnection = new JComboBox<String>(getDatabaseConnectionNames());
         if (platform.getDatabaseConnectionName() != null) {
-            dbconnection.setSelectedItem(platform.getDatabaseConnectionName().toString());
+            dbconnection.setSelectedItem(platform.getDatabaseConnectionName());
         }
 
         JComponent[] components = new JComponent[] {
@@ -104,7 +111,7 @@ public class PlatformDlg extends BaseSetupDlg {
             application,
             version,
             weburl,
-            wsurl,
+            webService,
             jmxurl,
             emailAddresses,
             dbconnection};
@@ -142,7 +149,7 @@ public class PlatformDlg extends BaseSetupDlg {
                 platform.addNewTestSuites();
             }
             platform.setApplication(KualiApplication.Enum.forString(application.getSelectedItem().toString()));
-            platform.setWebServiceUrl(wsurl.getText());
+            platform.setWebServiceName(webService.getSelectedItem().toString());
             platform.setWebUrl(weburl.getText());
             platform.setJmxUrl(jmxurl.getText());
             platform.setVersion(version.getText());

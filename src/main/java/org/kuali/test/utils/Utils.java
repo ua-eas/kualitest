@@ -70,6 +70,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
+import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.DefaultContainerTagHandler;
@@ -221,6 +222,36 @@ public class Utils {
         return retval;
     }
 
+    public static boolean removeWebService(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        WebService ws) {
+        boolean retval = false;
+        
+        WebService[] webServices = configuration.getWebServices().getWebServiceArray();
+        int indx = -1;
+        for (int i = 0; i < webServices.length; ++i) {
+            if (StringUtils.equalsIgnoreCase(webServices[i].getName(), ws.getName())) {
+                indx = i;
+                break;
+            }
+        }
+        
+        if (indx > -1) {
+            // lets clear any usages
+            Platform[] platforms = configuration.getPlatforms().getPlatformArray();
+            
+            for (Platform platform : platforms) {
+                if (StringUtils.equalsIgnoreCase(platform.getWebServiceName(), ws.getName())) {
+                    platform.setWebServiceName("");
+                }
+            }
+            
+            configuration.getWebServices().removeWebService(indx);
+            retval = true;
+        }
+        
+        return retval;
+    }
+
     public static boolean removeSuiteTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         SuiteTest suiteTest) {
         boolean retval = false;
@@ -290,6 +321,8 @@ public class Utils {
                     retval = removeTestSuite(configuration, (TestSuite)userObject);
                 } else if (userObject instanceof DatabaseConnection) {
                     retval = removeDatabaseConnection(configuration, (DatabaseConnection)userObject);
+                } else if (userObject instanceof WebService) {
+                    retval = removeWebService(configuration, (WebService)userObject);
                 }
             }
         }
@@ -1290,7 +1323,7 @@ public class Utils {
                     retval.add(testType);
                 }
             } else if (TestType.WEB_SERVICE.toString().equals(testType)) {
-                if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
+                if (StringUtils.isNotBlank(platform.getWebServiceName())) {
                     retval.add(testType);
                 }
             } else if (TestType.MEMORY.toString().equals(testType)) {
@@ -1315,7 +1348,7 @@ public class Utils {
                     retval.add(checkpointType);
                 }
             } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
-                if (StringUtils.isNotBlank(platform.getWebServiceUrl())) {
+                if (StringUtils.isNotBlank(platform.getWebServiceName())) {
                     retval.add(checkpointType);
                 }
             } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
@@ -1383,6 +1416,24 @@ public class Utils {
                 for (DatabaseConnection db : configuration.getDatabaseConnections().getDatabaseConnectionArray()) {
                     if (dbname.equalsIgnoreCase(db.getName())) {
                         retval = db;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String wsname) {
+        WebService retval = null;
+        
+        if ((configuration != null) && StringUtils.isNotBlank(wsname)) {
+            if ((configuration.getWebServices() != null) 
+                && (configuration.getWebServices().sizeOfWebServiceArray() > 0)) {
+                for (WebService ws: configuration.getWebServices().getWebServiceArray()) {
+                    if (wsname.equalsIgnoreCase(ws.getName())) {
+                        retval = ws;
                         break;
                     }
                 }

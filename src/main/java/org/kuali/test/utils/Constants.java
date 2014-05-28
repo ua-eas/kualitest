@@ -59,6 +59,9 @@ public class Constants {
     public static final ImageIcon DATABASE_COLUMN_SELECTED_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbcolumnsel.png"));
     public static final ImageIcon DATABASE_PKCOLUMN_SELECTED_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbpkcolumnsel.png"));
 
+    public static final ImageIcon WEB_SERVICE_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice.png"));
+    public static final ImageIcon WEB_SERVICE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice-setting.png"));
+
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;
@@ -101,6 +104,7 @@ public class Constants {
     public static final String RUNNING_TESTS = "Running Tests";
     public static final String REPOSITORY = "Repository";
     public static final String DATABASES = "Databases";
+    public static final String WEBSERVICES = "Web Services";
     
     public static String SAVE_ACTION = "Save";
     public static String OK_ACTION = "Ok";

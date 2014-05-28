@@ -16,6 +16,12 @@
          <configured-tables-only>true</configured-tables-only>
       </database-connection>
    </database-connections>
+   <web-services>
+       <web-service>
+           <name>my web service</name>
+           <wsdl-url>my wsdl url</wsdl-url>
+       </web-service>
+   </web-services>
    <modified>false</modified>
    <email-setup>
       <mail-host>mailhost</mail-host>

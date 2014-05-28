@@ -52,6 +52,7 @@ import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
+import org.kuali.test.WebService;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
@@ -59,12 +60,14 @@ import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
+import org.kuali.test.ui.components.dialogs.WebServiceDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
+import org.kuali.test.ui.components.webservicetree.WebServiceTree;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
@@ -88,6 +91,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private JButton createTestButton;
     private RepositoryTree testRepositoryTree;
     private DatabaseTree databaseTree;
+    private WebServiceTree webServiceTree;
     private PlatformTestsPanel platformTestsPanel;
 
     public TestCreator(String configFileName) {
@@ -161,14 +165,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JMenuItem setup = new JMenu();
         JMenuItem addPlatformMenuItem = new JMenuItem();
         JMenuItem addDatabaseConnectionMenuItem = new JMenuItem();
+        JMenuItem addWebServiceMenuItem = new JMenuItem();
         JMenuItem emailSetupMenuItem = new JMenuItem();
         JMenuItem scheduleTestsMenuItem = new JMenuItem();
         JMenuItem exitMenuItem = new JMenuItem();
-        JMenuItem editMenu = new JMenu();
-        JMenuItem cutMenuItem = new JMenuItem();
-        JMenuItem copyMenuItem = new JMenuItem();
-        JMenuItem pasteMenuItem = new JMenuItem();
-        JMenuItem deleteMenuItem = new JMenuItem();
         JMenuItem helpMenu = new JMenu();
         JMenuItem contentMenuItem = new JMenuItem();
         JMenuItem aboutMenuItem = new JMenuItem();
@@ -192,6 +192,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         addPlatformMenuItem.setText("Add Platform");
         addPlatformMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddPlatform(evt);
             }
@@ -200,6 +201,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         addDatabaseConnectionMenuItem.setText("Add Database Connection");
         addDatabaseConnectionMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddDatabaseConnection(evt);
             }
@@ -208,17 +210,28 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         emailSetupMenuItem.setText("Email Setup");
         emailSetupMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 handleEmailSetup(evt);
             }
         });
         setup.add(emailSetupMenuItem);
 
+        addWebServiceMenuItem.setText("Add Web Service");
+
+        addWebServiceMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                handleAddWebService(evt);
+            }
+        });
+        setup.add(addWebServiceMenuItem);
+
         fileMenu.add(setup);
         fileMenu.add(new JSeparator());
 
         scheduleTestsMenuItem.setText("Schedule Tests...");
         scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 handleScheduleTests(evt);
             }
@@ -231,6 +244,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         exitMenuItem.setMnemonic('x');
         exitMenuItem.setText("Exit");
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitMenuItemActionPerformed(evt);
             }
@@ -316,6 +330,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab(Constants.REPOSITORY, vsplitPane);
         tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
+        tabbedPane.addTab(Constants.WEBSERVICES, new JScrollPane(webServiceTree = new WebServiceTree(this, getConfiguration())));
 
         hsplitPane.setLeftComponent(tabbedPane);
         hsplitPane.setRightComponent(createTestPanel = new CreateTestPanel(this));
@@ -376,6 +391,35 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+        }
+    }
+
+    public void handleAddWebService(ActionEvent evt) {
+        WebServiceDlg dlg = new WebServiceDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+            WebService ws = (WebService) dlg.getNewRepositoryObject();
+            webServiceTree.addWebService(ws);
+        }
+    }
+
+    public void handleEditWebService(WebService ws) {
+        WebServiceDlg dlg = new WebServiceDlg(this, ws);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+        }
+    }
+
+    public void handleRemoveWebService(DefaultMutableTreeNode actionNode) {
+        WebService ws = (WebService) actionNode.getUserObject();
+        if (UIUtils.promptForDelete(this, "Delete Web Service",
+            "Delete web service '" + ws.getName() + "'?")) {
+            databaseTree.removeNode(actionNode);
+            if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
+                saveConfigurationButton.setEnabled(true);
+            }
         }
     }
 

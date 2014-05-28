@@ -33,9 +33,11 @@ import org.apache.axis2.description.AxisOperation;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
+import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.utils.Utils;
 
 
 public class WebServicePanel extends BaseCreateTestPanel {
@@ -55,47 +57,52 @@ public class WebServicePanel extends BaseCreateTestPanel {
    
     @Override
     protected void handleStartTest() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("ws url: " + getPlatform().getWebServiceUrl());
-        }
+        final WebService ws = Utils.findWebServiceByName(getMainframe().getConfiguration(), getPlatform().getWebServiceName());
         
-        BasePanel p = new BasePanel(getMainframe());
-        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p2.add(new JLabel("Web Service Operations: "));
-        p2.add(operations = new JComboBox());
-        operations.addActionListener(this);
-        p.add(p2, BorderLayout.NORTH);
-        p.add(new JSeparator(), BorderLayout.CENTER);
-        add(p, BorderLayout.CENTER);
-        
-        new SplashDisplay(getMainframe(), "Loading WSDL", "Loading web service definition...") {
-            @Override
-            protected void runProcess() {
-                try {
-                    ServiceClient wsClient = new ServiceClient(null, new URL(getPlatform().getWebServiceUrl()), null, null);
-                
-                    Iterator <AxisOperation> it = wsClient.getAxisService().getOperations();
-                    
-                    List <OperationWrapper> l = new ArrayList<OperationWrapper>();
-                    while (it.hasNext()) {
-                       l.add(new OperationWrapper(it.next()));
-                    }
-                    
-                    Collections.sort(l);
-                    
-                    for (OperationWrapper ow : l) {
-                        operations.addItem(ow);
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("operation: " + ow);
+        if (ws != null) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("web service: " + ws.getName());
+                LOG.debug("wsdl: " + ws.getWsdlUrl());
+            }
+
+            BasePanel p = new BasePanel(getMainframe());
+            JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            p2.add(new JLabel("Web Service Operations: "));
+            p2.add(operations = new JComboBox());
+            operations.addActionListener(this);
+            p.add(p2, BorderLayout.NORTH);
+            p.add(new JSeparator(), BorderLayout.CENTER);
+            add(p, BorderLayout.CENTER);
+
+            new SplashDisplay(getMainframe(), "Loading WSDL", "Loading web service definition...") {
+                @Override
+                protected void runProcess() {
+                    try {
+                        ServiceClient wsClient = new ServiceClient(null, new URL(ws.getWsdlUrl()), null, null);
+
+                        Iterator <AxisOperation> it = wsClient.getAxisService().getOperations();
+
+                        List <OperationWrapper> l = new ArrayList<OperationWrapper>();
+                        while (it.hasNext()) {
+                           l.add(new OperationWrapper(it.next()));
+                        }
+
+                        Collections.sort(l);
+
+                        for (OperationWrapper ow : l) {
+                            operations.addItem(ow);
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("operation: " + ow);
+                            }
                         }
                     }
+
+                    catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
                 }
-                
-                catch (Exception ex) {
-                    LOG.error(ex.toString(), ex);
-                }
-            }
-        };
+            };
+        }
     }
     
     @Override

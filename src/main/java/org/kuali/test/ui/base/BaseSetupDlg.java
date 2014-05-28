@@ -24,6 +24,7 @@ import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -36,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -233,6 +235,18 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return retval;
     }
 
+    protected String[] getWebServiceNames() {
+        WebService[] webServices = getConfiguration().getWebServices().getWebServiceArray();
+        String[] retval = new String[webServices.length + 1];
+        retval[0] = "";
+        for (int i = 0; i < webServices.length; ++i) {
+            retval[i+1] = webServices[i].getName();
+        }
+        
+        Arrays.sort(retval);
+        
+        return retval;
+    }
     
     protected void handleAction(ActionEvent e) {
         if (saveActionCommand.equalsIgnoreCase(e.getActionCommand())) {
