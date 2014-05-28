@@ -422,7 +422,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         WebService ws = (WebService) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Delete Web Service",
             "Delete web service '" + ws.getName() + "'?")) {
-            databaseTree.removeNode(actionNode);
+            webServiceTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
             }

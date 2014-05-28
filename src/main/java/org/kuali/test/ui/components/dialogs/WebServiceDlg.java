@@ -19,12 +19,8 @@ package org.kuali.test.ui.components.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
@@ -38,7 +34,8 @@ public class WebServiceDlg extends BaseSetupDlg {
     private WebService webService;
     private JTextField name;
     private JTextField wsdlUrl;
-    private JTextArea security;
+    private JTextField username;
+    private JPasswordField password;
     private boolean editmode = false;
     
     /**
@@ -75,23 +72,21 @@ public class WebServiceDlg extends BaseSetupDlg {
         String[] labels = {
             "Name",
             "WSDL URL", 
+            "User Name",
+            "Password"
         };
         
         name = new JTextField(webService.getName(), 20);
         name.setEditable(!isEditmode());
         
         wsdlUrl = new JTextField(webService.getWsdlUrl(), 30);
+        username = new JTextField(webService.getUsername(), 20);
+        password = new JPasswordField(webService.getPassword(), 20);
         
-        JComponent[] components = {name, wsdlUrl};
+        JComponent[] components = {name, wsdlUrl, username, password};
 
         
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.NORTH);
-        
-        JPanel p = new JPanel(new BorderLayout());
-        p.add(new JLabel("Security Setup:"), BorderLayout.NORTH);
-        p.add(new JScrollPane(security = new JTextArea(webService.getSecurity(), 4, 40)), BorderLayout.CENTER);
-
-        getContentPane().add(p, BorderLayout.CENTER);
+        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
         
         addStandardButtons();
         setDefaultBehavior();
@@ -119,9 +114,13 @@ public class WebServiceDlg extends BaseSetupDlg {
             webService = getConfiguration().getWebServices().addNewWebService();
             webService.setName(name.getText());
             webService.setWsdlUrl(wsdlUrl.getText());
-            
-            if (StringUtils.isNotBlank(security.getText())) {
-                webService.setSecurity(StringEscapeUtils.escapeXml11(security.getText()));
+
+            if (StringUtils.isNotBlank(username.getText())) {
+                webService.setUsername(username.getText());
+                webService.setPassword(password.getText());
+            } else {
+                webService.setUsername("");
+                webService.setPassword("");
             }
             
             setSaved(true);

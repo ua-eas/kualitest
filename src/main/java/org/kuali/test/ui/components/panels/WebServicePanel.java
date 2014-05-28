@@ -28,8 +28,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
+import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
 import org.apache.axis2.description.AxisOperation;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
@@ -79,7 +81,13 @@ public class WebServicePanel extends BaseCreateTestPanel {
                 protected void runProcess() {
                     try {
                         ServiceClient wsClient = new ServiceClient(null, new URL(ws.getWsdlUrl()), null, null);
-
+                        Options options = wsClient.getOptions();
+                        
+                        if (StringUtils.isNotBlank(ws.getUsername())) {
+                            options.setUserName(ws.getUsername());
+                            options.setPassword(ws.getPassword());
+                        }
+                        
                         Iterator <AxisOperation> it = wsClient.getAxisService().getOperations();
 
                         List <OperationWrapper> l = new ArrayList<OperationWrapper>();
