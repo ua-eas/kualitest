@@ -208,6 +208,17 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         });
         setup.add(addDatabaseConnectionMenuItem);
 
+        addWebServiceMenuItem.setText("Add Web Service");
+
+        addWebServiceMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                handleAddWebService(evt);
+            }
+        });
+
+        setup.add(addWebServiceMenuItem);
+        setup.add(new JSeparator());
+        
         emailSetupMenuItem.setText("Email Setup");
         emailSetupMenuItem.addActionListener(new ActionListener() {
             @Override
@@ -216,15 +227,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         setup.add(emailSetupMenuItem);
-
-        addWebServiceMenuItem.setText("Add Web Service");
-
-        addWebServiceMenuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                handleAddWebService(evt);
-            }
-        });
-        setup.add(addWebServiceMenuItem);
 
         fileMenu.add(setup);
         fileMenu.add(new JSeparator());

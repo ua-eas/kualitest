@@ -181,19 +181,19 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     
     protected JPanel buildLabelGridPanel(String[] labels) {
         JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
-        for (String label : labels) {
+        for (int i = 0; i < labels.length; ++i) {
             String colon = ":";
-            if (StringUtils.isBlank(label)) {
+            if (StringUtils.isBlank(labels[i])) {
                 colon = "";
             }
-            JLabel l = new JLabel(label + colon, JLabel.RIGHT);
+            JLabel l = new JLabel(labels[i] + colon, JLabel.RIGHT);
             l.setVerticalAlignment(JLabel.CENTER);
             retval.add(l);
         }
         
         return retval;
     }
-
+    
     protected JPanel buildComponentGridPanel(JComponent[] components) {
         JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 2));
         for (JComponent c : components) {

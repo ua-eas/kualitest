@@ -19,6 +19,9 @@ package org.kuali.test.ui.components.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -72,20 +75,24 @@ public class WebServiceDlg extends BaseSetupDlg {
         String[] labels = {
             "Name",
             "WSDL URL", 
-            "Security Config"
         };
         
         name = new JTextField(webService.getName(), 20);
         name.setEditable(!isEditmode());
         
         wsdlUrl = new JTextField(webService.getWsdlUrl(), 30);
-        security = new JTextArea(webService.getSecurity(), 3, 30);
         
-        JComponent[] components = {name, wsdlUrl, security};
+        JComponent[] components = {name, wsdlUrl};
 
         
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(new JLabel("Security Setup:"), BorderLayout.NORTH);
+        p.add(new JScrollPane(security = new JTextArea(webService.getSecurity(), 4, 40)), BorderLayout.CENTER);
 
+        getContentPane().add(p, BorderLayout.CENTER);
+        
         addStandardButtons();
         setDefaultBehavior();
     }
@@ -155,5 +162,4 @@ public class WebServiceDlg extends BaseSetupDlg {
     public Dimension getPreferredSize() {
         return new Dimension(600, 375);
     }
-
 }
