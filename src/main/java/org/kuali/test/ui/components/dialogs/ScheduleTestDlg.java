@@ -206,7 +206,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     }
     
     private void populatePlatformTests() {
-        testSuites.removeAll();
+        platformTests.removeAll();
         String platformName = (String)platforms.getSelectedItem();
         
         Platform p = Utils.findPlatform(getMainframe().getConfiguration(), platformName);
