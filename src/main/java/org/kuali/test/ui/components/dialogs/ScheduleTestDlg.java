@@ -188,7 +188,9 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     }
 
     private void populateTestSuites() {
-        testSuites.removeAll();
+        DefaultListModel lm = (DefaultListModel)testSuites.getModel();
+        lm.clear();
+        
         String platformName = (String)platforms.getSelectedItem();
         
         Platform p = Utils.findPlatform(getMainframe().getConfiguration(), platformName);
@@ -197,7 +199,6 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             TestSuite[] t = p.getTestSuites().getTestSuiteArray();
             
             if (t != null) {
-                DefaultListModel lm = (DefaultListModel)testSuites.getModel();
                 for (int i = 0; i < t.length; ++i) {
                     lm.addElement(t[i].getName());
                 }
@@ -206,7 +207,9 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     }
     
     private void populatePlatformTests() {
-        platformTests.removeAll();
+        DefaultListModel lm = (DefaultListModel)platformTests.getModel();
+        lm.clear();
+
         String platformName = (String)platforms.getSelectedItem();
         
         Platform p = Utils.findPlatform(getMainframe().getConfiguration(), platformName);
@@ -215,7 +218,6 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             TestHeader[] t = p.getPlatformTests().getTestHeaderArray();
             
             if (t != null) {
-                DefaultListModel lm = (DefaultListModel)platformTests.getModel();
                 for (int i = 0; i < t.length; ++i) {
                     lm.addElement(t[i].getTestName());
                 }
