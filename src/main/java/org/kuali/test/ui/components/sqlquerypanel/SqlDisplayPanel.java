@@ -88,7 +88,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
     }
     
     private String buildHtml() {
-       return getDbPanel().getSqlQueryString(true);
+       return getDbPanel().getSqlQueryString(DatabasePanel.SQL_FORMAT_DISPLAY);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
                 JOptionPane.showMessageDialog(this, "SQL query is valid");
             }
         } else if (COPY_SQL_ACTION.equals(e.getActionCommand())) {
-            String sql = getDbPanel().getSqlQueryString(false);
+            String sql = getDbPanel().getSqlQueryString(DatabasePanel.SQL_FORMAT_CLIPBOARD);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(new StringSelection(sql), getMainframe());
         }

@@ -145,7 +145,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
 
             Parameter param = checkpoint.getInputParameters().addNewParameter();
             param.setName("sql-query");
-            param.setValue(dbPanel.getSqlQueryString(false));
+            param.setValue(dbPanel.getSqlQueryString(DatabasePanel.SQL_FORMAT_EXECUTE));
             
             param = checkpoint.getInputParameters().addNewParameter();
             param.setName("save-query-results");
