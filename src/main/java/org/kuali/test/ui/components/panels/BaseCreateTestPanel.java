@@ -139,7 +139,9 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
-            handleSaveTest();
+            if (handleSaveTest()) {
+                getMainframe().getPlatformTestsPanel().populateList(platform);
+            }
         } else {
             handleUnprocessedActionEvent(e);
         }

@@ -228,9 +228,11 @@ public class WebServicePanel extends BaseCreateTestPanel {
         if ((ow != null) && (ow.getOperation() != null)) {
             List <WebServiceInputParameter> l = inputParameters.getTableData();
             if (!l.isEmpty()) {
+                retval = true;
                 for (WebServiceInputParameter param : l) {
                     if (StringUtils.isBlank(param.getValue())) {
                         UIUtils.showError(getMainframe(), "Input parameter missing", "Please provide values for all input parameters");
+                        retval = false;
                         break;
                     }
                 }
