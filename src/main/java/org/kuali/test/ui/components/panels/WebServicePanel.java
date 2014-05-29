@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
+import org.apache.axis2.description.AxisMessage;
 import org.apache.axis2.description.AxisOperation;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -82,7 +83,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
                     try {
                         ServiceClient wsClient = new ServiceClient(null, new URL(ws.getWsdlUrl()), null, null);
                         Options options = wsClient.getOptions();
-                        
+
                         if (StringUtils.isNotBlank(ws.getUsername())) {
                             options.setUserName(ws.getUsername());
                             options.setPassword(ws.getPassword());
@@ -128,7 +129,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
     }
     
     private class OperationWrapper implements Comparable <OperationWrapper> {
-        private AxisOperation operation;
+        private final AxisOperation operation;
         
         public OperationWrapper(AxisOperation operation) {
             this.operation = operation;
@@ -155,8 +156,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
             OperationWrapper ow = (OperationWrapper)operations.getSelectedItem();
             AxisOperation ao = ow.getOperation();
             
-            for(org.apache.axis2.description.Parameter param : ao.getParameters()) {
-                LOG.debug("param: " + param.getName() + ", type=" + param.getParameterType());
+            Iterator <AxisMessage> it = ao.getMessages();
+            
+            while (it.hasNext()) {
+                LOG.error("--------------->" + it.next().getKey());
             }
         }
     }

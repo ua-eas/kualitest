@@ -18,26 +18,33 @@ package org.kuali.test.comparators;
 
 import java.util.Comparator;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 
 
-public class SqlHierarchyComparator implements Comparator <TableData>{
+public class SqlHierarchyComparator implements Comparator <TableData> {
     @Override
     public int compare(TableData o1, TableData o2) {
         int retval = 0;
         
-        DefaultMutableTreeNode tn1 = o1.getTreeNode();
-        DefaultMutableTreeNode tn2 = o2.getTreeNode();
-        
-        if ((tn1 != null) && (tn2 != null)) {
-            Integer i1 = Integer.valueOf(tn1.getLevel());
-            Integer i2 = Integer.valueOf(tn2.getLevel());
-            
-            retval = i1.compareTo(i2);
-        }
-        
-        if (retval == 0) {
-            retval = o1.getName().compareTo(o2.getName());
+        if (StringUtils.isBlank(o1.getForeignKeyName())) {
+            retval = -1;
+        } else if (StringUtils.isBlank(o2.getForeignKeyName())) {
+            retval = 1;
+        } else {
+            DefaultMutableTreeNode tn1 = o1.getTreeNode();
+            DefaultMutableTreeNode tn2 = o2.getTreeNode();
+
+            if ((tn1 != null) && (tn2 != null)) {
+                Integer i1 = Integer.valueOf(tn1.getLevel());
+                Integer i2 = Integer.valueOf(tn2.getLevel());
+
+                retval = i1.compareTo(i2);
+            }
+
+            if (retval == 0) {
+                retval = o1.getName().compareTo(o2.getName());
+            }
         }
         
         return retval;

@@ -33,13 +33,6 @@ public class SqlQueryNode extends DefaultMutableTreeNode {
     public SqlQueryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;
-        
-        try {
-        }
-        
-        catch (Exception ex) {
-            LOG.error(ex.toString(), ex);
-        }
     }
 
     @Override

@@ -113,7 +113,11 @@ public class TableData extends DBObjectData {
 
         retval.append(getDbTableName());
         retval.append(".");
-        retval.append(getForeignKeyName());
+        if (StringUtils.isNotBlank(foreignKeyName)) {
+            retval.append(getForeignKeyName());
+        } else {
+            retval.append("basetable");
+        }
         
         return retval.toString();
     }

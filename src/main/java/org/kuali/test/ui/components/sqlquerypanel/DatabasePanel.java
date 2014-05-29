@@ -166,7 +166,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                             Table t = additionalDbInfo.get(tableName);
 
                             if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
-                                tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
+                                if (t != null) {
+                                    tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
+                                } else {
+                                    tables.add(new TableData(dbconn.getSchema(), tableName, tableName));
+                                }
                             } 
                         }
                     }
@@ -273,6 +277,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 String fkname = res.getString(12);
 
                 String key = fkname;
+                
                 if (StringUtils.isBlank(key)) {
                     key = (td.getName() + "-" + tname);
                 }
@@ -288,26 +293,33 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                         map.put(key, tdata = new TableData(schema, tname, tname));
                     }
 
-                    td.getRelatedTables().add(tdata);
-                    SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
-
-                    parentNode.add(curnode);
-
-                    if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
-                        // only move down the tree if this is not a circular relationship
-                        if (!isCircularReference(curnode)) {
-                            loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
-                        } else {
-                            loadTableColumns(dbconn, dmd, curnode);
-                        }
-                    } 
-
                     tdata.setForeignKeyName(fkname);
                 }
 
                 tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
             }
 
+            List <TableData> l = new ArrayList(map.values());
+            
+            Collections.sort(l);
+            
+            for (TableData tdata : l) {
+                td.getRelatedTables().add(tdata);
+                SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
+
+                parentNode.add(curnode);
+
+                if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
+                    // only move down the tree if this is not a circular relationship
+                    if (!isCircularReference(curnode)) {
+                        loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);  
+                    } else {
+                        tdata.setTreeNode(curnode);
+                        loadTableColumns(dbconn, dmd, curnode);
+                    }
+                } 
+            }
+            
             if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
                 CustomForeignKey[] customForeignKeys = getCustomForeignKeys(td);
 
@@ -601,6 +613,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     }
 
     public String getSqlKeywordString(boolean htmlFormat, String keyword) {
+        return getSqlKeywordString(htmlFormat, keyword, true);
+    }
+    
+    public String getSqlKeywordString(boolean htmlFormat, String keyword, boolean includeLineBreak) {
         StringBuilder retval = new StringBuilder(64);
         if (htmlFormat) {
             retval.append(Utils.buildHtmlStyle(Constants.HTML_BOLD_BLUE_STYLE, keyword));
@@ -610,7 +626,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             retval.append(" ");
         }
         
-        retval.append(getSqlLineBreakString(htmlFormat));
+        if (includeLineBreak) {
+            retval.append(getSqlLineBreakString(htmlFormat));
+        }
         
         return retval.toString();
     }
@@ -686,21 +704,24 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 } else {
                     TableData ptd = getParentTableData(td);
 
-                    // if we are doing a join there must bea parent table
+                    // if we are doing a join there must be parent table
                     if (ptd != null) {
                         String ptdAlias = getTableAlias(ptd, tableList, htmlFormat);
 
                         retval.append(getSqlTabString(htmlFormat));
                         
                         if (td.isOuterJoin()) {
-                            retval.append(" left outer");
-                        } 
-
-                        retval.append(" join ");
+                            retval.append(this.getSqlKeywordString(htmlFormat, " left outer join", false));
+                        } else {
+                            retval.append(this.getSqlKeywordString(htmlFormat, " join", false));
+                        }
+                        
                         retval.append(td.getName());
                         retval.append(" ");
                         retval.append(tdAlias);
-                        retval.append(" on (");
+                        retval.append(this.getSqlKeywordString(htmlFormat, " on ", false));
+
+                        retval.append("(");
 
                         retval.append(getSqlLineBreakString(htmlFormat));
                         
@@ -726,9 +747,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                         }
 
                         retval.append(") ");
+                        retval.append(getSqlLineBreakString(htmlFormat));
                     }
-                    
-                    retval.append(getSqlLineBreakString(htmlFormat));
                 }
             }
 
@@ -737,8 +757,14 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             if (!wherecols.isEmpty()) {
                 retval.append(getSqlKeywordString(htmlFormat, "where"));
             
-                for (WhereColumnData wcd : wherecols) {
+                for (int i = 0; i < wherecols.size(); ++i) {
+                    WhereColumnData wcd = wherecols.get(i);
                     retval.append(getSqlTabString(htmlFormat));
+                    
+                    if (i > 0) {
+                        retval.append(getSqlTabString(htmlFormat));
+                    }
+                    
                     retval.append(buildWhereClause(tableList, wcd, htmlFormat, forSyntaxCheck));
                 }
                 
@@ -960,17 +986,19 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             TableData td = scd.getTableData();
             hs.add(td);
             
-            // run up the tree for each table to make sure
-            // we have all linking tables even if no columns selected
-            // for intermediate tables
-            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
-            
-            while (pnode != null) {
-                if (pnode.getUserObject() instanceof TableData) {
-                    hs.add((TableData)pnode.getUserObject());
+            if (td.getTreeNode() != null) {
+                // run up the tree for each table to make sure
+                // we have all linking tables even if no columns selected
+                // for intermediate tables
+                DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
+
+                while (pnode != null) {
+                    if (pnode.getUserObject() instanceof TableData) {
+                        hs.add((TableData)pnode.getUserObject());
+                    }
+
+                    pnode = (DefaultMutableTreeNode)pnode.getParent();
                 }
-                
-                pnode = (DefaultMutableTreeNode)pnode.getParent();
             }
         }
         
@@ -978,17 +1006,19 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             TableData td = wcd.getTableData();
             hs.add(td);
             
-            // run up the tree for each table to make sure
-            // we have all linking tables even if no columns selected
-            // for intermediate tables
-            DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
-            
-            while (pnode != null) {
-                if (pnode.getUserObject() instanceof TableData) {
-                    hs.add((TableData)pnode.getUserObject());
+            if (td.getTreeNode() != null) {
+                // run up the tree for each table to make sure
+                // we have all linking tables even if no columns selected
+                // for intermediate tables
+                DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)td.getTreeNode().getParent();
+
+                while (pnode != null) {
+                    if (pnode.getUserObject() instanceof TableData) {
+                        hs.add((TableData)pnode.getUserObject());
+                    }
+
+                    pnode = (DefaultMutableTreeNode)pnode.getParent();
                 }
-                
-                pnode = (DefaultMutableTreeNode)pnode.getParent();
             }
         }
 
