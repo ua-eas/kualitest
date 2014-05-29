@@ -135,6 +135,7 @@ public class Constants {
     public static final String NODE_ID = "nodeid";
     public static final String SYSTEM_PROPERTY_GROUP = "system";
     public static final String DATABASE_PROPERTY_GROUP = "database";
+    public static final String WEB_SERVICE_PROPERTY_GROUP = "webservice";
     public static final String ADD_ROW_ACTION = "Add Row";
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";

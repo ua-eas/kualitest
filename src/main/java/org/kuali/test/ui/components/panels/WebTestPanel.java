@@ -50,6 +50,7 @@ import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
+import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
@@ -231,6 +232,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private void createWebServiceCheckpoint() {
+        WebServiceCheckPointDlg dlg = new WebServiceCheckPointDlg(getMainframe(), getTestHeader(), null);
+
+        if (dlg.isSaved()) {
+            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+        }
     }
     
     private Node getIframeBody(JWebBrowser webBrowser, Whitelist whitelist, Node iframeNode) {

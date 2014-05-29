@@ -20,9 +20,11 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,7 @@ import javax.swing.JToolBar;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
 import org.kuali.test.AdditionalDatabaseInfoDocument;
 import org.kuali.test.Application;
 import org.kuali.test.Checkpoint;
@@ -230,8 +233,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     }
                 }
                 
-                catch (Exception ex) {
+                catch (IOException ex) {
                     LOG.warn("Error reading additional database info file", ex);
+                } catch (XmlException ex) {
+                    LOG.warn("Error parsing XML from database info file", ex);
                 }
             }
         }
@@ -435,7 +440,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 }
             }
             
-            catch (Exception ex) {
+            catch (SQLException ex) {
                 LOG.warn("error obtaining primary keys for table " + td.getName());
             }
             

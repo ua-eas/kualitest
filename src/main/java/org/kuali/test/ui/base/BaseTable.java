@@ -162,4 +162,18 @@ public class BaseTable extends JTable {
         return null;
     }
 
+    public void clear() {
+        BaseTableModel tm = this.getModel();
+        List l = tm.getData();
+        int size = l.size();
+        if (size > 0) {
+            l.clear();
+            tm.fireTableRowsDeleted(0, size-1);
+        }
+    }
+    
+    public void setTableData(List data) {
+        clear();
+        getModel().setData(data);
+    }
 }
