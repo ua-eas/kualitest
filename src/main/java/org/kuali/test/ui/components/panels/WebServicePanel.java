@@ -156,7 +156,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
             AxisOperation ao = ow.getOperation();
             
             for(org.apache.axis2.description.Parameter param : ao.getParameters()) {
-                LOG.error("param: " + param.getName() + ", type=" + param.getParameterType());
+                LOG.debug("param: " + param.getName() + ", type=" + param.getParameterType());
             }
         }
     }

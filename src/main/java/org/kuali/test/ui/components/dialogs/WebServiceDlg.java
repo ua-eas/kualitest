@@ -111,7 +111,10 @@ public class WebServiceDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            webService = getConfiguration().getWebServices().addNewWebService();
+            if (!editmode) {
+                webService = getConfiguration().getWebServices().addNewWebService();
+            }
+        
             webService.setName(name.getText());
             webService.setWsdlUrl(wsdlUrl.getText());
 
