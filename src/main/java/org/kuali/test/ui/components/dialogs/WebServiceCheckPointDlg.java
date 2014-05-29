@@ -50,7 +50,6 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
     private final TestHeader testHeader;
     private Checkpoint checkpoint;
     private JTextField name;
-    private JComboBox checkpointProperty;
     private JComboBox wsFailure;
     private IntegerTextField maxRunTime;
     private WebServicePanel wsPanel;
@@ -78,6 +77,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         if (wsPanel == null) {
             wsPanel = new WebServicePanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
                 testHeader.getPlatformName()), testHeader, true);
+            getContentPane().add(getCheckpointPanel(), BorderLayout.NORTH);
             getContentPane().add(wsPanel, BorderLayout.CENTER);
         } else {
             getContentPane().add(getCheckpointPanel(), BorderLayout.CENTER);
@@ -98,7 +98,6 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
 
         name = new JTextField(checkpoint.getName(), 20);
         name.setEditable(!isEditmode());
-        checkpointProperty = new JComboBox(Constants.SQL_CHECKPOINT_PROPERTIES);
         wsFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         maxRunTime = new IntegerTextField();
         
@@ -160,6 +159,8 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
             cp.setDisplayName("Expected Result");
             cp.setPropertyName("expected-result");
             cp.setPropertyName(wsPanel.getExpectedResult());
+            
+            cp = checkpoint.getCheckpointProperties().addNewCheckpointProperty();
             
             cp.setValueType(ValueType.INT);
             cp.setPropertyGroup(Constants.WEB_SERVICE_PROPERTY_GROUP);
