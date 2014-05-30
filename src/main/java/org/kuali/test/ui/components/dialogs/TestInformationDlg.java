@@ -18,6 +18,8 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +34,11 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -42,6 +46,7 @@ import org.kuali.test.utils.Constants;
  */
 public class TestInformationDlg extends BaseSetupDlg {
     private TestHeader testHeader;
+    private BaseTable checkpointTable;
     
     /**
      * Creates new form TestInformationDlg
@@ -65,20 +70,38 @@ public class TestInformationDlg extends BaseSetupDlg {
             "Max Run Time (sec)",
             "On Max Time Failure"
         };
+
+        File f = new File(testHeader.getTestFileName());
+        StringBuilder nm = new StringBuilder(64);
+        nm.append("[repository]/");
+        nm.append(testHeader.getPlatformName());
+        nm.append("/");
+        nm.append(f.getName());
+        
+        String maxTime = "";
+        if (testHeader.getMaxRunTime() > 0) {
+            maxTime = ("" + testHeader.getMaxRunTime());
+        }
+        
+        String failureAction = "";
+
+        if (testHeader.getOnRuntimeFailure() != null) {
+            failureAction = testHeader.getOnRuntimeFailure().toString();
+        }
         
         JComponent[] components = new JComponent[] {
-            new JLabel(testHeader.getPlatformName()),
-            new JLabel(testHeader.getTestName()),
-            new JLabel(testHeader.getTestType().toString()),
-            new JLabel(testHeader.getDescription()),
-            new JLabel(testHeader.getTestFileName()),
-            new JLabel("" + testHeader.getMaxRunTime()),
-            new JLabel(testHeader.getOnRuntimeFailure().toString())
+            new JLabel(Utils.getLabelDataDisplay(testHeader.getPlatformName())),
+            new JLabel(Utils.getLabelDataDisplay(testHeader.getTestName())),
+            new JLabel(Utils.getLabelDataDisplay(testHeader.getTestType().toString())),
+            new JLabel(Utils.getLabelDataDisplay(testHeader.getDescription())),
+            new JLabel(Utils.getLabelDataDisplay(nm.toString())),
+            new JLabel(Utils.getLabelDataDisplay(maxTime)),
+            new JLabel(Utils.getLabelDataDisplay(failureAction))
         };
 
         getContentPane().add(buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        getContentPane().add(new TablePanel(buildCheckpointTable()), BorderLayout.CENTER);
+        getContentPane().add(new TablePanel(checkpointTable = buildCheckpointTable()), BorderLayout.CENTER);
         
         addStandardButtons();
         
@@ -89,7 +112,7 @@ public class TestInformationDlg extends BaseSetupDlg {
 
     @Override
     protected String getCancelText() {
-        return Constants.OK_ACTION;
+        return Constants.CLOSE_ACTION;
     }
     
     private BaseTable buildCheckpointTable() {
@@ -97,7 +120,7 @@ public class TestInformationDlg extends BaseSetupDlg {
         config.setTableName("test-checkpoint-table");
         config.setDisplayName("Checkpoints");
         
-        int[] alignment = new int[6];
+        int[] alignment = new int[3];
         for (int i = 0; i < alignment.length; ++i) {
             alignment[i] = JLabel.LEFT;
         }
@@ -106,28 +129,54 @@ public class TestInformationDlg extends BaseSetupDlg {
         
         config.setHeaders(new String[] {
             "Name",
-            "Type"
-            
+            "Type",
+            "Details"
         });
         
         config.setPropertyNames(new String[] {
             "name",
-            "type"
+            "type",
+            Constants.IGNORE_TABLE_DATA_INDICATOR
         });
             
         config.setColumnTypes(new Class[] {
             String.class,
             String.class,
+            String.class
         });
         
         config.setColumnWidths(new int[] {
             30,
-            20
+            20,
+            30
         });
 
         config.setData(getTestCheckpoints());
         
-        return new BaseTable(config);
+        BaseTable retval = new BaseTable(config) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return (column == 2);
+            }
+        };
+        
+        TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TableCellIconButton b = (TableCellIconButton)e.getSource();
+                List <Checkpoint> l = checkpointTable.getTableData();
+                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
+                    new CheckpointDetailsDlg(getMainframe(), TestInformationDlg.this, l.get(b.getCurrentRow()));
+                }
+            }
+        });
+        
+        retval.getColumnModel().getColumn(2).setCellRenderer(b);
+        retval.getColumnModel().getColumn(2).setCellEditor(b);
+        
+        return retval;
     }
     
     private List <Checkpoint> getTestCheckpoints() {
@@ -149,7 +198,8 @@ public class TestInformationDlg extends BaseSetupDlg {
             } 
             
             catch (Exception ex) {
-                UIUtils.showError(this, "Error Loading Test File", "Error occured while loading test filem - " + ex.toString());
+                UIUtils.showError(this, "Error Loading Test File", 
+                    "Error occured while loading test filem - " + ex.toString());
             }
         }
         return retval;

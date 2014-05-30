@@ -32,6 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -45,12 +46,14 @@ import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 
 public class PlatformTestsPanel extends BasePanel 
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
     private static final String SHOW_TEST_INFORMATION = "Show test information";
+    private static final String DELETE_TEST = "Delete test";
     
     private JList testList;
     private Platform currentPlatform;
@@ -68,6 +71,10 @@ public class PlatformTestsPanel extends BasePanel
         
         popupMenu = new JPopupMenu();
         JMenuItem m = new JMenuItem(SHOW_TEST_INFORMATION);
+        popupMenu.add(m);
+        m.addActionListener(this);
+        popupMenu.add(new JSeparator());
+        m = new JMenuItem(DELETE_TEST);
         popupMenu.add(m);
         m.addActionListener(this);
         
@@ -178,6 +185,10 @@ public class PlatformTestsPanel extends BasePanel
     public void actionPerformed(ActionEvent e) {
         if (SHOW_TEST_INFORMATION.equals(e.getActionCommand())) {
             showTestInformation();
+        } else if (DELETE_TEST.equals(e.getActionCommand())) {
+            if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
+                // TODO add delete code here
+            }
         }
     }
     

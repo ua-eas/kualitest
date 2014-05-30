@@ -49,6 +49,7 @@ public class Constants {
     public static final ImageIcon CLOSE_TAB_ICON = new ImageIcon(TestCreator.class.getResource("/images/close-tab.png"));
     public static final ImageIcon ADD_ICON = new ImageIcon(TestCreator.class.getResource("/images/add.png"));
     public static final ImageIcon DELETE_ICON = new ImageIcon(TestCreator.class.getResource("/images/delete.png"));
+    public static final ImageIcon DETAILS_ICON = new ImageIcon(TestCreator.class.getResource("/images/details.png"));
 
     public static final ImageIcon DATABASE_ICON = new ImageIcon(TestCreator.class.getResource("/images/database.png"));
     public static final ImageIcon DATABASE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/database-setting.png"));
@@ -109,6 +110,7 @@ public class Constants {
     public static String SAVE_ACTION = "Save";
     public static String OK_ACTION = "Ok";
     public static String CANCEL_ACTION = "Cancel";
+    public static String CLOSE_ACTION = "Close";
     public static String CONTINUE_ACTION = "Continue";
     public static final String START_TEST_ACTION = "Start Test";
     public static final String CANCEL_TEST_ACTION = "Cancel Test";
@@ -142,6 +144,8 @@ public class Constants {
     public static final String DELETE_COLUMN_ACTION = "Delete Column";
     public static final String ADD_COMPARISON_ACTION = "Add Comparison";
     public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
+    public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
+    public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
@@ -160,10 +164,10 @@ public class Constants {
     public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
     public static final String TAB_SPACES = "    ";
     public static final String HTML_LINE_BREAK = "<br />";
-    public static final String HTML_BOLD_UNDERLINE_STYLE = "<span style='font-weight: 650; white-space: nowrap; text-decoration: underline;'>^</span>";
-    public static final String HTML_BOLD_BLUE_STYLE = "<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 650; white-space: nowrap;'>^</span>";
+    public static final String HTML_BOLD_UNDERLINE_STYLE = "<span style='font-weight: 650; white-space: nowrap; text-decoration: underline;'>" + REPLACE_DATA_POSITION_HOLDER + "</span>";
+    public static final String HTML_BOLD_BLUE_STYLE = "<span style='color: " + Constants.COLOR_DARK_BLUE + "; font-weight: 650; white-space: nowrap;'>" + REPLACE_DATA_POSITION_HOLDER + "</span>";
     public static final String HTML_DARK_RED_STYLE = "<span style='color: " + Constants.COLOR_DARK_RED + "; white-space: nowrap;'>^</span>";
-    public static final String HTML_DARK_GREEN_STYLE = "<span style='color: " + Constants.COLOR_DARK_GREEN + "; font-weight: 650; white-space: nowrap;'>^</span>";
+    public static final String HTML_DARK_GREEN_STYLE = "<span style='color: " + Constants.COLOR_DARK_GREEN + "; font-weight: 650; white-space: nowrap;'>" + REPLACE_DATA_POSITION_HOLDER + "</span>";
     
     public static final String JAVASCRIPT_SUFFIX = "js";
     public static final String CSS_SUFFIX = "css";

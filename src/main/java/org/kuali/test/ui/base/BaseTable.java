@@ -38,7 +38,6 @@ public class BaseTable extends JTable {
     public BaseTable(TableConfiguration config) {
         super(new BaseTableModel(config));
 
-        
         for (int i = 0; i < config.getHeaders().length; ++i) {
             int cx = getColumnWidth(i);
             getColumnModel().getColumn(i).setWidth(cx);

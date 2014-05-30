@@ -1577,4 +1577,17 @@ public class Utils {
     public static String buildHtmlStyle(String style, String data) {
         return style.replace("^", data);
     }
+
+    public static String getLabelDataDisplay(String input) {
+        StringBuilder retval = new StringBuilder(128);
+        if (StringUtils.isNotBlank(input)) {
+            retval.append("<html><span style='font-weight: normal;'>");
+            retval.append(input);
+            retval.append("</span></html>");
+        } else {
+            retval.append("");
+        }
+        
+        return retval.toString();
+    }
 }

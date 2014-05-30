@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
@@ -68,7 +69,9 @@ public class BaseTableModel extends AbstractTableModel {
         
         if ((row < data.size()) && (col < config.getPropertyNames().length)) {
             Object o = data.get(row);
-            retval = Utils.getObjectProperty(o, config.getPropertyNames()[col]);
+            if (!Constants.IGNORE_TABLE_DATA_INDICATOR.equals(config.getPropertyNames()[col])) {
+                retval = Utils.getObjectProperty(o, config.getPropertyNames()[col]);
+            }
         }
         
         return retval;
