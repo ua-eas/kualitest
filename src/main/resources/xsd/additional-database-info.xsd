@@ -80,7 +80,7 @@
         <xs:sequence>
             <xs:element name="primary-column" type="xs:string"/>
             <xs:element name="primary-column-type" type="xs:string"/>
-            <xs:element name="foeign-column" type="xs:string"/>
+            <xs:element name="foreign-column" type="xs:string"/>
             <xs:element name="foreign-column-type" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
