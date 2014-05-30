@@ -64,6 +64,7 @@ import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
+import org.kuali.test.ui.components.panels.FileTestPanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
@@ -369,6 +370,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     break;
                 case TestType.INT_DATABASE:
                     createTestPanel.replaceCenterComponent(new DatabasePanel(this, platform, testHeader));
+                    break;
+                case TestType.INT_FILE:
+                    createTestPanel.replaceCenterComponent(new FileTestPanel(this, platform, testHeader));
                     break;
             }
         }

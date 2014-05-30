@@ -96,8 +96,23 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         saveTest.setEnabled(false);
         retval.add(saveTest);
 
-        retval.add(new JLabel("        Platform: " + platform.getName()));
-        retval.add(new JLabel("  Test Name: " + testHeader.getTestName()));
+        StringBuilder txt = new StringBuilder(128);
+        
+        txt.append("<html><span style='font-weight: 700;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Platform: </span><span style='color: ");
+        txt.append(Constants.COLOR_DARK_BLUE);
+        txt.append(";  font-weight: normal;'>");
+        txt.append(platform.getName());
+        txt.append("</span><span style='font-weight: 700; padding-left: 30px;'>, Test Type: </span><span style='color: ");
+        txt.append(Constants.COLOR_DARK_BLUE);
+        txt.append(";  font-weight: normal;'>");
+        txt.append(testHeader.getTestType().toString());
+        txt.append("</span><span style='font-weight: 700; padding-left: 30px;'>, Test Name: </span><span style='color: ");
+        txt.append(Constants.COLOR_DARK_BLUE);
+        txt.append("; font-weight: normal;'>");
+        txt.append(testHeader.getTestName());
+        txt.append("</span></html>");
+        
+        retval.add(new JLabel(txt.toString()));
         
         return retval;
     }
