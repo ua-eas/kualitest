@@ -25,6 +25,7 @@ import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
+import org.kuali.test.utils.Constants;
 
 
 public class RepositoryPopupMenu extends BaseTreePopupMenu {
@@ -55,6 +56,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
         } else if (ADD_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
         } else if (REMOVE_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleRemoveTest(actionNode);
+        } else if (Constants.SHOW_TEST_INFORMATION_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleShowTestInformation(actionNode);
         }
         
     }
@@ -103,6 +106,12 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             m.addActionListener(this);
             
             m = new JMenuItem(REMOVE_TEST_ACTION);
+            add(m);
+            m.addActionListener(this);
+
+            add(new JSeparator());
+            
+            m = new JMenuItem(Constants.SHOW_TEST_INFORMATION_ACTION);
             add(m);
             m.addActionListener(this);
         }

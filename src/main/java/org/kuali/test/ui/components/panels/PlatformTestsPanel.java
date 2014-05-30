@@ -41,28 +41,30 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 public class PlatformTestsPanel extends BasePanel 
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
-    private static final String SHOW_TEST_INFORMATION = "Show test information";
     private static final String DELETE_TEST = "Delete test";
     
     private JList testList;
     private Platform currentPlatform;
     private JPopupMenu popupMenu;
-    private TestHeader testHeader;
+    private TestHeader currentTestHeader;
     
     public PlatformTestsPanel(TestCreator mainframe) {
         super(mainframe);
-        
+        initComponents();
+    }
+
+    private void initComponents() {
         JPanel p = new JPanel(new BorderLayout());
         p.add(new JLabel("Available Tests"), BorderLayout.NORTH);
 
@@ -70,7 +72,7 @@ public class PlatformTestsPanel extends BasePanel
         add(new JScrollPane(testList = new JList(new DefaultListModel())), BorderLayout.CENTER);
         
         popupMenu = new JPopupMenu();
-        JMenuItem m = new JMenuItem(SHOW_TEST_INFORMATION);
+        JMenuItem m = new JMenuItem(Constants.SHOW_TEST_INFORMATION_ACTION);
         popupMenu.add(m);
         m.addActionListener(this);
         popupMenu.add(new JSeparator());
@@ -104,12 +106,12 @@ public class PlatformTestsPanel extends BasePanel
         
         new DragSource().createDefaultDragGestureRecognizer(testList, DnDConstants.ACTION_LINK, this);
     }
-
+    
     private void showPopup(String testName, int x, int y) {
         if (currentPlatform != null) {
-            this.testHeader = Utils.findTestHeaderByName(currentPlatform, testName);
+            this.currentTestHeader = Utils.findTestHeaderByName(currentPlatform, testName);
 
-            if (testHeader != null) {
+            if (currentTestHeader != null) {
                 popupMenu.show(this, x, y);
             }
         }
@@ -168,8 +170,8 @@ public class PlatformTestsPanel extends BasePanel
             }
             clearList();
             DefaultListModel model = (DefaultListModel) testList.getModel();
-            for (TestHeader testHeader : platform.getPlatformTests().getTestHeaderArray()) {
-                model.addElement(testHeader.getTestName());
+            for (TestHeader th : platform.getPlatformTests().getTestHeaderArray()) {
+                model.addElement(th.getTestName());
             }
 
         } else {
@@ -183,16 +185,12 @@ public class PlatformTestsPanel extends BasePanel
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (SHOW_TEST_INFORMATION.equals(e.getActionCommand())) {
-            showTestInformation();
+        if (Constants.SHOW_TEST_INFORMATION_ACTION.equals(e.getActionCommand())) {
+            getMainframe().handleShowTestInformation(currentTestHeader);
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
-            if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
-                // TODO add delete code here
+            if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + currentTestHeader.getTestName() + "'?")) {
+                // TODO: add delete code here
             }
         }
-    }
-    
-    private void showTestInformation() {
-        new TestInformationDlg(getMainframe(), testHeader);
     }
 }

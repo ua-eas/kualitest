@@ -1338,25 +1338,31 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
-    public static String[] getValidCheckpointTypesForPlatform(Platform platform) {
+    public static String[] getValidCheckpointTypesForPlatform(TestType.Enum testType, Platform platform) {
         List <String> retval = new ArrayList<String>();
         String[] checkpointTypes = Utils.getXmlEnumerations(CheckpointType.class);
 
         for (String checkpointType : checkpointTypes) {
-            if (CheckpointType.SQL.toString().equals(checkpointType)) {
-                if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
-                    retval.add(checkpointType);
-                }
-            } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
-                if (StringUtils.isNotBlank(platform.getWebServiceName())) {
-                    retval.add(checkpointType);
-                }
-            } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
-                if (StringUtils.isNotBlank(platform.getJmxUrl())) {
+            if (checkpointType.equals(CheckpointType.HTTP.toString())) {
+                if (TestType.WEB.equals(testType)) {
                     retval.add(checkpointType);
                 }
             } else {
-                retval.add(checkpointType);
+                if (CheckpointType.SQL.toString().equals(checkpointType)) {
+                    if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+                        retval.add(checkpointType);
+                    }
+                } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
+                    if (StringUtils.isNotBlank(platform.getWebServiceName())) {
+                        retval.add(checkpointType);
+                    }
+                } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
+                    if (StringUtils.isNotBlank(platform.getJmxUrl())) {
+                        retval.add(checkpointType);
+                    }
+                } else {
+                    retval.add(checkpointType);
+                }
             }
         }
         

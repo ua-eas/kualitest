@@ -144,6 +144,8 @@ public class Constants {
     public static final String DELETE_COLUMN_ACTION = "Delete Column";
     public static final String ADD_COMPARISON_ACTION = "Add Comparison";
     public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
+    public static final String SHOW_TEST_INFORMATION_ACTION = "Show test information";
+
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
 

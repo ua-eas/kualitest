@@ -60,6 +60,7 @@ import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
+import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
@@ -468,6 +469,15 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 testRepositoryTree.addRepositoryNode(dlg.getNewRepositoryObject());
             }
         }
+    }
+
+    public void handleShowTestInformation(DefaultMutableTreeNode actionNode) {
+        SuiteTest suiteTest = (SuiteTest) actionNode.getUserObject();
+        handleShowTestInformation(suiteTest.getTestHeader());
+    }
+
+    public void handleShowTestInformation(TestHeader testHeader) {
+        new TestInformationDlg(this, testHeader);
     }
 
     public void handleRemoveTest(DefaultMutableTreeNode actionNode) {

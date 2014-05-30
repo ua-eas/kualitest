@@ -107,7 +107,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     public void saveConfiguration() {
         if (StringUtils.isNotBlank(getMainframe().getConfigFileName())) {
             File f = new File(getMainframe().getConfigFileName());
-            if (f.exists() && f.isFile() && configuration.getModified()) {
+            if (f.exists() && f.isFile()) {
                 configuration.setModified(false);
                 try {
                     KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();

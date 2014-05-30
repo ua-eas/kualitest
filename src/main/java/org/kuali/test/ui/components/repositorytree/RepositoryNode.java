@@ -58,11 +58,9 @@ public class RepositoryNode extends DefaultMutableTreeNode {
                 TestSuite testSuite = (TestSuite)userObject;
                 Platform platform = findPlatform(testSuite.getPlatformName());
                 if (platform != null) {
-                    String filePath = getPlatformFilePath(platform) + "/tests/";
-                    
                     if (testSuite.getSuiteTests() != null) {
                         for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
-                            File f = new File(filePath + suiteTest.getTestHeader().getTestFileName());
+                            File f = new File(suiteTest.getTestHeader().getTestFileName());
                             if (f.exists() && f.isFile()) {
                                 add(new RepositoryNode(configuration, suiteTest));
                             }
