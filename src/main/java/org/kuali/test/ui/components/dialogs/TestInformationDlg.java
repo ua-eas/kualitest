@@ -24,6 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.KualiTestDocument;
@@ -59,7 +60,12 @@ public class TestInformationDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
+    public TestInformationDlg(TestCreator mainFrame, JDialog parentDlg, TestHeader testHeader) {
+        super(mainFrame, parentDlg);
+        this.testHeader = testHeader;
+        initComponents();
+    }
+
     private void initComponents() {
         String[] labels = new String[] {
             "Platform",

@@ -214,6 +214,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         addWebServiceMenuItem.setText("Add Web Service");
 
         addWebServiceMenuItem.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddWebService(evt);
             }
@@ -302,6 +303,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         p2.add(saveConfigurationButton = new JButton(Constants.SAVE_CONFIGURATION, Constants.SAVE_CONFIGURATION_ICON) {
+            @Override
             public void setEnabled(boolean enabled) {
                 if (enabled) {
                     getConfiguration().setModified(true);
@@ -640,7 +642,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     @Override
     public synchronized void addWindowStateListener(WindowStateListener l) {
-        super.addWindowStateListener(l); //To change body of generated methods, choose Tools | Templates.
+        super.addWindowStateListener(l);
     }
 
     @Override

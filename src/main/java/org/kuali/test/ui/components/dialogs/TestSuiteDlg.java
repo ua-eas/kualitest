@@ -18,6 +18,8 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -34,8 +36,10 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -48,6 +52,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
     private JTextField name;
     private JTextField platformName;
     private JTextField emailAddresses;
+    private BaseTable testTable;
     
     /**
      * Creates new form PlatformDlg
@@ -101,7 +106,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
         JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        p.add(new TablePanel(buildTestTable()), BorderLayout.CENTER);
+        p.add(new TablePanel(testTable = buildTestTable()), BorderLayout.CENTER);
         
         getContentPane().add(p, BorderLayout.CENTER);
 
@@ -114,7 +119,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
         config.setTableName("test-suite-tests");
         config.setDisplayName("Tests");
         
-        int[] alignment = new int[6];
+        int[] alignment = new int[7];
         for (int i = 0; i < alignment.length; ++i) {
             alignment[i] = JLabel.LEFT;
         }
@@ -127,8 +132,8 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Created By",
             "Create Date",
             "Max Run Time(min)",
-            "Description"
-            
+            "Description",
+            "Details"
         });
         
         config.setPropertyNames(new String[] {
@@ -137,7 +142,8 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "createdBy",
             "dateCreated",
             "maxRunTime",
-            "description"
+            "description",
+            Constants.IGNORE_TABLE_DATA_INDICATOR
         });
             
         config.setColumnTypes(new Class[] {
@@ -146,6 +152,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             String.class,
             Calendar.class,
             Integer.class,
+            String.class,
             String.class
         });
         
@@ -155,7 +162,8 @@ public class TestSuiteDlg extends BaseSetupDlg {
             50,
             50,
             20,
-            100
+            100,
+            15
         });
 
         if (testSuite.getSuiteTests() != null) {
@@ -167,7 +175,29 @@ public class TestSuiteDlg extends BaseSetupDlg {
             config.setData(data);
         }
         
-        return new BaseTable(config);
+        BaseTable retval = new BaseTable(config) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return (column == 6);
+            }
+        };
+        
+        TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TableCellIconButton b = (TableCellIconButton)e.getSource();
+                List <TestHeader> l = testTable.getTableData();
+                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
+                    new TestInformationDlg(getMainframe(), TestSuiteDlg.this, l.get(b.getCurrentRow()));
+                }
+            }
+        });
+        
+        retval.getColumnModel().getColumn(6).setCellRenderer(b);
+        retval.getColumnModel().getColumn(6).setCellEditor(b);
+
+        return retval;
     }
     
     @Override
@@ -241,7 +271,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
+        return new Dimension(700, 400);
     }
 
     @Override
