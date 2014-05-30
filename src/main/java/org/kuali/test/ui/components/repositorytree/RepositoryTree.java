@@ -263,22 +263,24 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
 
         DefaultMutableTreeNode testSuiteNode = findTestSuiteNodeByName(suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestSuiteName());
 
-        Enumeration<RepositoryNode> children = testSuiteNode.children();
+        if (testSuiteNode != null) {
+            Enumeration<RepositoryNode> children = testSuiteNode.children();
 
-        while (children.hasMoreElements()) {
-            RepositoryNode node = children.nextElement();
+            while (children.hasMoreElements()) {
+                RepositoryNode node = children.nextElement();
 
-            if (node.getUserObject() instanceof SuiteTest) {
-                SuiteTest cur = (SuiteTest) node.getUserObject();
+                if (node.getUserObject() instanceof SuiteTest) {
+                    SuiteTest cur = (SuiteTest) node.getUserObject();
 
-                if (StringUtils.equalsIgnoreCase(suiteTest.getTestHeader().getTestName(), cur.getTestHeader().getTestName())
-                    && (suiteTest.getIndex() == cur.getIndex())) {
-                    retval = node;
-                    break;
+                    if (StringUtils.equalsIgnoreCase(suiteTest.getTestHeader().getTestName(), cur.getTestHeader().getTestName())
+                        && (suiteTest.getIndex() == cur.getIndex())) {
+                        retval = node;
+                        break;
+                    }
                 }
             }
         }
-
+        
         return retval;
     }
 
@@ -349,7 +351,9 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
 
                     if (testHeader != null) {
                         SuiteTest suiteTest = suiteTests.addNewSuiteTest();
-                        suiteTest.setTestHeader(testHeader);
+                        TestHeader th = (TestHeader)testHeader.copy();
+                        th.setTestSuiteName(testSuite.getName());
+                        suiteTest.setTestHeader(th);
                         suiteTest.setIndex(suiteTests.sizeOfSuiteTestArray());
                         suiteTest.setActive(true);
                         newSuiteTests.add(suiteTest);
