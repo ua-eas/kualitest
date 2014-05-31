@@ -177,7 +177,7 @@ public class CreateTestDlg extends BaseSetupDlg {
     
     @Override
     protected String getDialogName() {
-        return "newtestsetup";
+        return "new-test-setup";
     }
 
 }

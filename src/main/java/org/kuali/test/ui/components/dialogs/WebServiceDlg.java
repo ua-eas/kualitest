@@ -66,7 +66,6 @@ public class WebServiceDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
 
         String[] labels = {

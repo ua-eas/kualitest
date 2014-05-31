@@ -57,6 +57,7 @@ public class TestInformationDlg extends BaseSetupDlg {
     public TestInformationDlg(TestCreator mainFrame, TestHeader testHeader) {
         super(mainFrame);
         this.testHeader = testHeader;
+        setTitle("Test Information");
         initComponents();
     }
 
@@ -218,7 +219,7 @@ public class TestInformationDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "test-information-dlg";
+        return "test-information";
     }
 
     @Override

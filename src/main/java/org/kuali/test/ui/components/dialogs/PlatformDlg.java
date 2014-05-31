@@ -72,7 +72,6 @@ public class PlatformDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
         String[] labels = new String[] {
             "Name", 
@@ -196,7 +195,7 @@ public class PlatformDlg extends BaseSetupDlg {
     
     @Override
     protected String getDialogName() {
-        return "platformsetup";
+        return "platform-setup";
     }
 
     @Override

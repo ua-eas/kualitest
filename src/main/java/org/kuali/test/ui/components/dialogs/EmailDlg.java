@@ -54,7 +54,6 @@ public class EmailDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
 
         String[] labels = {
@@ -107,7 +106,7 @@ public class EmailDlg extends BaseSetupDlg {
     
     @Override
     protected String getDialogName() {
-        return "emailsetup";
+        return "email-setup";
     }
 
 }

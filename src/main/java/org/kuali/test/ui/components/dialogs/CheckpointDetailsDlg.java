@@ -46,6 +46,8 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
     public CheckpointDetailsDlg(TestCreator mainFrame, JDialog parentDlg, Checkpoint checkpoint) {
         super(mainFrame, parentDlg);
         this.checkpoint = checkpoint;
+        setTitle("Checkpoint Details");
+
         initComponents();
     }
 
@@ -170,7 +172,7 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "checkpoint-details-dlg";
+        return "checkpoint-details";
     }
 
     @Override

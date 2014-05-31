@@ -91,6 +91,6 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
     
     @Override
     protected String getDialogName() {
-        return "checkpointtype";
+        return "checkpoint-type";
     }
 }

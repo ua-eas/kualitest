@@ -228,7 +228,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "schedule-tests-dlg";
+        return "schedule-tests";
     }
     
     protected void handleOtherActions(String actionCommand) {

@@ -170,7 +170,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     
     @Override
     protected String getDialogName() {
-        return "schedule-test-dlg";
+        return "schedule-test";
     }
 
     private void populateLists() {

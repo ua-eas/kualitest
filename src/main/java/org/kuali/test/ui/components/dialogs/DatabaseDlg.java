@@ -55,8 +55,9 @@ public class DatabaseDlg extends BaseSetupDlg {
         this(mainFrame, null);
     }
     /**
-     * Creates new form PlatformDlg
+     * Creates new form DatabaseDlg
      * @param mainFrame
+     * @param dbconnection
      * @param platform
      */
     public DatabaseDlg(TestCreator mainFrame, DatabaseConnection dbconnection) {

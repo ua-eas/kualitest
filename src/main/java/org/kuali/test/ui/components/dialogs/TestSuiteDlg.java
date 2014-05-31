@@ -55,16 +55,17 @@ public class TestSuiteDlg extends BaseSetupDlg {
     private BaseTable testTable;
     
     /**
-     * Creates new form PlatformDlg
+     * Creates new form TestSuiteDlg
      * @param mainFrame
      * @param platform
+     * @param testSuite
      */
     public TestSuiteDlg(TestCreator mainFrame, Platform platform, TestSuite testSuite) {
         super(mainFrame);
         this.platform = platform;
         this.testSuite = testSuite;
         if (testSuite != null) {
-            setTitle("Edit test suite " + testSuite.getName());
+            setTitle("Edit test suite");
             setEditmode(true);
         } else {
             setTitle("Add new test suite");
@@ -77,7 +78,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
         initComponents();
     }
 
-    @SuppressWarnings("unchecked")
     private void initComponents() {
         String[] labels = new String[] {
             "Name", 
@@ -160,7 +160,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             75,
             20,
             50,
-            50,
+            75,
             20,
             100,
             15
@@ -271,7 +271,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(700, 400);
+        return new Dimension(800, 400);
     }
 
     @Override
