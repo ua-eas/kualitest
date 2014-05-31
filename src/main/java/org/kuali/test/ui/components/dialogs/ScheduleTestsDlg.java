@@ -94,7 +94,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         };
 
         JPanel p = new JPanel(new BorderLayout(3, 3));
-        p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         TablePanel tpanel = new TablePanel(scheduledTestsTable = buildScheduledTestsTable());
         tpanel.addAddButton(this, Constants.SCHEDULE_TEST_ACTION, "schedule a test");

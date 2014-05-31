@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.utils.UIUtils;
 
 /**
  *
@@ -85,7 +86,7 @@ public class WebServiceDlg extends BaseSetupDlg {
         JComponent[] components = {name, wsdlUrl, username, password};
 
         
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
         
         addStandardButtons();
         setDefaultBehavior();

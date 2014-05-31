@@ -37,6 +37,7 @@ import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.WebServicePanel;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -107,7 +108,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
             wsFailure
         };
 
-        retval.add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        retval.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
 
         return retval;
     }

@@ -93,7 +93,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             runtimeFailure
         };
 
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
 
         addStandardButtons();
         setDefaultBehavior();

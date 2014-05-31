@@ -62,6 +62,7 @@ public class Constants {
 
     public static final ImageIcon WEB_SERVICE_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice.png"));
     public static final ImageIcon WEB_SERVICE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice-setting.png"));
+    public static final ImageIcon FILE_SEARCH_ICON = new ImageIcon(TestCreator.class.getResource("/images/file-search.png"));
 
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
@@ -145,6 +146,7 @@ public class Constants {
     public static final String ADD_COMPARISON_ACTION = "Add Comparison";
     public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
     public static final String SHOW_TEST_INFORMATION_ACTION = "Show test information";
+    public static final String FILE_SEARCH_ACTION = "File Search";
 
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;

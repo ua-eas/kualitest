@@ -26,6 +26,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -55,7 +56,7 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
         };
 
         JPanel p = new JPanel(new BorderLayout(3, 3));
-        p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
         getContentPane().add(p, BorderLayout.CENTER);
 
         addStandardButtons();

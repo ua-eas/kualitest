@@ -26,6 +26,7 @@ import org.kuali.test.KualiApplication;
 import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -115,7 +116,7 @@ public class PlatformDlg extends BaseSetupDlg {
             emailAddresses,
             dbconnection};
 
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
 
         addStandardButtons();
         setDefaultBehavior();

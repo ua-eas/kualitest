@@ -46,6 +46,7 @@ import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -92,7 +93,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         BasePanel p = new BasePanel(getMainframe());
 
-        p.add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         BasePanel propertyContainer = buildPropertyContainer(rootNode, labelNodes);
 

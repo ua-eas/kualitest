@@ -39,6 +39,7 @@ import org.kuali.test.TestSuite;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -79,7 +80,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         
         platforms.addActionListener(this);
         platforms.setActionCommand(Constants.PLATFORM_SELECTED_ACTION);
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
         
         testSuites = new JList(new DefaultListModel());
         testSuites.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );

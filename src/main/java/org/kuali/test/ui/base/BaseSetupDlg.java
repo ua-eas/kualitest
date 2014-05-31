@@ -19,7 +19,6 @@ package org.kuali.test.ui.base;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -27,13 +26,10 @@ import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -173,46 +169,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         UIUtils.showError(this, type, type + "'" + name + "' name already exists");
     }
     
-    protected JPanel wrapPanel(JComponent c) {
-        JPanel retval = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        retval.add(c);
-        return retval;
-    }
-    
-    protected JPanel buildLabelGridPanel(String[] labels) {
-        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
-        for (int i = 0; i < labels.length; ++i) {
-            String colon = ":";
-            if (StringUtils.isBlank(labels[i])) {
-                colon = "";
-            }
-            JLabel l = new JLabel(labels[i] + colon, JLabel.RIGHT);
-            l.setVerticalAlignment(JLabel.CENTER);
-            retval.add(l);
-        }
-        
-        return retval;
-    }
-    
-    protected JPanel buildComponentGridPanel(JComponent[] components) {
-        JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 2));
-        for (JComponent c : components) {
-            retval.add(wrapPanel(c));
-        }
-        
-        return retval;
-    }
-    
-    protected JPanel buildEntryPanel(String[] labels, JComponent[] components) {
-        JPanel retval = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JPanel entryPanel = new JPanel(new BorderLayout(2, 1));
-        entryPanel.add(buildLabelGridPanel(labels), BorderLayout.WEST);
-        entryPanel.add(buildComponentGridPanel(components), BorderLayout.CENTER);
-        
-        retval.add(entryPanel);
-        
-        return retval;
-    }
+   
     
     @Override
     public Insets getInsets() {

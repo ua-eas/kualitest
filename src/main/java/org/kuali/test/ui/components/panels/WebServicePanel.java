@@ -77,12 +77,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
-        initComponents();
     }
 
-    private void initComponents() {
-    }
-    
     private BaseTable createInputParametersTable() {
         TableConfiguration tc = new TableConfiguration();
         tc.setHeaders(new String[] {

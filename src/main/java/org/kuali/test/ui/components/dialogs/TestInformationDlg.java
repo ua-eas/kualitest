@@ -106,7 +106,7 @@ public class TestInformationDlg extends BaseSetupDlg {
             new JLabel(Utils.getLabelDataDisplay(failureAction))
         };
 
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.NORTH);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         getContentPane().add(new TablePanel(checkpointTable = buildCheckpointTable()), BorderLayout.CENTER);
         

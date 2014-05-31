@@ -32,6 +32,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -84,7 +85,7 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
         };
 
         BasePanel p = new BasePanel(getMainframe());
-        p.add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
         getContentPane().add(p, BorderLayout.CENTER);
 
         addStandardButtons();

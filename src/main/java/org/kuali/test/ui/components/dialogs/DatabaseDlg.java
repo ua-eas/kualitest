@@ -28,6 +28,7 @@ import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -106,7 +107,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         JComponent[] components = {name, type, url, driver, schema, username, password, configuredTablesOnly};
 
         
-        getContentPane().add(buildEntryPanel(labels, components), BorderLayout.CENTER);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
 
         addStandardButtons();
         setDefaultBehavior();
