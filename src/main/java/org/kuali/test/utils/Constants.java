@@ -77,6 +77,7 @@ public class Constants {
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
     public static final String PREFS_TABLE_NODE = "kualitest/tables";
     public static final String PREFS_DLG_NODE = "kualitest/dialogs";
+    public static final String PREFS_FILES_NODE = "kualitest/files";
     public static final String PREFS_HORIZONTAL_DIVIDER_LOCATION = "horizontal-divider-location";
     public static final String PREFS_VERTICAL_DIVIDER_LOCATION = "vertical-divider-location";
     public static final String PREFS_MAINFRAME_LEFT = "mainframe-left";
@@ -97,7 +98,7 @@ public class Constants {
     public static final String PREFS_DLG_HEIGHT = "-dlg-height";
     
     public static final String TEST_TRANSFER_MIME_TYPE = "test-transfer";
-    
+    public static final String PREFS_LAST_FILE_TEST_DIR = "last-file-test-dir";
     
     public static final String SAVE_CONFIGURATION = "Save Configuration";
     public static final String CREATE_TEST = "Create Test";
@@ -341,5 +342,19 @@ public class Constants {
         SINGLE_ROW_EXISTS,
         MULTIPLE_ROWS_EXIST,
         NO_ROW_EXISTS
+    };
+    
+    public static final String FILE_EXISTS = "File Exists";
+    public static final String FILE_DOES_NOT_EXIST = "File Does Not  Exist";
+    public static final String FILE_SIZE_GREATER_THAN_ZERO = "File Size > 0";
+    public static final String FILE_CREATED_TODAY = "File Created Today";
+    public static final String FILE_CREATED_YESTERDAY = "File Created Yesterday";
+        
+    public static final String[] FILE_CHECK_CONDITIONS = {
+        FILE_EXISTS,
+        FILE_DOES_NOT_EXIST,
+        FILE_SIZE_GREATER_THAN_ZERO,
+        FILE_CREATED_TODAY,
+        FILE_CREATED_YESTERDAY
     };
 }

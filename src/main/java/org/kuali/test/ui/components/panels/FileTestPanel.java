@@ -21,7 +21,9 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
@@ -45,6 +47,8 @@ public class FileTestPanel extends BaseCreateTestPanel {
     private List<TestOperation> testOperations = new ArrayList<TestOperation>();
     private JTextField fileDirectory;
     private JTextField fileNamePattern;
+    private JTextField containingText;
+    private List <JCheckBox> fileComparisons;
 
     private boolean forCheckpoint;
 
@@ -59,28 +63,43 @@ public class FileTestPanel extends BaseCreateTestPanel {
     }
 
     private void initComponents() {
-        String[] labels = new String[]{
-            "File Directory",
-            "File Name Pattern",};
-
-        fileDirectory = new JTextField(30);
-        fileNamePattern = new JTextField(20);
+        List<String> labels = new ArrayList<String>();
+        labels.add("File Directory");
+        labels.add("File Name Pattern");
+        
+        for (int i = 0; i < Constants.FILE_CHECK_CONDITIONS.length; ++i) {
+            labels.add("");
+        }
+        
+        labels.add("Contains Text");
 
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p.add(fileDirectory);
-
+        p.add(fileDirectory = new JTextField(30));
         JButton b = new FileSearchButton();
         b.addActionListener(this);
         p.add(b);
         
-        JComponent[] components = new JComponent[]{
-            p,
-            fileNamePattern
-        };
+        List <JComponent> components = new ArrayList<JComponent>();
+
+        components.add(p);
+        components.add(fileNamePattern = new JTextField(20));
+
+        fileComparisons = new ArrayList<JCheckBox>();;
+        for (int i = 0; i < Constants.FILE_CHECK_CONDITIONS.length; ++i) {
+            JCheckBox cb = new JCheckBox(Constants.FILE_CHECK_CONDITIONS[i]);
+            cb.addActionListener(this);
+            components.add(cb);
+            fileComparisons.add(cb);
+        }
+        
+        components.add(containingText = new JTextField(40));
 
         p = new JPanel(new BorderLayout(3, 3));
-        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
+        p.add(UIUtils.buildEntryPanel(labels.toArray(new String[labels.size()]), 
+            components.toArray(new JComponent[components.size()])), BorderLayout.NORTH);
         add(p, BorderLayout.CENTER);
+        
+        getCreateCheckpoint().setEnabled(true);
     }
 
     @Override
@@ -126,7 +145,14 @@ public class FileTestPanel extends BaseCreateTestPanel {
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (Constants.FILE_SEARCH_ACTION.equals(e.getActionCommand())) {
-            JFileChooser chooser = new JFileChooser();
+            Preferences proot = Preferences.userRoot();
+            Preferences node = proot.node(Constants.PREFS_FILES_NODE);
+      
+            String lastDir = node.get(Constants.PREFS_LAST_FILE_TEST_DIR, System.getProperty("user.home") );
+            
+            JFileChooser chooser = new JFileChooser(lastDir);
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            
             chooser.setFileFilter(new FileFilter() {
                 @Override
                 public boolean accept(File f) {
@@ -141,10 +167,30 @@ public class FileTestPanel extends BaseCreateTestPanel {
             
             int returnVal = chooser.showOpenDialog(getMainframe());
             if (returnVal == JFileChooser.APPROVE_OPTION) {
-                System.out.println("You chose to open this file: "
-                    + chooser.getSelectedFile().getName());
+                File f = chooser.getSelectedFile();
+                fileDirectory.setText(f.getPath());
+                node.put(Constants.PREFS_LAST_FILE_TEST_DIR, f.getPath());
             }
-
+        } else if (Constants.FILE_EXISTS.equals(e.getActionCommand())) {
+            getFileCheckCondition(Constants.FILE_DOES_NOT_EXIST).setSelected(false);
+            getFileCheckCondition(Constants.FILE_SIZE_GREATER_THAN_ZERO).setEnabled(true);
+            getFileCheckCondition(Constants.FILE_CREATED_TODAY).setEnabled(true);
+            getFileCheckCondition(Constants.FILE_CREATED_YESTERDAY).setEnabled(true);
+            containingText.setEnabled(true);
+        } else if (Constants.FILE_DOES_NOT_EXIST.equals(e.getActionCommand())) {
+            getFileCheckCondition(Constants.FILE_EXISTS).setSelected(false);
+            getFileCheckCondition(Constants.FILE_SIZE_GREATER_THAN_ZERO).setSelected(false);
+            getFileCheckCondition(Constants.FILE_SIZE_GREATER_THAN_ZERO).setEnabled(false);
+            getFileCheckCondition(Constants.FILE_CREATED_TODAY).setSelected(false);
+            getFileCheckCondition(Constants.FILE_CREATED_TODAY).setEnabled(false);
+            getFileCheckCondition(Constants.FILE_CREATED_YESTERDAY).setSelected(false);
+            getFileCheckCondition(Constants.FILE_CREATED_YESTERDAY).setEnabled(false);
+            containingText.setText("");
+            containingText.setEnabled(false);
+        } else if (Constants.FILE_CREATED_TODAY.equals(e.getActionCommand())) {
+            getFileCheckCondition(Constants.FILE_CREATED_YESTERDAY).setSelected(false);
+        } else if (Constants.FILE_CREATED_YESTERDAY.equals(e.getActionCommand())) {
+            getFileCheckCondition(Constants.FILE_CREATED_TODAY).setSelected(false);
         }
     }
 
@@ -154,6 +200,19 @@ public class FileTestPanel extends BaseCreateTestPanel {
     }
     */
 
+    private JCheckBox getFileCheckCondition(String actionCommand) {
+        JCheckBox retval = null;
+        
+        for (JCheckBox cb : fileComparisons) {
+            if (actionCommand.equals(cb.getActionCommand())) {
+                retval = cb;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
     public boolean isForCheckpoint() {
         return forCheckpoint;
     }

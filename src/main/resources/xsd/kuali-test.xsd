@@ -150,6 +150,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="http"/>
             <xs:enumeration value="memory"/>
+            <xs:enumeration value="file"/>
             <xs:enumeration value="sql"/>
             <xs:enumeration value="web service"/>
         </xs:restriction>
