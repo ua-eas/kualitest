@@ -66,19 +66,12 @@
             <xs:element name="execution-status" type="execution-status"/>
             <xs:element name="completion-status" type="completion-status"/>
             <xs:element name="test-messages"/>
-            <xs:element name="test-exceptions" type="test-exceptions"/>
         </xs:sequence>
     </xs:complexType>
     
     <xs:complexType name="test-messages">
         <xs:sequence>
             <xs:element name="message" type="test-execution-message" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="test-exceptions">
-        <xs:sequence>
-            <xs:element name="test-exception" type="test-exception" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -96,15 +89,6 @@
             </xs:element> 
             <xs:element name="time" type="xs:dateTime"/>
             <xs:element name="message" type="xs:string"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="test-exception">
-        <xs:sequence>
-            <xs:element name="type" type="xs:string"/>
-            <xs:element name="message" type="test-execution-message"/>
-            <xs:element name="checkpoint-name" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="time" type="xs:dateTime"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

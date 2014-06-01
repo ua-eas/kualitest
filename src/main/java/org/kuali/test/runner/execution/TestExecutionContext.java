@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package org.kuali.test.runner;
+package org.kuali.test.runner.execution;
 
 import java.io.FileOutputStream;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointType;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestSuite;
+import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -136,8 +139,6 @@ public class TestExecutionContext extends Thread {
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
         retval.append(".xlsx");
         
-        
-        
         return null;
     }
     
@@ -148,8 +149,33 @@ public class TestExecutionContext extends Thread {
     }
 
     private void executeTestOperation(TestOperation op, Workbook testReport) {
+        try {
+            OperationExecution opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
+            
+            if (opExec != null) {
+                opExec.execute();
+            }
+        } 
+        
+        catch (TestException ex) {
+            
+        }
     }
     
+    private void executeCheckpoint(Checkpoint checkpoint) throws TestException {
+        switch (checkpoint.getType().intValue()) {
+            case CheckpointType.INT_FILE:
+                break;
+            case CheckpointType.INT_HTTP:
+                break;
+            case CheckpointType.INT_MEMORY:
+                break;
+            case CheckpointType.INT_SQL:
+                break;
+            case CheckpointType.INT_WEB_SERVICE:
+                break;
+        }
+    }
     
     public TestSuite getTestSuite() {
         return testSuite;
