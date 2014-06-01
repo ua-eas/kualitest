@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import org.kuali.test.CheckpointType;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 
@@ -34,19 +35,26 @@ public class OperationExecutionFactory {
     
     public OperationExecution getOperationExecution(TestOperation op) {
         OperationExecution retval = null;
-        switch(op.getOperationType().intValue()) {
-            case TestOperationType.INT_CHECKPOINT:
-                break;
-            case TestOperationType.INT_FILE_INQUIRY:
-                break;
-            case TestOperationType.INT_HTTP_REQUEST:
-                break;
-            case TestOperationType.INT_MEMORY_INQUIRY:
-                break;
-            case TestOperationType.INT_SQL_SELECT:
-                break;
-            case TestOperationType.INT_WEB_SERVICE_REQUEST:
-                break;
+        if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
+            switch(op.getOperation().getCheckpointOperation().getType().intValue()) {
+                case CheckpointType.INT_FILE:
+                    retval = new FileOperationExecution(op.getOperation());
+                    break;
+                case CheckpointType.INT_HTTP:
+                    retval = new HttpCheckpointOperationExecution(op.getOperation());
+                    break;
+                case CheckpointType.INT_MEMORY:
+                    retval = new MemoryOperationExecution(op.getOperation());
+                    break;
+                case CheckpointType.INT_SQL:
+                    retval = new SqlOperationExecution(op.getOperation());
+                    break;
+                case CheckpointType.INT_WEB_SERVICE:
+                    retval = new WebServiceOperationExecution(op.getOperation());
+                    break;
+            }
+        } else {
+            retval = new HttpRequestOperationExecution(op.getOperation());
         }
         
         return retval;
