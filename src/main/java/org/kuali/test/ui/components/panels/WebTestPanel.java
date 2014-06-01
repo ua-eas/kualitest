@@ -47,6 +47,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
+import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
@@ -63,7 +64,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
-        getStartTest().setEnabled(false);
 
         new SplashDisplay(mainframe, "Initializing Web Test", "Loading web proxy server...") {
             @Override
@@ -77,7 +77,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         initComponents();
     }
 
-    private void initComponents() {
+    @Override
+    protected void initComponents() {
+        super.initComponents();
+        getStartTest().setEnabled(false);
         addContainerListener(this);
         tabbedPane = new JTabbedPane();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -182,6 +185,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 case CheckpointType.INT_WEB_SERVICE:
                     createWebServiceCheckpoint();
                     break;
+                case CheckpointType.INT_FILE:
+                    createFileCheckpoint();
+                    break;
             }
         }
     }
@@ -231,6 +237,14 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
     
+    private void createFileCheckpoint() {
+        FileCheckPointDlg dlg = new FileCheckPointDlg(getMainframe(), getTestHeader(), null);
+
+        if (dlg.isSaved()) {
+            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+        }
+    }
+
     private void createWebServiceCheckpoint() {
         WebServiceCheckPointDlg dlg = new WebServiceCheckPointDlg(getMainframe(), getTestHeader(), null);
 

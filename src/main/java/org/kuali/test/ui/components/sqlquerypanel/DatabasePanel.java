@@ -102,6 +102,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         this(mainframe, platform, testHeader, false);
     }
+    
 
     @Override
     protected JToolBar createToolbar() {
@@ -112,7 +113,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
-    private void initComponents() {
+    protected void initComponents() {
+        super.initComponents();
+        
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         
         p.add(new JLabel("Base Table:", JLabel.RIGHT));
@@ -127,7 +130,6 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         tabbedPane.addTab("Select", sqlSelectPanel = new SqlSelectPanel(getMainframe(), this));
         tabbedPane.addTab("Where", sqlWherePanel = new SqlWherePanel(getMainframe(), this));
         tabbedPane.addTab("SQL", sqlDisplayPanel = new SqlDisplayPanel(getMainframe(), this));
-        
         
         p2.add(tabbedPane, BorderLayout.CENTER);
         

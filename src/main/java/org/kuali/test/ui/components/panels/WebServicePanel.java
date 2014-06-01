@@ -30,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.xml.namespace.QName;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -77,8 +78,19 @@ public class WebServicePanel extends BaseCreateTestPanel {
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
+        initComponents();
     }
 
+      @Override
+    protected JToolBar createToolbar() {
+        if (forCheckpoint) {
+            handleStartTest();
+            return null;
+        } else {
+            return super.createToolbar();
+        }
+    }
+    
     private BaseTable createInputParametersTable() {
         TableConfiguration tc = new TableConfiguration();
         tc.setHeaders(new String[] {

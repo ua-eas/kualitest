@@ -135,6 +135,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
 
             checkpoint.setName(name.getText());
             checkpoint.addNewInputParameters();
+            checkpoint.setType(CheckpointType.HTTP);
 
             Parameter param = checkpoint.getInputParameters().addNewParameter();
             param.setName("web-service-operation");

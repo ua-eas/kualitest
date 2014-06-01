@@ -17,6 +17,7 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -24,14 +25,19 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
+import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
+import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.FileTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -68,6 +74,7 @@ public class FileCheckPointDlg extends BaseSetupDlg {
 
     private void initComponents() {
         if (filePanel == null) {
+            getContentPane().add(getCheckpointPanel(), BorderLayout.NORTH);
             filePanel = new FileTestPanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
                 testHeader.getPlatformName()), testHeader, true);
             getContentPane().add(filePanel, BorderLayout.CENTER);
@@ -110,6 +117,8 @@ public class FileCheckPointDlg extends BaseSetupDlg {
                 if (checkpointNameExists()) {
                     oktosave = false;
                     displayExistingNameAlert("Checkpoint", name.getText());
+                } else if (!filePanel.isValidFileSetup()) {
+                    oktosave = false;
                 }
             }
         } else {
@@ -123,41 +132,57 @@ public class FileCheckPointDlg extends BaseSetupDlg {
 
             checkpoint.setName(name.getText());
             checkpoint.addNewInputParameters();
-/*
+
             Parameter param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("sql-query");
-            param.setValue(dbPanel.getSqlQueryString(DatabasePanel.SQL_FORMAT_EXECUTE));
+            param.setName("file-directory");
+            param.setValue(filePanel.getFileDirectory());
             
             param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("save-query-results");
-            param.setValue("" + saveQueryResults.isSelected());
-
-            CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
-            cp.setValueType(ValueType.INT);
-            cp.setPropertyGroup(Constants.DATABASE_PROPERTY_GROUP);
-            cp.setOnFailure(FailureAction.Enum.forString(sqlFailure.getSelectedItem().toString()));
-            String s = checkpointProperty.getSelectedItem().toString();
+            param.setName("file-name-pattern");
+            param.setValue(filePanel.getFileNamePattern());
             
-            cp.setDisplayName("Row Count");
-            cp.setPropertyName("row-count");
+            if (StringUtils.isNotBlank(filePanel.getContainingText())) {
+                CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
+                cp.setValueType(ValueType.STRING);
+                cp.setPropertyName("containing-text");
+                cp.setDisplayName("Containing Text");
+                cp.setPropertyGroup(Constants.FILE_PROPERTY_GROUP);
+                cp.setOnFailure(FailureAction.Enum.forString(fileFailure.getSelectedItem().toString()));
+                cp.setOperator(ComparisonOperator.LIKE);
+                cp.setPropertyValue("%" + filePanel.getContainingText() + "%");
+            }
             
-            if (Constants.SINGLE_ROW_EXISTS.equals(s)) {
-                cp.setOperator(ComparisonOperator.EQUAL_TO);
-                cp.setPropertyValue("1");
-            } else {
-                if (Constants.MULTIPLE_ROWS_EXIST.equals(s)) {
-                    cp.setOperator(ComparisonOperator.GREATER_THAN);
-                } else {
-                    cp.setOperator(ComparisonOperator.EQUAL_TO);
+            List <String> fileComparisons = filePanel.getSelectedFileComparisons();
+            
+            if (!fileComparisons.isEmpty()) {
+                for (String comparison : fileComparisons) {
+                    CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
+                    cp.setValueType(ValueType.STRING);
+                    cp.setDisplayName(comparison);
+                    cp.setPropertyName(comparison.toLowerCase().replace(" ", "-"));
+                    cp.setPropertyGroup(Constants.FILE_PROPERTY_GROUP);
+                    cp.setOnFailure(FailureAction.Enum.forString(fileFailure.getSelectedItem().toString()));
+                    
+                    if (Constants.FILE_EXISTS.equals(comparison)) {
+                        cp.setOperator(ComparisonOperator.NOT_NULL);
+                    } else if (Constants.FILE_DOES_NOT_EXIST.equals(comparison)) {
+                        cp.setOperator(ComparisonOperator.NULL);
+                    } else if (Constants.FILE_SIZE_GREATER_THAN_ZERO.equals(comparison)) {
+                        cp.setValueType(ValueType.INT);
+                        cp.setOperator(ComparisonOperator.GREATER_THAN);
+                        cp.setPropertyValue("0");
+                    } else if (Constants.FILE_CREATED_TODAY.equals(comparison)) {
+                        cp.setValueType(ValueType.DATE);
+                        cp.setOperator(ComparisonOperator.EQUAL_TO);
+                        cp.setPropertyValue("today");
+                    } else if (Constants.FILE_CREATED_YESTERDAY.equals(comparison)) {
+                        cp.setValueType(ValueType.DATE);
+                        cp.setOperator(ComparisonOperator.EQUAL_TO);
+                        cp.setPropertyValue("yesterday");
+                    }
                 }
-                cp.setPropertyValue("0");
-            } 
-                
-            cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
-            cp.setValueType(ValueType.INT);
-            cp.setPropertyGroup(Constants.DATABASE_PROPERTY_GROUP);
-            cp.setOnFailure(FailureAction.Enum.forString(fileFailure.getSelectedItem().toString()));
-  */          
+            }
+
             getConfiguration().setModified(true);
             setSaved(true);
             dispose();

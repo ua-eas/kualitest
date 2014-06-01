@@ -28,7 +28,9 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.Operation;
@@ -38,6 +40,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.buttons.FileSearchButton;
+import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
@@ -62,7 +65,18 @@ public class FileTestPanel extends BaseCreateTestPanel {
         initComponents();
     }
 
-    private void initComponents() {
+    @Override
+    protected JToolBar createToolbar() {
+        if (forCheckpoint) {
+            return null;
+        } else {
+            return super.createToolbar();
+        }
+    }
+
+    protected void initComponents() {
+        super.initComponents();
+        
         List<String> labels = new ArrayList<String>();
         labels.add("File Directory");
         labels.add("File Name Pattern");
@@ -99,7 +113,9 @@ public class FileTestPanel extends BaseCreateTestPanel {
             components.toArray(new JComponent[components.size()])), BorderLayout.NORTH);
         add(p, BorderLayout.CENTER);
         
-        getCreateCheckpoint().setEnabled(true);
+        if (!forCheckpoint) {
+            getCreateCheckpoint().setEnabled(true);
+        }
     }
 
     @Override
@@ -112,14 +128,45 @@ public class FileTestPanel extends BaseCreateTestPanel {
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidFileSetup()) {
+            FileCheckPointDlg dlg = new FileCheckPointDlg(getMainframe(), getTestHeader(), this);
+            
+            if (dlg.isSaved()) {
+                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+                getSaveTest().setEnabled(true);
+            }
         }
     }
 
     public boolean isValidFileSetup() {
         boolean retval = false;
+        File f = new File(fileDirectory.getText());
+        if (f.exists() && f.isDirectory()) {
+            if (StringUtils.isNotBlank(fileNamePattern.getText())) {
+                retval = isFileComparisonSelected();
+            } 
+        }
+        
+        if (!retval && StringUtils.isBlank(containingText.getText())) {
+            UIUtils.showError(this, "Missing Required Entries", 
+                "Directory, file name pattern and at least one file comparison selection required.");
+        }
+
+        
         return retval;
     }
 
+    private boolean isFileComparisonSelected() {
+        boolean retval = false;
+        for (JCheckBox cb : fileComparisons) {
+            if (cb.isSelected()) {
+                retval = true;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
     private void addCheckpoint(Checkpoint checkpoint) {
         TestOperation testOp = TestOperation.Factory.newInstance();
         testOp.setOperationType(TestOperationType.CHECKPOINT);
@@ -219,5 +266,29 @@ public class FileTestPanel extends BaseCreateTestPanel {
 
     @Override
     protected void handleStartTest() {
+    }
+    
+    public String getFileDirectory() {
+        return fileDirectory.getText();
+    }
+
+    public String getFileNamePattern() {
+        return fileNamePattern.getText();
+    }
+    
+    public String getContainingText() {
+        return containingText.getText();
+    }
+    
+    public List <String> getSelectedFileComparisons() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (JCheckBox cb : fileComparisons) {
+            if (cb.isSelected()) {
+                retval.add(cb.getActionCommand());
+            }
+        }
+        
+        return retval;
     }
 }
