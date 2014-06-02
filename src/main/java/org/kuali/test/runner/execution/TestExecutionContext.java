@@ -23,6 +23,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestSuite;
@@ -34,7 +35,7 @@ import org.kuali.test.utils.Utils;
 
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
-    
+    private Platform platform;
     private TestSuite testSuite;
     private KualiTest kualiTest;
     private Date scheduledTime;
@@ -48,6 +49,7 @@ public class TestExecutionContext extends Thread {
         this.testSuite = testSuite;
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
+        platform = Utils.findPlatform(configuration, testSuite.getName());
         
         // if no scheduled time then run immediately
         if (scheduledTime == null) {
@@ -65,7 +67,8 @@ public class TestExecutionContext extends Thread {
         this.kualiTest = kualiTest;
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
-        
+        platform = Utils.findPlatform(configuration, kualiTest.getTestHeader().getPlatformName());
+
         // if no scheduled time then run immediately
         if (scheduledTime == null) {
             startTest();
@@ -152,7 +155,7 @@ public class TestExecutionContext extends Thread {
             OperationExecution opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
             
             if (opExec != null) {
-                writeTestOutput(testReport, opExec.execute());
+                writeTestOutput(testReport, opExec.execute(configuration, platform));
             }
         } 
         
@@ -161,7 +164,7 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    protected void writeTestOutput(Workbook testReport, TestOutput testOutput) {
+    protected void writeTestOutput(Workbook testReport, TestOutput testOutput) throws TestException {
     }
     
     protected void writeTestException(Workbook testReport, TestException ex) {

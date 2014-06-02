@@ -1606,4 +1606,24 @@ public class Utils {
         
         return cal;
     }
+    
+    public static String buildCsvLine(List <String> columns) {
+        StringBuilder retval = new StringBuilder(256);
+        String comma = "";
+        
+        for (String s : columns) {
+            retval.append(comma);
+            retval.append("\"");
+            
+            if (StringUtils.isNotBlank(s)) {
+                retval.append(s);
+            } else {
+                retval.append("\"");
+            }
+            
+            comma = ",";
+        }
+        
+        return retval.toString();
+    }
 }

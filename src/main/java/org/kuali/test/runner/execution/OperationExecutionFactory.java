@@ -35,6 +35,8 @@ public class OperationExecutionFactory {
     
     public OperationExecution getOperationExecution(TestOperation op) {
         OperationExecution retval = null;
+        
+        // if this is not a checkpoint operation then it is am http request
         if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             switch(op.getOperation().getCheckpointOperation().getType().intValue()) {
                 case CheckpointType.INT_FILE:

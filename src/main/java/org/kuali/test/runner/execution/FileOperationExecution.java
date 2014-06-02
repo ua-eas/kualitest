@@ -28,7 +28,9 @@ import java.util.List;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
+import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.TestOutput;
 import org.kuali.test.utils.Constants;
@@ -41,7 +43,7 @@ public class FileOperationExecution extends AbstractOperationExecution {
     }
     
     @Override
-    public TestOutput execute() throws TestException {
+    public TestOutput execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         TestOutput retval = initTestOutput();
         
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));
