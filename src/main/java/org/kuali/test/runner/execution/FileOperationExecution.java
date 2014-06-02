@@ -22,6 +22,7 @@ import java.io.FilenameFilter;
 import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -56,38 +57,71 @@ public class FileOperationExecution extends AbstractOperationExecution {
         }
         
         if ((fileDoesNotExist != null) && (targetFiles != null) && (targetFiles.length > 0)) {
-            throw new TestException("file exists", getOperation());
+            throw new TestException("file with name pattern '" + fileNamePattern + "' exists", getOperation());
         } else {
+            String errorMessage = null;
+            
             List <File> filteredFiles = new ArrayList<File>();
             if (getProperty(Constants.FILE_CREATED_TODAY.toLowerCase().replace(" ", "-")) != null) {
                 filteredFiles.addAll(getFilesCreatedToday(targetFiles));
+                if (filteredFiles.isEmpty()) {
+                    errorMessage = "no file with name pattern '" 
+                        + fileNamePattern 
+                        + "' created " 
+                        + Constants.DEFAULT_DATE_FORMAT.format(new Date()) 
+                        + " found";
+                }
             } else if (getProperty(Constants.FILE_CREATED_YESTERDAY.toLowerCase().replace(" ", "-")) != null) {
                 filteredFiles.addAll(getFilesCreatedYesterday(targetFiles));
+
+                if (filteredFiles.isEmpty()) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.add(Calendar.DATE, -1);
+                    errorMessage = "no file with name pattern '" 
+                        + fileNamePattern 
+                        + "' created " 
+                        + Constants.DEFAULT_DATE_FORMAT.format(cal.getTime()) 
+                        + " found";
+                }
             }
             
-            if (getProperty(Constants.FILE_SIZE_GREATER_THAN_ZERO.toLowerCase().replace(" ", "-")) != null) {
-                Iterator <File> it = filteredFiles.iterator();
-                
-                while (it.hasNext()) {
-                    if (it.next().length() == 0) {
-                        it.remove();
+            if (StringUtils.isBlank(errorMessage)) {
+                if (getProperty(Constants.FILE_SIZE_GREATER_THAN_ZERO.toLowerCase().replace(" ", "-")) != null) {
+                    Iterator <File> it = filteredFiles.iterator();
+
+                    while (it.hasNext()) {
+                        if (it.next().length() == 0) {
+                            it.remove();
+                        }
+                    }
+
+                    if (filteredFiles.isEmpty()) {
+                        errorMessage = "no non-zero size file found with name pattern '" 
+                            + fileNamePattern + "'";
                     }
                 }
             }
             
-            CheckpointProperty cp = getProperty(Constants.CONTAINING_TEXT);
-            
-            if (cp != null) {
-                String txt = cp.getPropertyValue();
-                
-                if (StringUtils.isNotEmpty(txt)) {
-                    filteredFiles = findFilesContainingText(filteredFiles, txt);
+            if (StringUtils.isBlank(errorMessage)) {
+                CheckpointProperty cp = getProperty(Constants.CONTAINING_TEXT);
+
+                if (cp != null) {
+                    String txt = cp.getPropertyValue();
+
+                    if (StringUtils.isNotEmpty(txt)) {
+                        filteredFiles = findFilesContainingText(filteredFiles, txt);
+                    }
+
+                    if (filteredFiles.isEmpty()) {
+                        errorMessage = "no file containing text '" + txt + "' found";
+                    }
                 }
             }
             
-            if (filteredFiles.isEmpty()) {
-                throw new TestException("file does not exist", getOperation());
+            if (StringUtils.isNotBlank(errorMessage)) {
+                throw new TestException(errorMessage, getOperation());
             }
+
         }
         
         return retval;
