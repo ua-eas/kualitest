@@ -134,17 +134,17 @@ public class FileCheckPointDlg extends BaseSetupDlg {
             checkpoint.addNewInputParameters();
 
             Parameter param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("file-directory");
+            param.setName(Constants.FILE_DIRECTORY);
             param.setValue(filePanel.getFileDirectory());
             
             param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("file-name-pattern");
+            param.setName(Constants.FILE_NAME_PATTERN);
             param.setValue(filePanel.getFileNamePattern());
             
             if (StringUtils.isNotBlank(filePanel.getContainingText())) {
                 CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
                 cp.setValueType(ValueType.STRING);
-                cp.setPropertyName("containing-text");
+                cp.setPropertyName(Constants.CONTAINING_TEXT);
                 cp.setDisplayName("Containing Text");
                 cp.setPropertyGroup(Constants.FILE_PROPERTY_GROUP);
                 cp.setOnFailure(FailureAction.Enum.forString(fileFailure.getSelectedItem().toString()));
@@ -155,8 +155,9 @@ public class FileCheckPointDlg extends BaseSetupDlg {
             List <String> fileComparisons = filePanel.getSelectedFileComparisons();
             
             if (!fileComparisons.isEmpty()) {
+                checkpoint.addNewCheckpointProperties();
                 for (String comparison : fileComparisons) {
-                    CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
+                    CheckpointProperty cp = checkpoint.getCheckpointProperties().addNewCheckpointProperty();
                     cp.setValueType(ValueType.STRING);
                     cp.setDisplayName(comparison);
                     cp.setPropertyName(comparison.toLowerCase().replace(" ", "-"));

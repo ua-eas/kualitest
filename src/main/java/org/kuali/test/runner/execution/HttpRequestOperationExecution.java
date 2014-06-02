@@ -18,16 +18,18 @@ package org.kuali.test.runner.execution;
 
 import org.kuali.test.Operation;
 import org.kuali.test.runner.exceptions.TestException;
+import org.kuali.test.runner.output.TestOutput;
 
 
-public class HttpRequestOperationExecution implements OperationExecution {
-    private Operation op;
-    
+public class HttpRequestOperationExecution extends AbstractOperationExecution {
     public HttpRequestOperationExecution(Operation op) {
-        this.op = op;
+        super(op);
     }
     
     @Override
-    public void execute() throws TestException {
+    public TestOutput execute() throws TestException {
+        TestOutput retval = initTestOutput();
+        
+        return retval;
     }
 }

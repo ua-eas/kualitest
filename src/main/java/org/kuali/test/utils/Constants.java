@@ -142,6 +142,7 @@ public class Constants {
     public static final String WEB_SERVICE_PROPERTY_GROUP = "webservice";
     public static final String ADD_ROW_ACTION = "Add Row";
     public static final String FILE_PROPERTY_GROUP = "file";
+    public static final String CONTAINING_TEXT = "containing-text";
 
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -150,7 +151,8 @@ public class Constants {
     public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
     public static final String SHOW_TEST_INFORMATION_ACTION = "Show test information";
     public static final String FILE_SEARCH_ACTION = "File Search";
-
+    public static final String FILE_DIRECTORY = "file-directory";
+    public static final String FILE_NAME_PATTERN = "file-name-pattern";
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
 
@@ -348,7 +350,7 @@ public class Constants {
     
     public static final String FILE_EXISTS = "File Exists";
     public static final String FILE_DOES_NOT_EXIST = "File Does Not  Exist";
-    public static final String FILE_SIZE_GREATER_THAN_ZERO = "File Size > 0";
+    public static final String FILE_SIZE_GREATER_THAN_ZERO = "File Size Greater Than 0";
     public static final String FILE_CREATED_TODAY = "File Created Today";
     public static final String FILE_CREATED_YESTERDAY = "File Created Yesterday";
         

@@ -17,8 +17,8 @@
 package org.kuali.test.runner.execution;
 
 import org.kuali.test.runner.exceptions.TestException;
-
+import org.kuali.test.runner.output.TestOutput;
 
 public interface OperationExecution {
-    public void execute() throws TestException;
+    public TestOutput execute() throws TestException;
 }

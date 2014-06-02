@@ -107,10 +107,6 @@
         <xs:choice minOccurs="1" maxOccurs="1">
             <xs:element name="checkpoint-operation" type="checkpoint"/>
             <xs:element name="html-request-operation" type="html-request-op"/>
-            <xs:element name="sql-select-operation" type="sql-select-op"/>
-            <xs:element name="memory-inquiry-operation" type="memory-inquiry-op"/>
-            <xs:element name="file-inquiry-operation" type="file-inquiry-op"/>
-            <xs:element name="web-service-request-operation" type="web-service-request-op"/>
         </xs:choice>  
     </xs:complexType>      
 

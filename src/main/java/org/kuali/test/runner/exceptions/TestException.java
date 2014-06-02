@@ -16,27 +16,25 @@
 
 package org.kuali.test.runner.exceptions;
 
-import org.kuali.test.TestOperation;
+import org.kuali.test.Operation;
 
 
 public class TestException extends Exception {
-    private TestOperation op;
-    public TestException(TestOperation op) {
+    private Operation op;
+    private String message;
+    public TestException(String message, Operation op) {
         this.op = op;
+        this.message = message;
     }
 
     @Override
     public String toString() {
-        return super.toString(); //To change body of generated methods, choose Tools | Templates.
+        return message; 
     }
 
-    @Override
-    public synchronized Throwable getCause() {
-        return super.getCause(); //To change body of generated methods, choose Tools | Templates.
-    }
 
     @Override
     public String getMessage() {
-        return super.getMessage(); //To change body of generated methods, choose Tools | Templates.
+        return message;
     }
 }
