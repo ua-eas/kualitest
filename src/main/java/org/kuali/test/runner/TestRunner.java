@@ -235,7 +235,7 @@ public class TestRunner {
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
-            executingTests.add(new TestExecutionContext(configuration, test));
+            new TestExecutionContext(configuration, test).runTest();
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
@@ -245,7 +245,7 @@ public class TestRunner {
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
         if (testSuite != null) {
-            scheduledTests.add(new TestExecutionContext(configuration, testSuite));
+            new TestExecutionContext(configuration, testSuite).runTest();
         } else {
             System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }

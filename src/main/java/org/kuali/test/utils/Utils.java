@@ -700,6 +700,7 @@ public class Utils {
                         try {
                             doc = KualiTestDocument.Factory.parse(f);
                             retval = doc.getKualiTest();
+                            retval.setTestHeader(th);
                         } 
                         
                         catch (Exception ex) {

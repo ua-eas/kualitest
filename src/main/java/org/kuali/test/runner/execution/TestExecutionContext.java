@@ -16,22 +16,23 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFHeader;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellRangeAddress;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.Header;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -75,6 +76,8 @@ public class TestExecutionContext extends Thread {
     private CellStyle cellStyleSuccess = null;
     private CellStyle cellStyleWarning = null;
     private CellStyle cellStyleError = null;
+    private CellStyle cellStyleTimestamp = null;
+    private CellStyle cellStyleHeader = null;
     
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
 
@@ -102,11 +105,6 @@ public class TestExecutionContext extends Thread {
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
         platform = Utils.findPlatform(configuration, kualiTest.getTestHeader().getPlatformName());
-
-        // if no scheduled time then run immediately
-        if (scheduledTime == null) {
-            startTest();
-        }
     }
 
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, KualiTest kualiTest) {
@@ -115,36 +113,47 @@ public class TestExecutionContext extends Thread {
     
     @Override
     public void run() {
+        runTest();
+    }
+    
+    public void runTest() {
         startTime= new Date();
         FileOutputStream fos = null;
         
         try {
-            Workbook testReport = new XSSFWorkbook();
-            Sheet sheet = testReport.createSheet();
+            Workbook testReport = new HSSFWorkbook();
+            testReport.createSheet("kualitest");
+        
             createPoiCellStyles(testReport);
-            writeReportHeader(sheet);
-            writeColumnHeaders(sheet);
+            writeReportHeader(testReport);
+            writeColumnHeaders(testReport);
             
             if (testSuite != null) {
                 for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
                     KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
 
                     if (test != null) {
-                        writeTestHeader(sheet, test);
-                        runTest(test, sheet);
+                        writeTestHeader(testReport, test);
+                        runTest(test, testReport);
                     }
                 }
             } else if (kualiTest != null) {
-                runTest(kualiTest, sheet);
+                runTest(kualiTest, testReport);
             }
 
             endTime= new Date();
 
-            fos = new FileOutputStream(buildTestReportFileName());
+            File f = new File(buildTestReportFileName());
+            
+            if (!f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
+            }
+            
+            fos = new FileOutputStream(f);
             testReport.write(fos);
         }
         
-        catch (Exception ex) {
+        catch (IOException ex) {
             LOG.error(ex.toString(), ex);
         }
         
@@ -154,7 +163,7 @@ public class TestExecutionContext extends Thread {
                     fos.close();
                 }
                 
-                catch (Exception ex) {};
+                catch (IOException ex) {};
             }
         }
         
@@ -165,58 +174,73 @@ public class TestExecutionContext extends Thread {
         // create bold cell style
         Font font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 10);
+        font.setFontHeightInPoints((short) 12);
         cellStyleBold = wb.createCellStyle();
         cellStyleBold.setFont(font);
 
         // create standard cell style
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 10);
+        font.setFontHeightInPoints((short) 12);
         cellStyleNormal = wb.createCellStyle();
         cellStyleNormal.setFont(font);
 
-        // create standard cell style
+        // create test header cell style
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
         font.setFontHeightInPoints((short) 12);
         cellStyleTestHeader = wb.createCellStyle();
-        cellStyleTestHeader.setFillBackgroundColor(HSSFColor.GREY_25_PERCENT.index);
         cellStyleTestHeader.setFont(font);
 
+        // create timestamp cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 12);
+        cellStyleTimestamp = wb.createCellStyle();
+        cellStyleTimestamp.setFont(font);
+        cellStyleTimestamp.setDataFormat(wb.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
     
         // create success cell style
         font = wb.createFont();
+        font.setColor(HSSFColor.DARK_GREEN.index);
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 10);
+        font.setFontHeightInPoints((short) 12);
         cellStyleSuccess = wb.createCellStyle();
-        cellStyleSuccess.setFillBackgroundColor(HSSFColor.DARK_GREEN.index);
         cellStyleSuccess.setFont(font);
 
-        // create success cell style
+        // create ignore cell style
         font = wb.createFont();
-        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 10);
+        font.setColor(HSSFColor.GREY_80_PERCENT.index);
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setFontHeightInPoints((short) 12);
         cellStyleIgnore = wb.createCellStyle();
-        cellStyleIgnore.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
         cellStyleIgnore.setFont(font);
 
         // create warning cell style
         font = wb.createFont();
-        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 10);
+        font.setColor(HSSFColor.DARK_YELLOW.index);
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setFontHeightInPoints((short) 12);
         cellStyleWarning = wb.createCellStyle();
-        cellStyleWarning.setFillBackgroundColor(HSSFColor.DARK_YELLOW.index);
         cellStyleWarning.setFont(font);
 
         // create error cell style
         font = wb.createFont();
-        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 10);
+        font.setColor(HSSFColor.DARK_RED.index);
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setFontHeightInPoints((short) 12);
         cellStyleError = wb.createCellStyle();
-        cellStyleError.setFillBackgroundColor(HSSFColor.DARK_RED.index);
         cellStyleError.setFont(font);
-}
+        
+        
+        // create error cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setFontHeightInPoints((short) 14);
+        cellStyleHeader = wb.createCellStyle();
+        cellStyleHeader.setFont(font);
+
+    }
 
     private String buildTestReportFileName() {
         StringBuilder retval = new StringBuilder(128);
@@ -237,11 +261,11 @@ public class TestExecutionContext extends Thread {
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(startTime));
         retval.append(".xlsx");
         
-        return null;
+        return retval.toString();
     }
     
     
-    private void runTest(KualiTest test, Sheet sheet) {
+    private void runTest(KualiTest test, Workbook wb) {
         if (LOG.isInfoEnabled()) {
             LOG.info("--------------------------- starting test ---------------------------");
             LOG.info("platform: " + test.getTestHeader().getPlatformName());
@@ -255,11 +279,11 @@ public class TestExecutionContext extends Thread {
         }
         
         for (TestOperation op : test.getOperations().getOperationArray()) {
-            executeTestOperation(op, sheet);
+            executeTestOperation(op, wb);
         }
     }
 
-    private void executeTestOperation(TestOperation op, Sheet sheet) {
+    private void executeTestOperation(TestOperation op, Workbook wb) {
         OperationExecution opExec = null;
         
         Date opStartTime = new Date();
@@ -267,16 +291,17 @@ public class TestExecutionContext extends Thread {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
             if (opExec != null) {
                 opExec.execute(configuration, platform);
-                writeSuccessEntry(sheet, op, opStartTime);
+                writeSuccessEntry(wb, op, opStartTime);
             }
         } 
         
         catch (TestException ex) {
-            writeFailureEntry(sheet, op, opStartTime, ex);
+            writeFailureEntry(wb, op, opStartTime, ex);
         }
     }
     
-    protected void writeTestHeader(Sheet sheet, KualiTest test) {
+    protected void writeTestHeader(Workbook wb, KualiTest test) {
+        Sheet sheet = wb.getSheet("kualitest");
         Row row = sheet.createRow(currentReportRow);
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length-1));
 
@@ -335,13 +360,17 @@ public class TestExecutionContext extends Thread {
         return completed;
     }
     
-    protected void writeReportHeader(Sheet sheet) {
-        Header header = sheet.getHeader();
- 
-        StringBuilder headerString = new StringBuilder(128);
-        headerString.append(HSSFHeader.font("Arial", "Bold"));
-        headerString.append(HSSFHeader.fontSize((short)14));
+    protected void writeReportHeader(Workbook wb) {
+        Sheet sheet = wb.getSheet("kualitest");
+        Row row = sheet.createRow(currentReportRow);
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length-1));
 
+        currentReportRow++;
+        
+        Cell cell = row.createCell(0);
+
+        StringBuilder headerString = new StringBuilder(128);
+        
         headerString.append("Platform: ");
         
         if (testSuite != null) {
@@ -354,19 +383,18 @@ public class TestExecutionContext extends Thread {
             headerString.append(kualiTest.getTestHeader().getTestName());
         }
         
-        header.setLeft(headerString.toString());
-        
         headerString.setLength(0);
         headerString.append(HSSFHeader.font("Arial", "normal"));
         headerString.append(HSSFHeader.fontSize((short)10));
         headerString.append("Run Date: ");
         headerString.append(Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date()));
 
-        header.setRight(headerString.toString());
+        cell.setCellValue(headerString.toString());
+        cell.setCellStyle(cellStyleTestHeader);
     }
 
-    protected void writeColumnHeaders(Sheet sheet) {
-        Row row = sheet.createRow(currentReportRow++);
+    protected void writeColumnHeaders(Workbook wb) {
+        Row row = wb.getSheet("kualitest").createRow(currentReportRow++);
         
         for (int i = 0; i < HEADER_NAMES.length; ++i) {
             Cell cell = row.createCell(i);
@@ -375,8 +403,8 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    protected Row writeBaseEntryInformation(Sheet sheet, TestOperation op, Date startTime) {
-        Row retval = sheet.createRow(currentReportRow++);
+    protected Row writeBaseEntryInformation(Workbook wb, TestOperation op, Date startTime) {
+        Row retval = wb.getSheet("kualitest").createRow(currentReportRow++);
                 // checkpoint name
         Cell cell = retval.createCell(0);
         cell.setCellValue(op.getOperation().getCheckpointOperation().getName());
@@ -390,18 +418,18 @@ public class TestExecutionContext extends Thread {
         // start time
         cell = retval.createCell(2);
         cell.setCellValue(startTime);
-        cell.setCellStyle(cellStyleNormal);
+        cell.setCellStyle(cellStyleTimestamp);
         
         // endTime time
         long endts= System.currentTimeMillis();
         
         cell = retval.createCell(3);
         cell.setCellValue(new Date(endts));
-        cell.setCellStyle(cellStyleNormal);
+        cell.setCellStyle(cellStyleTimestamp);
 
         // run time
         cell = retval.createCell(4);
-        cell.setCellValue((endts - startTime.getTime()) * 1000);
+        cell.setCellValue((endts - startTime.getTime()) / 1000);
         cell.setCellStyle(cellStyleNormal);
         
         // expected values
@@ -432,8 +460,8 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
-    protected void writeSuccessEntry(Sheet sheet, TestOperation op, Date startTime) {
-        Row row = writeBaseEntryInformation(sheet, op, startTime);
+    protected void writeSuccessEntry(Workbook wb, TestOperation op, Date startTime) {
+        Row row = writeBaseEntryInformation(wb, op, startTime);
         
         // status
         Cell cell = row.createCell(7);
@@ -442,8 +470,8 @@ public class TestExecutionContext extends Thread {
         
     }
 
-    protected void writeFailureEntry(Sheet sheet, TestOperation op, Date startTime, TestException ex) {
-        Row row = writeBaseEntryInformation(sheet, op, startTime);
+    protected void writeFailureEntry(Workbook wb, TestOperation op, Date startTime, TestException ex) {
+        Row row = writeBaseEntryInformation(wb, op, startTime);
         
         // status
         Cell cell = row.createCell(7);
@@ -459,7 +487,7 @@ public class TestExecutionContext extends Thread {
                 break;
             case FailureAction.INT_ERROR_CONTINUE:
             case FailureAction.INT_ERROR_HALT_TEST:
-                cell.setCellStyle(cellStyleWarning);
+                cell.setCellStyle(cellStyleError);
                 break;
         }
         
