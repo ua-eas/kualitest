@@ -32,6 +32,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
@@ -69,6 +70,7 @@ public class TestExecutionContext extends Thread {
     private CellStyle cellStyleNormal = null;
     private CellStyle cellStyleBold = null;
     private CellStyle cellStyleTestHeader = null;
+    private CellStyle cellStyleIgnore = null;
     private CellStyle cellStyleSuccess = null;
     private CellStyle cellStyleWarning = null;
     private CellStyle cellStyleError = null;
@@ -194,11 +196,19 @@ public class TestExecutionContext extends Thread {
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
         font.setFontHeightInPoints((short) 10);
+        cellStyleIgnore = wb.createCellStyle();
+        cellStyleIgnore.setFillBackgroundColor(HSSFColor.GREY_80_PERCENT.index);
+        cellStyleIgnore.setFont(font);
+
+        // create warning cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 10);
         cellStyleWarning = wb.createCellStyle();
         cellStyleWarning.setFillBackgroundColor(HSSFColor.DARK_YELLOW.index);
         cellStyleWarning.setFont(font);
 
-        // create success cell style
+        // create error cell style
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
         font.setFontHeightInPoints((short) 10);
@@ -351,39 +361,37 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    
-    protected void writeSuccessEntry(Sheet sheet, TestOperation op, Date startTime) {
-        Row row = sheet.createRow(currentReportRow++);
-        
-        // checkpoint name
-        Cell cell = row.createCell(0);
+    protected Row writeBaseEntryInformation(Sheet sheet, TestOperation op, Date startTime) {
+        Row retval = sheet.createRow(currentReportRow++);
+                // checkpoint name
+        Cell cell = retval.createCell(0);
         cell.setCellValue(op.getOperation().getCheckpointOperation().getName());
         cell.setCellStyle(cellStyleNormal);
         
         // cehckpoint type
-        cell = row.createCell(1);
+        cell = retval.createCell(1);
         cell.setCellValue(op.getOperation().getCheckpointOperation().getType().toString());
         cell.setCellStyle(cellStyleNormal);
         
         // start time
-        cell = row.createCell(2);
+        cell = retval.createCell(2);
         cell.setCellValue(startTime);
         cell.setCellStyle(cellStyleNormal);
         
         // endTime time
         long endts= System.currentTimeMillis();
         
-        cell = row.createCell(3);
+        cell = retval.createCell(3);
         cell.setCellValue(new Date(endts));
         cell.setCellStyle(cellStyleNormal);
 
         // run time
-        cell = row.createCell(4);
+        cell = retval.createCell(4);
         cell.setCellValue((endts - startTime.getTime()) * 1000);
         cell.setCellStyle(cellStyleNormal);
         
         // expected values
-        cell = row.createCell(5);
+        cell = retval.createCell(5);
         StringBuilder s = new StringBuilder(128);
         for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
             s.append(cp.getPropertyName());
@@ -396,7 +404,7 @@ public class TestExecutionContext extends Thread {
         cell.setCellStyle(cellStyleNormal);
 
         // actual values
-        cell = row.createCell(6);
+        cell = retval.createCell(6);
         s.setLength(0);
         for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
             s.append(cp.getPropertyName());
@@ -406,15 +414,65 @@ public class TestExecutionContext extends Thread {
         }
         cell.setCellValue(new HSSFRichTextString(s.toString()));
         cell.setCellStyle(cellStyleNormal);
+
+        return retval;
+    }
+    
+    protected void writeSuccessEntry(Sheet sheet, TestOperation op, Date startTime) {
+        Row row = writeBaseEntryInformation(sheet, op, startTime);
         
         // status
-        cell = row.createCell(7);
+        Cell cell = row.createCell(7);
         cell.setCellValue("success");
         cell.setCellStyle(cellStyleSuccess);
         
     }
 
     protected void writeFailureEntry(Sheet sheet, TestOperation op, Date startTime, TestException ex) {
+        Row row = writeBaseEntryInformation(sheet, op, startTime);
         
+        // status
+        Cell cell = row.createCell(7);
+        
+        FailureAction.Enum failureAction = findMaxFailureAction(op);
+        
+        switch (failureAction.intValue()) {
+            case FailureAction.INT_IGNORE:
+                cell.setCellStyle(cellStyleIgnore);
+                break;
+            case FailureAction.INT_WARNING:
+                cell.setCellStyle(cellStyleWarning);
+                break;
+            case FailureAction.INT_ERROR_CONTINUE:
+            case FailureAction.INT_ERROR_HALT_TEST:
+                cell.setCellStyle(cellStyleWarning);
+                break;
+        }
+        
+        cell.setCellValue(failureAction.toString());
+
+        cell = row.createCell(8);
+        cell.setCellStyle(cellStyleNormal);
+        cell.setCellValue(ex.getMessage());
+    }
+        
+    private FailureAction.Enum findMaxFailureAction(TestOperation op) {
+        FailureAction.Enum retval = null;
+        
+        if (op.getOperation().getCheckpointOperation().getCheckpointProperties() != null) {
+            for (CheckpointProperty prop : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                FailureAction.Enum fa = prop.getOnFailure();
+                
+                if (retval == null) {
+                    retval = fa;
+                } else {
+                    if (fa.intValue() > retval.intValue()) {
+                        retval = fa;
+                    }
+                }
+            }
+        }
+        
+        return retval;
     }
 }
