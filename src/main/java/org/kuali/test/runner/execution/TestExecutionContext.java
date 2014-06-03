@@ -20,6 +20,8 @@ import java.io.FileOutputStream;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFHeader;
+import org.apache.poi.hssf.util.CellRangeAddress;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -64,6 +66,7 @@ public class TestExecutionContext extends Thread {
     private boolean completed = false;
     private CellStyle cellStyleNormal = null;
     private CellStyle cellStyleBold = null;
+    private CellStyle cellStyleTestHeader = null;
     
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
 
@@ -110,21 +113,7 @@ public class TestExecutionContext extends Thread {
         try {
             Workbook testReport = new XSSFWorkbook();
             Sheet sheet = testReport.createSheet();
-            
-            // create bold cell style
-            Font font = testReport.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-            font.setFontHeightInPoints((short) 10);
-            cellStyleBold = testReport.createCellStyle();
-            cellStyleBold.setFont(font);
-            
-            // create standard cell style
-            font = testReport.createFont();
-            font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-            font.setFontHeightInPoints((short) 10);
-            cellStyleNormal = testReport.createCellStyle();
-            cellStyleNormal.setFont(font);
-
+            createPoiCellStyles(testReport);
             writeReportHeader(sheet);
             writeColumnHeaders(sheet);
             
@@ -133,11 +122,12 @@ public class TestExecutionContext extends Thread {
                     KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
 
                     if (test != null) {
-                        runTest(test, testReport);
+                        writeTestHeader(sheet, test);
+                        runTest(test, sheet);
                     }
                 }
             } else if (kualiTest != null) {
-                runTest(kualiTest, testReport);
+                runTest(kualiTest, sheet);
             }
 
             endTime= new Date();
@@ -163,6 +153,30 @@ public class TestExecutionContext extends Thread {
         completed = true;
     }
     
+    private void createPoiCellStyles(Workbook wb) {
+        // create bold cell style
+        Font font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setFontHeightInPoints((short) 10);
+        cellStyleBold = wb.createCellStyle();
+        cellStyleBold.setFont(font);
+
+        // create standard cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 10);
+        cellStyleNormal = wb.createCellStyle();
+        cellStyleNormal.setFont(font);
+
+        // create standard cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 12);
+        cellStyleTestHeader = wb.createCellStyle();
+        cellStyleTestHeader.setFillBackgroundColor(HSSFColor.GREY_25_PERCENT.index);
+        cellStyleTestHeader.setFont(font);
+    }
+
     private String buildTestReportFileName() {
         StringBuilder retval = new StringBuilder(128);
         
@@ -185,15 +199,13 @@ public class TestExecutionContext extends Thread {
         return null;
     }
     
-    private void runTest(KualiTest test, Workbook testReport) {
+    private void runTest(KualiTest test, Sheet sheet) {
         for (TestOperation op : test.getOperations().getOperationArray()) {
-            Sheet sheet = testReport.createSheet(op.getOperation().getCheckpointOperation().getTestName());
-            
-            executeTestOperation(op,testReport);
+            executeTestOperation(op, sheet);
         }
     }
 
-    private void executeTestOperation(TestOperation op, Workbook testReport) {
+    private void executeTestOperation(TestOperation op, Sheet sheet) {
         OperationExecution opExec = null;
         
         try {
@@ -201,12 +213,25 @@ public class TestExecutionContext extends Thread {
             
             if (opExec != null) {
                 opExec.execute(configuration, platform);
-                writeSuccessEntry(testReport, opExec);
+                writeSuccessEntry(sheet, opExec);
             }
         } 
         
         catch (TestException ex) {
-            writeFailureEntry(testReport, opExec, ex);
+            writeFailureEntry(sheet, opExec, ex);
+        }
+    }
+    
+    protected void writeTestHeader(Sheet sheet, KualiTest test) {
+        Row row = sheet.createRow(currentReportRow);
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length-1));
+
+        currentReportRow++;
+        
+        for (int i = 0; i < HEADER_NAMES.length; ++i) {
+            Cell cell = row.createCell(i);
+            cell.setCellValue("Test: " + test.getTestHeader().getTestName());
+            cell.setCellStyle(cellStyleTestHeader);
         }
     }
     
@@ -299,11 +324,11 @@ public class TestExecutionContext extends Thread {
     }
     
     
-    protected void writeSuccessEntry(Workbook testReport, OperationExecution opExec) {
+    protected void writeSuccessEntry(Sheet sheet, OperationExecution opExec) {
         
     }
 
-    protected void writeFailureEntry(Workbook testReport, OperationExecution opExec, TestException ex) {
+    protected void writeFailureEntry(Sheet sheet, OperationExecution opExec, TestException ex) {
         
     }
 }
