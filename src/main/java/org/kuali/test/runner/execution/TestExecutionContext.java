@@ -69,6 +69,9 @@ public class TestExecutionContext extends Thread {
     private CellStyle cellStyleNormal = null;
     private CellStyle cellStyleBold = null;
     private CellStyle cellStyleTestHeader = null;
+    private CellStyle cellStyleSuccess = null;
+    private CellStyle cellStyleWarning = null;
+    private CellStyle cellStyleError = null;
     
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
 
@@ -177,7 +180,32 @@ public class TestExecutionContext extends Thread {
         cellStyleTestHeader = wb.createCellStyle();
         cellStyleTestHeader.setFillBackgroundColor(HSSFColor.GREY_25_PERCENT.index);
         cellStyleTestHeader.setFont(font);
-    }
+
+    
+        // create success cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 10);
+        cellStyleSuccess = wb.createCellStyle();
+        cellStyleSuccess.setFillBackgroundColor(HSSFColor.DARK_GREEN.index);
+        cellStyleSuccess.setFont(font);
+
+        // create success cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 10);
+        cellStyleWarning = wb.createCellStyle();
+        cellStyleWarning.setFillBackgroundColor(HSSFColor.DARK_YELLOW.index);
+        cellStyleWarning.setFont(font);
+
+        // create success cell style
+        font = wb.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 10);
+        cellStyleError = wb.createCellStyle();
+        cellStyleError.setFillBackgroundColor(HSSFColor.DARK_RED.index);
+        cellStyleError.setFont(font);
+}
 
     private String buildTestReportFileName() {
         StringBuilder retval = new StringBuilder(128);
@@ -355,7 +383,7 @@ public class TestExecutionContext extends Thread {
         cell.setCellStyle(cellStyleNormal);
         
         // expected values
-        cell = row.createCell(4);
+        cell = row.createCell(5);
         StringBuilder s = new StringBuilder(128);
         for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
             s.append(cp.getPropertyName());
@@ -368,7 +396,7 @@ public class TestExecutionContext extends Thread {
         cell.setCellStyle(cellStyleNormal);
 
         // actual values
-        cell = row.createCell(4);
+        cell = row.createCell(6);
         s.setLength(0);
         for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
             s.append(cp.getPropertyName());
@@ -378,6 +406,12 @@ public class TestExecutionContext extends Thread {
         }
         cell.setCellValue(new HSSFRichTextString(s.toString()));
         cell.setCellStyle(cellStyleNormal);
+        
+        // status
+        cell = row.createCell(7);
+        cell.setCellValue("success");
+        cell.setCellStyle(cellStyleSuccess);
+        
     }
 
     protected void writeFailureEntry(Sheet sheet, TestOperation op, Date startTime, TestException ex) {
