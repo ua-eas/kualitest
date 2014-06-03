@@ -39,7 +39,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     private Map<String, String> parameterMap = new HashMap<String, String>();
     private Map<String, CheckpointProperty> propertyMap = new HashMap<String, CheckpointProperty>();
  
-
     public AbstractOperationExecution (Operation op) {
         this.op = op;
        
@@ -120,7 +119,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     protected Object getComparisonValue(CheckpointProperty cp) throws ParseException {
         Object retval = null;
         ValueType.Enum type = cp.getValueType();
-        ComparisonOperator.Enum comparisonOperator = cp.getOperator();
         String comparisonValue = cp.getPropertyValue();
         
         if (!ComparisonOperator.NULL.equals(cp.getOperator())) {
@@ -192,8 +190,8 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             }
         }
         
-        catch (Exception ex) {
-            throw new TestException("Exception occurrred while evaluating checkpoint - " + ex.toString(), op);
+        catch (ParseException ex) {
+            throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
         }
         
         return retval;

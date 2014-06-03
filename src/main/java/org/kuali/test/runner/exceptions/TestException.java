@@ -23,6 +23,13 @@ public class TestException extends Exception {
     private Operation op;
     private String message;
     public TestException(String message, Operation op) {
+        super(message);
+        this.op = op;
+        this.message = message;
+    }
+
+    public TestException(String message, Operation op, Throwable cause) {
+        super(message, cause);
         this.op = op;
         this.message = message;
     }

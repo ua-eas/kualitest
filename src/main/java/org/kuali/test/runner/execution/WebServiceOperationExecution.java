@@ -20,7 +20,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
-import org.kuali.test.runner.output.TestOutput;
 
 
 public class WebServiceOperationExecution extends AbstractOperationExecution {
@@ -29,9 +28,6 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
     }
     
     @Override
-    public TestOutput execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        TestOutput retval = initTestOutput();
-        
-        return retval;
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
     }
 }

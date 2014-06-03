@@ -32,7 +32,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
-import org.kuali.test.runner.output.TestOutput;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -43,9 +42,7 @@ public class FileOperationExecution extends AbstractOperationExecution {
     }
     
     @Override
-    public TestOutput execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        TestOutput retval = initTestOutput();
-        
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));
         String fileNamePattern = getParameter(Constants.FILE_NAME_PATTERN);
         
@@ -123,10 +120,7 @@ public class FileOperationExecution extends AbstractOperationExecution {
             if (StringUtils.isNotBlank(errorMessage)) {
                 throw new TestException(errorMessage, getOperation());
             }
-
         }
-        
-        return retval;
     }
     
     private List <File> getFilesCreatedToday(File[] targetFiles) {

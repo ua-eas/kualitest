@@ -31,7 +31,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
-import org.kuali.test.runner.output.TestOutput;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -42,9 +41,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     }
     
     @Override
-    public TestOutput execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        TestOutput retval = initTestOutput();
-        
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         String sqlQuery = getParameter(Constants.SQL_QUERY);
         boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
         String errorMessage = null;
@@ -85,8 +82,8 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     if (!evaluateCheckpointProperty(cp, Integer.valueOf(rowcount))) {
                         throw new TestException("row count of " 
                             + rowcount 
-                            + " does not match configured comparison value", getOperation());
-                    }
+                            + " does not match comparison value", getOperation());
+                    } 
                 }
             }
 
@@ -101,15 +98,13 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         
         catch (SQLException ex) {
             throw new TestException("sql exception occured while executing query on database '" 
-                + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation());
+                + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
         }
         
         catch (Exception ex) {
             throw new TestException("exception occured while connecting to database '" 
-                + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation());
+                + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
         }
-        
-        return retval;
     }
     
     private String getQueryResultsFileName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
