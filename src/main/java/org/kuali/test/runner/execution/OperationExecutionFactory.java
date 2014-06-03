@@ -16,12 +16,14 @@
 
 package org.kuali.test.runner.execution;
 
+import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 
 
 public class OperationExecutionFactory {
+    private static final Logger LOG = Logger.getLogger(OperationExecutionFactory.class);
     private static OperationExecutionFactory instance;
 
     private OperationExecutionFactory() {};
@@ -38,6 +40,10 @@ public class OperationExecutionFactory {
         
         // if this is not a checkpoint operation then it is am http request
         if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("executing operation: type=checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "], name=" + op.getOperation().getCheckpointOperation().getName());
+            }
+
             switch(op.getOperation().getCheckpointOperation().getType().intValue()) {
                 case CheckpointType.INT_FILE:
                     retval = new FileOperationExecution(op.getOperation());
@@ -56,6 +62,9 @@ public class OperationExecutionFactory {
                     break;
             }
         } else {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUri());
+            }
             retval = new HttpRequestOperationExecution(op.getOperation());
         }
         

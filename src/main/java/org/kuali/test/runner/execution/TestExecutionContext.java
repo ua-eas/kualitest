@@ -18,6 +18,7 @@ package org.kuali.test.runner.execution;
 
 import java.io.FileOutputStream;
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFHeader;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
@@ -239,7 +240,20 @@ public class TestExecutionContext extends Thread {
         return null;
     }
     
+    
     private void runTest(KualiTest test, Sheet sheet) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--------------------------- starting test ---------------------------");
+            LOG.info("platform: " + test.getTestHeader().getPlatformName());
+            
+            if (StringUtils.isNotBlank(test.getTestHeader().getTestSuiteName())) {
+                LOG.info("test suite: " + test.getTestHeader().getTestSuiteName());
+            }
+
+            LOG.info("test: " + test.getTestHeader().getTestName());
+            LOG.info("---------------------------------------------------------------------");
+        }
+        
         for (TestOperation op : test.getOperations().getOperationArray()) {
             executeTestOperation(op, sheet);
         }

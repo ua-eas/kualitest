@@ -16,7 +16,6 @@
 
 package org.kuali.test.runner;
 
-import org.kuali.test.runner.execution.TestExecutionContext;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ import org.kuali.test.KualiTestRunnerDocument;
 import org.kuali.test.ScheduledTest;
 import org.kuali.test.ScheduledTestType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Utils;
@@ -71,6 +71,10 @@ public class TestRunner {
                 new TestRunner(args[0]);
             }
         }
+    }
+    
+    public TestRunner(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        this.configuration = configuration;
     }
     
     public TestRunner(String configFileName) {

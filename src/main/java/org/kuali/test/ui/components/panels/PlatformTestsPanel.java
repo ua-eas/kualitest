@@ -40,7 +40,9 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.runner.TestRunner;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
@@ -53,6 +55,7 @@ public class PlatformTestsPanel extends BasePanel
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
     private static final String DELETE_TEST = "Delete test";
+    private static final String RUN_TEST = "Run test";
     
     private JList testList;
     private Platform currentPlatform;
@@ -73,6 +76,10 @@ public class PlatformTestsPanel extends BasePanel
         
         popupMenu = new JPopupMenu();
         JMenuItem m = new JMenuItem(Constants.SHOW_TEST_INFORMATION_ACTION);
+        popupMenu.add(m);
+        m.addActionListener(this);
+        popupMenu.add(new JSeparator());
+        m = new JMenuItem(RUN_TEST);
         popupMenu.add(m);
         m.addActionListener(this);
         popupMenu.add(new JSeparator());
@@ -191,6 +198,13 @@ public class PlatformTestsPanel extends BasePanel
             if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + currentTestHeader.getTestName() + "'?")) {
                 // TODO: add delete code here
             }
+        } else if (RUN_TEST.equals(e.getActionCommand())) {
+            new SplashDisplay(getMainframe(), "RunningT Test", "Running test " + currentTestHeader.getTestName()) {
+                @Override
+                protected void runProcess() {
+                    new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
+                }
+            };
         }
     }
 }
