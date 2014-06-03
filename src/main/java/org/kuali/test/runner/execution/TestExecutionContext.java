@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.util.Date;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFHeader;
+import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.util.CellRangeAddress;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -30,6 +31,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
@@ -49,7 +51,7 @@ public class TestExecutionContext extends Thread {
         "Checkpoint Type",
         "Start Time",
         "End Time",
-        "Run Time",
+        "Run Time (sec)",
         "Expected Values",
         "Actual Values",
         "Status",
@@ -208,17 +210,17 @@ public class TestExecutionContext extends Thread {
     private void executeTestOperation(TestOperation op, Sheet sheet) {
         OperationExecution opExec = null;
         
+        Date opStartTime = new Date();
         try {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
-            
             if (opExec != null) {
                 opExec.execute(configuration, platform);
-                writeSuccessEntry(sheet, opExec);
+                writeSuccessEntry(sheet, op, opStartTime);
             }
         } 
         
         catch (TestException ex) {
-            writeFailureEntry(sheet, opExec, ex);
+            writeFailureEntry(sheet, op, opStartTime, ex);
         }
     }
     
@@ -228,11 +230,9 @@ public class TestExecutionContext extends Thread {
 
         currentReportRow++;
         
-        for (int i = 0; i < HEADER_NAMES.length; ++i) {
-            Cell cell = row.createCell(i);
-            cell.setCellValue("Test: " + test.getTestHeader().getTestName());
-            cell.setCellStyle(cellStyleTestHeader);
-        }
+        Cell cell = row.createCell(0);
+        cell.setCellValue("Test: " + test.getTestHeader().getTestName());
+        cell.setCellStyle(cellStyleTestHeader);
     }
     
     public TestSuite getTestSuite() {
@@ -324,11 +324,63 @@ public class TestExecutionContext extends Thread {
     }
     
     
-    protected void writeSuccessEntry(Sheet sheet, OperationExecution opExec) {
+    protected void writeSuccessEntry(Sheet sheet, TestOperation op, Date startTime) {
+        Row row = sheet.createRow(currentReportRow++);
         
+        // checkpoint name
+        Cell cell = row.createCell(0);
+        cell.setCellValue(op.getOperation().getCheckpointOperation().getName());
+        cell.setCellStyle(cellStyleNormal);
+        
+        // cehckpoint type
+        cell = row.createCell(1);
+        cell.setCellValue(op.getOperation().getCheckpointOperation().getType().toString());
+        cell.setCellStyle(cellStyleNormal);
+        
+        // start time
+        cell = row.createCell(2);
+        cell.setCellValue(startTime);
+        cell.setCellStyle(cellStyleNormal);
+        
+        // endTime time
+        long endts= System.currentTimeMillis();
+        
+        cell = row.createCell(3);
+        cell.setCellValue(new Date(endts));
+        cell.setCellStyle(cellStyleNormal);
+
+        // run time
+        cell = row.createCell(4);
+        cell.setCellValue((endts - startTime.getTime()) * 1000);
+        cell.setCellStyle(cellStyleNormal);
+        
+        // expected values
+        cell = row.createCell(4);
+        StringBuilder s = new StringBuilder(128);
+        for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+            s.append(cp.getPropertyName());
+            s.append("=");
+            s.append(cp.getPropertyValue());
+            s.append("\n");
+        }
+
+        cell.setCellValue(new HSSFRichTextString(s.toString()));
+        cell.setCellStyle(cellStyleNormal);
+
+        // actual values
+        cell = row.createCell(4);
+        s.setLength(0);
+        for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+            s.append(cp.getPropertyName());
+            s.append("=");
+            s.append(cp.getActualValue());
+            s.append("\n");
+        }
+        cell.setCellValue(new HSSFRichTextString(s.toString()));
+        cell.setCellStyle(cellStyleNormal);
     }
 
-    protected void writeFailureEntry(Sheet sheet, OperationExecution opExec, TestException ex) {
+    protected void writeFailureEntry(Sheet sheet, TestOperation op, Date startTime, TestException ex) {
         
     }
 }

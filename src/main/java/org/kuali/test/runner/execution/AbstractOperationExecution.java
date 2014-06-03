@@ -132,12 +132,13 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
     
-    protected boolean evaluateCheckpointProperty(CheckpointProperty cp, Object value) throws TestException {
+    protected boolean evaluateCheckpointProperty(CheckpointProperty cp) throws TestException {
         boolean retval = false;
         
         try {
             Object comparisonValue = getComparisonValue(cp);
             ComparisonOperator.Enum comparisonOperator = cp.getOperator();
+            Object value = getValueForType(cp.getActualValue(), cp.getValueType());
             
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
