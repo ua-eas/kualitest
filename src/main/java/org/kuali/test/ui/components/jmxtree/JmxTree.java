@@ -22,7 +22,6 @@ import javax.swing.tree.TreeCellRenderer;
 import org.apache.log4j.Logger;
 import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTree;
 
@@ -60,7 +59,7 @@ public class JmxTree extends BaseTree {
     
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
-        if (node.getUserObject() instanceof WebService) {
+        if (node.getUserObject() instanceof JmxConnection) {
             popupMenu.show(this, node, x, y);
         }
     }

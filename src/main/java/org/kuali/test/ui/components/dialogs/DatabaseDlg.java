@@ -97,7 +97,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         type.setSelectedItem(dbconnection.getType());
         url = new JTextField(dbconnection.getJdbcUrl(), 30);
         driver = new JTextField(dbconnection.getJdbcDriver(), 30);
-        schema = new JTextField(dbconnection.getUsername(), 15);
+        schema = new JTextField(dbconnection.getSchema(), 15);
         username = new JTextField(dbconnection.getUsername(), 20);
         password = new JPasswordField(dbconnection.getPassword(), 20);
         configuredTablesOnly = new JCheckBox();
@@ -136,7 +136,10 @@ public class DatabaseDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            dbconnection = getConfiguration().getDatabaseConnections().addNewDatabaseConnection();
+            if (!editmode) {
+                dbconnection = getConfiguration().getDatabaseConnections().addNewDatabaseConnection();
+            }
+            
             dbconnection.setName(name.getText());
             dbconnection.setJdbcUrl(url.getText());
             dbconnection.setJdbcDriver(driver.getText());
