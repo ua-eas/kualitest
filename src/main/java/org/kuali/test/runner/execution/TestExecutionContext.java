@@ -86,11 +86,6 @@ public class TestExecutionContext extends Thread {
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
         platform = Utils.findPlatform(configuration, testSuite.getName());
-        
-        // if no scheduled time then run immediately
-        if (scheduledTime == null) {
-            startTest();
-        }
     }
 
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
