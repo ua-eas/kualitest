@@ -38,7 +38,7 @@ public class PlatformDlg extends BaseSetupDlg {
     private JTextField name;
     private JTextField weburl;
     private JComboBox webService;
-    private JTextField jmxurl;
+    private JComboBox jmxConnection;
     private JTextField emailAddresses;
     private JTextField version;
     private JComboBox <String> application;
@@ -99,8 +99,14 @@ public class PlatformDlg extends BaseSetupDlg {
             webService.setSelectedIndex(0);
         }
         
-        jmxurl = new JTextField(platform.getJmxUrl(), 30);
         emailAddresses = new JTextField(platform.getEmailAddresses(), 30);
+
+        jmxConnection = new JComboBox<String>(getJmxConnectionNames());
+        if (platform.getJmxConnectionName() != null) {
+            jmxConnection.setSelectedItem(platform.getJmxConnectionName());
+        }
+        
+        
         dbconnection = new JComboBox<String>(getDatabaseConnectionNames());
         if (platform.getDatabaseConnectionName() != null) {
             dbconnection.setSelectedItem(platform.getDatabaseConnectionName());
@@ -112,7 +118,7 @@ public class PlatformDlg extends BaseSetupDlg {
             version,
             weburl,
             webService,
-            jmxurl,
+            jmxConnection,
             emailAddresses,
             dbconnection};
 
@@ -151,7 +157,6 @@ public class PlatformDlg extends BaseSetupDlg {
             platform.setApplication(KualiApplication.Enum.forString(application.getSelectedItem().toString()));
             platform.setWebServiceName(webService.getSelectedItem().toString());
             platform.setWebUrl(weburl.getText());
-            platform.setJmxUrl(jmxurl.getText());
             platform.setVersion(version.getText());
 
             String s = emailAddresses.getText();
@@ -166,6 +171,12 @@ public class PlatformDlg extends BaseSetupDlg {
                 platform.setDatabaseConnectionName(s);
             }
             
+            s = (String)jmxConnection.getSelectedItem();
+            
+            if (StringUtils.isNoneBlank(s)) {
+                platform.setJmxConnectionName(s);
+            }
+
             getConfiguration().setModified(true);
             setSaved(true);
             dispose();

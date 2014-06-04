@@ -47,6 +47,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
@@ -58,11 +59,13 @@ import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
+import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
+import org.kuali.test.ui.components.jmxtree.JmxTree;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.FileTestPanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
@@ -95,6 +98,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private RepositoryTree testRepositoryTree;
     private DatabaseTree databaseTree;
     private WebServiceTree webServiceTree;
+    private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
 
     public TestCreator(String configFileName) {
@@ -169,6 +173,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JMenuItem addPlatformMenuItem = new JMenuItem();
         JMenuItem addDatabaseConnectionMenuItem = new JMenuItem();
         JMenuItem addWebServiceMenuItem = new JMenuItem();
+        JMenuItem addJmxConnectionMenuItem = new JMenuItem();
         JMenuItem emailSetupMenuItem = new JMenuItem();
         JMenuItem scheduleTestsMenuItem = new JMenuItem();
         JMenuItem exitMenuItem = new JMenuItem();
@@ -221,6 +226,18 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         });
 
         setup.add(addWebServiceMenuItem);
+        
+        addJmxConnectionMenuItem.setText("Add JMX Connection");
+
+        addJmxConnectionMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleAddJmxConnection(evt);
+            }
+        });
+
+        setup.add(addJmxConnectionMenuItem);
+        
         setup.add(new JSeparator());
         
         emailSetupMenuItem.setText("Email Setup");
@@ -341,6 +358,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         tabbedPane.addTab(Constants.REPOSITORY, vsplitPane);
         tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
         tabbedPane.addTab(Constants.WEBSERVICES, new JScrollPane(webServiceTree = new WebServiceTree(this, getConfiguration())));
+        tabbedPane.addTab(Constants.JMX, new JScrollPane(jmxTree = new JmxTree(this, getConfiguration())));
 
         hsplitPane.setLeftComponent(tabbedPane);
         hsplitPane.setRightComponent(createTestPanel = new CreateTestPanel(this));
@@ -430,6 +448,35 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         if (UIUtils.promptForDelete(this, "Delete Web Service",
             "Delete web service '" + ws.getName() + "'?")) {
             webServiceTree.removeNode(actionNode);
+            if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
+                saveConfigurationButton.setEnabled(true);
+            }
+        }
+    }
+
+    public void handleAddJmxConnection(ActionEvent evt) {
+        JmxDlg dlg = new JmxDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+            JmxConnection jmx = (JmxConnection) dlg.getNewRepositoryObject();
+            jmxTree.addJmxConnection(jmx);
+        }
+    }
+
+    public void handleEditJmxConnection(JmxConnection jmx) {
+        JmxDlg dlg = new JmxDlg(this, jmx);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+        }
+    }
+
+    public void handleRemoveJmxConnection(DefaultMutableTreeNode actionNode) {
+        JmxConnection jmx = (JmxConnection) actionNode.getUserObject();
+        if (UIUtils.promptForDelete(this, "Delete JMX Connectione",
+            "Delete JMX connection '" + jmx.getName() + "'?")) {
+           jmxTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
             }

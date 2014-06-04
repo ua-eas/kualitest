@@ -32,6 +32,7 @@ import javax.swing.JSeparator;
 import javax.swing.WindowConstants;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
@@ -193,18 +194,39 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     }
 
     protected String[] getWebServiceNames() {
-        WebService[] webServices = getConfiguration().getWebServices().getWebServiceArray();
-        String[] retval = new String[webServices.length + 1];
-        retval[0] = "";
-        for (int i = 0; i < webServices.length; ++i) {
-            retval[i+1] = webServices[i].getName();
+        String[] retval = new String[0];
+    
+        if (getConfiguration().getWebServices() != null) { 
+            WebService[] webServices = getConfiguration().getWebServices().getWebServiceArray();
+            retval = new String[webServices.length + 1];
+            retval[0] = "";
+            for (int i = 0; i < webServices.length; ++i) {
+                retval[i+1] = webServices[i].getName();
+            }
+
+            Arrays.sort(retval);
         }
-        
-        Arrays.sort(retval);
         
         return retval;
     }
     
+    protected String[] getJmxConnectionNames() {
+        String[] retval = new String[0];
+
+        if (getConfiguration().getJmxConnections() != null) { 
+            JmxConnection[] jmxConnections = getConfiguration().getJmxConnections().getJmxConnectionArray();
+            retval = new String[jmxConnections.length + 1];
+            retval[0] = "";
+            for (int i = 0; i < jmxConnections.length; ++i) {
+                retval[i+1] = jmxConnections[i].getName();
+            }
+
+            Arrays.sort(retval);
+        }
+        
+        return retval;
+    }
+
     protected void handleAction(ActionEvent e) {
         if (saveActionCommand.equalsIgnoreCase(e.getActionCommand())) {
             save();

@@ -1329,7 +1329,7 @@ public class Utils {
                     retval.add(testType);
                 }
             } else if (TestType.MEMORY.toString().equals(testType)) {
-                if (StringUtils.isNotBlank(platform.getJmxUrl())) {
+                if (StringUtils.isNotBlank(platform.getJmxConnectionName())) {
                     retval.add(testType);
                 }
             } else {
@@ -1359,7 +1359,7 @@ public class Utils {
                         retval.add(checkpointType);
                     }
                 } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
-                    if (StringUtils.isNotBlank(platform.getJmxUrl())) {
+                    if (StringUtils.isNotBlank(platform.getJmxConnectionName())) {
                         retval.add(checkpointType);
                     }
                 } else {

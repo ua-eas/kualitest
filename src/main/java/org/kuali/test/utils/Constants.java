@@ -63,7 +63,10 @@ public class Constants {
     public static final ImageIcon WEB_SERVICE_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice.png"));
     public static final ImageIcon WEB_SERVICE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice-setting.png"));
     public static final ImageIcon FILE_SEARCH_ICON = new ImageIcon(TestCreator.class.getResource("/images/file-search.png"));
+    public static final ImageIcon JMX_CONNECTION_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection.png"));
+    public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
 
+    
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;
@@ -108,6 +111,7 @@ public class Constants {
     public static final String REPOSITORY = "Repository";
     public static final String DATABASES = "Databases";
     public static final String WEBSERVICES = "Web Services";
+    public static final String JMX = "JMX Connections";
     
     public static String SAVE_ACTION = "Save";
     public static String OK_ACTION = "Ok";

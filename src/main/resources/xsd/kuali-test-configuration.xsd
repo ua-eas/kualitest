@@ -29,6 +29,7 @@
                 <xs:element name="additional-db-info-location" type="xs:string"/>
                 <xs:element name="database-connections" type="database-connections"/>
                 <xs:element name="web-services" type="web-services"/>
+                <xs:element name="jmx-connections" type="jmx-connections"/>
                 <xs:element name="modified" type="xs:boolean"/>
                 <xs:element name="email-setup" type="email-setup"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
@@ -64,7 +65,7 @@
             <xs:element name="version" type="xs:string"/>
             <xs:element name="web-url" type="xs:string" minOccurs="0"/>
             <xs:element name="web-service-name" type="xs:string" minOccurs="0"/>
-            <xs:element name="jmx-url" type="xs:string" minOccurs="0"/>
+            <xs:element name="jmx-connection-name" type="xs:string" minOccurs="0"/>
             <xs:element name="email-addresses" type="xs:string" minOccurs="0"/>
             <xs:element name="test-suites" type="test-suites"/>
             <xs:element name="platform-tests" type="platform-tests"/>
@@ -102,6 +103,21 @@
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="wsdl-url" type="xs:string"/>
+            <xs:element name="username" type="xs:string" minOccurs="0"/>
+            <xs:element name="password" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="jmx-connections">
+        <xs:sequence>
+            <xs:element name="jmx-connection" type="jmx-connection" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="jmx-connection">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="jmx-url" type="xs:string"/>
             <xs:element name="username" type="xs:string" minOccurs="0"/>
             <xs:element name="password" type="xs:string" minOccurs="0"/>
         </xs:sequence>
