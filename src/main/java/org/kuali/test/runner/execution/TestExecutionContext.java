@@ -30,7 +30,7 @@ import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
@@ -85,7 +85,7 @@ public class TestExecutionContext extends Thread {
         this.testSuite = testSuite;
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
-        platform = Utils.findPlatform(configuration, testSuite.getName());
+        platform = Utils.findPlatform(configuration, testSuite.getPlatformName());
     }
 
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
@@ -183,9 +183,10 @@ public class TestExecutionContext extends Thread {
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
         font.setFontHeightInPoints((short) 12);        
-        font.setColor(IndexedColors.GREY_25_PERCENT.index);
         cellStyleTestHeader = wb.createCellStyle();
         cellStyleTestHeader.setFont(font);
+        cellStyleTestHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+        cellStyleTestHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
         // create timestamp cell style
         font = wb.createFont();
@@ -205,7 +206,7 @@ public class TestExecutionContext extends Thread {
 
         // create ignore cell style
         font = wb.createFont();
-        font.setColor(IndexedColors.GREY_80_PERCENT.index);
+        font.setColor(IndexedColors.BROWN.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short) 12);
         cellStyleIgnore = wb.createCellStyle();
@@ -230,11 +231,11 @@ public class TestExecutionContext extends Thread {
         
         // create header cell style
         font = wb.createFont();
-        font.setColor(IndexedColors.DARK_BLUE.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short)12);
-        cellStyleHeader = wb.createCellStyle();
-        cellStyleHeader.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.index);
+        cellStyleHeader = (XSSFCellStyle)wb.createCellStyle();
+        cellStyleHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+        cellStyleHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
         cellStyleHeader.setFont(font);
     }
 
@@ -255,7 +256,7 @@ public class TestExecutionContext extends Thread {
 
         retval.append("-");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(startTime));
-        retval.append(".xls");
+        retval.append(".xlsx");
         
         return retval.toString();
     }
@@ -359,29 +360,33 @@ public class TestExecutionContext extends Thread {
     protected void writeReportHeader(Workbook wb) {
         Sheet sheet = wb.getSheet("kualitest");
         Row row = sheet.createRow(currentReportRow);
-        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow+1, 0, HEADER_NAMES.length-1));
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow+2, 0, HEADER_NAMES.length-1));
         currentReportRow += 2;
         
         Cell cell = row.createCell(0);
 
         StringBuilder headerString = new StringBuilder(128);
         
-        headerString.append("Platform: ");
+        headerString.append("  Platform: ");
         
         if (testSuite != null) {
             headerString.append(testSuite.getPlatformName());
-            headerString.append(", Test Suite: ");
+            headerString.append("\n");
+            headerString.append("Test Suite: ");
             headerString.append(testSuite.getName());
+            headerString.append("\n");
         } else {
             headerString.append(kualiTest.getTestHeader().getPlatformName());
-            headerString.append(", Test: ");
+            headerString.append("\n");
+            headerString.append("          Test: ");
             headerString.append(kualiTest.getTestHeader().getTestName());
+            headerString.append("\n");
         }
 
-        headerString.append("\nRun Date: ");
+        headerString.append(" Run Date: ");
         headerString.append(Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date()));
-        cell.setCellValue(new XSSFRichTextString(headerString.toString()));
-        cell.setCellStyle(cellStyleNormal);
+        cell.setCellValue(headerString.toString());
+        cell.setCellStyle(cellStyleHeader);
 
     }
 
@@ -434,7 +439,7 @@ public class TestExecutionContext extends Thread {
             s.append("\n");
         }
 
-        cell.setCellValue(new XSSFRichTextString(s.toString()));
+        cell.setCellValue(s.toString());
         cell.setCellStyle(cellStyleNormal);
 
         // actual values
@@ -446,7 +451,7 @@ public class TestExecutionContext extends Thread {
             s.append(cp.getActualValue());
             s.append("\n");
         }
-        cell.setCellValue(new XSSFRichTextString(s.toString()));
+        cell.setCellValue(s.toString());
         cell.setCellStyle(cellStyleNormal);
 
         return retval;

@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -63,7 +64,13 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     res = stmt.executeQuery(sqlQuery);
                     ResultSetMetaData md = res.getMetaData();
                     if (saveQueryResults) {
-                        pw = new PrintWriter(getQueryResultsFileName(configuration, platform));
+                        File f = new File(getQueryResultsFileName(configuration, platform));
+                        
+                        if (!f.getParentFile().exists()) {
+                            f.getParentFile().mkdirs();
+                        }
+                        
+                        pw = new PrintWriter(f);
                         writeOutputHeader(pw, md);
                     }
 
