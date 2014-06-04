@@ -22,17 +22,16 @@ import java.io.IOException;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFHeader;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.CellRangeAddress;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -121,7 +120,7 @@ public class TestExecutionContext extends Thread {
         FileOutputStream fos = null;
         
         try {
-            Workbook testReport = new HSSFWorkbook();
+            Workbook testReport = new XSSFWorkbook();
             testReport.createSheet("kualitest");
         
             createPoiCellStyles(testReport);
@@ -188,7 +187,8 @@ public class TestExecutionContext extends Thread {
         // create test header cell style
         font = wb.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short) 12);        
+        font.setColor(IndexedColors.GREY_25_PERCENT.index);
         cellStyleTestHeader = wb.createCellStyle();
         cellStyleTestHeader.setFont(font);
 
@@ -202,7 +202,7 @@ public class TestExecutionContext extends Thread {
     
         // create success cell style
         font = wb.createFont();
-        font.setColor(HSSFColor.DARK_GREEN.index);
+        font.setColor(IndexedColors.DARK_GREEN.index);
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
         font.setFontHeightInPoints((short) 12);
         cellStyleSuccess = wb.createCellStyle();
@@ -210,7 +210,7 @@ public class TestExecutionContext extends Thread {
 
         // create ignore cell style
         font = wb.createFont();
-        font.setColor(HSSFColor.GREY_80_PERCENT.index);
+        font.setColor(IndexedColors.GREY_80_PERCENT.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short) 12);
         cellStyleIgnore = wb.createCellStyle();
@@ -218,7 +218,7 @@ public class TestExecutionContext extends Thread {
 
         // create warning cell style
         font = wb.createFont();
-        font.setColor(HSSFColor.DARK_YELLOW.index);
+        font.setColor(IndexedColors.DARK_YELLOW.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short) 12);
         cellStyleWarning = wb.createCellStyle();
@@ -226,20 +226,21 @@ public class TestExecutionContext extends Thread {
 
         // create error cell style
         font = wb.createFont();
-        font.setColor(HSSFColor.DARK_RED.index);
+        font.setColor(IndexedColors.DARK_RED.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short) 12);
         cellStyleError = wb.createCellStyle();
         cellStyleError.setFont(font);
         
         
-        // create error cell style
+        // create header cell style
         font = wb.createFont();
+        font.setColor(IndexedColors.DARK_BLUE.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 14);
+        font.setFontHeightInPoints((short)12);
         cellStyleHeader = wb.createCellStyle();
+        cellStyleHeader.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.index);
         cellStyleHeader.setFont(font);
-
     }
 
     private String buildTestReportFileName() {
@@ -259,7 +260,7 @@ public class TestExecutionContext extends Thread {
 
         retval.append("-");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(startTime));
-        retval.append(".xlsx");
+        retval.append(".xls");
         
         return retval.toString();
     }
@@ -363,9 +364,8 @@ public class TestExecutionContext extends Thread {
     protected void writeReportHeader(Workbook wb) {
         Sheet sheet = wb.getSheet("kualitest");
         Row row = sheet.createRow(currentReportRow);
-        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length-1));
-
-        currentReportRow++;
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow+1, 0, HEADER_NAMES.length-1));
+        currentReportRow += 2;
         
         Cell cell = row.createCell(0);
 
@@ -382,15 +382,12 @@ public class TestExecutionContext extends Thread {
             headerString.append(", Test: ");
             headerString.append(kualiTest.getTestHeader().getTestName());
         }
-        
-        headerString.setLength(0);
-        headerString.append(HSSFHeader.font("Arial", "normal"));
-        headerString.append(HSSFHeader.fontSize((short)10));
-        headerString.append("Run Date: ");
-        headerString.append(Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date()));
 
-        cell.setCellValue(headerString.toString());
-        cell.setCellStyle(cellStyleTestHeader);
+        headerString.append("\nRun Date: ");
+        headerString.append(Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date()));
+        cell.setCellValue(new XSSFRichTextString(headerString.toString()));
+        cell.setCellStyle(cellStyleNormal);
+
     }
 
     protected void writeColumnHeaders(Workbook wb) {
@@ -442,7 +439,7 @@ public class TestExecutionContext extends Thread {
             s.append("\n");
         }
 
-        cell.setCellValue(new HSSFRichTextString(s.toString()));
+        cell.setCellValue(new XSSFRichTextString(s.toString()));
         cell.setCellStyle(cellStyleNormal);
 
         // actual values
@@ -454,7 +451,7 @@ public class TestExecutionContext extends Thread {
             s.append(cp.getActualValue());
             s.append("\n");
         }
-        cell.setCellValue(new HSSFRichTextString(s.toString()));
+        cell.setCellValue(new XSSFRichTextString(s.toString()));
         cell.setCellStyle(cellStyleNormal);
 
         return retval;
