@@ -319,11 +319,9 @@ public class TestExecutionContext extends Thread {
     
     protected void writeTestHeader(Workbook wb, KualiTest test) {
         Sheet sheet = wb.getSheet("kualitest");
-        Row row = sheet.createRow(currentReportRow);
+        Row row = sheet.createRow(++currentReportRow);
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length-1));
 
-        currentReportRow++;
-        
         Cell cell = row.createCell(0);
         cell.setCellValue("Test: " + test.getTestHeader().getTestName());
         cell.setCellStyle(cellStyleTestHeader);
