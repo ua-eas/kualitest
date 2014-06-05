@@ -79,7 +79,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     public static int SQL_FORMAT_DISPLAY = 0;
     public static int SQL_FORMAT_CLIPBOARD = 1;
     public static int SQL_FORMAT_VALIDATE = 2;
-    public static int SQL_FORMAT_EXECUTE = 2;
+    public static int SQL_FORMAT_EXECUTE = 3;
     
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;
@@ -868,11 +868,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         } else if (Constants.NOT_NULL.equals(wcd.getOperator())){
             retval.append(" is not null");
         } else if (Constants.LIKE.equals(wcd.getOperator())) {
-            retval.append(" like ('");
+            retval.append(" ('");
             retval.append(wcd.getValue());
             retval.append("')");
         } else if (Constants.NOT_LIKE.equals(wcd.getOperator())) {
-            retval.append(" not like ('");
+            retval.append(" ('");
             retval.append(wcd.getValue());
             retval.append("')");
         } else {
