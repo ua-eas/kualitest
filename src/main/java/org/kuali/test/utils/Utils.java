@@ -1329,10 +1329,6 @@ public class Utils {
                 if (StringUtils.isNotBlank(platform.getWebServiceName())) {
                     retval.add(testType);
                 }
-            } else if (TestType.MEMORY.toString().equals(testType)) {
-                if (StringUtils.isNotBlank(platform.getJmxConnectionName())) {
-                    retval.add(testType);
-                }
             } else {
                 retval.add(testType);
             }

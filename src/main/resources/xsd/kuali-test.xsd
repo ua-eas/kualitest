@@ -29,11 +29,7 @@
 
     <xs:simpleType name="test-operation-type">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="file inquiry"/>
             <xs:enumeration value="http request"/>
-            <xs:enumeration value="memory inquiry"/>
-            <xs:enumeration value="sql select"/>
-            <xs:enumeration value="web service request"/>
             <xs:enumeration value="checkpoint"/>
         </xs:restriction>
     </xs:simpleType>
@@ -121,7 +117,6 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="Database"/>
             <xs:enumeration value="File"/>
-            <xs:enumeration value="Memory"/>
             <xs:enumeration value="Web"/>
             <xs:enumeration value="Web Service"/>
         </xs:restriction>
