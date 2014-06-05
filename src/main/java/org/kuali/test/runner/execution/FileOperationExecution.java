@@ -173,11 +173,14 @@ public class FileOperationExecution extends AbstractOperationExecution {
             }
             
             catch (Exception ex) {
+                
             }
             
             finally {
                 try {
-                    lnr.close();
+                    if (lnr != null) {
+                        lnr.close();
+                    }
                 }
                 
                 catch (Exception ex) {};

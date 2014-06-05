@@ -113,6 +113,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
+    @Override
     protected void initComponents() {
         super.initComponents();
         

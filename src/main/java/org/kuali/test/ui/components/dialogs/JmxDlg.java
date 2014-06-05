@@ -144,8 +144,8 @@ public class JmxDlg extends BaseSetupDlg {
         boolean retval = false;
         String newname = name.getText();
         
-        for (String name : getJmxConnectionNames()) {
-            if (name.equalsIgnoreCase(newname)) {
+        for (String nm : getJmxConnectionNames()) {
+            if (nm.equalsIgnoreCase(newname)) {
                 retval = false;
                 break;
             }

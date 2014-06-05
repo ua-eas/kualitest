@@ -59,7 +59,6 @@ public class DatabaseDlg extends BaseSetupDlg {
      * Creates new form DatabaseDlg
      * @param mainFrame
      * @param dbconnection
-     * @param platform
      */
     public DatabaseDlg(TestCreator mainFrame, DatabaseConnection dbconnection) {
         super(mainFrame);
@@ -162,8 +161,8 @@ public class DatabaseDlg extends BaseSetupDlg {
         boolean retval = false;
         String newname = name.getText();
         
-        for (String name : getDatabaseConnectionNames()) {
-            if (name.equalsIgnoreCase(newname)) {
+        for (String nm : getDatabaseConnectionNames()) {
+            if (nm.equalsIgnoreCase(newname)) {
                 retval = false;
                 break;
             }

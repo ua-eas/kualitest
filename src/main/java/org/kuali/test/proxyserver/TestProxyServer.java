@@ -49,7 +49,7 @@ public class TestProxyServer {
         try {
             Thread.sleep(1000);
             initializeProxyServer();
-        } catch (Exception ex) {
+        } catch (InterruptedException ex) {
             LOG.error(ex.toString(), ex);
         }
     }
@@ -95,10 +95,12 @@ public class TestProxyServer {
                 };
             }
 
+            @Override
             public int getMaximumRequestBufferSizeInBytes() {
                 return Constants.MAX_REQUEST_BUFFER_SIZE;
             }
 
+            @Override
             public int getMaximumResponseBufferSizeInBytes() {
                 return Constants.MAX_RESPONSE_BUFFER_SIZE;
             }

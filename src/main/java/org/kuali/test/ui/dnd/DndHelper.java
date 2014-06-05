@@ -39,7 +39,7 @@ public class DndHelper {
             retval  = new DataFlavor(type + ";class=java.lang.String");
         }
         
-        catch (Exception ex) {
+        catch (ClassNotFoundException ex) {
             LOG.warn("error creating DataFlavor of type: " + type, ex);
         };
         

@@ -45,9 +45,9 @@ public class EmailDlg extends BaseSetupDlg {
         this(mainFrame, null);
     }
     /**
-     * Creates new form PlatformDlg
+     * Creates new EmailDlg
      * @param mainFrame
-     * @param platform
+     * @param emailSetup
      */
     public EmailDlg(TestCreator mainFrame, EmailSetup emailSetup) {
         super(mainFrame);

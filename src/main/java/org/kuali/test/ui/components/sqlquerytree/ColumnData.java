@@ -88,6 +88,7 @@ public class ColumnData extends DBObjectData {
         return Utils.getJdbcTypeName(getDataType(), getDecimalDigits());
     }
     
+    @Override
     public String toString() {
         StringBuilder retval = new StringBuilder(64);
         

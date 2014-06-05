@@ -19,7 +19,9 @@ package org.kuali.test.ui.components.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
@@ -152,12 +154,8 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         if (testRunnerConfiguration != null) {
             if (testRunnerConfiguration.getScheduledTests() != null) {
                 List <ScheduledTest> data = new ArrayList<ScheduledTest>();
-                for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
-                    data.add(test);
-                }
-                
+                data.addAll(Arrays.asList(testRunnerConfiguration.getScheduledTests().getScheduledTestArray()));
                 Collections.sort(data, new ScheduledTestComparator());
-
                 config.setData(data);
             }
         }
@@ -216,8 +214,8 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             doc.save(Utils.getTestRunnerConfigurationFile(getMainframe().getConfiguration()));
         }
 
-        catch (Exception ex) {
-            UIUtils.showError(getMainframe(), "SChedule Test Error", "An error occurred while attempting save scheduled tests - " + ex.toString());
+        catch (IOException ex) {
+            UIUtils.showError(getMainframe(), "Schedule Test Error", "An IOException occurred while attempting save scheduled tests - " + ex.toString());
         }
     }
     
@@ -231,6 +229,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         return "schedule-tests";
     }
     
+    @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.REMOVE_TEST_ACTION.equals(actionCommand)) {
             int row = scheduledTestsTable.getSelectedRow();

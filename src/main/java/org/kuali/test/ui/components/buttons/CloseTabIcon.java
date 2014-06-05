@@ -40,6 +40,7 @@ public class CloseTabIcon implements Icon {
     /**
      * * when painting, remember last position painted.
      */
+    @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
         if (null == tabbedPane) {
             tabbedPane = (JTabbedPane) c;

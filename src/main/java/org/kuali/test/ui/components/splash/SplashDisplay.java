@@ -88,7 +88,7 @@ public class SplashDisplay {
                     dlg.setVisible(true);
                 }
                 
-                catch(Exception ex) {
+                catch(SecurityException ex) {
                     getDlg().dispose();
                     LOG.error(ex.toString(), ex);
                 }

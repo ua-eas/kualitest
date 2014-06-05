@@ -32,6 +32,7 @@ public abstract class BaseTreePopupMenu extends JPopupMenu implements ActionList
         initMenu();
     }
     
+    @Override
     public void actionPerformed(ActionEvent e) {
         handleAction(actionNode, e);
         actionNode = null;

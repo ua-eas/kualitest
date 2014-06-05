@@ -56,6 +56,7 @@ public class ApplicationInstanceManager {
             final ServerSocket socket = new ServerSocket(networkSocket, 10, InetAddress.getLocalHost());
             LOG.debug("Listening for application instances on socket " + networkSocket);
             Thread instanceListenerThread = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     boolean socketClosed = false;
                     while (!socketClosed) {

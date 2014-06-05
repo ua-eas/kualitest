@@ -50,6 +50,7 @@ public class BasePanel extends JPanel {
         return mainframe;
     }
     
+    @Override
     public Insets getInsets() {
         return new Insets(3, 3, 3, 3);
     }

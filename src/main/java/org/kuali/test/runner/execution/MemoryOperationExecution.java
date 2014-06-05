@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.util.HashMap;
@@ -69,8 +70,8 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
             }
         }
         
-        catch (Exception ex) {
-            throw new TestException("an exception was throw while attempting to connect via jmx - " + ex.toString(), getOperation(), ex);
+        catch (IOException ex) {
+            throw new TestException("an IOException was throw while attempting to connect via jmx - " + ex.toString(), getOperation(), ex);
         }
     }
 }

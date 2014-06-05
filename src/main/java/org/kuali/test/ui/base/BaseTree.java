@@ -94,6 +94,7 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         return mainframe;
     }
 
+    @Override
     public DefaultTreeModel getModel() {
         return (DefaultTreeModel) super.getModel();
     }

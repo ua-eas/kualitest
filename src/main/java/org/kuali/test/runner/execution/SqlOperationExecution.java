@@ -17,6 +17,7 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -93,7 +94,10 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     } 
                 }
             }
-
+            catch (FileNotFoundException ex) {
+                throw new TestException("error occurred while attempting query results file - "  + ex.toString(), getOperation(), ex);
+            }
+            
             finally {
                 if (pw != null) {
                     pw.close();
@@ -108,7 +112,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                 + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
         }
         
-        catch (Exception ex) {
+        catch (ClassNotFoundException ex) {
             throw new TestException("exception occured while connecting to database '" 
                 + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
         }

@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import java.util.StringTokenizer;
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -718,7 +720,7 @@ public class Utils {
                         
                         catch (Exception ex) {
                             LOG.error(ex.toString(), ex);
-                        }
+                        } 
                         
                         break;
                     }
@@ -1460,14 +1462,15 @@ public class Utils {
         return retval;
     }
 
+    @SuppressWarnings("empty-statement")
     public static void closeDatabaseResources(Connection conn, Statement stmt, ResultSet res) {
-        try { if (res != null) { res.close(); } ; } catch (Exception ex) {};
-        try { if (stmt != null) { stmt.close(); } ; } catch (Exception ex) {};
-        try { if (conn != null) { conn.close(); } ; } catch (Exception ex) {};
+        try { if (res != null) { res.close(); } } catch (SQLException ex) {};
+        try { if (stmt != null) { stmt.close(); } } catch (SQLException ex) {};
+        try { if (conn != null) { conn.close(); } } catch (SQLException ex) {};
     } 
 
     public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        DatabaseConnection dbconn) throws Exception {
+        DatabaseConnection dbconn) throws ClassNotFoundException, SQLException  {
         Class.forName(dbconn.getJdbcDriver());
         return DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
     }
@@ -1762,7 +1765,7 @@ public class Utils {
                     Transport.send(msg);
                 } 
 
-                catch (Exception ex) {
+                catch (MessagingException ex) {
                     LOG.warn(ex.toString(), ex);
                 } 
             }

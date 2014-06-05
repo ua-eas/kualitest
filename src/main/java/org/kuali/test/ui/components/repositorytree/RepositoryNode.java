@@ -126,6 +126,7 @@ public class RepositoryNode extends DefaultMutableTreeNode {
         return(getUserObject() == null);
     }
     
+    @Override
     public String toString() {
         String retval = "unknown";
 

@@ -140,8 +140,8 @@ public class WebServiceDlg extends BaseSetupDlg {
         boolean retval = false;
         String newname = name.getText();
         
-        for (String name : getWebServiceNames()) {
-            if (name.equalsIgnoreCase(newname)) {
+        for (String nm : getWebServiceNames()) {
+            if (nm.equalsIgnoreCase(newname)) {
                 retval = false;
                 break;
             }
