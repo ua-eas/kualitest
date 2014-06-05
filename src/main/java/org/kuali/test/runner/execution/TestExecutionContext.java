@@ -40,6 +40,7 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
+import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestSuite;
 import org.kuali.test.runner.exceptions.TestException;
@@ -153,6 +154,14 @@ public class TestExecutionContext extends Thread {
             testReport.write(fos);
             
             testResultFiles.add(f);
+            
+            TestHeader testHeader = null;
+            
+            if (kualiTest != null) {
+                testHeader = kualiTest.getTestHeader();
+            }
+            
+            Utils.sendMail(configuration, testSuite, testHeader, testResultFiles);
         }
         
         catch (IOException ex) {

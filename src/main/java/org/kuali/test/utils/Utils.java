@@ -33,14 +33,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
+import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -1639,5 +1651,121 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    public static String[] getEmailToAddresses(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        TestSuite testSuite, TestHeader testHeader) {
+        Set <String> retval = new HashSet<String>();
+        Platform platform = null;
+        
+        if (testSuite != null) {
+            if (StringUtils.isNotBlank(testSuite.getEmailAddresses())) {
+                StringTokenizer st = new StringTokenizer(testSuite.getEmailAddresses(), ",");
+                while (st.hasMoreTokens()) {
+                    retval.add(st.nextToken().trim());
+                }
+                
+                platform = findPlatform(configuration, testSuite.getPlatformName());
+            }             
+            
+        } else if (testHeader != null) {
+            platform = findPlatform(configuration, testHeader.getPlatformName());
+        }
+        
+        if ((platform != null) && StringUtils.isNotBlank(platform.getEmailAddresses())) {
+            StringTokenizer st = new StringTokenizer(platform.getEmailAddresses(), ",");
+            while (st.hasMoreTokens()) {
+                retval.add(st.nextToken().trim());
+            }
+        }
+        
+        if (StringUtils.isNotBlank(configuration.getEmailSetup().getToAddresses())) {
+            StringTokenizer st = new StringTokenizer(configuration.getEmailSetup().getToAddresses(), ",");
+            while (st.hasMoreTokens()) {
+                retval.add(st.nextToken().trim());
+            }
+        }
+
+        return retval.toArray(new String[retval.size()]);
+    }
+    
+    public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        TestSuite testSuite, TestHeader testHeader, List <File> testResults) {
+    
+        if (StringUtils.isNotBlank(configuration.getEmailSetup().getFromAddress())
+            && StringUtils.isNotBlank(configuration.getEmailSetup().getMailHost())) {
+      
+            String[] toAddresses = getEmailToAddresses(configuration, testSuite, testHeader);
+            
+            if (toAddresses.length > 0) {
+                Properties props = new Properties();
+                 props.put("mail.smtp.host", configuration.getEmailSetup().getMailHost());
+                Session session = Session.getDefaultInstance(props, null);
+
+                try {
+                    Message msg = new MimeMessage(session);
+                    msg.setFrom(new InternetAddress(configuration.getEmailSetup().getFromAddress()));
+
+                    for (String recipient : toAddresses) {
+                        msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+                    }
+
+                    StringBuilder subject = new StringBuilder(configuration.getEmailSetup().getSubject());
+                    subject.append(" - Platform: ");
+                    if (testSuite != null) {
+                        subject.append(testSuite.getPlatformName());
+                        subject.append(", TestSuite: ");
+                        subject.append(testSuite.getName());
+                    } else {
+                        subject.append(testHeader.getPlatformName());
+                        subject.append(", Test: ");
+                        subject.append(testHeader.getTestName());
+                    }
+                    
+                    msg.setSubject(subject.toString());
+
+
+                    StringBuilder msgtxt = new StringBuilder(256);
+                    msgtxt.append("Please see test output in the following attached files:\n");
+                    
+                    for (File f : testResults) {
+                        msgtxt.append(f.getName());
+                        msgtxt.append("\n");
+                    }
+                    
+                      // create and fill the first message part
+                    MimeBodyPart mbp1 = new MimeBodyPart();
+                    mbp1.setText(msgtxt.toString());
+
+                    // create the Multipart and add its parts to it
+                    Multipart mp = new MimeMultipart();
+                    mp.addBodyPart(mbp1);
+
+                    for (File f : testResults) {
+                        if (f.exists() && f.isFile()) {
+                            // create the second message part
+                            MimeBodyPart mbp2 = new MimeBodyPart();
+
+                            // attach the file to the message
+                            mbp2.setDataHandler(new DataHandler(new FileDataSource(f)));
+                            mbp2.setFileName(f.getName());
+                            mp.addBodyPart(mbp2);
+                        }
+                    }
+                    
+                    // add the Multipart to the message
+                    msg.setContent(mp);
+
+                    // set the Date: header
+                    msg.setSentDate(new Date());                    
+                    
+                    Transport.send(msg);
+                } 
+
+                catch (Exception ex) {
+                    LOG.warn(ex.toString(), ex);
+                } 
+            }
+        }
     }
 }
