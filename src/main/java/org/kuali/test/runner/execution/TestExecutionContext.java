@@ -396,7 +396,7 @@ public class TestExecutionContext extends Thread {
     }
 
     protected void writeColumnHeaders(Workbook wb) {
-        Row row = wb.getSheet("kualitest").createRow(currentReportRow++);
+        Row row = wb.getSheet("kualitest").createRow(++currentReportRow);
         
         for (int i = 0; i < HEADER_NAMES.length; ++i) {
             Cell cell = row.createCell(i);
@@ -406,7 +406,7 @@ public class TestExecutionContext extends Thread {
     }
     
     protected Row writeBaseEntryInformation(Workbook wb, TestOperation op, Date startTime) {
-        Row retval = wb.getSheet("kualitest").createRow(currentReportRow++);
+        Row retval = wb.getSheet("kualitest").createRow(++currentReportRow);
                 // checkpoint name
         Cell cell = retval.createCell(0);
         cell.setCellValue(op.getOperation().getCheckpointOperation().getName());

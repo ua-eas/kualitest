@@ -1615,9 +1615,10 @@ public class Utils {
             
             if (StringUtils.isNotBlank(s)) {
                 retval.append(s);
-            } else {
-                retval.append("\"");
-            }
+            } 
+            
+            
+            retval.append("\"");
             
             comma = ",";
         }
