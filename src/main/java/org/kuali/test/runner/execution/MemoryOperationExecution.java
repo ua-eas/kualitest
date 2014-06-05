@@ -61,9 +61,11 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
                 CheckpointProperty cp = getProperty(Constants.MAX_MEMORY_PERCENT);
                 
                 if (cp != null) {
-                    int usedMemoryPercent = (int)((double)mbean.getHeapMemoryUsage().getUsed() / (double)mbean.getHeapMemoryUsage().getCommitted()) * 100;
-                    cp.setActualValue("" + usedMemoryPercent);
-                }
+                    double used = (double) mbean.getHeapMemoryUsage().getUsed();
+                    double committed = (double) mbean.getHeapMemoryUsage().getCommitted();
+                    Double usedMemoryPercent = new Double((used/committed) * 100.0);
+                    cp.setActualValue("" + usedMemoryPercent.intValue());
+                } 
             }
         }
         
