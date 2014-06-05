@@ -162,6 +162,7 @@ public class Constants {
     public static final String FILE_NAME_PATTERN = "file-name-pattern";
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
+    public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

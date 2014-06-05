@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.TestHeader;
@@ -114,13 +115,14 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
             }
 
             checkpoint.setName(name.getText());
+            checkpoint.setType(CheckpointType.MEMORY);
             CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
             cp.setValueType(ValueType.INT);
             cp.setPropertyGroup(Constants.SYSTEM_PROPERTY_GROUP);
             cp.setOnFailure(FailureAction.Enum.forString(maxMemoryFailure.getSelectedItem().toString()));
             cp.setOperator(ComparisonOperator.LESS_THAN_OR_EQUAL);
             cp.setDisplayName("Max Memory Usage (percent)");
-            cp.setPropertyName("max-memory-percent");
+            cp.setPropertyName(Constants.MAX_MEMORY_PERCENT);
             cp.setPropertyValue(maxMemoryPercent.getText());
             getConfiguration().setModified(true);
             setSaved(true);

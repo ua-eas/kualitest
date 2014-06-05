@@ -53,6 +53,7 @@ import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOp;
+import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
@@ -1626,5 +1627,20 @@ public class Utils {
         }
         
         return retval.toString();
+    }
+    
+    public static JmxConnection findJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String jmxName) {
+        JmxConnection retval = null;
+        
+        if (configuration.getJmxConnections() != null) {
+            for (JmxConnection jmx : configuration.getJmxConnections().getJmxConnectionArray()) {
+                if (jmx.getName().equals(jmxName)) {
+                    retval = jmx;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
     }
 }

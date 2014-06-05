@@ -42,15 +42,17 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     public AbstractOperationExecution (Operation op) {
         this.op = op;
        
-        if (op.getCheckpointOperation().getInputParameters() != null) {
-            for (Parameter param : op.getCheckpointOperation().getInputParameters().getParameterArray()) {
-                parameterMap.put(param.getName(), param.getValue());
+        if (op.getCheckpointOperation() != null) {
+            if (op.getCheckpointOperation().getInputParameters() != null) {
+                for (Parameter param : op.getCheckpointOperation().getInputParameters().getParameterArray()) {
+                    parameterMap.put(param.getName(), param.getValue());
+                }
             }
-        }
-        
-        if (op.getCheckpointOperation().getCheckpointProperties() != null) {
-            for (CheckpointProperty property : op.getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                propertyMap.put(property.getPropertyName(), property);
+
+            if (op.getCheckpointOperation().getCheckpointProperties() != null) {
+                for (CheckpointProperty property : op.getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                    propertyMap.put(property.getPropertyName(), property);
+                }
             }
         }
     }

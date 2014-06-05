@@ -288,7 +288,9 @@ public class TestExecutionContext extends Thread {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
             if (opExec != null) {
                 opExec.execute(configuration, platform);
-                writeSuccessEntry(wb, op, opStartTime);
+                if (op.getOperation().getCheckpointOperation() != null) {
+                    writeSuccessEntry(wb, op, opStartTime);
+                }
             }
         } 
         
