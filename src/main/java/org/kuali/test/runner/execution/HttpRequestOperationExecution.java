@@ -31,11 +31,9 @@ import org.kuali.test.utils.Constants;
 
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
-    private TestExecutionContext context;
     
     public HttpRequestOperationExecution(TestExecutionContext context, Operation op) {
-        super(op);
-        this.context = context;
+        super(context, op);
     }
 
     @Override
@@ -55,6 +53,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 writer.flush();
             }
 
+            TestExecutionContext context = getTestExecutionContext();
             // clear last response stotage
             context.getLastHttpResponseData(true);
 

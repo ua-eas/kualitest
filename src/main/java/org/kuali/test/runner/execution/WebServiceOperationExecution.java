@@ -23,8 +23,8 @@ import org.kuali.test.runner.exceptions.TestException;
 
 
 public class WebServiceOperationExecution extends AbstractOperationExecution {
-    public WebServiceOperationExecution(Operation op) {
-        super(op);
+    public WebServiceOperationExecution(TestExecutionContext context, Operation op) {
+        super(context, op);
     }
     
     @Override

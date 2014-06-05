@@ -38,10 +38,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     private Operation op;
     private Map<String, String> parameterMap = new HashMap<String, String>();
     private Map<String, CheckpointProperty> propertyMap = new HashMap<String, CheckpointProperty>();
- 
-    public AbstractOperationExecution (Operation op) {
+    private TestExecutionContext context;
+    
+    public AbstractOperationExecution (TestExecutionContext context, Operation op) {
         this.op = op;
-       
+        this.context = context;
+        
         if (op.getCheckpointOperation() != null) {
             if (op.getCheckpointOperation().getInputParameters() != null) {
                 for (Parameter param : op.getCheckpointOperation().getInputParameters().getParameterArray()) {
@@ -218,5 +220,9 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         }
         
         return retval;
+    }
+
+    public TestExecutionContext getTestExecutionContext() {
+        return context;
     }
 }

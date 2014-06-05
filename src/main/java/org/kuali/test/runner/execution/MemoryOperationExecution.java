@@ -36,8 +36,8 @@ import org.kuali.test.utils.Utils;
 
 
 public class MemoryOperationExecution extends AbstractOperationExecution {
-    public MemoryOperationExecution(Operation op) {
-        super(op);
+    public MemoryOperationExecution(TestExecutionContext context, Operation op) {
+        super(context, op);
     }
     
     @Override

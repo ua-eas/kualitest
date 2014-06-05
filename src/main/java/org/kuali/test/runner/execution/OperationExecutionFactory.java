@@ -46,19 +46,19 @@ public class OperationExecutionFactory {
 
             switch(op.getOperation().getCheckpointOperation().getType().intValue()) {
                 case CheckpointType.INT_FILE:
-                    retval = new FileOperationExecution(op.getOperation());
+                    retval = new FileOperationExecution(testContext, op.getOperation());
                     break;
                 case CheckpointType.INT_HTTP:
                     retval = new HttpCheckpointOperationExecution(testContext, op.getOperation());
                     break;
                 case CheckpointType.INT_MEMORY:
-                    retval = new MemoryOperationExecution(op.getOperation());
+                    retval = new MemoryOperationExecution(testContext, op.getOperation());
                     break;
                 case CheckpointType.INT_SQL:
-                    retval = new SqlOperationExecution(op.getOperation());
+                    retval = new SqlOperationExecution(testContext, op.getOperation());
                     break;
                 case CheckpointType.INT_WEB_SERVICE:
-                    retval = new WebServiceOperationExecution(op.getOperation());
+                    retval = new WebServiceOperationExecution(testContext, op.getOperation());
                     break;
             }
         } else {

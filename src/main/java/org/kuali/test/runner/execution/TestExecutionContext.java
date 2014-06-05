@@ -19,7 +19,9 @@ package org.kuali.test.runner.execution;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.util.CellRangeAddress;
@@ -48,6 +50,7 @@ import org.kuali.test.utils.Utils;
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
+    private List <File> testResultFiles = new ArrayList<File>();
     
     private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
     
@@ -148,6 +151,8 @@ public class TestExecutionContext extends Thread {
             
             fos = new FileOutputStream(f);
             testReport.write(fos);
+            
+            testResultFiles.add(f);
         }
         
         catch (IOException ex) {
@@ -280,6 +285,7 @@ public class TestExecutionContext extends Thread {
         
         for (TestOperation op : test.getOperations().getOperationArray()) {
             executeTestOperation(op, wb);
+            
         }
     }
 
@@ -535,4 +541,9 @@ public class TestExecutionContext extends Thread {
         
         return lastHttpResponseData;
     }
+
+    public List<File> getTestResultFiles() {
+        return testResultFiles;
+    }
+
 }

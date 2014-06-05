@@ -37,8 +37,8 @@ import org.kuali.test.utils.Utils;
 
 
 public class SqlOperationExecution extends AbstractOperationExecution {
-    public SqlOperationExecution(Operation op) {
-        super(op);
+    public SqlOperationExecution(TestExecutionContext context, Operation op) {
+        super(context, op);
     }
     
     @Override
@@ -65,7 +65,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     ResultSetMetaData md = res.getMetaData();
                     if (saveQueryResults) {
                         File f = new File(getQueryResultsFileName(configuration, platform));
-                        
+                        getTestExecutionContext().getTestResultFiles().add(f);
                         if (!f.getParentFile().exists()) {
                             f.getParentFile().mkdirs();
                         }

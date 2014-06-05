@@ -37,8 +37,8 @@ import org.kuali.test.utils.Utils;
 
 
 public class FileOperationExecution extends AbstractOperationExecution {
-    public FileOperationExecution(Operation op) {
-        super(op);
+    public FileOperationExecution(TestExecutionContext context, Operation op) {
+        super(context, op);
     }
     
     @Override

@@ -24,15 +24,13 @@ import org.kuali.test.runner.exceptions.TestException;
 
 
 public class HttpCheckpointOperationExecution extends AbstractOperationExecution {
-    private TestExecutionContext context;
     public HttpCheckpointOperationExecution(TestExecutionContext context, Operation op) {
-        super(op);
-        this.context = context;
+        super(context, op);
     }
     
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        String html = context.getLastHttpResponseData().toString();
+        String html = getTestExecutionContext().getLastHttpResponseData().toString();
         
         if (StringUtils.isNotBlank(html)) {
             
