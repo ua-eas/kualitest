@@ -47,6 +47,9 @@ import org.kuali.test.utils.Utils;
 
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
+    private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
+    
+    private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
     
     private static final String[] HEADER_NAMES = {
         "Checkpoint Name",
@@ -285,7 +288,7 @@ public class TestExecutionContext extends Thread {
         
         Date opStartTime = new Date();
         try {
-            opExec = OperationExecutionFactory.getInstance().getOperationExecution(op);
+            opExec = OperationExecutionFactory.getInstance().getOperationExecution(this, op);
             if (opExec != null) {
                 opExec.execute(configuration, platform);
                 if (op.getOperation().getCheckpointOperation() != null) {
@@ -515,5 +518,21 @@ public class TestExecutionContext extends Thread {
         }
         
         return retval;
+    }
+
+    public StringBuilder getLastHttpResponseData() {
+        return getLastHttpResponseData(false);
+    }
+    
+    public StringBuilder getLastHttpResponseData(boolean clear) {
+        if (lastHttpResponseData == null) {
+            lastHttpResponseData= new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+        }
+        
+        if (clear) {
+            lastHttpResponseData.setLength(0);
+        }
+        
+        return lastHttpResponseData;
     }
 }

@@ -35,7 +35,7 @@ public class OperationExecutionFactory {
         return instance;
     }
     
-    public OperationExecution getOperationExecution(TestOperation op) {
+    public OperationExecution getOperationExecution(TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
         
         // if this is not a checkpoint operation then it is am http request
@@ -49,7 +49,7 @@ public class OperationExecutionFactory {
                     retval = new FileOperationExecution(op.getOperation());
                     break;
                 case CheckpointType.INT_HTTP:
-                    retval = new HttpCheckpointOperationExecution(op.getOperation());
+                    retval = new HttpCheckpointOperationExecution(testContext, op.getOperation());
                     break;
                 case CheckpointType.INT_MEMORY:
                     retval = new MemoryOperationExecution(op.getOperation());
@@ -65,7 +65,7 @@ public class OperationExecutionFactory {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUri());
             }
-            retval = new HttpRequestOperationExecution(op.getOperation());
+            retval = new HttpRequestOperationExecution(testContext, op.getOperation());
         }
         
         return retval;

@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -23,11 +24,18 @@ import org.kuali.test.runner.exceptions.TestException;
 
 
 public class HttpCheckpointOperationExecution extends AbstractOperationExecution {
-    public HttpCheckpointOperationExecution(Operation op) {
+    private TestExecutionContext context;
+    public HttpCheckpointOperationExecution(TestExecutionContext context, Operation op) {
         super(op);
+        this.context = context;
     }
     
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+        String html = context.getLastHttpResponseData().toString();
+        
+        if (StringUtils.isNotBlank(html)) {
+            
+        }
     }
 }
