@@ -26,6 +26,12 @@ public class ToolbarButton extends JButton {
         this(actionCommand, actionCommand, icon, true);
     }
 
+    public ToolbarButton(ImageIcon icon, String tooltip) {
+        super(icon);
+        setToolTipText(tooltip);
+        setMargin(new Insets(1, 1, 1, 1));
+    }
+
     public ToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
         super(icon);
         setActionCommand(actionCommand);

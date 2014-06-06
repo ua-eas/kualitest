@@ -42,6 +42,7 @@ public class Constants {
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(TestCreator.class.getResource("/images/save.png"));
     public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/createtest.png"));
     public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/cancel-test.png"));
+    public static final ImageIcon EXIT_APPLICATION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/exit-toolbar.png"));
 
     public static final ImageIcon START_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/start-test.png"));
     public static final ImageIcon CREATE_CHECKPOINT_ICON = new ImageIcon(TestCreator.class.getResource("/images/create-checkpoint.png"));
@@ -69,6 +70,7 @@ public class Constants {
     public static final ImageIcon JMX_CONNECTION_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection.png"));
     public static final ImageIcon JMX_CONNECTION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-toolbar.png"));
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
+    public static final ImageIcon SCHEDULE_TEST_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/schedule-test-toolbar.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;

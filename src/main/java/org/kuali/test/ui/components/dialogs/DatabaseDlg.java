@@ -67,7 +67,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             setTitle("Edit database connection " + dbconnection.getName());
             setEditmode(true);
         } else {
-            setTitle("Add new platform");
+            setTitle("Add new database connection");
             this.dbconnection = DatabaseConnection.Factory.newInstance();
             this.dbconnection.setName("new database connection");
             this.dbconnection.setType(DatabaseType.ORACLE);

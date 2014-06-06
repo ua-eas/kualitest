@@ -56,6 +56,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.WebService;
+import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
@@ -270,7 +271,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitMenuItemActionPerformed(evt);
+                handleExit();
             }
         });
         fileMenu.add(exitMenuItem);
@@ -404,11 +405,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return createTestPanel;
     }
 
-    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
+
+    public void handleExit() {
         savePreferences();
         System.exit(0);
     }
-
+    
     public void handleAddDatabaseConnection(ActionEvent evt) {
         DatabaseDlg dlg = new DatabaseDlg(this);
 
@@ -704,19 +706,16 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setMargin(new Insets(1, 5, 2, 0));
-        JButton b;
-        toolbar.add(b = new JButton(Constants.PLATFORM_TOOLBAR_ICON));
-        b.setToolTipText("add new platform");
+        ToolbarButton b;
+        toolbar.add(b = new ToolbarButton(Constants.PLATFORM_TOOLBAR_ICON, "add new platform"));
         b.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleAddPlatform(e);
             }
             
         });
-        toolbar.add(b = new JButton(Constants.DATABASE_TOOLBAR_ICON));
-        b.setToolTipText("add new database");
+        toolbar.add(b = new ToolbarButton(Constants.DATABASE_TOOLBAR_ICON, "add new database"));
         b.addActionListener(new ActionListener() {
 
             @Override
@@ -725,8 +724,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
             
         });
-        toolbar.add(b = new JButton(Constants.JMX_CONNECTION_TOOLBAR_ICON));
-        b.setToolTipText("add new JMX connection");
+        toolbar.add(b = new ToolbarButton(Constants.JMX_CONNECTION_TOOLBAR_ICON, "add new JMX connection"));
         b.addActionListener(new ActionListener() {
 
             @Override
@@ -735,8 +733,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
             
         });
-        toolbar.add(b = new JButton(Constants.WEB_SERVICE_TOOLBAR_ICON));
-        b.setToolTipText("add new web service");
+
+        toolbar.add(b = new ToolbarButton(Constants.WEB_SERVICE_TOOLBAR_ICON, "add new web service"));
         b.addActionListener(new ActionListener() {
 
             @Override
@@ -746,8 +744,30 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
         });
         
+        toolbar.add(b = new ToolbarButton(Constants.SCHEDULE_TEST_TOOLBAR_ICON, "schedule test"));
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleScheduleTests(e);
+            }
+            
+        });
+            
+        toolbar.add(b = new ToolbarButton(Constants.EXIT_APPLICATION_TOOLBAR_ICON, "exit application"));
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleExit();
+            }
+            
+        });
+        
         retval.add(new JSeparator(), BorderLayout.NORTH);
-        retval.add(toolbar, BorderLayout.CENTER);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        p.add(toolbar);
+        retval.add(p, BorderLayout.CENTER);
         
         return retval;
     }
