@@ -10,7 +10,7 @@
          <name>mydatabase</name>
          <jdbc-url>myurl</jdbc-url>
          <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
-         <schema>KULOWNER</schema>
+         <schema>myschema</schema>
          <username>user</username>
          <password>pass</password>
          <configured-tables-only>true</configured-tables-only>

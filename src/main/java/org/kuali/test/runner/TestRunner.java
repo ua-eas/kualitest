@@ -78,6 +78,7 @@ public class TestRunner {
     }
     
     public TestRunner(String configFileName) {
+        System.out.println("starting kuali test runner with file " + configFileName);
         if (loadConfiguration(configFileName)) {
             TimerTask testInquireyTimerTask = new TimerTask() {
                 @Override
@@ -129,9 +130,9 @@ public class TestRunner {
             for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
                 if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
                     if (test.getType().equals(ScheduledTestType.TEST_SUITE)) {
-                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
+                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns());
                     } else if (test.getType().equals(ScheduledTestType.PLATFORM_TEST)) {
-                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime());
+                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns());
                     }
                     activeTests.add(test);
                 }
@@ -161,36 +162,46 @@ public class TestRunner {
     }
     
     private void checkForRunnableTests() {
-        Iterator <TestExecutionContext> it = scheduledTests.iterator();
+        System.out.println("checking for runnable test");
         
-        while (it.hasNext()) {
-            TestExecutionContext ec = it.next();
-            
-            if ((ec.getScheduledTime() != null) && (ec.getScheduledTime().getTime() < System.currentTimeMillis())) {
-                KualiTest kualiTest = ec.getKualiTest();
-                TestSuite testSuite = ec.getTestSuite();
-                String nm = "unknown";
-                String platformName = "unknown";
-                
-                if (kualiTest != null) {
-                    nm = ("'" + kualiTest.getTestHeader().getTestName());
-                    platformName= kualiTest.getTestHeader().getPlatformName();
-                } else if (testSuite != null) {
-                    nm = (" suite '" + testSuite.getName());
-                    platformName = testSuite.getPlatformName();
+        synchronized(scheduledTests) {
+            Iterator <TestExecutionContext> it = scheduledTests.iterator();
+
+            while (it.hasNext()) {
+                TestExecutionContext ec = it.next();
+
+                if ((ec.getScheduledTime() != null) && (ec.getScheduledTime().getTime() < System.currentTimeMillis())) {
+                    List <TestExecutionContext> testExecutions = ec.getTestInstances();
+
+                    for (TestExecutionContext testExecution : testExecutions) {
+                        KualiTest kualiTest = testExecution.getKualiTest();
+                        TestSuite testSuite = testExecution.getTestSuite();
+                        String nm = "unknown";
+                        String platformName = "unknown";
+
+                        if (kualiTest != null) {
+                            nm = ("'" + kualiTest.getTestHeader().getTestName());
+                            platformName= kualiTest.getTestHeader().getPlatformName();
+                        } else if (testSuite != null) {
+                            nm = (" suite '" + testSuite.getName());
+                            platformName = testSuite.getPlatformName();
+                        }
+
+                        System.out.println("starting test '" + nm + "[" + testExecution.getTestRun() + "]' for platform " + platformName);
+
+                        testExecution.startTest();
+                        executingTests.add(testExecution);
+                    }
+
+
+                    it.remove();
+
                 }
-                
-                System.out.println("starting test " + nm + "' for platform " + platformName);
-                
-                it.remove();
-                ec.startTest();
-                executingTests.add(ec);
             }
         }
-
-        // removed completed tests
-        it = executingTests.iterator();
         
+        Iterator <TestExecutionContext> it  = executingTests.iterator();
+
         while (it.hasNext()) {
             TestExecutionContext ec = it.next();
             if (ec.isCompleted()) {
@@ -199,7 +210,7 @@ public class TestRunner {
         }
     }
     
-    public void scheduleTest(String platformName, String testName, Date scheduledTime) {
+    public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -208,14 +219,14 @@ public class TestRunner {
             KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
             
             if (test != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime));
+                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime, testRuns));
             } else {
                 System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
             }
         }
     }
 
-    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime) {
+    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -224,7 +235,7 @@ public class TestRunner {
             TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
             
             if (testSuite != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime));
+                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime, testRuns));
             } else {
                 System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
             }
@@ -235,6 +246,7 @@ public class TestRunner {
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
+            System.out.println("running test " + platformName + ": " + testName);
             new TestExecutionContext(configuration, test).runTest();
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
@@ -245,6 +257,7 @@ public class TestRunner {
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
         if (testSuite != null) {
+            System.out.println("running test suite " + platformName + ": " + testSuiteName);
             new TestExecutionContext(configuration, testSuite).runTest();
         } else {
             System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
