@@ -52,6 +52,7 @@ import org.kuali.test.Column;
 import org.kuali.test.CustomForeignKey;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
+import org.kuali.test.ForeignKeyColumnPair;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
@@ -339,6 +340,13 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 if (customForeignKeys != null) {
                     for (CustomForeignKey cfk : customForeignKeys) {
                         TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
+                        
+                        if (cfk.getForeignKeyColumnPairArray() != null) {
+                            for (ForeignKeyColumnPair fk : cfk.getForeignKeyColumnPairArray()) {
+                                tdata.getLinkColumns().add(new String[] {fk.getForeignColumn(), fk.getPrimaryColumn()});
+                            }
+                        }
+                        
                         SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
                         parentNode.add(curnode);
                         loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
@@ -728,7 +736,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                         retval.append(td.getName());
                         retval.append(" ");
                         retval.append(tdAlias);
-                        retval.append(this.getSqlKeywordString(format, " on ", false));
+                        retval.append(getSqlKeywordString(format, " on ", false));
 
                         retval.append("(");
 
