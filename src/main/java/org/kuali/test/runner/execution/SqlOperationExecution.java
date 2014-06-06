@@ -132,6 +132,8 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
         retval.append("-");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        retval.append("_");
+        retval.append(this.getTestExecutionContext().getTestRun());
         retval.append(".csv");
         
         return retval.toString();

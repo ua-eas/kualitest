@@ -168,7 +168,7 @@ public class PoiHelper {
     }
 
     public void writeReportHeader(TestSuite testSuite, KualiTest kualiTest) {
-        Sheet sheet = wb.getSheet("kualitest");
+        Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(currentReportRow);
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow + 2, 0, HEADER_NAMES.length - 1));
         currentReportRow += 2;
@@ -201,7 +201,7 @@ public class PoiHelper {
     }
 
     public void writeColumnHeaders() {
-        Row row = wb.getSheet("kualitest").createRow(++currentReportRow);
+        Row row = wb.getSheetAt(0).createRow(++currentReportRow);
 
         for (int i = 0; i < HEADER_NAMES.length; ++i) {
             Cell cell = row.createCell(i);
@@ -211,7 +211,7 @@ public class PoiHelper {
     }
 
     private Row writeBaseEntryInformation(TestOperation op, Date startTime) {
-        Row retval = wb.getSheet("kualitest").createRow(++currentReportRow);
+        Row retval = wb.getSheetAt(0).createRow(++currentReportRow);
         // checkpoint name
         Cell cell = retval.createCell(0);
         cell.setCellValue(op.getOperation().getCheckpointOperation().getName());
@@ -326,7 +326,7 @@ public class PoiHelper {
     }
 
     public void writeTestHeader(KualiTest test) {
-        Sheet sheet = wb.getSheet("kualitest");
+        Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(++currentReportRow);
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length - 1));
 
@@ -372,7 +372,7 @@ public class PoiHelper {
 
             try {
                 fs = new FileInputStream(f);
-                XSSFSheet newSheet = wbmerged.createSheet("test run " + indx++);
+                XSSFSheet newSheet = wbmerged.createSheet("run(" + indx++ + ")");
                 copySheets(newSheet, new XSSFWorkbook(fs).getSheetAt(0));
                 
             } 
@@ -414,6 +414,12 @@ public class PoiHelper {
     private void copySheets(XSSFSheet newSheet, XSSFSheet sheet){  
         int maxColumnNum = 0;  
         Map<Integer, XSSFCellStyle> styleMap = new HashMap<Integer, XSSFCellStyle>();
+
+        int mergedReqionsCount = sheet.getNumMergedRegions();
+        
+        for (int i = 0; i < mergedReqionsCount; ++i) {
+            newSheet.addMergedRegion(sheet.getMergedRegion(i));
+        }
         
         for (int i = sheet.getFirstRowNum(); i <= sheet.getLastRowNum(); i++) {  
             XSSFRow srcRow = sheet.getRow(i);  
@@ -441,17 +447,8 @@ public class PoiHelper {
                     newCell = destRow.createCell(j);  
                 }  
                 copyCell(oldCell, newCell, styleMap);  
-                CellRangeAddress mergedRegion = getMergedRegion(srcSheet, srcRow.getRowNum(), (short)oldCell.getColumnIndex());  
-                if (mergedRegion != null) {  
-                    CellRangeAddress newMergedRegion = new CellRangeAddress(mergedRegion.getFirstRow(), mergedRegion.getFirstColumn(), mergedRegion.getLastRow(), mergedRegion.getLastColumn());  
-                    if (isNewMergedRegion(newMergedRegion, mergedRegions)) {  
-                        mergedRegions.put(newMergedRegion.formatAsString(), newMergedRegion);  
-                        destSheet.addMergedRegion(newMergedRegion);  
-                    }  
-                }  
             }  
         }  
-          
     }  
       
     private void copyCell(XSSFCell oldCell, XSSFCell newCell, Map<Integer, XSSFCellStyle> styleMap) {  
@@ -491,20 +488,5 @@ public class PoiHelper {
             default:  
                 break;  
         }  
-          
-    }  
-      
-    private CellRangeAddress getMergedRegion(XSSFSheet sheet, int rowNum, short cellNum) {  
-        for (int i = 0; i < sheet.getNumMergedRegions(); i++) {  
-            CellRangeAddress merged = sheet.getMergedRegion(i);  
-            if (merged.isInRange(rowNum, cellNum)) {  
-                return merged;  
-            }  
-        }  
-        return null;  
-    }  
-  
-    private boolean isNewMergedRegion(CellRangeAddress newMergedRegion, Map<String, CellRangeAddress> mergedRegions) {  
-        return !mergedRegions.containsKey(newMergedRegion.formatAsString());  
     }  
 }
