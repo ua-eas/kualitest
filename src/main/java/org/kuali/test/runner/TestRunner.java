@@ -42,7 +42,10 @@ import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ * 
+ * @author rbtucker
+ */
 public class TestRunner {
     private static final Logger LOG = Logger.getLogger(TestRunner.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
