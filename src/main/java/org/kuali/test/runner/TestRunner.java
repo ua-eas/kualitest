@@ -37,6 +37,7 @@ import org.kuali.test.ScheduledTest;
 import org.kuali.test.ScheduledTestType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Utils;
@@ -188,14 +189,13 @@ public class TestRunner {
                         }
 
                         System.out.println("starting test '" + nm + "[" + testExecution.getTestRun() + "]' for platform " + platformName);
-
-                        testExecution.startTest();
-                        executingTests.add(testExecution);
                     }
 
+                    new TestExecutionMonitor(testExecutions);
+
+                    executingTests.addAll(testExecutions);
 
                     it.remove();
-
                 }
             }
         }
@@ -246,8 +246,9 @@ public class TestRunner {
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
-            System.out.println("running test " + platformName + ": " + testName);
-            new TestExecutionContext(configuration, test).runTest();
+            List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
+            testExecutions.add(new TestExecutionContext(configuration, test));
+            new TestExecutionMonitor(testExecutions);
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
@@ -257,8 +258,9 @@ public class TestRunner {
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
         if (testSuite != null) {
-            System.out.println("running test suite " + platformName + ": " + testSuiteName);
-            new TestExecutionContext(configuration, testSuite).runTest();
+            List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
+            testExecutions.add(new TestExecutionContext(configuration, testSuite));
+            new TestExecutionMonitor(testExecutions);
         } else {
             System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }

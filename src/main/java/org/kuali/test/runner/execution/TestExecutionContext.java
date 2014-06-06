@@ -38,7 +38,8 @@ import org.kuali.test.utils.Utils;
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
-    private List <File> testResultFiles = new ArrayList<File>();
+    private List <File> generatedCheckpointFiles = new ArrayList<File>();
+    private File testResultsFile;
     
     private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
     
@@ -116,11 +117,8 @@ public class TestExecutionContext extends Thread {
             testHeader = kualiTest.getTestHeader();
         }
 
-        File f = new File(buildTestReportFileName());
-        testResultFiles.add(f);
-        poiHelper.writeFile(f);
-
-        Utils.sendMail(configuration, testSuite, testHeader, testResultFiles);
+        testResultsFile = new File(buildTestReportFileName());
+        poiHelper.writeFile(testResultsFile);
 
         completed = true;
     }
@@ -165,7 +163,6 @@ public class TestExecutionContext extends Thread {
         
         for (TestOperation op : test.getOperations().getOperationArray()) {
             executeTestOperation(op, poiHelper);
-            
         }
     }
 
@@ -253,10 +250,6 @@ public class TestExecutionContext extends Thread {
         return lastHttpResponseData;
     }
 
-    public List<File> getTestResultFiles() {
-        return testResultFiles;
-    }
-
     public int getTestRun() {
         return testRun;
     }
@@ -289,4 +282,26 @@ public class TestExecutionContext extends Thread {
     public void setConfiguration(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         this.configuration = configuration;
     }
+
+    public List<File> getGeneratedCheckpointFiles() {
+        return generatedCheckpointFiles;
+    }
+
+    public File getTestResultsFile() {
+        return testResultsFile;
+    }
+
+    public Platform getPlatform() {
+        return platform;
+    }
+
+    public int getTestRuns() {
+        return testRuns;
+    }
+
+    public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
+        return configuration;
+    }
 }
+
+

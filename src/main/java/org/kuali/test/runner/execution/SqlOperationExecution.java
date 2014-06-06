@@ -66,7 +66,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     ResultSetMetaData md = res.getMetaData();
                     if (saveQueryResults) {
                         File f = new File(getQueryResultsFileName(configuration, platform));
-                        getTestExecutionContext().getTestResultFiles().add(f);
+                        getTestExecutionContext().getGeneratedCheckpointFiles().add(f);
                         if (!f.getParentFile().exists()) {
                             f.getParentFile().mkdirs();
                         }

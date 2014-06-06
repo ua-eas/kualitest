@@ -17,6 +17,8 @@
 package org.kuali.test.ui.components.repositorytree;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -25,8 +27,8 @@ import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
 
@@ -55,13 +57,9 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             || EDIT_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleAddEditTestSuite(actionNode);
         } else if (RUN_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
-            new SplashDisplay(getMainframe(), "Run Test Suite", "Running test suite " + testSuite.getName() + "...") {
-                @Override
-                protected void runProcess() {
-                    new TestExecutionContext(getMainframe().getConfiguration(), testSuite).runTest();
-                }
-            };
+            List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
+            testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), (TestSuite)actionNode.getUserObject()));
+            new TestExecutionMonitor(testExecutions);
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);
         } else if (ADD_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
