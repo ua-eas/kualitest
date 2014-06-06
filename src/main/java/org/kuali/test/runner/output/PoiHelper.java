@@ -170,14 +170,14 @@ public class PoiHelper {
     public void writeReportHeader(TestSuite testSuite, KualiTest kualiTest) {
         Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(currentReportRow);
-        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow + 2, 0, HEADER_NAMES.length - 1));
-        currentReportRow += 2;
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow + 3, 0, HEADER_NAMES.length - 1));
+        currentReportRow += 3;
 
         Cell cell = row.createCell(0);
 
         StringBuilder headerString = new StringBuilder(128);
 
-        headerString.append("  Platform: ");
+        headerString.append("\n  Platform: ");
 
         if (testSuite != null) {
             headerString.append(testSuite.getPlatformName());
