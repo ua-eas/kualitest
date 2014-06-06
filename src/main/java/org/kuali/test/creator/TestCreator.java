@@ -42,6 +42,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -302,7 +303,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         createMenuBar();
-
         addWindowListener(this);
 
         desktopPane.setLayout(new java.awt.BorderLayout());
@@ -362,6 +362,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         hsplitPane.setLeftComponent(tabbedPane);
         hsplitPane.setRightComponent(createTestPanel = new CreateTestPanel(this));
+
+        desktopPane.add(createToolBar(), BorderLayout.NORTH);
 
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
 
@@ -694,5 +696,59 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     @Override
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    }
+
+    private JPanel createToolBar() {
+        JPanel retval = new JPanel(new BorderLayout(2, 2));
+        
+        JToolBar toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setMargin(new Insets(1, 5, 2, 0));
+        JButton b;
+        toolbar.add(b = new JButton(Constants.PLATFORM_TOOLBAR_ICON));
+        b.setToolTipText("add new platform");
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleAddPlatform(e);
+            }
+            
+        });
+        toolbar.add(b = new JButton(Constants.DATABASE_TOOLBAR_ICON));
+        b.setToolTipText("add new database");
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleAddDatabaseConnection(e);
+            }
+            
+        });
+        toolbar.add(b = new JButton(Constants.JMX_CONNECTION_TOOLBAR_ICON));
+        b.setToolTipText("add new JMX connection");
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleAddJmxConnection(e);
+            }
+            
+        });
+        toolbar.add(b = new JButton(Constants.WEB_SERVICE_TOOLBAR_ICON));
+        b.setToolTipText("add new web service");
+        b.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleAddWebService(e);
+            }
+            
+        });
+        
+        retval.add(new JSeparator(), BorderLayout.NORTH);
+        retval.add(toolbar, BorderLayout.CENTER);
+        
+        return retval;
     }
 }

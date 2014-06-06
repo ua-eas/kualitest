@@ -36,6 +36,7 @@ public class Constants {
     
     public static final ImageIcon REPOSITORY_ICON = new ImageIcon(TestCreator.class.getResource("/images/repository.png"));
     public static final ImageIcon PLATFORM_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform.png"));
+    public static final ImageIcon PLATFORM_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform-toolbar.png"));
     public static final ImageIcon TEST_SUITE_ICON = new ImageIcon(TestCreator.class.getResource("/images/test-suite.png"));
     public static final ImageIcon TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/test.png"));
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(TestCreator.class.getResource("/images/save.png"));
@@ -52,6 +53,7 @@ public class Constants {
     public static final ImageIcon DETAILS_ICON = new ImageIcon(TestCreator.class.getResource("/images/details.png"));
 
     public static final ImageIcon DATABASE_ICON = new ImageIcon(TestCreator.class.getResource("/images/database.png"));
+    public static final ImageIcon DATABASE_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/database-toolbar.png"));
     public static final ImageIcon DATABASE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/database-setting.png"));
     public static final ImageIcon DATABASE_TABLE_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbtable.png"));
     public static final ImageIcon DATABASE_TABLE_OUTER_JOIN_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbtable-outer-join.png"));
@@ -61,9 +63,11 @@ public class Constants {
     public static final ImageIcon DATABASE_PKCOLUMN_SELECTED_ICON = new ImageIcon(TestCreator.class.getResource("/images/dbpkcolumnsel.png"));
 
     public static final ImageIcon WEB_SERVICE_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice.png"));
+    public static final ImageIcon WEB_SERVICE_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice-toolbar.png"));
     public static final ImageIcon WEB_SERVICE_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/webservice-setting.png"));
     public static final ImageIcon FILE_SEARCH_ICON = new ImageIcon(TestCreator.class.getResource("/images/file-search.png"));
     public static final ImageIcon JMX_CONNECTION_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection.png"));
+    public static final ImageIcon JMX_CONNECTION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-toolbar.png"));
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
 
     
