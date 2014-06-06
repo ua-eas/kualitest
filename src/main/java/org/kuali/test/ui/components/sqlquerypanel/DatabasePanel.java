@@ -313,6 +313,24 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
             }
 
+            CustomForeignKey[] customForeignKeys = getCustomForeignKeys(td);
+
+            if (customForeignKeys != null) {
+                for (CustomForeignKey cfk : customForeignKeys) {
+                    TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
+                    tdata.setForeignKeyName(cfk.getName());
+                    
+                    map.put(cfk.getPrimaryTableName() + "-" + cfk.getName(), tdata);
+
+                    td.getRelatedTables().add(tdata);
+                    if (cfk.getForeignKeyColumnPairArray() != null) {
+                        for (ForeignKeyColumnPair fk : cfk.getForeignKeyColumnPairArray()) {
+                            tdata.getLinkColumns().add(new String[] {fk.getForeignColumn(), fk.getPrimaryColumn()});
+                        }
+                    }
+                }
+            }
+            
             List <TableData> l = new ArrayList(map.values());
             
             Collections.sort(l);
@@ -334,26 +352,6 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 } 
             }
             
-            if (currentDepth < Constants.MAX_TABLE_RELATIONSHIP_DEPTH) {
-                CustomForeignKey[] customForeignKeys = getCustomForeignKeys(td);
-
-                if (customForeignKeys != null) {
-                    for (CustomForeignKey cfk : customForeignKeys) {
-                        TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
-                        
-                        if (cfk.getForeignKeyColumnPairArray() != null) {
-                            for (ForeignKeyColumnPair fk : cfk.getForeignKeyColumnPairArray()) {
-                                tdata.getLinkColumns().add(new String[] {fk.getForeignColumn(), fk.getPrimaryColumn()});
-                            }
-                        }
-                        
-                        SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
-                        parentNode.add(curnode);
-                        loadTableRelationships(dbconn, dmd, tdata, currentDepth, curnode);
-                    }
-                }
-            }
-
             loadTableColumns(dbconn, dmd, parentNode);
         }
         
