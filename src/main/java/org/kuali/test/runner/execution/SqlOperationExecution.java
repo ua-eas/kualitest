@@ -133,7 +133,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         retval.append("-");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
         retval.append("_");
-        retval.append(this.getTestExecutionContext().getTestRun());
+        retval.append(getTestExecutionContext().getTestRun());
         retval.append(".csv");
         
         return retval.toString();
