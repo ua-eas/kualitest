@@ -55,6 +55,10 @@ import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
+/**
+ * 
+ * @author rbtucker
+ */
 public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener  {
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
 

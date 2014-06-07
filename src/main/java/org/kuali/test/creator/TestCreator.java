@@ -707,7 +707,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         toolbar.setFloatable(false);
         toolbar.setMargin(new Insets(1, 5, 2, 0));
         ToolbarButton b;
-        toolbar.add(b = new ToolbarButton(Constants.PLATFORM_TOOLBAR_ICON, "add new platform"));
+        toolbar.add(b = new ToolbarButton(Constants.PLATFORM_TOOLBAR_ICON, "add platform"));
         b.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -715,7 +715,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
             
         });
-        toolbar.add(b = new ToolbarButton(Constants.DATABASE_TOOLBAR_ICON, "add new database"));
+        toolbar.add(b = new ToolbarButton(Constants.DATABASE_TOOLBAR_ICON, "add database connection"));
         b.addActionListener(new ActionListener() {
 
             @Override
@@ -724,7 +724,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
             
         });
-        toolbar.add(b = new ToolbarButton(Constants.JMX_CONNECTION_TOOLBAR_ICON, "add new JMX connection"));
+        toolbar.add(b = new ToolbarButton(Constants.JMX_CONNECTION_TOOLBAR_ICON, "add JMX connection"));
         b.addActionListener(new ActionListener() {
 
             @Override
@@ -734,7 +734,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
         });
 
-        toolbar.add(b = new ToolbarButton(Constants.WEB_SERVICE_TOOLBAR_ICON, "add new web service"));
+        toolbar.add(b = new ToolbarButton(Constants.WEB_SERVICE_TOOLBAR_ICON, "add web service"));
         b.addActionListener(new ActionListener() {
 
             @Override
