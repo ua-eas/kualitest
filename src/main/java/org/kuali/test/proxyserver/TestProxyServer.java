@@ -15,18 +15,23 @@
  */
 package org.kuali.test.proxyserver;
 
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
+import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.littleshoot.proxy.ChainedProxy;
@@ -40,12 +45,14 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
+    private static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
     private DefaultHttpProxyServer proxyServer;
     private List<TestOperation> testOperations = new ArrayList<TestOperation>();
     private boolean proxyServerRunning = false;
-    
-    
-    public TestProxyServer() {
+    private StringBuilder currentHtmlResponse;
+    private WebTestPanel webTestPanel;
+    public TestProxyServer(WebTestPanel webTestPanel) {
+        this.webTestPanel = webTestPanel;
         try {
             Thread.sleep(1000);
             initializeProxyServer();
@@ -61,26 +68,15 @@ public class TestProxyServer {
                 return new HttpFiltersAdapter(originalRequest) {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
-                        HttpResponse retval = null;
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("requestPre: " + originalRequest.toString());
-                        }
-                        
                         if (isValidTestRequest(originalRequest)) {
                             testOperations.add(Utils.buildTestOperation(TestOperationType.HTTP_REQUEST, originalRequest));
                         }
-                        
-                        return retval;
+                        return null;
                     }
 
                     @Override
                     public HttpResponse requestPost(HttpObject httpObject) {
-                        HttpResponse retval = null;
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("requestPost: " + originalRequest.toString());
-                        }
-
-                        return retval;
+                        return null;
                     }
 
                     @Override
@@ -90,6 +86,29 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
+                        
+                        if (httpObject instanceof HttpResponse) {
+                            HttpResponse response = (HttpResponse)httpObject;
+                            if (isHtmlResponse(response)) {
+                                if (response.getStatus().code() == HttpServletResponse.SC_OK) {
+                                    currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
+                                }
+                            }
+                        } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
+                            HttpContent c = (HttpContent)httpObject;
+                            c.retain();
+                            ByteBuffer buf = ByteBuffer.allocate(c.content().capacity());
+                            c.content().copy().readBytes(buf);
+                            c.release();
+                            currentHtmlResponse.append(new String(buf.array()));
+                            if (httpObject instanceof LastHttpContent) {
+                                if (currentHtmlResponse != null) {
+                                    webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
+                                    currentHtmlResponse = null;
+                                }
+                            }
+                        }
+                        
                         return httpObject;
                     }
                 };
@@ -107,14 +126,16 @@ public class TestProxyServer {
         };
     }
 
+    private boolean isHtmlResponse(HttpResponse response) {
+        String contentType = response.headers().get(Constants.CONTENT_TYPE_KEY);
+        return (StringUtils.isNotBlank(contentType) && contentType.startsWith(Constants.HTML_MIME_TYPE));
+    }
+    
     private ChainedProxyManager getChainProxyManager() {
         return new ChainedProxyManager() {
             @Override
             public void lookupChainedProxies(HttpRequest httpRequest, Queue<ChainedProxy> chainedProxies) {
-                for (ChainedProxy cp : chainedProxies) {
-                }
             }
-
         };
     }
 

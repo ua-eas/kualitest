@@ -761,13 +761,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             public void actionPerformed(ActionEvent e) {
                 handleExit();
             }
-            
         });
         
         retval.add(new JSeparator(), BorderLayout.NORTH);
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(toolbar);
-        retval.add(p, BorderLayout.CENTER);
+        retval.add(toolbar, BorderLayout.CENTER);
         
         return retval;
     }

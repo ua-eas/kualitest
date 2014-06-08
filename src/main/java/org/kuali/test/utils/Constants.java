@@ -98,6 +98,8 @@ public class Constants {
     public static final String COLOR_DARK_BLUE = "#000099";
     public static final String COLOR_DARK_GREEN = "#006600";
     public static final String HTML_MIME_TYPE = "text/html";
+    public static final String CONTENT_TYPE_KEY = "Content-Type";
+    
     
     public static final int DEFAULT_DIALOG_LEFT = 300;
     public static final int DEFAULT_DIALOG_TOP = 200;
@@ -124,10 +126,10 @@ public class Constants {
     public static String CANCEL_ACTION = "Cancel";
     public static String CLOSE_ACTION = "Close";
     public static String CONTINUE_ACTION = "Continue";
-    public static final String START_TEST_ACTION = "Start Test";
-    public static final String CANCEL_TEST_ACTION = "Cancel Test";
-    public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
-    public static final String SAVE_TEST_ACTION = "Save Test";
+    public static final String START_TEST_ACTION = "Start";
+    public static final String CANCEL_TEST_ACTION = "Cancel";
+    public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
+    public static final String SAVE_TEST_ACTION = "Save";
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";

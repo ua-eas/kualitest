@@ -30,6 +30,6 @@ public class ToggleToolbarButton extends JToggleButton {
         super(icon);
         setActionCommand(actionCommand);
         setText(txt);
-        setMargin(new Insets(1, 1, 1, 1));
+        setMargin(new Insets(1, 1, 1, 3));
     }
 }

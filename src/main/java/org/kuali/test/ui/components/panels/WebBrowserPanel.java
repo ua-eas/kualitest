@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 
 public class WebBrowserPanel extends JPanel {
     private JWebBrowser webBrowser;
+    
     public WebBrowserPanel(JWebBrowser webBrowser) {
         super(new BorderLayout());
         this.webBrowser = webBrowser;

@@ -65,6 +65,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private int nodeId = 0;
+    private String lastProxyHtmlResponse;
     
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
@@ -72,7 +73,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         new SplashDisplay(mainframe, "Initializing Web Test", "Loading web proxy server...") {
             @Override
             protected void runProcess() {
-                testProxyServer = new TestProxyServer();
+                testProxyServer = new TestProxyServer(WebTestPanel.this);
                 getStartTest().setEnabled(true);
             }
         };
@@ -117,22 +118,14 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
 
         retval.addWebBrowserListener(new WebBrowserAdapter() {
+            
             @Override
             public void windowWillOpen(WebBrowserWindowWillOpenEvent e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("in windowWillOpen()");
-                }
-
-                WebBrowserPanel wbp = addNewBrowserPanel(false);
-                e.setNewWebBrowser(wbp.getWebBrowser());
+                e.setNewWebBrowser(addNewBrowserPanel(false).getWebBrowser());
             }
 
             @Override
             public void windowOpening(WebBrowserWindowOpeningEvent e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("in windowOpening()");
-                }
-
                 JWebBrowser wb = e.getNewWebBrowser();
                 wb.setBarsVisible(false);
                 wb.setStatusBarVisible(true);
@@ -140,18 +133,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
             @Override
             public void locationChanged(WebBrowserNavigationEvent e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("in locationChanged()");
-                }
-
                 int selindx = tabbedPane.getSelectedIndex();
                 if (Constants.NEW_BROWSER_TAB_DEFAULT_TEXT.equals(tabbedPane.getTitleAt(selindx))) {
                     Object o = e.getWebBrowser().executeJavascriptWithResult("return document.title;");
                     if (o != null) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("documentTitle: " + o.toString());
-                        }
-
                         tabbedPane.setTitleAt(selindx, o.toString());
                     }
                 }
@@ -205,18 +190,33 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
     
+    private String getCurrentHtmlResponse(JWebBrowser wb) {
+        int proxyLength = 0;
+        String retval = wb.getHTMLContent();
+        
+        // Look at the last response from the proxy if this is bigger than
+        // the WebBrowser content we will use it - this is to handle some
+        // ajax behavior that does not update the web browser content
+        if (StringUtils.isNotBlank(lastProxyHtmlResponse)) {
+            proxyLength = lastProxyHtmlResponse.length();
+        }
+        
+        if (proxyLength > retval.length()) {
+            retval = lastProxyHtmlResponse;
+        }
+        
+        return retval;
+    }
+    
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
         List <Node> labelNodes = new ArrayList<Node>();
         nodeId = 1;
         
-        Node rootNode = getRootNodeFromHtml(wb, labelNodes, wb.getHTMLContent());
-        
+
+        Node rootNode = getRootNodeFromHtml(wb, labelNodes, getCurrentHtmlResponse(wb));
+
         if (rootNode != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(rootNode.toString());
-            }
-            
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
 
             if (dlg.isSaved()) {
@@ -274,7 +274,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             LOG.debug("id: " + iframeNode.attr("id"));
             LOG.debug("name: " + iframeNode.attr("name"));
             LOG.debug("jscall: " + js);
-            LOG.debug("html: " + o);
+            LOG.debug("html: " + retval);
             LOG.debug("**********************************************************");
         }
         
@@ -294,9 +294,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     Node iframeBody = getIframeBody(webBrowser, whitelist, node);
                     
                     if (iframeBody != null) {
-                        // set the iframe node we loaded
                         ((Element)node).prependChild(iframeBody);
-                        
                         traverseNode(webBrowser, whitelist, labelNodes, iframeBody);
                         
                         if (LOG.isDebugEnabled()) {
@@ -350,16 +348,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private Node getRootNodeFromHtml(final JWebBrowser webBrowser, List <Node> labelNodes, String html) {
         Whitelist whitelist = getHtmlWhitelist();
-        String cleanHtml = Jsoup.clean(html, whitelist);
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("clean html: " + cleanHtml);
-        }
-        
-        Node retval = Jsoup.parse(cleanHtml).body();
-
+        Node retval = Jsoup.parse(Jsoup.clean(html, whitelist)).body();
         traverseNode(webBrowser, whitelist, labelNodes, retval);
-
         return retval;
     }
     
@@ -482,5 +472,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected boolean isStartTestRequired() {
         return true;
+    }
+
+    public void setLastProxyHtmlResponse(String lastProxyHtmlResponse) {
+        this.lastProxyHtmlResponse = lastProxyHtmlResponse;
     }
 }
