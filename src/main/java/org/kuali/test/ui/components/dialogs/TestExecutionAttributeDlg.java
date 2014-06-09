@@ -46,14 +46,19 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
     private JTextField value;
     private TestExecutionAttribute testExecutionAttribute;
     private BaseTable attributeTable;
+    private List <TestExecutionAttribute> testExecutionAttributes;
     
     /**
      * Creates new form TestExecutionAttributeDlg
      * @param mainFrame
+     * @param testExecutionAttributes
      * @param testExecutionAttribute
      */
-    public TestExecutionAttributeDlg(TestCreator mainFrame, TestExecutionAttribute testExecutionAttribute) {
+    public TestExecutionAttributeDlg(TestCreator mainFrame,  
+        List <TestExecutionAttribute> testExecutionAttributes, TestExecutionAttribute testExecutionAttribute) {
         super(mainFrame);
+        this.testExecutionAttributes = testExecutionAttributes;
+        
         if (testExecutionAttribute != null) {
             setTitle("Edit test execution attribute");
             setEditmode(true);
@@ -132,6 +137,9 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
             30
         });
 
+        
+        config.setData(testExecutionAttributes);
+        
         BaseTable retval = new BaseTable(config) {
             @Override
             public boolean isCellEditable(int row, int column) {

@@ -505,8 +505,22 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
+    private List <TestExecutionAttribute> getTestExecutionAttributes() {
+        List <TestExecutionAttribute> retval = new ArrayList <TestExecutionAttribute>();
+        
+        for (TestOperation op : testProxyServer.getTestOperations()) {
+            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_ATTRIBUTE)) {
+                retval.add(op.getOperation().getTestExecutionAttribute());
+            }
+        }
+        
+        return retval;
+    }
+    
+    
     private void handleAddExecutionContextAttribute() {
-        TestExecutionAttributeDlg dlg = new TestExecutionAttributeDlg(getMainframe(), null);
+        
+        TestExecutionAttributeDlg dlg = new TestExecutionAttributeDlg(getMainframe(), getTestExecutionAttributes(), null);
         
         if (dlg.isSaved()) {
             TestExecutionAttribute att = (TestExecutionAttribute)dlg.getNewRepositoryObject();
