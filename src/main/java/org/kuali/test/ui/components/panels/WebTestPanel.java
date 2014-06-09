@@ -28,7 +28,10 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -524,6 +527,23 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         if (dlg.isSaved()) {
             TestExecutionAttribute att = (TestExecutionAttribute)dlg.getNewRepositoryObject();
+            List <TestExecutionAttribute> removedAttributes = dlg.getRemovedAttributes();
+
+            Set <String> hs = new HashSet<String>();
+            
+            for (TestExecutionAttribute curatt : removedAttributes) {
+                hs.add(curatt.getName());
+            }
+            
+            Iterator <TestOperation> it = testProxyServer.getTestOperations().iterator();
+            
+            while (it.hasNext()) {
+                TestOperation op = it.next();
+                if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_ATTRIBUTE)
+                    && hs.contains(op.getOperation().getTestExecutionAttribute().getName())) {
+                    it.remove();
+                }
+            }
         }
     }
 }
