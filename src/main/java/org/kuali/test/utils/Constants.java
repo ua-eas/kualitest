@@ -71,6 +71,7 @@ public class Constants {
     public static final ImageIcon JMX_CONNECTION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-toolbar.png"));
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
     public static final ImageIcon SCHEDULE_TEST_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/schedule-test-toolbar.png"));
+    public static final ImageIcon EXECUTION_CONTEXT_ATTRIBUTE_ICON = new ImageIcon(TestCreator.class.getResource("/images/execution-context-attribute.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
@@ -133,6 +134,7 @@ public class Constants {
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
+    public static final String EXECUTION_ATTRIBUTE_ACTION = "Execution Attribute";
     public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";

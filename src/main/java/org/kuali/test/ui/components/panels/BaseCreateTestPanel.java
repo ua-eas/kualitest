@@ -93,6 +93,18 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         retval.add(createCheckpoint);
         retval.addSeparator();
         
+        List <ToolbarButton> customButtons = getCustomButtons();
+
+        if (customButtons != null) {
+            for (ToolbarButton tb : customButtons) {
+                tb.addActionListener(this);
+                retval.add(tb);
+                retval.addSeparator();
+            }
+        } else {
+            retval.addSeparator();
+        }
+        
         saveTest = new ToolbarButton(Constants.SAVE_TEST_ACTION, Constants.SAVE_TEST_ICON);
         saveTest.addActionListener(this);
         saveTest.setEnabled(false);
@@ -117,6 +129,10 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         retval.add(new JLabel(txt.toString()));
         
         return retval;
+    }
+    
+    protected List <ToolbarButton> getCustomButtons() {
+        return null;
     }
     
     public Platform getPlatform() {

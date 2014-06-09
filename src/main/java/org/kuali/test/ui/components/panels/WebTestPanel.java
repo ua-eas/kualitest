@@ -23,6 +23,7 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
+import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
@@ -66,6 +68,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private JTabbedPane tabbedPane;
     private int nodeId = 0;
     private String lastProxyHtmlResponse;
+    private ToolbarButton executionAttribute;
     
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
@@ -296,12 +299,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     if (iframeBody != null) {
                         ((Element)node).prependChild(iframeBody);
                         traverseNode(webBrowser, whitelist, labelNodes, iframeBody);
-                        
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("--------------------- iframe -----------------------");
-                            LOG.debug(node.toString());
-                            LOG.debug("----------------------------------------------------");
-                        }
                     }
                 } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(node.nodeName())) {
                     String att = node.attr(Constants.HTML_TAG_ATTRIBUTE_FOR);
@@ -358,6 +355,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().clear();
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
+        executionAttribute.setEnabled(false);
+
         closeProxyServer();
     }
 
@@ -365,6 +364,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     protected void handleStartTest() {
         getMainframe().getCreateTestButton().setEnabled(false);
         getCurrentBrowser().navigate(getPlatform().getWebUrl());
+        executionAttribute.setEnabled(true);
     }
 
     private JWebBrowser getCurrentBrowser() {
@@ -476,5 +476,24 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     public void setLastProxyHtmlResponse(String lastProxyHtmlResponse) {
         this.lastProxyHtmlResponse = lastProxyHtmlResponse;
+    }
+
+    @Override
+    protected List<ToolbarButton> getCustomButtons() {
+        List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
+        retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_ATTRIBUTE_ACTION, Constants.EXECUTION_CONTEXT_ATTRIBUTE_ICON));
+        executionAttribute.setToolTipText("add execution context attribute");
+        executionAttribute.setEnabled(false);
+        return retval;
+    }
+
+    @Override
+    protected void handleUnprocessedActionEvent(ActionEvent e) {
+        if (Constants.EXECUTION_ATTRIBUTE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            handleAddExecutionContextAttribute();
+        }
+    }
+
+    private void handleAddExecutionContextAttribute() {
     }
 }

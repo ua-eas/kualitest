@@ -102,9 +102,17 @@
     <xs:complexType name="operation">
         <xs:choice minOccurs="1" maxOccurs="1">
             <xs:element name="checkpoint-operation" type="checkpoint"/>
+            <xs:element name="test-execution-attribute" type="test-execution-attribute"/>
             <xs:element name="html-request-operation" type="html-request-op"/>
         </xs:choice>  
     </xs:complexType>      
+
+    <xs:complexType name="test-execution-attribute">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="test-operation">
         <xs:sequence>
