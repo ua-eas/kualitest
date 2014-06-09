@@ -16,10 +16,6 @@
 
 package org.kuali.test.handlers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
@@ -31,35 +27,4 @@ public class CheckboxInputTagHandler extends DefaultHtmlTagHandler {
         retval.setPropertyValue(getSelectedCheckboxValues(node, retval.getPropertyName()));
         return retval;
     }
-    
-    private String getSelectedCheckboxValues(Node node, String name) {
-        String retval = "";
-        
-        List <String> l = new ArrayList<String>();
-
-        
-        for (Node sibling : node.siblingNodes()) {
-            if (name.equals(sibling.attr("name"))) {
-                if (StringUtils.isNotBlank(sibling.attr("selected"))) {
-                    l.add(sibling.attr("value"));
-                    break;
-                }
-            }
-        }
-
-        if (!l.isEmpty()) {
-            StringBuilder buf = new StringBuilder(64);
-            Collections.sort(l);
-            String comma = "";
-            for (String s : l) {
-              buf.append(comma);
-              buf.append(s);
-              comma = ",";
-            }
-            retval = buf.toString();
-        }
-        
-        return retval;
-    }
-
 }

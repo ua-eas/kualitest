@@ -16,7 +16,6 @@
 
 package org.kuali.test.handlers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 
@@ -28,20 +27,4 @@ public class RadioInputTagHandler extends DefaultHtmlTagHandler {
         retval.setPropertyValue(getSelectedRadioValue(node, retval.getPropertyName()));
         return retval;
     }
-    
-    private String getSelectedRadioValue(Node node, String name) {
-        String retval = "";
-        
-        for (Node sibling : node.siblingNodes()) {
-            if (name.equals(sibling.attr("name"))) {
-                if (StringUtils.isNotBlank(sibling.attr("checked"))) {
-                    retval = sibling.attr("value");
-                    break;
-                }
-            }
-        }
-        
-        return retval;
-    }
-
 }

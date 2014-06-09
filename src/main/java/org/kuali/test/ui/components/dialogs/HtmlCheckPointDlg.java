@@ -223,10 +223,8 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-                if ((cp != null) && !processedNodes.contains(node.attr(Constants.NODE_ID))) {
-                    // track which nodes we have already seen
-                    processedNodes.add(node.attr(Constants.NODE_ID));
-
+                
+                if ((cp != null) && !isNodeProcessed(processedNodes, node)) {
                     cp.setPropertyGroup(groupStack.peek());
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
@@ -264,6 +262,39 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         }
     }
 
+    private boolean isRadioOrCheckboxInput(Node node) {
+        boolean retval = false;
+        
+        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.nodeName())) {
+            String type = node.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+            
+            retval = (Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(type)
+                || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(type));
+        }
+        
+        return retval;
+    }
+    
+    private boolean isNodeProcessed(Set processedNodes, Node node) {
+        boolean retval = false;
+        
+        if (isRadioOrCheckboxInput(node)) {
+            retval = processedNodes.contains(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            
+            if (!retval) {
+                processedNodes.add(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            }
+        } else {
+            retval = processedNodes.contains(node.attr(Constants.NODE_ID));
+            
+            if (!retval) {
+                processedNodes.add(node.attr(Constants.NODE_ID));
+            }
+        }
+        
+        return retval;
+    }
+    
     private Map<String, String> buildLabelMap(List<Node> labelNodes) {
         Map<String, String> retval = new HashMap<String, String>();
 

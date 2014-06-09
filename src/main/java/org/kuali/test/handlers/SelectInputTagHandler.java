@@ -16,10 +16,8 @@
 
 package org.kuali.test.handlers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
-import org.kuali.test.utils.Constants;
 
 
 public class SelectInputTagHandler extends DefaultHtmlTagHandler {
@@ -27,21 +25,6 @@ public class SelectInputTagHandler extends DefaultHtmlTagHandler {
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);
         retval.setPropertyValue(getSelectedOption(node));
-        return retval;
-    }
-    
-    private String getSelectedOption(Node node) {
-        String retval = "";
-        
-        for (Node sibling : node.siblingNodes()) {
-            if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.nodeName())) {
-                if (StringUtils.isNotBlank(sibling.attr("selected"))) {
-                    retval = sibling.attr("value");
-                    break;
-                }
-            }
-        }
-        
         return retval;
     }
 }
