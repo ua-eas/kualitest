@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -32,7 +33,9 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.SelectObjectDlg;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.buttons.FileSearchButton;
 import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -82,13 +85,26 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         name = new JTextField(testExecutionAttribute.getName(), 20);
         name.setEditable(!isEditmode());
         
-        value = new JTextField(testExecutionAttribute.getValue(), 30);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        p.add(value = new JTextField(testExecutionAttribute.getValue(), 30));
+        
+        FileSearchButton b = new FileSearchButton();
+        p.add(b);
+        
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showSearch();
+            }
+        });
+        
+        
         JComponent[] components = new JComponent[] {
             name,
-            value
+            p
         };
 
-        JPanel p = new JPanel(new BorderLayout(3, 3));
+        p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         p.add(new TablePanel(attributeTable = buildAttributeTable()), BorderLayout.CENTER);
@@ -228,10 +244,14 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "test-execution-attribute-setup";
+        return "select-object";
     }
 
     public List<TestExecutionAttribute> getRemovedAttributes() {
         return removedAttributes;
+    }
+    
+    private void showSearch() {
+        SelectObjectDlg dlg = new SelectObjectDlg(this, new ArrayList());
     }
 }

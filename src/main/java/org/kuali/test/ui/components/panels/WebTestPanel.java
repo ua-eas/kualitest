@@ -496,7 +496,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     protected List<ToolbarButton> getCustomButtons() {
         List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
         retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_ATTRIBUTE_ACTION, Constants.EXECUTION_CONTEXT_ATTRIBUTE_ICON));
-        executionAttribute.setToolTipText("add execution context attribute");
+        executionAttribute.setToolTipText("add test execution attribute");
         executionAttribute.setEnabled(false);
         return retval;
     }
