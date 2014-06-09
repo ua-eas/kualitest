@@ -41,6 +41,7 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.TestExecutionAttribute;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -53,6 +54,7 @@ import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionAttributeDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
@@ -193,6 +195,15 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
     
+    private void addTestExecutionAttribute(TestExecutionAttribute att) {
+        TestOperation testOp = TestOperation.Factory.newInstance();
+        testOp.setOperationType(TestOperationType.TEST_EXECUTION_ATTRIBUTE);
+        Operation op = testOp.addNewOperation();
+        op.addNewCheckpointOperation();
+        op.setTestExecutionAttribute(att);
+        testProxyServer.getTestOperations().add(testOp);
+    }
+
     private String getCurrentHtmlResponse(JWebBrowser wb) {
         int proxyLength = 0;
         String retval = wb.getHTMLContent();
@@ -495,5 +506,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void handleAddExecutionContextAttribute() {
+        TestExecutionAttributeDlg dlg = new TestExecutionAttributeDlg(getMainframe(), null);
+        
+        if (dlg.isSaved()) {
+            TestExecutionAttribute att = (TestExecutionAttribute)dlg.getNewRepositoryObject();
+        }
     }
 }
