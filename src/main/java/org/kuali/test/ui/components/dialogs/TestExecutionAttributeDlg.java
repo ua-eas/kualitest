@@ -20,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -47,6 +48,7 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
     private TestExecutionAttribute testExecutionAttribute;
     private BaseTable attributeTable;
     private List <TestExecutionAttribute> testExecutionAttributes;
+    private List <TestExecutionAttribute> removedAttributes;
     
     /**
      * Creates new form TestExecutionAttributeDlg
@@ -158,7 +160,12 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
                     
                     if (UIUtils.promptForDelete(TestExecutionAttributeDlg.this, 
                         "Delete Attribute", "Delete test execution attribute '" + att.getName() + "'?")) {
-                        // do delete here
+                        if (removedAttributes == null) {
+                            removedAttributes = new ArrayList<TestExecutionAttribute>();
+                        }
+                        
+                        removedAttributes.add(testExecutionAttributes.remove(b.getCurrentRow()));
+                        attributeTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
                     }
                 }
             }
@@ -222,5 +229,9 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
     @Override
     protected String getDialogName() {
         return "test-execution-attribute-setup";
+    }
+
+    public List<TestExecutionAttribute> getRemovedAttributes() {
+        return removedAttributes;
     }
 }
