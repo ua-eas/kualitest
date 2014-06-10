@@ -257,7 +257,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
 
     @Override
     protected String getDialogName() {
-        return "select-object";
+        return "test-execution-parameter";
     }
 
     public List<TestExecutionParameter> getRemovedParameters() {
