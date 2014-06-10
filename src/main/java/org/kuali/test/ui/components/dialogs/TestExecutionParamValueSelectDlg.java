@@ -29,6 +29,9 @@ import java.util.Stack;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
@@ -43,20 +46,24 @@ import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
-import static org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg.LOG;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
-public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
+public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements ListSelectionListener {
     private TestExecutionParameter testExecutionParameter;
     private TestHeader testHeader;
+    private List <BaseTable> parameterTables = new ArrayList<BaseTable>();
     
     public TestExecutionParamValueSelectDlg(TestCreator mainframe, 
-        JDialog parent, List <Node> labelNodes, Node rootNode, TestHeader testHeader) {
+        JDialog parent, 
+        List <Node> labelNodes, 
+        Node rootNode, 
+        TestHeader testHeader) {
         super(mainframe, parent);
+        setTitle("Test Execution Parameter Select");
         this.testHeader = testHeader;
         initComponents(labelNodes, rootNode);
     }
@@ -64,13 +71,10 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
     private void initComponents(final List <Node> labelNodes, final Node rootNode) {
         final BasePanel basePanel = new BasePanel(getMainframe());
        
-        basePanel.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        
         new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
-
            @Override
            protected void processCompleted() {
-               basePanel.validate();
+               basePanel.getParent().validate();
            }
             
             @Override
@@ -86,12 +90,6 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
                 Map<String, List<TestExecutionParameter>> pmap = loadParameterMap(testExecutionParameters);
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("labelNodes.size(): " + labelNodes.size());
-                    LOG.debug("TestExecutionParameter list size: " + testExecutionParameters.size());
-                    LOG.debug("TestExecutionParameter map.size: " + pmap.size());
-                }
-
                 // if we have more than 1 group then we will use tabs
                 if (pmap.size() > 1) {
                     JTabbedPane tp = new JTabbedPane();
@@ -103,6 +101,8 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
                         if ((params != null) && !params.isEmpty()) {
                             BaseTable t = buildParameterTable(s, params, true);
+                            parameterTables.add(t);
+                            
                             tp.addTab(s, new TablePanel(t));
                         }
                     }
@@ -115,11 +115,10 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
                 } else {
                     basePanel.add(new JLabel("No test execution parameters found", JLabel.CENTER), BorderLayout.CENTER);
                 }
-
-                getSaveButton().setEnabled(!JLabel.class.equals(basePanel.getCenterComponent().getClass()));
             }
         };
       
+        getContentPane().add(basePanel, BorderLayout.CENTER);
         addStandardButtons();
         getSaveButton().setEnabled(false);
         setDefaultBehavior();
@@ -137,7 +136,18 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
     @Override
     protected boolean save() {
-        return true;
+        for (BaseTable t : parameterTables) {
+            int selrow = t.getSelectedRow();
+            if (t.getSelectedRow() > -1) {
+                List <TestExecutionParameter> l = t.getModel().getData();
+                
+                if ((selrow >= 0) && (selrow < l.size())) {
+                    testExecutionParameter = l.get(selrow);
+                }
+            }
+        }
+        
+        return (testExecutionParameter != null);
     }
 
     @Override
@@ -164,25 +174,11 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
         HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("incoming node: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name"));
-            if (th == null) {
-                LOG.debug("no tag handler found");
-            } else {
-                LOG.debug("tag handler: " + th.getClass().getName());
-            }
-        }
-
         if (th != null) {
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);
                 if (StringUtils.isNotBlank(groupName)) {
                     groupStack.push(groupName);
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("tag handler: " + th.getClass().getName()
-                        + ", group name: " + groupStack.peek());
                 }
 
                 for (Node child : node.childNodes()) {
@@ -209,6 +205,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
                     if (StringUtils.isNotBlank(cp.getDisplayName())) {
                         param.setDisplayName(cp.getDisplayName());
+                        param.setValue(cp.getPropertyValue());
                         parameters.add(param);
                     } 
                 }
@@ -264,7 +261,14 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
 
         config.setData(parameters);
         
-        return new BaseTable(config);
+        BaseTable retval = new BaseTable(config);
+        
+        retval.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        retval.setRowSelectionAllowed(true);
+        retval.setColumnSelectionAllowed(false);
+        retval.getSelectionModel().addListSelectionListener(TestExecutionParamValueSelectDlg.this);
+
+        return retval;
     }
     
     private Map<String, List<TestExecutionParameter>> loadParameterMap(List<TestExecutionParameter> testExecutionParameters) {
@@ -288,4 +292,14 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
         return retval;
     }
 
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        for (BaseTable t : parameterTables) {
+            if (t.getSelectionModel() == e.getSource()) {
+                getSaveButton().setEnabled(!t.getSelectionModel().isSelectionEmpty());
+            } else {
+                t.getSelectionModel().clearSelection();
+            }
+        }
+    }
 }
