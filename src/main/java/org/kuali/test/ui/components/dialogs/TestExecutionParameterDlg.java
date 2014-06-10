@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.jsoup.nodes.Node;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -48,6 +49,8 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class TestExecutionParameterDlg extends BaseSetupDlg {
+    public static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
+    
     private JComboBox name;
     private JTextField value;
     private TestExecutionParameter testExecutionParameter;
@@ -265,7 +268,14 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     }
     
     private void showSearch() {
-        List <Node> labelNodes = new ArrayList<Node>();
-        Node root = webTestPanel.getHtmlRootNode(labelNodes);
-    }
+       final List <Node> labelNodes = new ArrayList<Node>();
+       final Node rootNode = webTestPanel.getHtmlRootNode(labelNodes);
+
+        TestExecutionParamValueSelectDlg dlg 
+            = new TestExecutionParamValueSelectDlg(getMainframe(), this, labelNodes, rootNode, webTestPanel.getTestHeader());
+        
+        if (dlg.isSaved()) {
+            
+        }
+    }        
 }

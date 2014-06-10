@@ -1771,4 +1771,54 @@ public class Utils {
             }
         }
     }
+    
+    public static Map<String, String> buildLabelMap(List<Node> labelNodes) {
+        Map<String, String> retval = new HashMap<String, String>();
+
+        for (Node label : labelNodes) {
+            String key = label.attr("for");
+
+            if (StringUtils.isNotBlank(key)) {
+                retval.put(key, cleanDisplayText(label.toString()));
+            }
+        }
+
+        return retval;
+    }
+
+
+    public static boolean isRadioOrCheckboxInput(Node node) {
+        boolean retval = false;
+        
+        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.nodeName())) {
+            String type = node.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+            
+            retval = (Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(type)
+                || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(type));
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isNodeProcessed(Set processedNodes, Node node) {
+        boolean retval = false;
+        
+        if (isRadioOrCheckboxInput(node)) {
+            retval = processedNodes.contains(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            
+            if (!retval) {
+                processedNodes.add(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            }
+        } else {
+            retval = processedNodes.contains(node.attr(Constants.NODE_ID));
+            
+            if (!retval) {
+                processedNodes.add(node.attr(Constants.NODE_ID));
+            }
+        }
+        
+        return retval;
+    }
+
+
 }

@@ -112,6 +112,10 @@
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="value" type="xs:string"/>
+            <xs:element name="display-name" type="xs:string"/>
+            <xs:element name="group" type="xs:string"/>
+            <xs:element name="section" type="xs:string" minOccurs="0"/>
+            <xs:element name="sub-section" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 

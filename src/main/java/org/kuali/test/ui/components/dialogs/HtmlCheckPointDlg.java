@@ -113,7 +113,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
             @Override
             protected void runProcess() {
-                Map<String, String> labelMap = buildLabelMap(labelNodes);
+                Map<String, String> labelMap = Utils.buildLabelMap(labelNodes);
                 List<CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
 
                 Stack<String> groupStack = new Stack();
@@ -224,7 +224,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
                 
-                if ((cp != null) && !isNodeProcessed(processedNodes, node)) {
+                if ((cp != null) && !Utils.isNodeProcessed(processedNodes, node)) {
                     cp.setPropertyGroup(groupStack.peek());
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
@@ -262,52 +262,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         }
     }
 
-    private boolean isRadioOrCheckboxInput(Node node) {
-        boolean retval = false;
-        
-        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.nodeName())) {
-            String type = node.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE);
-            
-            retval = (Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(type)
-                || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(type));
-        }
-        
-        return retval;
-    }
-    
-    private boolean isNodeProcessed(Set processedNodes, Node node) {
-        boolean retval = false;
-        
-        if (isRadioOrCheckboxInput(node)) {
-            retval = processedNodes.contains(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
-            
-            if (!retval) {
-                processedNodes.add(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
-            }
-        } else {
-            retval = processedNodes.contains(node.attr(Constants.NODE_ID));
-            
-            if (!retval) {
-                processedNodes.add(node.attr(Constants.NODE_ID));
-            }
-        }
-        
-        return retval;
-    }
-    
-    private Map<String, String> buildLabelMap(List<Node> labelNodes) {
-        Map<String, String> retval = new HashMap<String, String>();
-
-        for (Node label : labelNodes) {
-            String key = label.attr("for");
-
-            if (StringUtils.isNotBlank(key)) {
-                retval.put(key, Utils.cleanDisplayText(label.toString()));
-            }
-        }
-
-        return retval;
-    }
+ 
 
     private CheckpointTable buildParameterTable(String groupName, List<CheckpointProperty> checkpointProperties, boolean forTab) {
         TableConfiguration config = new TableConfiguration();
