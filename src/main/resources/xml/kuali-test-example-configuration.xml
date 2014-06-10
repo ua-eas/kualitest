@@ -77,4 +77,8 @@
          <platform-tests/>
       </platform>
    </platforms>
+   <test-execution-parameter-names>
+       <name>documentNumber</name>
+       <name>accountNumber</name>
+   </test-execution-parameter-names>
 </kuali-test-configuration>

@@ -31,7 +31,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="http request"/>
             <xs:enumeration value="checkpoint"/>
-            <xs:enumeration value="test execution attribute"/>
+            <xs:enumeration value="test execution parameter"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -41,7 +41,7 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="html-request-op">
+    <xs:complexType name="html-request-operation">
         <xs:sequence>
             <xs:element name="method" type="xs:string"/>
             <xs:element name="uri" type="xs:string"/>
@@ -103,12 +103,12 @@
     <xs:complexType name="operation">
         <xs:choice minOccurs="1" maxOccurs="1">
             <xs:element name="checkpoint-operation" type="checkpoint"/>
-            <xs:element name="test-execution-attribute" type="test-execution-attribute"/>
-            <xs:element name="html-request-operation" type="html-request-op"/>
+            <xs:element name="test-execution-parameter" type="test-execution-parameter"/>
+            <xs:element name="html-request-operation" type="html-request-operation"/>
         </xs:choice>  
     </xs:complexType>      
 
-    <xs:complexType name="test-execution-attribute">
+    <xs:complexType name="test-execution-parameter">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
             <xs:element name="value" type="xs:string"/>

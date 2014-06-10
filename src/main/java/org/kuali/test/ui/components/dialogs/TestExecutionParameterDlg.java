@@ -23,21 +23,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
-import org.kuali.test.TestExecutionAttribute;
+import org.jsoup.nodes.Node;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
-import org.kuali.test.ui.base.SelectObjectDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.buttons.FileSearchButton;
 import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
@@ -45,32 +47,33 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class TestExecutionAttributeDlg extends BaseSetupDlg {
-    private JTextField name;
+public class TestExecutionParameterDlg extends BaseSetupDlg {
+    private JComboBox name;
     private JTextField value;
-    private TestExecutionAttribute testExecutionAttribute;
-    private BaseTable attributeTable;
-    private List <TestExecutionAttribute> testExecutionAttributes;
-    private List <TestExecutionAttribute> removedAttributes;
+    private TestExecutionParameter testExecutionParameter;
+    private BaseTable parameterTable;
+    private WebTestPanel webTestPanel;
+    private List <TestExecutionParameter> testExecutionParameters;
+    private List <TestExecutionParameter> removedParameters;
     
     /**
-     * Creates new form TestExecutionAttributeDlg
+     * Creates new form TestExecutionParameterDlg
      * @param mainFrame
-     * @param testExecutionAttributes
-     * @param testExecutionAttribute
+     * @param webTestPanel
+     * @param testExecutionParameter
      */
-    public TestExecutionAttributeDlg(TestCreator mainFrame,  
-        List <TestExecutionAttribute> testExecutionAttributes, TestExecutionAttribute testExecutionAttribute) {
+    public TestExecutionParameterDlg(TestCreator mainFrame,  WebTestPanel webTestPanel, TestExecutionParameter testExecutionParameter) {
         super(mainFrame);
-        this.testExecutionAttributes = testExecutionAttributes;
+        this.testExecutionParameter = testExecutionParameter;
+        this.webTestPanel = webTestPanel;
         
-        if (testExecutionAttribute != null) {
+        if (testExecutionParameter != null) {
             setTitle("Edit test execution attribute");
             setEditmode(true);
         } else {
-            setTitle("Add new test execution attribute");
-            this.testExecutionAttribute = TestExecutionAttribute.Factory.newInstance();
-            this.testExecutionAttribute.setName("new attribute");
+            setTitle("Add new test execution parameter");
+            this.testExecutionParameter = TestExecutionParameter.Factory.newInstance();
+            this.testExecutionParameter.setName("new parameter");
         }
         
         initComponents();
@@ -78,15 +81,20 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
 
     private void initComponents() {
         String[] labels = new String[] {
-            "Name", 
-            "Value"
+            "Parameter Name", 
+            "Parameter Value"
         };
         
-        name = new JTextField(testExecutionAttribute.getName(), 20);
+        name = new JComboBox(getTestExecutionParameterNames());
+        
+        if (isEditmode()) {
+            name.setSelectedItem(testExecutionParameter.getName());
+        }
+        
         name.setEditable(!isEditmode());
         
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(value = new JTextField(testExecutionAttribute.getValue(), 30));
+        p.add(value = new JTextField(testExecutionParameter.getValue(), 30));
         
         FileSearchButton b = new FileSearchButton();
         p.add(b);
@@ -107,7 +115,7 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        p.add(new TablePanel(attributeTable = buildAttributeTable()), BorderLayout.CENTER);
+        p.add(new TablePanel(parameterTable = buildAttributeTable()), BorderLayout.CENTER);
         
         getContentPane().add(p, BorderLayout.CENTER);
 
@@ -115,10 +123,14 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    private String[] getTestExecutionParameterNames() {
+        return getMainframe().getConfiguration().getTestExecutionParameterNames().getNameArray();
+    }
+    
     private BaseTable buildAttributeTable() {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("test-execution-attributes");
-        config.setDisplayName("Attributes");
+        config.setTableName("test-execution-parameters");
+        config.setDisplayName("Parameters");
         
         int[] alignment = new int[3];
         for (int i = 0; i < alignment.length; ++i) {
@@ -133,8 +145,8 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         
         config.setHeaders(new String[] {
             "Remove",
-            "Attribute Name",
-            "Attribute Value"
+            "Parameter Name",
+            "Parameter Value"
         });
         
         config.setPropertyNames(new String[] {
@@ -156,7 +168,7 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         });
 
         
-        config.setData(testExecutionAttributes);
+        config.setData(testExecutionParameters);
         
         BaseTable retval = new BaseTable(config) {
             @Override
@@ -170,18 +182,18 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
             @Override
             public void actionPerformed(ActionEvent e) {
                 TableCellIconButton b = (TableCellIconButton)e.getSource();
-                List <TestHeader> l = attributeTable.getTableData();
+                List <TestHeader> l = parameterTable.getTableData();
                 if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    TestExecutionAttribute att = (TestExecutionAttribute)attributeTable.getTableData().get(b.getCurrentRow());
+                    TestExecutionParameter param = (TestExecutionParameter)parameterTable.getTableData().get(b.getCurrentRow());
                     
-                    if (UIUtils.promptForDelete(TestExecutionAttributeDlg.this, 
-                        "Delete Attribute", "Delete test execution attribute '" + att.getName() + "'?")) {
-                        if (removedAttributes == null) {
-                            removedAttributes = new ArrayList<TestExecutionAttribute>();
+                    if (UIUtils.promptForDelete(TestExecutionParameterDlg.this, 
+                        "Remove Parameter", "Remove test execution parameter '" + param.getName() + "'?")) {
+                        if (removedParameters == null) {
+                            removedParameters = new ArrayList<TestExecutionParameter>();
                         }
                         
-                        removedAttributes.add(testExecutionAttributes.remove(b.getCurrentRow()));
-                        attributeTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
+                        removedParameters.add(testExecutionParameters.remove(b.getCurrentRow()));
+                        parameterTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
                     }
                 }
             }
@@ -197,24 +209,25 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
     protected boolean save() {
         boolean retval = false;
         boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText()) 
+        String nm = (String)name.getSelectedItem();
+        if (StringUtils.isNotBlank(nm) 
             && StringUtils.isNotBlank(value.getText())) {
             
             if (!isEditmode()) {
-                if (attributeNameExists()) {
+                if (parameterNameExists()) {
                     oktosave = false;
-                    displayExistingNameAlert("Test Execution Attribute", name.getText());
+                    displayExistingNameAlert("Test Execution Parameter", nm);
                 }
             }
         } else {
-            displayRequiredFieldsMissingAlert("Test Exexcution Attribute", "name, value");
+            displayRequiredFieldsMissingAlert("Test Exexcution Parameter", "name, value");
             oktosave = false;
         }
         
         if (oktosave) {
             if (!isEditmode()) {
-                testExecutionAttribute.setName(name.getText());
-                testExecutionAttribute.setValue(value.getText());
+                testExecutionParameter.setName(nm);
+                testExecutionParameter.setValue(value.getText());
             }
             
             getConfiguration().setModified(true);
@@ -226,15 +239,15 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private boolean attributeNameExists() {
+    private boolean parameterNameExists() {
         boolean retval = false;
-        String newname = name.getText();
+        String newname = (String)name.getSelectedItem();
         return retval;
     }
 
     @Override
     public Object getNewRepositoryObject() {
-        return testExecutionAttribute;
+        return testExecutionParameter;
     }
 
     @Override
@@ -247,11 +260,12 @@ public class TestExecutionAttributeDlg extends BaseSetupDlg {
         return "select-object";
     }
 
-    public List<TestExecutionAttribute> getRemovedAttributes() {
-        return removedAttributes;
+    public List<TestExecutionParameter> getRemovedParameters() {
+        return removedParameters;
     }
     
     private void showSearch() {
-        SelectObjectDlg dlg = new SelectObjectDlg(this, new ArrayList());
+        List <Node> labelNodes = new ArrayList<Node>();
+        Node root = webTestPanel.getHtmlRootNode(labelNodes);
     }
 }

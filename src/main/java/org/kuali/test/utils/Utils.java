@@ -66,7 +66,7 @@ import org.jsoup.safety.Whitelist;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
-import org.kuali.test.HtmlRequestOp;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
@@ -559,7 +559,7 @@ public class Utils {
             LOG.debug(getHttpRequestDetails(request));
         }
 
-        HtmlRequestOp op = testop.addNewOperation().addNewHtmlRequestOperation();
+        HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         boolean ispost = false;

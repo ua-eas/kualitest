@@ -32,7 +32,7 @@ public class Constants {
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
     public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT_STRING);
     
-    public static final ImageIcon KUALI_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
+    public static final ImageIcon KUALI_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
     
     public static final ImageIcon REPOSITORY_ICON = new ImageIcon(TestCreator.class.getResource("/images/repository.png"));
     public static final ImageIcon PLATFORM_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform.png"));
@@ -71,7 +71,7 @@ public class Constants {
     public static final ImageIcon JMX_CONNECTION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-toolbar.png"));
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
     public static final ImageIcon SCHEDULE_TEST_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/schedule-test-toolbar.png"));
-    public static final ImageIcon EXECUTION_CONTEXT_ATTRIBUTE_ICON = new ImageIcon(TestCreator.class.getResource("/images/execution-context-attribute.png"));
+    public static final ImageIcon EXECUTION_PARAMETER_ICON = new ImageIcon(TestCreator.class.getResource("/images/execution-parameter.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
@@ -134,7 +134,7 @@ public class Constants {
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
-    public static final String EXECUTION_ATTRIBUTE_ACTION = "Execution Attribute";
+    public static final String EXECUTION_PARAMETER_ACTION = "Parameter";
     public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";

@@ -22,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.net.URLConnection;
 import org.apache.log4j.Logger;
-import org.kuali.test.HtmlRequestOp;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -40,7 +40,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         OutputStreamWriter writer = null;
         BufferedReader reader = null;
-        HtmlRequestOp reqop = null;
+        HtmlRequestOperation reqop = null;
         try {
             reqop = getOperation().getHtmlRequestOperation();
             URL url = new URL(reqop.getUri());

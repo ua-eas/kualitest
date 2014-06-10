@@ -44,7 +44,7 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
-import org.kuali.test.TestExecutionAttribute;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -57,7 +57,7 @@ import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
-import org.kuali.test.ui.components.dialogs.TestExecutionAttributeDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
@@ -198,12 +198,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
     
-    private void addTestExecutionAttribute(TestExecutionAttribute att) {
+    private void addTestExecutionParameter(TestExecutionParameter param) {
         TestOperation testOp = TestOperation.Factory.newInstance();
-        testOp.setOperationType(TestOperationType.TEST_EXECUTION_ATTRIBUTE);
+        testOp.setOperationType(TestOperationType.TEST_EXECUTION_PARAMETER);
         Operation op = testOp.addNewOperation();
         op.addNewCheckpointOperation();
-        op.setTestExecutionAttribute(att);
+        op.setTestExecutionParameter(param);
         testProxyServer.getTestOperations().add(testOp);
     }
 
@@ -231,7 +231,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         nodeId = 1;
         
 
-        Node rootNode = getRootNodeFromHtml(wb, labelNodes, getCurrentHtmlResponse(wb));
+        Node rootNode = getHtmlRootNode(labelNodes);
 
         if (rootNode != null) {
             HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
@@ -495,43 +495,47 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected List<ToolbarButton> getCustomButtons() {
         List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
-        retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_ATTRIBUTE_ACTION, Constants.EXECUTION_CONTEXT_ATTRIBUTE_ICON));
-        executionAttribute.setToolTipText("add test execution attribute");
+        retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_PARAMETER_ACTION, Constants.EXECUTION_PARAMETER_ICON));
+        executionAttribute.setToolTipText("add test execution parameter");
         executionAttribute.setEnabled(false);
         return retval;
     }
 
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
-        if (Constants.EXECUTION_ATTRIBUTE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            handleAddExecutionContextAttribute();
+        if (Constants.EXECUTION_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            handleAddExecutionParameter();
         }
     }
 
-    private List <TestExecutionAttribute> getTestExecutionAttributes() {
-        List <TestExecutionAttribute> retval = new ArrayList <TestExecutionAttribute>();
+    private List <TestExecutionParameter> getTestExecutionParameters() {
+        List <TestExecutionParameter> retval = new ArrayList <TestExecutionParameter>();
         
         for (TestOperation op : testProxyServer.getTestOperations()) {
-            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_ATTRIBUTE)) {
-                retval.add(op.getOperation().getTestExecutionAttribute());
+            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)) {
+                retval.add(op.getOperation().getTestExecutionParameter());
             }
         }
         
         return retval;
     }
     
+   public Node getHtmlRootNode(List <Node> labelNodes) {
+        nodeId = 1;
+        JWebBrowser wb = getCurrentBrowser();
+        return getRootNodeFromHtml(wb, labelNodes, getCurrentHtmlResponse(wb));
+    }
     
-    private void handleAddExecutionContextAttribute() {
+    private void handleAddExecutionParameter() {
+        Node rootNode =  getHtmlRootNode(new ArrayList<Node>());
         
-        TestExecutionAttributeDlg dlg = new TestExecutionAttributeDlg(getMainframe(), getTestExecutionAttributes(), null);
+        TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), this, null);
         
         if (dlg.isSaved()) {
-            TestExecutionAttribute att = (TestExecutionAttribute)dlg.getNewRepositoryObject();
-            List <TestExecutionAttribute> removedAttributes = dlg.getRemovedAttributes();
-
+            TestExecutionParameter param = (TestExecutionParameter)dlg.getNewRepositoryObject();
             Set <String> hs = new HashSet<String>();
             
-            for (TestExecutionAttribute curatt : removedAttributes) {
+            for (TestExecutionParameter curatt : dlg.getRemovedParameters()) {
                 hs.add(curatt.getName());
             }
             
@@ -539,8 +543,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             
             while (it.hasNext()) {
                 TestOperation op = it.next();
-                if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_ATTRIBUTE)
-                    && hs.contains(op.getOperation().getTestExecutionAttribute().getName())) {
+                if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)
+                    && hs.contains(op.getOperation().getTestExecutionParameter().getName())) {
                     it.remove();
                 }
             }
