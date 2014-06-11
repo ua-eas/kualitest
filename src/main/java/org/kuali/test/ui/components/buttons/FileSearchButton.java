@@ -16,16 +16,11 @@
 
 package org.kuali.test.ui.components.buttons;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import org.kuali.test.utils.Constants;
 
 
-public class FileSearchButton extends JButton {
+public class FileSearchButton extends SearchButton {
     public FileSearchButton() {
         super(Constants.FILE_SEARCH_ICON);
-        setActionCommand(Constants.FILE_SEARCH_ACTION);
-        setBorder(BorderFactory.createEmptyBorder());
-        setContentAreaFilled(false);
     }
 }

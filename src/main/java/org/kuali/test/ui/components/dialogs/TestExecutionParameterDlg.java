@@ -32,15 +32,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Node;
 import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
-import org.kuali.test.ui.components.buttons.FileSearchButton;
-import org.kuali.test.ui.components.buttons.TableCellIconButton;
+import org.kuali.test.ui.components.buttons.SearchButton;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -100,9 +98,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
         p.add(value = new JTextField(testExecutionParameter.getValue(), 30));
+        value.setEditable(false);
         
-        FileSearchButton b = new FileSearchButton();
-        p.add(b);
+        SearchButton b = new SearchButton();
+        p.add(new SearchButton());
         
         b.addActionListener(new ActionListener() {
             @Override
@@ -120,11 +119,13 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        p.add(new TablePanel(parameterTable = buildParameterTable()), BorderLayout.CENTER);
-        
+        TablePanel tp = new TablePanel(parameterTable = buildParameterTable());
+        p.add(tp, BorderLayout.CENTER);
+        tp.addDeleteButton(this, Constants.REMOVE_PARAMETER_ACTION, "remove test execution parameter");
         getContentPane().add(p, BorderLayout.CENTER);
 
         addStandardButtons();
+        tp.getDeleteButton().setEnabled(false);
         setDefaultBehavior();
     }
     
@@ -149,69 +150,32 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
-            "Remove",
             "Parameter Name",
             "Parameter Value"
         });
         
         config.setPropertyNames(new String[] {
-            Constants.IGNORE_TABLE_DATA_INDICATOR,
             "name",
             "value",
         });
             
         config.setColumnTypes(new Class[] {
             String.class,
-            String.class,
             String.class
         });
         
         config.setColumnWidths(new int[] {
-            15,
             30,
             30
         });
 
         
-        config.setData(testExecutionParameters = loadTestEexcutionParameters());
+        config.setData(testExecutionParameters = loadTestExecutionParameters());
         
-        BaseTable retval = new BaseTable(config) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return (column == 0);
-            }
-        };
-        
-        TableCellIconButton b = new TableCellIconButton(Constants.DELETE_ICON);
-        b.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TableCellIconButton b = (TableCellIconButton)e.getSource();
-                List <TestHeader> l = parameterTable.getTableData();
-                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    TestExecutionParameter param = (TestExecutionParameter)parameterTable.getTableData().get(b.getCurrentRow());
-                    
-                    if (UIUtils.promptForDelete(TestExecutionParameterDlg.this, 
-                        "Remove Parameter", "Remove test execution parameter '" + param.getName() + "'?")) {
-                        if (removedParameters == null) {
-                            removedParameters = new ArrayList<TestExecutionParameter>();
-                        }
-                        
-                        removedParameters.add(testExecutionParameters.remove(b.getCurrentRow()));
-                        parameterTable.getTableData().remove(b.getCurrentRow());
-                        parameterTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
-                    }
-                }
-            }
-        });
-        
-        retval.getColumnModel().getColumn(0).setCellRenderer(b);
-        retval.getColumnModel().getColumn(0).setCellEditor(b);
-
-        return retval;
+        return new BaseTable(config);
     }
     
-    private List <TestExecutionParameter> loadTestEexcutionParameters() {
+    private List <TestExecutionParameter> loadTestExecutionParameters() {
         List <TestExecutionParameter> retval = new ArrayList<TestExecutionParameter>();
         
         for (TestOperation op : webTestPanel.getTestProxyServer().getTestOperations()) {
@@ -305,4 +269,25 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     public TestExecutionParameter getTestExecutionParameter() {
         return testExecutionParameter;
     }
+
+    @Override
+    protected void handleOtherActions(String actionCommand) {
+        if (Constants.REMOVE_PARAMETER_ACTION.equalsIgnoreCase(actionCommand)) {
+            int selrow = parameterTable.getSelectedRow();
+            TestExecutionParameter param = (TestExecutionParameter)parameterTable.getTableData().get(selrow);
+
+            if (UIUtils.promptForDelete(TestExecutionParameterDlg.this, 
+                "Remove Parameter", "Remove test execution parameter '" + param.getName() + "'?")) {
+                if (removedParameters == null) {
+                    removedParameters = new ArrayList<TestExecutionParameter>();
+                }
+
+                removedParameters.add(testExecutionParameters.remove(selrow));
+                parameterTable.getTableData().remove(selrow);
+                parameterTable.getModel().fireTableRowsDeleted(selrow, selrow);
+            }
+        }
+    }
+
+
 }

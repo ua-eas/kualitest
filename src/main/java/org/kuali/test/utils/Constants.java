@@ -134,6 +134,7 @@ public class Constants {
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
+    public static final String REMOVE_PARAMETER_ACTION = "Remove Parameter";
     public static final String EXECUTION_PARAMETER_ACTION = "Parameter";
     public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
     public static final String DEFAULT_PROXY_HOST= "localhost";
