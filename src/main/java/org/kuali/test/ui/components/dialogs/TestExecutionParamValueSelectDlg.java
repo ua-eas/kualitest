@@ -143,6 +143,9 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
                 
                 if ((selrow >= 0) && (selrow < l.size())) {
                     testExecutionParameter = l.get(selrow);
+                    setSaved(true);
+                    dispose();
+                    break;
                 }
             }
         }

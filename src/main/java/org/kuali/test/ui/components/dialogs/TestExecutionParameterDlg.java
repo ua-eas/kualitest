@@ -33,6 +33,8 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Node;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
@@ -118,7 +120,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        p.add(new TablePanel(parameterTable = buildAttributeTable()), BorderLayout.CENTER);
+        p.add(new TablePanel(parameterTable = buildParameterTable()), BorderLayout.CENTER);
         
         getContentPane().add(p, BorderLayout.CENTER);
 
@@ -130,7 +132,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         return getMainframe().getConfiguration().getTestExecutionParameterNames().getNameArray();
     }
     
-    private BaseTable buildAttributeTable() {
+    private BaseTable buildParameterTable() {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("test-execution-parameters");
         config.setDisplayName("Parameters");
@@ -171,7 +173,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         });
 
         
-        config.setData(testExecutionParameters);
+        config.setData(testExecutionParameters = loadTestEexcutionParameters());
         
         BaseTable retval = new BaseTable(config) {
             @Override
@@ -196,6 +198,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
                         }
                         
                         removedParameters.add(testExecutionParameters.remove(b.getCurrentRow()));
+                        parameterTable.getTableData().remove(b.getCurrentRow());
                         parameterTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
                     }
                 }
@@ -205,6 +208,18 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         retval.getColumnModel().getColumn(0).setCellRenderer(b);
         retval.getColumnModel().getColumn(0).setCellEditor(b);
 
+        return retval;
+    }
+    
+    private List <TestExecutionParameter> loadTestEexcutionParameters() {
+        List <TestExecutionParameter> retval = new ArrayList<TestExecutionParameter>();
+        
+        for (TestOperation op : webTestPanel.getTestProxyServer().getTestOperations()) {
+            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)) {
+                retval.add(op.getOperation().getTestExecutionParameter());
+            }
+        }
+        
         return retval;
     }
     
@@ -275,7 +290,19 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             = new TestExecutionParamValueSelectDlg(getMainframe(), this, labelNodes, rootNode, webTestPanel.getTestHeader());
         
         if (dlg.isSaved()) {
+            List <TestExecutionParameter> l = parameterTable.getTableData();
             
+            int row = l.size();
+            
+            testExecutionParameter = (TestExecutionParameter)dlg.getNewRepositoryObject();
+            
+            if (testExecutionParameter != null) {
+                value.setText(testExecutionParameter.getDisplayName() + " - current screen value=" + testExecutionParameter.getValue());
+            }
         }
-    }        
+    }  
+
+    public TestExecutionParameter getTestExecutionParameter() {
+        return testExecutionParameter;
+    }
 }

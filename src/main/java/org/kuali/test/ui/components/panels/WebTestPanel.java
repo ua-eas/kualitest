@@ -535,19 +535,27 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             TestExecutionParameter param = (TestExecutionParameter)dlg.getNewRepositoryObject();
             Set <String> hs = new HashSet<String>();
             
-            for (TestExecutionParameter curatt : dlg.getRemovedParameters()) {
-                hs.add(curatt.getName());
-            }
+            if (dlg.getRemovedParameters() != null) {
+                for (TestExecutionParameter curatt : dlg.getRemovedParameters()) {
+                    hs.add(curatt.getName());
+                }
             
-            Iterator <TestOperation> it = testProxyServer.getTestOperations().iterator();
-            
-            while (it.hasNext()) {
-                TestOperation op = it.next();
-                if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)
-                    && hs.contains(op.getOperation().getTestExecutionParameter().getName())) {
-                    it.remove();
+                Iterator <TestOperation> it = testProxyServer.getTestOperations().iterator();
+
+                while (it.hasNext()) {
+                    TestOperation op = it.next();
+                    if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)
+                        && hs.contains(op.getOperation().getTestExecutionParameter().getName())) {
+                        it.remove();
+                    }
                 }
             }
+            
+            addTestExecutionParameter(dlg.getTestExecutionParameter());
         }
+    }
+
+    public TestProxyServer getTestProxyServer() {
+        return testProxyServer;
     }
 }
