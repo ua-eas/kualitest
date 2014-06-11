@@ -18,24 +18,17 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.SimpleInputDlg;
 import org.kuali.test.ui.base.TableConfiguration;
-import org.kuali.test.ui.components.buttons.AddButton;
-import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -45,8 +38,7 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
-    private JTextField name;
-    private BaseTable nameTable;
+    private TablePanel tp;
     
     /**
      * Creates new form TestSuiteDlg
@@ -59,26 +51,11 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
     }
 
     private void initComponents() {
-        String[] labels = new String[] {
-            "Parameter Name"
-        };
+        tp = new TablePanel(buildNameTable());
+        tp.addAddButton(this, Constants.ADD_NAME_ACTION, "add test execution parameter name");
+        tp.addDeleteButton(this, Constants.REMOVE_NAME_ACTION, "remove selected test execution parameter name");
         
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(name = new JTextField(20));
-        AddButton b = new AddButton(Constants.ADD_NAME_ACTION, "Add parameter name");
-        b.addActionListener(this);
-        p.add(b);
-        
-        JComponent[] components = new JComponent[] {
-            p
-        };
-
-        p = new JPanel(new BorderLayout(3, 3));
-        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-
-        p.add(new TablePanel(nameTable = buildNameTable()), BorderLayout.CENTER);
-        
-        getContentPane().add(p, BorderLayout.CENTER);
+        getContentPane().add(tp, BorderLayout.CENTER);
 
         addStandardButtons();
         setDefaultBehavior();
@@ -101,22 +78,18 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
-            "Remove",
             "Parameter Name"
         });
         
         config.setPropertyNames(new String[] {
-            Constants.IGNORE_TABLE_DATA_INDICATOR,
             "name"
         });
             
         config.setColumnTypes(new Class[] {
-            String.class,
             String.class
         });
         
         config.setColumnWidths(new int[] {
-            15,
             30
         });
 
@@ -126,43 +99,10 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         
         BaseTable retval = new BaseTable(config) {
             @Override
-            public boolean isCellEditable(int row, int column) {
-                return (column == 0);
-            }
-
-            @Override
             public Object getValueAt(int row, int column) {
-                if (column == 1) {
-                    return getModel().getData().get(row);
-                } else {
-                    return null;
-                }
+                return getModel().getData().get(row);
             }
-            
-            
         };
-        
-        TableCellIconButton b = new TableCellIconButton(Constants.DELETE_ICON);
-        b.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TableCellIconButton b = (TableCellIconButton)e.getSource();
-                List <String> l = nameTable.getTableData();
-                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    String param = l.get(b.getCurrentRow());
-                    
-                    if (UIUtils.promptForDelete(TestExecutionParameterNamesDlg.this, 
-                        "Remove Parameter", "Remove test execution parameter name '" + param + "'?")) {
-                        l.remove(b.getCurrentRow());
-                        nameTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
-                    }
-                }
-            }
-        });
-        
-        retval.getColumnModel().getColumn(0).setCellRenderer(b);
-        retval.getColumnModel().getColumn(0).setCellEditor(b);
-
         return retval;
     }
     
@@ -172,7 +112,7 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         boolean retval = false;
         getConfiguration().setModified(true);
         
-        List <String> names = nameTable.getTableData();
+        List <String> names = tp.getTable().getTableData();
         Collections.sort(names);
         
         getConfiguration().getTestExecutionParameterNames().setNameArray(names.toArray(new String[names.size()]));
@@ -184,12 +124,10 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private boolean parameterNameExists() {
+    private boolean parameterNameExists(String name) {
         boolean retval = false;
-        String newname = name.getText();
-        
-        for (String nm : (List <String>)nameTable.getTableData()) {
-            if (nm.equalsIgnoreCase(newname)) {
+        for (String nm : (List <String>)tp.getTable().getTableData()) {
+            if (nm.equalsIgnoreCase(name)) {
                 retval = true;
                 break;
             }
@@ -210,14 +148,40 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
 
     @Override
     protected void handleOtherActions(String actionCommand) {
-        if (StringUtils.isBlank(name.getText())) {
-            UIUtils.showError(this, "Parameter Name required", "Please enter a parameter name");
-        } else if (parameterNameExists()) {
-            UIUtils.showError(this, "Parameter Name Exists", "Parameter name '" + name.getText() + "' already exists");
-        } else {
-            int row = nameTable.getTableData().size();
-            nameTable.getTableData().add(name.getText());
-            nameTable.getModel().fireTableRowsInserted(row, row);
+        if (Constants.REMOVE_NAME_ACTION.equals(actionCommand)) {
+            List <String> l = tp.getTable().getTableData();
+            if ((l != null) && !l.isEmpty()) {
+                int selrow = tp.getTable().getSelectedRow();
+                String param = l.get(selrow);
+
+                if (UIUtils.promptForDelete(TestExecutionParameterNamesDlg.this, 
+                    "Remove Parameter", "Remove parameter name '" + param + "'?")) {
+                    l.remove(selrow);
+                    tp.getTable().getModel().fireTableRowsDeleted(selrow, selrow);
+                }
+            }
+        } else if (Constants.ADD_NAME_ACTION.equals(actionCommand)) {
+            SimpleInputDlg dlg = new SimpleInputDlg(this, "Parameter Name") {
+
+                @Override
+                protected String getErrorMessage(String inputValue) {
+                    return "Parameter name '" + inputValue + "' already exists";
+                }
+
+                @Override
+                protected boolean isInputError(String inputValue) {
+                    return parameterNameExists(inputValue);
+                }
+            };
+            
+            String name = dlg.getEnteredValue();
+            
+            if (StringUtils.isNotBlank(name)) {
+                List <String> l = tp.getTable().getTableData();
+                int sz = l.size();
+                l.add(name);
+                tp.getTable().getModel().fireTableRowsInserted(sz, sz);
+            }
         }
     }
 }
