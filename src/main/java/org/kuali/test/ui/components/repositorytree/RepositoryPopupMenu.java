@@ -45,7 +45,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
     
     public RepositoryPopupMenu(TestCreator mainframe) {
         super(mainframe);
-    }
+   }
 
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
@@ -62,7 +62,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             new TestExecutionMonitor(testExecutions);
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);
-        } else if (ADD_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+        } else if (Constants.CREATE_TEST.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleCreateTest();
         } else if (REMOVE_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleRemoveTest(actionNode);
         } else if (Constants.SHOW_TEST_INFORMATION_ACTION.equalsIgnoreCase(e.getActionCommand())) {
@@ -90,6 +91,11 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
 
             add(new JSeparator());
             m = new JMenuItem(ADD_TEST_SUITE_ACTION);
+            add(m);
+            m.addActionListener(this);
+            
+            add(new JSeparator());
+            m = new JMenuItem(Constants.CREATE_TEST);
             add(m);
             m.addActionListener(this);
         } else if (node.getUserObject() instanceof TestSuite) {

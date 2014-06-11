@@ -380,7 +380,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         pack();
     }
 
-    private void handleCreateTest() {
+    public void handleCreateTest() {
         CreateTestDlg dlg = new CreateTestDlg(this, platformTestsPanel.getCurrentPlatform());
 
         if (dlg.isSaved()) {
