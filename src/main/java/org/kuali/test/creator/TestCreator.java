@@ -211,7 +211,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         fileMenu.add(scheduleTestsMenuItem);
 
         fileMenu.add(new JSeparator());
-
         
         saveConfigurationMenuItem = new JMenuItem("Save Repository Configuration");
         saveConfigurationMenuItem.setEnabled(false);
@@ -239,7 +238,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         fileMenu.add(createTestMenuItem);
         
-        setup.add(new JSeparator());
+        fileMenu.add(new JSeparator());
         
         setup.setText("Setup");
 
