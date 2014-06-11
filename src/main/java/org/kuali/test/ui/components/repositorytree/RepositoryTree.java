@@ -332,6 +332,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
 
         getMainframe().getSaveConfigurationButton().setEnabled(configuration.getModified());
+        getMainframe().getSaveConfigurationMenuItem().setEnabled(configuration.getModified());
     }
     
     private void addSuiteTests(DefaultMutableTreeNode testSuiteNode, List <String> testNames) {
@@ -362,6 +363,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 
                 addRepositoryNodes(testSuiteNode, newSuiteTests);
                 getMainframe().getSaveConfigurationButton().setEnabled(true);
+                getMainframe().getSaveConfigurationMenuItem().setEnabled(true);
             }
         }
     }
@@ -405,6 +407,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                         }
                         
                         getMainframe().getSaveConfigurationButton().setEnabled(true);
+                        getMainframe().getSaveConfigurationMenuItem().setEnabled(true);
                     }
                 }
             }

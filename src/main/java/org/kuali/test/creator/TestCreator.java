@@ -17,7 +17,6 @@ package org.kuali.test.creator;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -96,8 +95,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private JSplitPane hsplitPane;
     private JSplitPane vsplitPane;
     private CreateTestPanel createTestPanel;
-    private JButton saveConfigurationButton;
-    private JButton createTestButton;
+    private ToolbarButton saveConfigurationButton;
+    private ToolbarButton createTestButton;
+    private JMenuItem saveConfigurationMenuItem;
+    private JMenuItem createTestMenuItem;
     private RepositoryTree testRepositoryTree;
     private DatabaseTree databaseTree;
     private WebServiceTree webServiceTree;
@@ -211,6 +212,35 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         fileMenu.add(new JSeparator());
 
+        
+        saveConfigurationMenuItem = new JMenuItem("Save Repository Configuration");
+        saveConfigurationMenuItem.setEnabled(false);
+        
+        saveConfigurationMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                testRepositoryTree.saveConfiguration();
+                saveConfigurationButton.setEnabled(false);
+                saveConfigurationMenuItem.setEnabled(false);
+            }
+        });
+        
+        fileMenu.add(saveConfigurationMenuItem);
+        
+        createTestMenuItem = new JMenuItem("Create Test");
+        createTestMenuItem.setEnabled(false);
+        
+        createTestMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleCreateTest();
+            }
+        });
+        
+        fileMenu.add(createTestMenuItem);
+        
+        setup.add(new JSeparator());
+        
         setup.setText("Setup");
 
         addPlatformMenuItem.setText("Add Platform");
@@ -330,40 +360,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         vsplitPane.setBottomComponent(platformTestsPanel = new PlatformTestsPanel(this));
 
         JPanel p = new JPanel(new BorderLayout());
-        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        p2.add(saveConfigurationButton = new JButton(Constants.SAVE_CONFIGURATION, Constants.SAVE_CONFIGURATION_ICON) {
-            @Override
-            public void setEnabled(boolean enabled) {
-                if (enabled) {
-                    getConfiguration().setModified(true);
-                }
-
-                super.setEnabled(enabled);
-            }
-        });
-        saveConfigurationButton.setEnabled(false);
-        saveConfigurationButton.setMargin(new Insets(1, 1, 1, 1));
-        saveConfigurationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                testRepositoryTree.saveConfiguration();
-                saveConfigurationButton.setEnabled(false);
-            }
-        });
-
-        p2.add(createTestButton = new JButton(Constants.CREATE_TEST, Constants.CREATE_TEST_ICON));
-        createTestButton.setEnabled(false);
-        createTestButton.setMargin(new Insets(1, 1, 1, 1));
-
-        createTestButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                handleCreateTest();
-            }
-        });
-
-        p.add(p2, BorderLayout.NORTH);
         p.add(new JScrollPane(testRepositoryTree = new RepositoryTree(this)), BorderLayout.CENTER);
         vsplitPane.setTopComponent(p);
 
@@ -428,6 +424,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
             DatabaseConnection dbconn = (DatabaseConnection) dlg.getNewRepositoryObject();
             databaseTree.addDatabaseConnection(dbconn);
         }
@@ -438,6 +435,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -446,6 +444,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
             WebService ws = (WebService) dlg.getNewRepositoryObject();
             webServiceTree.addWebService(ws);
         }
@@ -456,6 +455,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -466,6 +466,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             webServiceTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
+                saveConfigurationMenuItem.setEnabled(true);
             }
         }
     }
@@ -475,6 +476,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
             JmxConnection jmx = (JmxConnection) dlg.getNewRepositoryObject();
             jmxTree.addJmxConnection(jmx);
         }
@@ -485,6 +487,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -495,6 +498,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
            jmxTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
+                saveConfigurationMenuItem.setEnabled(true);
             }
         }
     }
@@ -504,6 +508,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
             if (!dlg.isEditmode()) {
                 testRepositoryTree.addRepositoryNode(dlg.getNewRepositoryObject());
             }
@@ -516,6 +521,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -534,6 +540,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
             if (!dlg.isEditmode()) {
                 testRepositoryTree.addRepositoryNode(dlg.getNewRepositoryObject());
             }
@@ -556,6 +563,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             testRepositoryTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
+                saveConfigurationMenuItem.setEnabled(true);
             }
         }
     }
@@ -567,6 +575,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             testRepositoryTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
+                saveConfigurationMenuItem.setEnabled(true);
             }
         }
     }
@@ -576,6 +585,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -586,6 +596,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             databaseTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
                 saveConfigurationButton.setEnabled(true);
+                saveConfigurationMenuItem.setEnabled(true);
             }
         }
     }
@@ -607,6 +618,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
         }
     }
 
@@ -618,10 +630,17 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return createTestButton;
     }
 
+    public JMenuItem getCreateTestMenuItem() {
+        return createTestMenuItem;
+    }
+
     public JButton getSaveConfigurationButton() {
         return saveConfigurationButton;
     }
 
+    public JMenuItem getSaveConfigurationMenuItem() {
+        return saveConfigurationMenuItem;
+    }
     /**
      * @param args the command line arguments
      */
@@ -773,6 +792,42 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
         });
             
+        toolbar.addSeparator();
+
+        toolbar.add(saveConfigurationButton = new ToolbarButton(Constants.SAVE_CONFIGURATION_ICON, "save repository configuration") {
+            @Override
+            public void setEnabled(boolean enabled) {
+                if (enabled) {
+                    getConfiguration().setModified(true);
+                }
+
+                super.setEnabled(enabled);
+            }
+        });
+        saveConfigurationButton.setEnabled(false);
+        saveConfigurationButton.setMargin(new Insets(1, 1, 1, 1));
+        saveConfigurationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                testRepositoryTree.saveConfiguration();
+                saveConfigurationButton.setEnabled(false);
+                saveConfigurationMenuItem.setEnabled(false);
+            }
+        });
+
+        toolbar.add(createTestButton = new ToolbarButton(Constants.TEST_ICON, "create new test"));
+        createTestButton.setEnabled(false);
+        createTestButton.setMargin(new Insets(1, 1, 1, 1));
+
+        createTestButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleCreateTest();
+            }
+        });
+        
+        toolbar.addSeparator();
+        
         toolbar.add(b = new ToolbarButton(Constants.EXIT_APPLICATION_TOOLBAR_ICON, "exit application"));
         b.addActionListener(new ActionListener() {
 
@@ -782,6 +837,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         
+
         retval.add(new JSeparator(), BorderLayout.NORTH);
         retval.add(toolbar, BorderLayout.CENTER);
         

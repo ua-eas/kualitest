@@ -23,7 +23,7 @@ import javax.swing.JButton;
 
 public class ToolbarButton extends JButton {
     public ToolbarButton(String actionCommand, ImageIcon icon) {
-        this(actionCommand, actionCommand, icon, true);
+        this(actionCommand, actionCommand, icon);
     }
 
     public ToolbarButton(ImageIcon icon, String tooltip) {
@@ -32,7 +32,7 @@ public class ToolbarButton extends JButton {
         setMargin(new Insets(1, 1, 1, 3));
     }
 
-    public ToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
+    public ToolbarButton(String actionCommand, String txt, ImageIcon icon) {
         super(icon);
         setActionCommand(actionCommand);
         setText(txt);

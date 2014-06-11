@@ -162,6 +162,7 @@ public class PlatformTestsPanel extends BasePanel
         }
         
         getMainframe().getCreateTestButton().setEnabled(newPlatform != null);
+        getMainframe().getCreateTestMenuItem().setEnabled(newPlatform != null);
     }
 
     private void clearList() {

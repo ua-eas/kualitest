@@ -132,6 +132,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
     protected void handleCancelTest() {
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
+        getMainframe().getCreateTestMenuItem().setEnabled(true);
         testOperations.clear();
     }
    
