@@ -64,6 +64,7 @@ import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
@@ -178,6 +179,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         JMenuItem addWebServiceMenuItem = new JMenuItem();
         JMenuItem addJmxConnectionMenuItem = new JMenuItem();
         JMenuItem emailSetupMenuItem = new JMenuItem();
+        JMenuItem testExecutionParameterNamesMenuItem = new JMenuItem();
         JMenuItem scheduleTestsMenuItem = new JMenuItem();
         JMenuItem exitMenuItem = new JMenuItem();
         JMenuItem helpMenu = new JMenu();
@@ -241,6 +243,16 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         setup.add(addJmxConnectionMenuItem);
         
+        testExecutionParameterNamesMenuItem.setText("Test Execution Parameter Names");
+        testExecutionParameterNamesMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleTestExecutionParameterNamesSetup();
+            }
+        });
+        
+        setup.add(testExecutionParameterNamesMenuItem);
+
         setup.add(new JSeparator());
         
         emailSetupMenuItem.setText("Email Setup");
@@ -590,6 +602,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     private void handleScheduleTests(ActionEvent evt) {
         new ScheduleTestsDlg(this);
+    }
+    public void handleTestExecutionParameterNamesSetup() {
+        TestExecutionParameterNamesDlg dlg = new TestExecutionParameterNamesDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+        }
     }
 
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {

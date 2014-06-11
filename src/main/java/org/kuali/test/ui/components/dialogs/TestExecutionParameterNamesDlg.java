@@ -18,14 +18,27 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.buttons.AddButton;
+import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -41,22 +54,26 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
      */
     public TestExecutionParameterNamesDlg(TestCreator mainFrame) {
         super(mainFrame);
-        setTitle("Add/Edit test execution parameter names");
+        setTitle("Test execution parameter names");
         initComponents();
     }
 
     private void initComponents() {
         String[] labels = new String[] {
-            "Name"
+            "Parameter Name"
         };
         
-        name = new JTextField(20);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        p.add(name = new JTextField(20));
+        AddButton b = new AddButton(Constants.ADD_NAME_ACTION, "Add parameter name");
+        b.addActionListener(this);
+        p.add(b);
         
         JComponent[] components = new JComponent[] {
-            name
+            p
         };
 
-        JPanel p = new JPanel(new BorderLayout(3, 3));
+        p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
         p.add(new TablePanel(nameTable = buildNameTable()), BorderLayout.CENTER);
@@ -68,7 +85,85 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
     }
     
     private BaseTable buildNameTable() {
-        return null;
+        TableConfiguration config = new TableConfiguration();
+        config.setTableName("test-execution-parameter-names");
+        config.setDisplayName("Parameter Names");
+        
+        int[] alignment = new int[2];
+        for (int i = 0; i < alignment.length; ++i) {
+            if (i == 0) {
+                alignment[i] = JLabel.CENTER;
+            } else {
+                alignment[i] = JLabel.LEFT;
+            }
+        }
+            
+        config.setColumnAlignment(alignment);
+        
+        config.setHeaders(new String[] {
+            "Remove",
+            "Parameter Name"
+        });
+        
+        config.setPropertyNames(new String[] {
+            Constants.IGNORE_TABLE_DATA_INDICATOR,
+            "name"
+        });
+            
+        config.setColumnTypes(new Class[] {
+            String.class,
+            String.class
+        });
+        
+        config.setColumnWidths(new int[] {
+            15,
+            30
+        });
+
+        if (getConfiguration().getTestExecutionParameterNames() != null) {
+            config.setData(new ArrayList<String>(Arrays.asList(getConfiguration().getTestExecutionParameterNames().getNameArray())));
+        }
+        
+        BaseTable retval = new BaseTable(config) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return (column == 0);
+            }
+
+            @Override
+            public Object getValueAt(int row, int column) {
+                if (column == 1) {
+                    return getModel().getData().get(row);
+                } else {
+                    return null;
+                }
+            }
+            
+            
+        };
+        
+        TableCellIconButton b = new TableCellIconButton(Constants.DELETE_ICON);
+        b.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                TableCellIconButton b = (TableCellIconButton)e.getSource();
+                List <String> l = nameTable.getTableData();
+                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
+                    String param = l.get(b.getCurrentRow());
+                    
+                    if (UIUtils.promptForDelete(TestExecutionParameterNamesDlg.this, 
+                        "Remove Parameter", "Remove test execution parameter name '" + param + "'?")) {
+                        l.remove(b.getCurrentRow());
+                        nameTable.getModel().fireTableRowsDeleted(b.getCurrentRow(), b.getCurrentRow());
+                    }
+                }
+            }
+        });
+        
+        retval.getColumnModel().getColumn(0).setCellRenderer(b);
+        retval.getColumnModel().getColumn(0).setCellEditor(b);
+
+        return retval;
     }
     
     
@@ -76,6 +171,12 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
     protected boolean save() {
         boolean retval = false;
         getConfiguration().setModified(true);
+        
+        List <String> names = nameTable.getTableData();
+        Collections.sort(names);
+        
+        getConfiguration().getTestExecutionParameterNames().setNameArray(names.toArray(new String[names.size()]));
+        
         setSaved(true);
         dispose();
         retval = true;
@@ -87,13 +188,10 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         boolean retval = false;
         String newname = name.getText();
         
-        
-        if (getConfiguration().getTestExecutionParameterNames() != null) {
-            for (String nm : getConfiguration().getTestExecutionParameterNames().getNameArray()) {
-                if (nm.equalsIgnoreCase(newname)) {
-                    retval = true;
-                    break;
-                }
+        for (String nm : (List <String>)nameTable.getTableData()) {
+            if (nm.equalsIgnoreCase(newname)) {
+                retval = true;
+                break;
             }
         }
         
@@ -102,11 +200,24 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(200, 400);
+        return new Dimension(400, 400);
     }
 
     @Override
     protected String getDialogName() {
-        return "test-execution-paramter-names";
+        return "test-execution-parameter-names";
+    }
+
+    @Override
+    protected void handleOtherActions(String actionCommand) {
+        if (StringUtils.isBlank(name.getText())) {
+            UIUtils.showError(this, "Parameter Name required", "Please enter a parameter name");
+        } else if (parameterNameExists()) {
+            UIUtils.showError(this, "Parameter Name Exists", "Parameter name '" + name.getText() + "' already exists");
+        } else {
+            int row = nameTable.getTableData().size();
+            nameTable.getTableData().add(name.getText());
+            nameTable.getModel().fireTableRowsInserted(row, row);
+        }
     }
 }

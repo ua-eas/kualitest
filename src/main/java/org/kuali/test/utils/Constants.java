@@ -165,6 +165,7 @@ public class Constants {
     public static final String ADD_COLUMN_ACTION = "Add Column";
     public static final String DELETE_COLUMN_ACTION = "Delete Column";
     public static final String ADD_COMPARISON_ACTION = "Add Comparison";
+    public static final String ADD_NAME_ACTION = "Add Name";
     public static final String DELETE_COMPARISON_ACTION = "Delete Comparison";
     public static final String SHOW_TEST_INFORMATION_ACTION = "Show test information";
     public static final String FILE_SEARCH_ACTION = "File Search";
