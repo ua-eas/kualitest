@@ -199,6 +199,16 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         fileMenu.add(loadConfiguationMenuItem);
 
+        scheduleTestsMenuItem.setText("Schedule Tests...");
+        scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleScheduleTests(evt);
+            }
+        });
+
+        fileMenu.add(scheduleTestsMenuItem);
+
         fileMenu.add(new JSeparator());
 
         setup.setText("Setup");
@@ -265,17 +275,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         setup.add(emailSetupMenuItem);
 
         fileMenu.add(setup);
-        fileMenu.add(new JSeparator());
-
-        scheduleTestsMenuItem.setText("Schedule Tests...");
-        scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                handleScheduleTests(evt);
-            }
-        });
-
-        fileMenu.add(scheduleTestsMenuItem);
 
         fileMenu.add(new JSeparator());
 
