@@ -97,13 +97,15 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
                     Collections.sort(tabNames, new HtmlCheckpointTabComparator());
 
                     for (String s : tabNames) {
-                        List<TestExecutionParameter> params = pmap.get(s);
+                        if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
+                            List<TestExecutionParameter> params = pmap.get(s);
 
-                        if ((params != null) && !params.isEmpty()) {
-                            BaseTable t = buildParameterTable(s, params, true);
-                            parameterTables.add(t);
-                            
-                            tp.addTab(s, new TablePanel(t));
+                            if ((params != null) && !params.isEmpty()) {
+                                BaseTable t = buildParameterTable(s, params, true);
+                                parameterTables.add(t);
+
+                                tp.addTab(s, new TablePanel(t));
+                            }
                         }
                     }
 

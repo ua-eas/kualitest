@@ -98,6 +98,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private CreateTestPanel createTestPanel;
     private ToolbarButton saveConfigurationButton;
     private ToolbarButton createTestButton;
+    private ToolbarButton exitApplication;
     private JMenuItem saveConfigurationMenuItem;
     private JMenuItem createTestMenuItem;
     private RepositoryTree testRepositoryTree;
@@ -314,7 +315,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                handleExit();
+                exitApplication.doClick();
             }
         });
         fileMenu.add(exitMenuItem);
@@ -344,7 +345,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     @SuppressWarnings("unchecked")
     private void initComponents() {
         desktopPane = new JDesktopPane();
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         createMenuBar();
         addWindowListener(this);
@@ -721,8 +722,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     @Override
     public void windowClosing(WindowEvent e) {
-        savePreferences();
-        System.exit(0);
+        exitApplication.doClick();
     }
 
     @Override
@@ -844,8 +844,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         toolbar.addSeparator();
         
-        toolbar.add(b = new ToolbarButton(Constants.EXIT_APPLICATION_TOOLBAR_ICON, "exit application"));
-        b.addActionListener(new ActionListener() {
+        toolbar.add(exitApplication = new ToolbarButton(Constants.EXIT_APPLICATION_TOOLBAR_ICON, "exit application"));
+        exitApplication.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {

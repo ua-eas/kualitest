@@ -136,12 +136,14 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                     Collections.sort(tabNames, new HtmlCheckpointTabComparator());
 
                     for (String s : tabNames) {
-                        List<CheckpointProperty> props = pmap.get(s);
+                        if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
+                            List<CheckpointProperty> props = pmap.get(s);
 
-                        if ((props != null) && !props.isEmpty()) {
-                            CheckpointTable t = buildParameterTable(s, props, true);
-                            checkpointTables.add(t);
-                            tp.addTab(s, new TablePanel(t));
+                            if ((props != null) && !props.isEmpty()) {
+                                CheckpointTable t = buildParameterTable(s, props, true);
+                                checkpointTables.add(t);
+                                tp.addTab(s, new TablePanel(t));
+                            }
                         }
                     }
 
