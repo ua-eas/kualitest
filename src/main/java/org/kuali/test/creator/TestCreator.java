@@ -74,6 +74,7 @@ import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.webservicetree.WebServiceTree;
 import org.kuali.test.ui.utils.UIUtils;
@@ -507,7 +508,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void handleRemoveJmxConnection(DefaultMutableTreeNode actionNode) {
         JmxConnection jmx = (JmxConnection) actionNode.getUserObject();
-        if (UIUtils.promptForDelete(this, "Delete JMX Connectione",
+        if (UIUtils.promptForDelete(this, "Delete JMX Connection",
             "Delete JMX connection '" + jmx.getName() + "'?")) {
            jmxTree.removeNode(actionNode);
             if (Utils.removeRepositoryNode(getConfiguration(), actionNode)) {
@@ -655,13 +656,14 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public JMenuItem getSaveConfigurationMenuItem() {
         return saveConfigurationMenuItem;
     }
-    /**
-     * @param args the command line arguments
-     */
+    
     public static void main(final String args[]) {
         try {
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ex) {
+        } 
+        
+        
+        catch (Exception ex) {
             LOG.error(ex.toString(), ex);
         }
 
@@ -847,7 +849,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleExit();
+                new SplashDisplay(TestCreator.this, "Application Closing", "Shutting down test application...") {
+                    @Override
+                    protected void runProcess() {
+                        handleExit();
+                    }
+                };
             }
         });
         

@@ -55,7 +55,7 @@ public class JmxPopupMenu extends BaseTreePopupMenu {
         } else if (EDIT_JMX_CONNECTION_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleEditJmxConnection((JmxConnection)actionNode.getUserObject());
         } else if (actionNode != null) {
-            getMainframe().handleRemoveWebService(actionNode);
+            getMainframe().handleRemoveJmxConnection(actionNode);
         }
     }
 }
