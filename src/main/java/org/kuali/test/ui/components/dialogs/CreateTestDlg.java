@@ -21,9 +21,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -55,17 +53,17 @@ public class CreateTestDlg extends BaseSetupDlg {
     private TestHeader testHeader;
     
     /**
-     * Creates new form InitNewTestDlg
-     * @param mainFrame
+     * 
+     * @param mainFrame 
      */
     public CreateTestDlg(TestCreator mainFrame) {
         this(mainFrame, null);
     }
     
     /**
-     * Creates new form InitNewTestDlg
+     * 
      * @param mainFrame
-     * @param platform
+     * @param platform 
      */
     public CreateTestDlg(TestCreator mainFrame, Platform platform) {
         super(mainFrame);
@@ -83,7 +81,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             "On Max Time Failure"
         };
         
-        platforms = new JComboBox(loadPlatformNames());
+        platforms = new JComboBox(Utils.loadPlatformNames(getConfiguration()));
         
         if (platform != null) {
             platforms.setSelectedItem(platform.getName());
@@ -214,15 +212,5 @@ public class CreateTestDlg extends BaseSetupDlg {
     @Override
     protected String getDialogName() {
         return "new-test-setup";
-    }
-    
-    private String[] loadPlatformNames() {
-        List <String> retval = new ArrayList<String>();
-
-        for (Platform platform : getConfiguration().getPlatforms().getPlatformArray()) {
-            retval.add(platform.getName());
-        }
-        
-        return retval.toArray(new String[retval.size()]);
     }
 }

@@ -1823,5 +1823,16 @@ public class Utils {
         return retval;
     }
 
+    public static String[] loadPlatformNames(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        List <String> retval = new ArrayList<String>();
+
+        if (configuration.getPlatforms() != null) {
+            for (Platform platform : configuration.getPlatforms().getPlatformArray()) {
+                retval.add(platform.getName());
+            }
+        }
+        
+        return retval.toArray(new String[retval.size()]);
+    }
 
 }
