@@ -113,6 +113,8 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                     KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();
                     doc.setKualiTestConfiguration(configuration);
                     doc.save(f, Utils.getSaveXmlOptions());
+                    getMainframe().getCreateTestButton().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
+                    getMainframe().getCreateTestMenuItem().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
                 } catch (IOException ex) {
                     LOG.error(ex.toString(), ex);
                     UIUtils.showError(this, "Configuration Save Error", "An error occured while trying to save configuration,");
@@ -173,6 +175,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 }
                 
                 Utils.initializeHtmlTagHandlers(configuration);
+                
             } catch (XmlException ex) {
                 UIUtils.showError(this, "Invalid input configuration", "Input configuration file failed validation");
                 LOG.error(ex.toString());

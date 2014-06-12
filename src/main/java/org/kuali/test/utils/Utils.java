@@ -1332,19 +1332,22 @@ public class Utils {
     
     public static String[] getValidTestTypesForPlatform(Platform platform) {
         List <String> retval = new ArrayList<String>();
-        String[] testTypes = Utils.getXmlEnumerations(TestType.class);
+        
+        if (platform != null) {
+            String[] testTypes = Utils.getXmlEnumerations(TestType.class);
 
-        for (String testType : testTypes) {
-            if (TestType.DATABASE.toString().equals(testType)) {
-                if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+            for (String testType : testTypes) {
+                if (TestType.DATABASE.toString().equals(testType)) {
+                    if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+                        retval.add(testType);
+                    }
+                } else if (TestType.WEB_SERVICE.toString().equals(testType)) {
+                    if (StringUtils.isNotBlank(platform.getWebServiceName())) {
+                        retval.add(testType);
+                    }
+                } else {
                     retval.add(testType);
                 }
-            } else if (TestType.WEB_SERVICE.toString().equals(testType)) {
-                if (StringUtils.isNotBlank(platform.getWebServiceName())) {
-                    retval.add(testType);
-                }
-            } else {
-                retval.add(testType);
             }
         }
         

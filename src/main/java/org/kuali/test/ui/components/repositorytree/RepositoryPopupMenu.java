@@ -63,7 +63,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);
         } else if (Constants.CREATE_TEST.equalsIgnoreCase(e.getActionCommand())) {
-            getMainframe().handleCreateTest();
+            getMainframe().handleCreateTest((Platform)actionNode.getUserObject());
         } else if (REMOVE_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleRemoveTest(actionNode);
         } else if (Constants.SHOW_TEST_INFORMATION_ACTION.equalsIgnoreCase(e.getActionCommand())) {

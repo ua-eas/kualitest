@@ -160,9 +160,6 @@ public class PlatformTestsPanel extends BasePanel
             || !newPlatform.getName().equalsIgnoreCase(oldPlatform.getName())) {
             populateList(newPlatform);
         }
-        
-        getMainframe().getCreateTestButton().setEnabled(newPlatform != null);
-        getMainframe().getCreateTestMenuItem().setEnabled(newPlatform != null);
     }
 
     private void clearList() {

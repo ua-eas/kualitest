@@ -17,12 +17,15 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -43,7 +46,7 @@ import org.kuali.test.utils.Utils;
  */
 public class CreateTestDlg extends BaseSetupDlg {
     private static final Logger LOG = Logger.getLogger(CreateTestDlg.class);
-    private final Platform platform;
+    private JComboBox platforms;
     private JTextField testName;
     private JComboBox testType;
     private JTextField description;
@@ -54,19 +57,23 @@ public class CreateTestDlg extends BaseSetupDlg {
     /**
      * Creates new form InitNewTestDlg
      * @param mainFrame
+     */
+    public CreateTestDlg(TestCreator mainFrame) {
+        this(mainFrame, null);
+    }
+    
+    /**
+     * Creates new form InitNewTestDlg
+     * @param mainFrame
      * @param platform
      */
     public CreateTestDlg(TestCreator mainFrame, Platform platform) {
         super(mainFrame);
-        this.platform = platform;
-        if (platform != null) {
-            setTitle("Initialize New Test");
-        }
-        
-        initComponents();
+        setTitle("Initialize New Test");
+        initComponents(platform);
     }
 
-    private void initComponents() {
+    private void initComponents(Platform platform) {
         String[] labels = new String[] {
             "Platform",
             "Test Name", 
@@ -76,16 +83,30 @@ public class CreateTestDlg extends BaseSetupDlg {
             "On Max Time Failure"
         };
         
-        JLabel platformName = new JLabel(platform.getName());
+        platforms = new JComboBox(loadPlatformNames());
+        
+        if (platform != null) {
+            platforms.setSelectedItem(platform.getName());
+            platforms.setEnabled(false);
+        }
+        
         testName = new JTextField("new test", 20);
-        testType = new JComboBox(Utils.getValidTestTypesForPlatform(platform));
-        testType.setSelectedItem(TestType.WEB.toString());
+        
+        Platform currentPlatform = Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem());
+        
+        String[] testTypes = Utils.getValidTestTypesForPlatform(currentPlatform);
+        testType = new JComboBox(testTypes);
+        
+        if (testTypes.length > 0) {
+            testType.setSelectedItem(TestType.WEB.toString());
+        }
+        
         description = new JTextField("new test description", 30);
         runtimeFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class, true));
         maxRunTime= new IntegerTextField();
         
         JComponent[] components = new JComponent[] {
-            platformName,
+            platforms,
             testName,
             testType,
             description,
@@ -94,6 +115,21 @@ public class CreateTestDlg extends BaseSetupDlg {
         };
 
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
+
+        platforms.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Platform p = Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem());
+                testType.removeAllItems();
+                
+                if (p != null) {
+                    String[] testTypes = Utils.getValidTestTypesForPlatform(p);
+                    for (String type : testTypes) {
+                        testType.addItem(type);
+                    }
+                }
+            }
+        });
 
         addStandardButtons();
         setDefaultBehavior();
@@ -104,13 +140,14 @@ public class CreateTestDlg extends BaseSetupDlg {
         boolean retval = false;
         boolean oktosave = true;
         if (StringUtils.isNotBlank(testName.getText()) 
-            && StringUtils.isNotBlank((String)testType.getSelectedItem())) {
+            && StringUtils.isNotBlank((String)testType.getSelectedItem())
+            && (platforms.getSelectedIndex() > -1)) {
             if (testNameExists()) {
                 oktosave = false;
                 displayExistingNameAlert("Test", testName.getText());
             }
         } else {
-            displayRequiredFieldsMissingAlert("Test", "test name, test type");
+            displayRequiredFieldsMissingAlert("Test", "platform, test name, test type");
             oktosave = false;
         }
         
@@ -121,7 +158,7 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setTestType(TestType.Enum.forString((String)testType.getSelectedItem()));
                 testHeader.setDescription(description.getText());
                 testHeader.setDateCreated(Calendar.getInstance());
-                testHeader.setPlatformName(platform.getName());
+                testHeader.setPlatformName((String)platforms.getSelectedItem());
                 testHeader.setTestSuiteName("no-test-suite");
                 testHeader.setCreatedBy("default-user");
                 if (StringUtils.isBlank(maxRunTime.getText())) {
@@ -151,19 +188,18 @@ public class CreateTestDlg extends BaseSetupDlg {
         boolean retval = false;
         String newTestName = testName.getText();
         
-        for (TestHeader th : platform.getPlatformTests().getTestHeaderArray()) {
-            if (StringUtils.equalsIgnoreCase(th.getTestName(), newTestName)) {
-                retval = true;
-                break;
+        Platform p = Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem());
+        
+        if (p != null) {
+            for (TestHeader th : p.getPlatformTests().getTestHeaderArray()) {
+                if (StringUtils.equalsIgnoreCase(th.getTestName(), newTestName)) {
+                    retval = true;
+                    break;
+                }
             }
         }
         
         return retval;
-    }
-    
-    @Override
-    public Object getNewRepositoryObject() {
-        return platform;
     }
     
     public TestHeader getTestHeader() {
@@ -179,5 +215,14 @@ public class CreateTestDlg extends BaseSetupDlg {
     protected String getDialogName() {
         return "new-test-setup";
     }
+    
+    private String[] loadPlatformNames() {
+        List <String> retval = new ArrayList<String>();
 
+        for (Platform platform : getConfiguration().getPlatforms().getPlatformArray()) {
+            retval.add(platform.getName());
+        }
+        
+        return retval.toArray(new String[retval.size()]);
+    }
 }

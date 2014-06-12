@@ -221,6 +221,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 testRepositoryTree.saveConfiguration();
                 saveConfigurationButton.setEnabled(false);
                 saveConfigurationMenuItem.setEnabled(false);
+                setCreateTestState();
             }
         });
         
@@ -232,7 +233,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         createTestMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                handleCreateTest();
+                handleCreateTest(null);
             }
         });
         
@@ -376,36 +377,50 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
 
         getContentPane().add(desktopPane);
+        
+        setCreateTestState();
 
         pack();
     }
 
-    public void handleCreateTest() {
-        CreateTestDlg dlg = new CreateTestDlg(this, platformTestsPanel.getCurrentPlatform());
+    private void setCreateTestState() {
+        setCreateTestEnabled(getConfiguration().getPlatforms().sizeOfPlatformArray() > 0);
+    }
+
+    private void setCreateTestEnabled(boolean enabled) {
+        createTestButton.setEnabled(enabled);
+        createTestMenuItem.setEnabled(enabled);
+    }
+
+    public void handleCreateTest(Platform platform) {
+        setCreateTestEnabled(false);
+        CreateTestDlg dlg = new CreateTestDlg(this, platform);
 
         if (dlg.isSaved()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("init new " + dlg.getTestHeader().getTestType() + " test for platform " + dlg.getTestHeader().getPlatformName());
             }
 
-            final Platform platform = platformTestsPanel.getCurrentPlatform();
-            final TestHeader testHeader = dlg.getTestHeader();
+            TestHeader testHeader = dlg.getTestHeader();
+            Platform testPlatform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
 
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
-                    createTestPanel.replaceCenterComponent(new WebTestPanel(this, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebTestPanel(this, testPlatform, testHeader));
                     break;
                 case TestType.INT_WEB_SERVICE:
-                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, testPlatform, testHeader));
                     break;
                 case TestType.INT_DATABASE:
-                    createTestPanel.replaceCenterComponent(new DatabasePanel(this, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new DatabasePanel(this, testPlatform, testHeader));
                     break;
                 case TestType.INT_FILE:
-                    createTestPanel.replaceCenterComponent(new FileTestPanel(this, platform, testHeader));
+                    createTestPanel.replaceCenterComponent(new FileTestPanel(this, testPlatform, testHeader));
                     break;
             }
         }
+        
+        setCreateTestEnabled(true);
     }
 
     public CreateTestPanel getCreateTestPanel() {
@@ -821,7 +836,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         createTestButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                handleCreateTest();
+                handleCreateTest(null);
             }
         });
         
