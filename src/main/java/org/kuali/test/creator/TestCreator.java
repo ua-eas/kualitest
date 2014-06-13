@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -849,12 +850,14 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SplashDisplay(TestCreator.this, "Application Closing", "Shutting down test application...") {
-                    @Override
-                    protected void runProcess() {
-                        handleExit();
-                    }
-                };
+                if (JOptionPane.showConfirmDialog(TestCreator.this, "Exit Test Application?", "Exit", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+                    new SplashDisplay(TestCreator.this, "Application Closing", "Shutting down test application...") {
+                        @Override
+                        protected void runProcess() {
+                            handleExit();
+                        }
+                    };
+                }
             }
         });
         

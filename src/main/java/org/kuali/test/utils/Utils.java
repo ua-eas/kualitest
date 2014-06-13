@@ -911,29 +911,33 @@ public class Utils {
                         if (childTagMatch.getMatchAttributes() != null) {
                             if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
                                 for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
-                                    String childAttr = child.attr(att.getName());
-                                    if (StringUtils.isBlank(childAttr)) {
-                                        retval = true;
-                                    } else {
-                                        int pos = att.getValue().indexOf('*');
-                                        
-                                        if (pos > -1) {
-                                            if (pos == 0) {
-                                                retval = !childAttr.endsWith(att.getValue().substring(1));
-                                            } else {
-                                                String s1 = att.getValue().substring(0, pos);
-                                                String s2 = att.getValue().substring(pos + 1);
-                                                
-                                                retval = (!childAttr.startsWith(s1) || !childAttr.endsWith(s2));
-                                            }
+                                    if ((att != null) && StringUtils.isNotBlank(att.getName())) {
+                                        String childAttr = child.attr(att.getName());
+                                        if (StringUtils.isBlank(childAttr)) {
+                                            retval = true;
                                         } else {
-                                            retval = !childAttr.equalsIgnoreCase(att.getValue());
+                                            int pos = att.getValue().indexOf('*');
+
+                                            if (pos > -1) {
+                                                if (pos == 0) {
+                                                    retval = !childAttr.endsWith(att.getValue().substring(1));
+                                                } else {
+                                                    String s1 = att.getValue().substring(0, pos);
+                                                    String s2 = att.getValue().substring(pos + 1);
+
+                                                    retval = (!childAttr.startsWith(s1) || !childAttr.endsWith(s2));
+                                                }
+                                            } else {
+                                                retval = !childAttr.equalsIgnoreCase(att.getValue());
+                                            }
                                         }
+                                        break;
+                                    } else {
+                                        retval = true;
+                                        break;
                                     }
-                                    break;
                                 }
-                                
-                                // if retval is null then we found a match so break
+                                // if retval is false then we found a match so break
                                 if (!retval) {
                                     break;
                                 }
