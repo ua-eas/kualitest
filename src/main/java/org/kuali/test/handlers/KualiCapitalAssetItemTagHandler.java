@@ -32,31 +32,23 @@ public class KualiCapitalAssetItemTagHandler extends DefaultHtmlTagHandler {
     
     @Override
     public String getSectionName(Node node) {
-        String retval = null;
+        StringBuilder retval = new StringBuilder(32);
         if (getTagHandler().getSectionMatcher() != null) {
-            retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
+            retval.append(Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node)); 
+            retval.append("[");
+            retval.append(Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node));
+            retval.append("]");
         }
         
         if (LOG.isDebugEnabled()) {
-            LOG.debug("section: " + retval);
+            LOG.debug("section: " + retval.toString());
         }
         
-        return retval;
+        return retval.toString();
     }
 
     @Override
     public String getSubSectionName(Node node) {
-        StringBuilder retval = new StringBuilder(32);
-        if (getTagHandler().getSubSectionMatcher() != null) {
-            retval.append("Item[");
-            retval.append(Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node));
-            retval.append("]"); 
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("subsection: " + retval.toString());
-        }
-        
-        return retval.toString();
+        return null;
     }
 }
