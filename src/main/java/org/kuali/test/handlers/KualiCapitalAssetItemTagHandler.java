@@ -18,48 +18,15 @@ package org.kuali.test.handlers;
 
 import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
-import static org.kuali.test.handlers.DefaultHtmlTagHandler.LOG;
-import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 
 public class KualiCapitalAssetItemTagHandler extends DefaultHtmlTagHandler {
+    public static final String CAPITAL_ASSET_ITEMS_SECTION = "Capital Asset Items";
     @Override
     public CheckpointProperty getCheckpointProperty(Node node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
-
-        Node anchor = findAnchor(node);
-        
-        if (anchor != null) {
-            retval.setPropertyValue(Utils.cleanDisplayText(anchor.toString()));
-        } else {
-            retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
-        }
-        
-        return retval;
-    }
-
-    private Node findAnchor(Node node) {
-        Node retval = null;
-        
-        Node cnode = null;
-        for (Node child : node.childNodes()) {
-            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(child.nodeName())
-                || Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(child.nodeName())) {
-                cnode = child;
-                 break;
-            }
-        }
-
-        if (cnode != null) {
-            for (Node child : cnode.childNodes()) {
-                if (Constants.HTML_TAG_TYPE_ANCHOR.equalsIgnoreCase(child.nodeName())) {
-                    retval = child;
-                    break;
-                }
-            }
-        }
-            
+        retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
         return retval;
     }
     
@@ -79,48 +46,17 @@ public class KualiCapitalAssetItemTagHandler extends DefaultHtmlTagHandler {
 
     @Override
     public String getSubSectionName(Node node) {
-        String retval = null;
+        StringBuilder retval = new StringBuilder(32);
         if (getTagHandler().getSubSectionMatcher() != null) {
-            retval = Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node); 
+            retval.append("Item[");
+            retval.append(Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node));
+            retval.append("]"); 
         }
         
         if (LOG.isDebugEnabled()) {
-            LOG.debug("subsection: " + retval);
+            LOG.debug("subsection: " + retval.toString());
         }
         
-        return retval;
-    }
-
-    @Override
-    public String getSubSectionAdditional(Node node) {
-        String retval = null;
-        
-        String data = node.toString();
-        
-        int pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
-        
-        if (pos1 < 0) {
-            Node parent = node.parentNode();
-            while (parent != null) {
-                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.nodeName())) {
-                    data = parent.toString();
-                    pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
-                    break;
-                }
-                parent = parent.parentNode();
-            }
-        }
-
-        if (pos1 > -1) {
-            int pos2 = data.indexOf("]", pos1);
-            
-            if ((pos2 > -1) && (pos2 > pos1)) {
-                int indx = Integer.parseInt(data.substring(pos1 + Constants.SOURCE_ACCOUNTING_LINE_MATCH.length(), pos2));
-                retval = Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "account[" + (indx+1) + "]");
-            }
-        }
-
-        
-        return retval;
+        return retval.toString();
     }
 }

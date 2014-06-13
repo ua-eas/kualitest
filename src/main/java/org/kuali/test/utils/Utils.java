@@ -268,6 +268,39 @@ public class Utils {
         return retval;
     }
 
+
+    public static boolean removeJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, JmxConnection jmx) {
+        boolean retval = false;
+        
+        if (configuration.getJmxConnections().sizeOfJmxConnectionArray() > 0) {
+            JmxConnection[] jmxConnections = configuration.getJmxConnections().getJmxConnectionArray();
+            int indx = -1;
+            for (int i = 0; i < jmxConnections.length; ++i) {
+                if (StringUtils.equalsIgnoreCase(jmxConnections[i].getName(), jmx.getName())) {
+                    indx = i;
+                    break;
+                }
+            }
+
+            if (indx > -1) {
+                // lets clear any usages
+                Platform[] platforms = configuration.getPlatforms().getPlatformArray();
+
+                for (Platform platform : platforms) {
+                    if (StringUtils.equalsIgnoreCase(platform.getJmxConnectionName(), jmx.getName())) {
+                        platform.setJmxConnectionName("");
+                    }
+                }
+
+                configuration.getJmxConnections().removeJmxConnection(indx);
+                retval = true;
+            }
+        }
+        
+        return retval;
+    }
+    
+    
     public static boolean removeSuiteTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         SuiteTest suiteTest) {
         boolean retval = false;
@@ -339,6 +372,8 @@ public class Utils {
                     retval = removeDatabaseConnection(configuration, (DatabaseConnection)userObject);
                 } else if (userObject instanceof WebService) {
                     retval = removeWebService(configuration, (WebService)userObject);
+                } else if (userObject instanceof JmxConnection) {
+                    retval = removeJmxConnection(configuration, (JmxConnection)userObject);
                 }
             }
         }
@@ -1055,7 +1090,12 @@ public class Utils {
         while ((cnt < totalCnt) && (parent != null)) {
             if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
                 cnt++;
-                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm.getParentTagMatch(), tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                TagMatchAttribute[] attrs = null;
+                if (tm.getMatchAttributes() != null) {
+                    attrs = tm.getMatchAttributes().getMatchAttributeArray();
+                }
+                
+                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm.getParentTagMatch(), tm.getChildTagMatch(), attrs)) {
                     retval = parent;
                     break;
                 }
@@ -1070,29 +1110,27 @@ public class Utils {
     public static int getSiblingNodeSearchDirection(String searchDefinition) {
         int retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_INVALID;
         
-        if (StringUtils.isNotBlank(searchDefinition)) {
-            switch(searchDefinition.charAt(0)) {
-                case '-':
-                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS;
-                    break;
-                case '+':
-                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT;
-                    break;
-                case '*':
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE;
-                    break;
-                    
-            }
+        switch(searchDefinition.charAt(0)) {
+            case '-':
+                retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS;
+                break;
+            case '+':
+                retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT;
+                break;
+            case '*':
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE;
+                break;
+
         }
         
         return retval;
@@ -1102,6 +1140,12 @@ public class Utils {
         Node retval = null;
 
         String searchDefinition = tm.getSearchDefinition();
+        
+        // default to search all children forward
+        if (StringUtils.isBlank(searchDefinition)) {
+            searchDefinition = "+*";
+        }
+        
         int startIndex = node.siblingIndex();
         int cnt = 0;
         
@@ -1139,7 +1183,11 @@ public class Utils {
                     boolean limited = true;
                     // if we have an * then loop through all siblins
                     if (!searchDefinition.substring(1).equals("*")) {
-                        targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                        if (StringUtils.isBlank(searchDefinition.substring(1))) {
+                            targetCnt = 1;
+                        } else {
+                            targetCnt = Integer.parseInt(searchDefinition.substring(1));
+                        }
                     } else {
                         limited = false;
                     }
@@ -1321,11 +1369,6 @@ public class Utils {
             }
         }
         
-        if (node.attr("id").equals("tab-CapitalAsset-div")) {
-            int i = 0;
-            
-            i++;
-        }
         if (retval == null) {
             if (isHtmlContainer(node)) {
                 retval = new DefaultContainerTagHandler();

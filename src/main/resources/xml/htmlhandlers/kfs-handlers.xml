@@ -241,7 +241,7 @@
             <tag-matcher>
                 <match-type>parent</match-type>
                 <tag-name>table</tag-name>
-                <search-definition>*</search-definition>
+                <search-definition></search-definition>
                 <match-attributes>
                     <match-attribute>
                         <name>class</name>
@@ -257,8 +257,32 @@
         <label-matcher>
             <tag-matcher>
                 <match-type>parent</match-type>
+                <tag-name>tr</tag-name>
+                <search-definition></search-definition>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>sibling</match-type>
+                <tag-name>tr</tag-name>
+                <search-definition>-1</search-definition>
+                <match-attributes>
+                </match-attributes>
+                <child-tag-match>
+                    <child-tag-name>th</child-tag-name>
+                    <match-attributes></match-attributes>
+                </child-tag-match>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>child</match-type>
+                <tag-name>th</tag-name>
+                <search-definition>I</search-definition>
+                <match-attributes></match-attributes>
+            </tag-matcher>
+        </label-matcher>
+        <section-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
                 <tag-name>table</tag-name>
-                <search-definition>*</search-definition>
+                <search-definition></search-definition>
                 <match-attributes>
                     <match-attribute>
                         <name>class</name>
@@ -273,59 +297,14 @@
             <tag-matcher>
                 <match-type>child</match-type>
                 <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes>
-                </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>1</search-definition>
+                <search-definition></search-definition>
                 <match-attributes></match-attributes>
             </tag-matcher>
             <tag-matcher>
-                <match-type>sibling</match-type>
+                <match-type>child</match-type>
                 <tag-name>tr</tag-name>
-                <search-definition>+1</search-definition>
+                <search-definition></search-definition>
                 <match-attributes></match-attributes>
-                <child-tag-match>
-                    <child-tag-name>th</child-tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                        </match-attribute>
-                    </match-attributes>
-                </child-tag-match>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>th</tag-name>
-                <search-definition>I</search-definition>
-                <match-attributes>
-                </match-attributes>
-            </tag-matcher>
-        </label-matcher>
-        <section-matcher>
-            <tag-matcher>
-                <match-type>parent</match-type>
-                <tag-name>table</tag-name>
-                <search-definition>*</search-definition>
-                <match-attributes>
-                    <match-attribute>
-                        <name>class</name>
-                        <value>datatable</value>
-                    </match-attribute>
-                    <match-attribute>
-                        <name>summary</name>
-                        <value>Capital Asset Items</value>
-                    </match-attribute>
-                </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>*</search-definition>
-                <match-attributes>
-                </match-attributes>
                 <child-tag-match>
                     <child-tag-name>td</child-tag-name>
                     <match-attributes>
@@ -339,7 +318,7 @@
             <tag-matcher>
                 <match-type>child</match-type>
                 <tag-name>td</tag-name>
-                <search-definition>1</search-definition>
+                <search-definition></search-definition>
                 <match-attributes>
                     <match-attribute>
                         <name>class</name>
@@ -348,8 +327,25 @@
                 </match-attributes>
             </tag-matcher>
         </section-matcher>
+        <sub-section-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
+                <tag-name>tr</tag-name>
+                <match-attributes></match-attributes>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>child</match-type>
+                <tag-name>td</tag-name>
+                <search-definition>1</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>infoline</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </sub-section-matcher>
     </handler>
-
 
     <!-- handler for items tab - any tds with "Items Section" table -->
     <handler>
