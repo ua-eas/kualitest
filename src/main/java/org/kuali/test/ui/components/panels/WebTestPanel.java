@@ -61,6 +61,7 @@ import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  * 
@@ -222,6 +223,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             retval = lastProxyHtmlResponse;
         }
         
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(retval);
+        }
+        
         return retval;
     }
     
@@ -283,7 +288,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         // if we get html back then clean and get the iframe body node
         if (o != null) {
-            retval = Jsoup.parse(Jsoup.clean(o.toString(), whitelist)).body();
+            retval = Jsoup.parse(Utils.tidify(Jsoup.clean(o.toString(), whitelist))).body();
         }
 
         if (LOG.isDebugEnabled()) {
@@ -346,6 +351,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 atts.add("src");
             } else if (Constants.HTML_TAG_TYPE_TH.equals(tag) || Constants.HTML_TAG_TYPE_TD.equals(tag)) {
                 atts.add("colspan");
+                atts.add("rowspan");
+            } else if (Constants.HTML_TAG_TYPE_TR.equals(tag)) {
+                atts.add("rowspan");
             } else if (Constants.HTML_TAG_TYPE_TABLE.equals(tag)) {
                 atts.add("summary");
             } 
@@ -359,7 +367,13 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private Node getRootNodeFromHtml(final JWebBrowser webBrowser, List <Node> labelNodes, String html) {
         Whitelist whitelist = getHtmlWhitelist();
-        Node retval = Jsoup.parse(Jsoup.clean(html, whitelist)).body();
+        String cleanhtml = Utils.tidify(Jsoup.clean(html, whitelist));
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("************************** clean html ***************************");
+            LOG.debug(cleanhtml);
+        }
+        Node retval = Jsoup.parse(cleanhtml).body();
         traverseNode(webBrowser, whitelist, labelNodes, retval);
         return retval;
     }

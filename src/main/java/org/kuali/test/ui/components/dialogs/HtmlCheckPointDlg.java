@@ -227,7 +227,11 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
                 
                 if ((cp != null) && !Utils.isNodeProcessed(processedNodes, node)) {
-                    cp.setPropertyGroup(groupStack.peek());
+                    if (StringUtils.isBlank(cp.getPropertyGroup()) 
+                        || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
+                        cp.setPropertyGroup(groupStack.peek());
+                    }
+                    
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
                     if (th.getTagHandler().getLabelMatcher() != null) {

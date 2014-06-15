@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kuali.test.utils;
 
 import io.netty.buffer.ByteBuf;
@@ -21,6 +20,8 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -91,14 +92,15 @@ import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
-
+import org.w3c.tidy.Tidy;
 
 public class Utils {
+
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
-    
-    public static Map <String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
-    
+
+    public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
+
     public static String[] getPlatformNames(Platform[] platforms) {
         String[] retval = new String[platforms.length];
         for (int i = 0; i < platforms.length; ++i) {
@@ -117,34 +119,34 @@ public class Utils {
         }
         return retval;
     }
-    
-    public static Platform getPlatformForNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static Platform getPlatformForNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DefaultMutableTreeNode node) {
         Platform retval = null;
-        
+
         if (node != null) {
             Object userObject = node.getUserObject();
-            
+
             if (userObject != null) {
-                DefaultMutableTreeNode pnode = (DefaultMutableTreeNode)node.getParent();
+                DefaultMutableTreeNode pnode = (DefaultMutableTreeNode) node.getParent();
                 if (userObject instanceof Platform) {
-                    retval = (Platform)userObject;
+                    retval = (Platform) userObject;
                 } else if (userObject instanceof TestSuite) {
-                    TestSuite testSuite = (TestSuite)userObject;
+                    TestSuite testSuite = (TestSuite) userObject;
                     retval = findPlatform(configuration, testSuite.getPlatformName());
                 } else if (userObject instanceof SuiteTest) {
-                    SuiteTest test = (SuiteTest)userObject;
+                    SuiteTest test = (SuiteTest) userObject;
                     retval = findPlatform(configuration, test.getTestHeader().getPlatformName());
-                } 
-            } 
+                }
+            }
         }
-        
+
         return retval;
     }
 
     public static TestHeader findTestHeaderByName(Platform platform, String testName) {
         TestHeader retval = null;
-        
+
         if ((platform != null) && (platform.getPlatformTests() != null)) {
             for (TestHeader testHeader : platform.getPlatformTests().getTestHeaderArray()) {
                 if (StringUtils.equalsIgnoreCase(testName, testHeader.getTestName())) {
@@ -153,29 +155,29 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
-    
-    public static Platform findPlatform(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static Platform findPlatform(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName) {
         Platform retval = null;
-        
+
         Platform[] platforms = configuration.getPlatforms().getPlatformArray();
-        
+
         for (Platform platform : platforms) {
             if (StringUtils.equalsIgnoreCase(platform.getName(), platformName)) {
                 retval = platform;
                 break;
             }
         }
-        
+
         return retval;
     }
-    
+
     public static SuiteTest findSuiteTestByName(TestSuite testSuite, String testName, int testIndex) {
         SuiteTest retval = null;
-        
+
         for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
             if (StringUtils.equalsIgnoreCase(testName, suiteTest.getTestHeader().getTestName())
                 && (testIndex == suiteTest.getIndex())) {
@@ -183,19 +185,19 @@ public class Utils {
                 break;
             }
         }
-        
+
         return retval;
     }
 
-    public static TestSuite findTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public static TestSuite findTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName, String testSuiteName) {
         TestSuite retval = null;
-        
+
         Platform platform = findPlatform(configuration, platformName);
-        
+
         if (platform != null) {
             TestSuite[] testSuites = platform.getTestSuites().getTestSuiteArray();
-            
+
             for (TestSuite testSuite : testSuites) {
                 if (StringUtils.equalsIgnoreCase(testSuite.getName(), testSuiteName)) {
                     retval = testSuite;
@@ -203,15 +205,15 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
-        
+
     }
 
-    public static boolean removeDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public static boolean removeDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DatabaseConnection dbconn) {
         boolean retval = false;
-        
+
         DatabaseConnection[] dbconns = configuration.getDatabaseConnections().getDatabaseConnectionArray();
         int indx = -1;
         for (int i = 0; i < dbconns.length; ++i) {
@@ -220,28 +222,28 @@ public class Utils {
                 break;
             }
         }
-        
+
         if (indx > -1) {
             // lets clear any usages
             Platform[] platforms = configuration.getPlatforms().getPlatformArray();
-            
+
             for (Platform platform : platforms) {
                 if (StringUtils.equalsIgnoreCase(platform.getDatabaseConnectionName(), dbconn.getName())) {
                     platform.setDatabaseConnectionName("");
                 }
             }
-            
+
             configuration.getDatabaseConnections().removeDatabaseConnection(indx);
             retval = true;
         }
-        
+
         return retval;
     }
 
-    public static boolean removeWebService(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public static boolean removeWebService(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         WebService ws) {
         boolean retval = false;
-        
+
         WebService[] webServices = configuration.getWebServices().getWebServiceArray();
         int indx = -1;
         for (int i = 0; i < webServices.length; ++i) {
@@ -250,28 +252,27 @@ public class Utils {
                 break;
             }
         }
-        
+
         if (indx > -1) {
             // lets clear any usages
             Platform[] platforms = configuration.getPlatforms().getPlatformArray();
-            
+
             for (Platform platform : platforms) {
                 if (StringUtils.equalsIgnoreCase(platform.getWebServiceName(), ws.getName())) {
                     platform.setWebServiceName("");
                 }
             }
-            
+
             configuration.getWebServices().removeWebService(indx);
             retval = true;
         }
-        
+
         return retval;
     }
 
-
     public static boolean removeJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, JmxConnection jmx) {
         boolean retval = false;
-        
+
         if (configuration.getJmxConnections().sizeOfJmxConnectionArray() > 0) {
             JmxConnection[] jmxConnections = configuration.getJmxConnections().getJmxConnectionArray();
             int indx = -1;
@@ -296,19 +297,18 @@ public class Utils {
                 retval = true;
             }
         }
-        
+
         return retval;
     }
-    
-    
-    public static boolean removeSuiteTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static boolean removeSuiteTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         SuiteTest suiteTest) {
         boolean retval = false;
 
         if (suiteTest != null) {
-            TestSuite testSuite = findTestSuite(configuration, 
+            TestSuite testSuite = findTestSuite(configuration,
                 suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestSuiteName());
-            
+
             if (testSuite != null) {
                 SuiteTest[] suiteTests = testSuite.getSuiteTests().getSuiteTestArray();
                 int indx = -1;
@@ -319,18 +319,18 @@ public class Utils {
                         break;
                     }
                 }
-                
+
                 if (indx > -1) {
                     testSuite.getSuiteTests().removeSuiteTest(indx);
                     retval = true;
                 }
             }
         }
-        
+
         return retval;
     }
-    
-    public static boolean removeTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static boolean removeTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite) {
         boolean retval = false;
 
@@ -345,45 +345,45 @@ public class Utils {
                         break;
                     }
                 }
-                
+
                 if (indx > -1) {
                     platform.getTestSuites().removeTestSuite(indx);
                     retval = true;
                 }
             }
         }
-        
+
         return retval;
     }
 
-    public static boolean removeRepositoryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public static boolean removeRepositoryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DefaultMutableTreeNode node) {
         boolean retval = false;
-        
+
         if (node != null) {
             Object userObject = node.getUserObject();
-            
+
             if (userObject != null) {
                 if (userObject instanceof SuiteTest) {
-                    retval = removeSuiteTest(configuration, (SuiteTest)userObject);
+                    retval = removeSuiteTest(configuration, (SuiteTest) userObject);
                 } else if (userObject instanceof TestSuite) {
-                    retval = removeTestSuite(configuration, (TestSuite)userObject);
+                    retval = removeTestSuite(configuration, (TestSuite) userObject);
                 } else if (userObject instanceof DatabaseConnection) {
-                    retval = removeDatabaseConnection(configuration, (DatabaseConnection)userObject);
+                    retval = removeDatabaseConnection(configuration, (DatabaseConnection) userObject);
                 } else if (userObject instanceof WebService) {
-                    retval = removeWebService(configuration, (WebService)userObject);
+                    retval = removeWebService(configuration, (WebService) userObject);
                 } else if (userObject instanceof JmxConnection) {
-                    retval = removeJmxConnection(configuration, (JmxConnection)userObject);
+                    retval = removeJmxConnection(configuration, (JmxConnection) userObject);
                 }
             }
         }
-        
+
         return retval;
     }
-    
+
     public static int getSuiteTestArrayIndex(SuiteTest[] tests, SuiteTest test) {
         int retval = -1;
-        
+
         for (int i = 0; i < tests.length; ++i) {
             if (StringUtils.equalsIgnoreCase(tests[i].getTestHeader().getTestName(), test.getTestHeader().getTestName())
                 && (tests[i].getIndex() == test.getIndex())) {
@@ -391,22 +391,22 @@ public class Utils {
                 break;
             }
         }
-        
+
         return retval;
     }
-    
+
     public static String[] getXmlEnumerations(Class clazz) {
         return getXmlEnumerations(clazz, false);
     }
-    
+
     public static String[] getXmlEnumerations(Class clazz, boolean includeEmptyItem) {
-        List <String> retval = new ArrayList<String>();
+        List<String> retval = new ArrayList<String>();
         Field[] fields = clazz.getDeclaredFields();
-        
+
         if (includeEmptyItem) {
             retval.add("");
         }
-        
+
         for (Field field : fields) {
             // looking for XMLBean enumerated types
             if (Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers())) {
@@ -417,48 +417,46 @@ public class Utils {
                     try {
                         Object e = field.get(null);
                         retval.add(e.toString());
-                    } 
-
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         LOG.warn(ex.toString());
                     }
                 }
             }
         }
-        
+
         return retval.toArray(new String[retval.size()]);
     }
-    
+
     public static String getHostFromUrl(String url, boolean includeProtocol) {
         String retval = url;
-        
+
         if (url != null) {
             int pos1 = url.indexOf("//");
-            int pos2 = url.indexOf("/", pos1+ 3);
-            
+            int pos2 = url.indexOf("/", pos1 + 3);
+
             if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-                
+
                 if (includeProtocol) {
                     retval = retval.substring(0, pos2);
                 } else {
-                    retval = retval.substring(pos1+2, pos2);
+                    retval = retval.substring(pos1 + 2, pos2);
                 }
             }
         }
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("host: " + retval);
         }
-        
+
         return retval;
     }
 
     public static String getContextFromUrl(String url) {
         String retval = null;
-        
+
         if (url != null) {
             String host = getHostFromUrl(url, false);
-            
+
             if (host != null) {
                 int pos = (url.indexOf(host) + host.length() + 1);
 
@@ -467,18 +465,17 @@ public class Utils {
                 }
             }
         }
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("context: " + retval);
         }
-        
+
         return retval;
     }
-    
-    
+
     public static Object getObjectProperty(Object o, String propertyName) {
         Object retval = null;
-        
+
         if (o != null) {
             try {
                 int pos = propertyName.indexOf(".");
@@ -490,15 +487,13 @@ public class Utils {
                     m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
                 }
                 retval = m.invoke(o);
-                
+
                 if ((retval != null) && (pos > -1)) {
-                    retval = getObjectProperty(retval, propertyName.substring(pos+1));
+                    retval = getObjectProperty(retval, propertyName.substring(pos + 1));
                 }
-            } 
-            
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
-            } 
+            }
         }
 
         return retval;
@@ -509,12 +504,12 @@ public class Utils {
             try {
                 int pos = propertyName.indexOf(".");
                 if (pos > -1) {
-                   String s = propertyName.substring(pos+1);
-                   setObjectProperty(getObjectProperty(o, s), s, value);
+                    String s = propertyName.substring(pos + 1);
+                    setObjectProperty(getObjectProperty(o, s), s, value);
                 } else {
                     Class argumentType = getPropertyClass(o, propertyName);
                     Method m = o.getClass().getMethod(buildSetMethodNameFromPropertyName(propertyName), argumentType);
-                    
+
                     // this is a hack to handle the XMLBeans Enums 
                     if (value != null) {
                         if (!argumentType.isAssignableFrom(value.getClass())) {
@@ -524,14 +519,13 @@ public class Utils {
                             }
                         }
                     }
-                    
+
                     m.invoke(o, value);
                 }
 
-            
             } catch (Exception ex) {
                 LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
-            } 
+            }
         }
     }
 
@@ -539,26 +533,23 @@ public class Utils {
         Class retval = null;
         try {
             Method m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
-            
+
             retval = m.getReturnType();
-        }
-        
-        catch (Exception ex) {
+        } catch (Exception ex) {
             LOG.warn(ex.toString());
         }
-        
+
         return retval;
     }
-    
-    
-    public static  String buildSetMethodNameFromPropertyName(String propertyName) {
+
+    public static String buildSetMethodNameFromPropertyName(String propertyName) {
         return buildMethodNameFromPropertyName("set", propertyName);
     }
 
-    public static  String buildGetMethodNameFromPropertyName(String propertyName) {
+    public static String buildGetMethodNameFromPropertyName(String propertyName) {
         return buildMethodNameFromPropertyName("get", propertyName);
     }
-    
+
     public static String buildMethodNameFromPropertyName(String prefix, String propertyName) {
         String retval = null;
         if (StringUtils.isNoneBlank(prefix) && StringUtils.isNotBlank(propertyName)) {
@@ -567,28 +558,28 @@ public class Utils {
             buf.append(Character.toUpperCase(propertyName.charAt(0)));
             buf.append(propertyName.substring(1));
             retval = buf.toString();
-        } 
-        
+        }
+
         return retval;
     }
-    
+
     public static String getFileSuffix(String nm) {
         String retval = null;
-        
+
         if (StringUtils.isNotBlank(nm)) {
             int pos = nm.lastIndexOf(".");
             if (pos > -1) {
-                retval = nm.substring(pos+1).toLowerCase().trim();
+                retval = nm.substring(pos + 1).toLowerCase().trim();
             }
         }
-        
+
         return retval;
     }
 
     public static boolean wantHttpRequestHeader(String key) {
         return false;
     }
-    
+
     public static void populateHttpRequestOperation(TestOperation testop, HttpRequest request) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(getHttpRequestDetails(request));
@@ -598,15 +589,15 @@ public class Utils {
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         boolean ispost = false;
-        
-        Iterator <Entry<String, String>> it = request.headers().iterator();
-        
+
+        Iterator<Entry<String, String>> it = request.headers().iterator();
+
         while (it.hasNext()) {
-            Entry <String, String> entry = it.next();
+            Entry<String, String> entry = it.next();
             if (LOG.isDebugEnabled()) {
                 LOG.debug(entry.getKey() + "=" + entry.getValue());
             }
-            
+
             if (wantHttpRequestHeader(entry.getKey())) {
                 RequestHeader header = op.getRequestHeaders().addNewHeader();
                 header.setName(entry.getKey());
@@ -615,17 +606,17 @@ public class Utils {
         }
 
         String method = request.getMethod().name();
-        
+
         op.setMethod(method);
         op.setUri(request.getUri());
-        
+
         // if this is a post then try to get content
         if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
             if (request instanceof FullHttpRequest) {
-                FullHttpRequest fr = (FullHttpRequest)request;
+                FullHttpRequest fr = (FullHttpRequest) request;
                 if (fr.content() != null) {
                     byte[] data = getHttpPostContent(fr.content());
-                    
+
                     if (data != null) {
                         RequestParameter param = op.getRequestParameters().addNewParameter();
                         param.setName("content");
@@ -635,36 +626,35 @@ public class Utils {
             }
         }
     }
-    
+
     public static TestOperation buildTestOperation(TestOperationType.Enum optype, Object inputData) {
         TestOperation retval = TestOperation.Factory.newInstance();
-        
+
         retval.setOperationType(optype);
-        
+
         if (inputData != null) {
-            switch(optype.intValue()) {
+            switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(retval, (HttpRequest)inputData);
+                    populateHttpRequestOperation(retval, (HttpRequest) inputData);
                     break;
             }
         }
-        
-        
+
         return retval;
     }
-    
+
     public static String formatForFileName(String input) {
         String retval = null;
         if (StringUtils.isNotBlank(input)) {
             retval = input.toLowerCase().replace(' ', '-');
-        } 
+        }
         return retval;
     }
-    
+
     public static String getTestFileName(TestHeader header) {
         return formatForFileName(header.getTestName());
     }
-    
+
     public static File buildTestFile(String repositoryLocation, TestHeader header) {
         StringBuilder nm = new StringBuilder(256);
         nm.append(repositoryLocation);
@@ -673,17 +663,17 @@ public class Utils {
         nm.append("/tests/");
         nm.append(getTestFileName(header));
         nm.append(".xml");
-        
+
         return new File(nm.toString());
     }
-    
+
     public static XmlOptions getSaveXmlOptions() {
         XmlOptions retval = new XmlOptions();
         retval.setSavePrettyPrint();
         retval.setSavePrettyPrintIndent(3);
         return retval;
     }
-    
+
     public static String getHttpRequestDetails(HttpRequest request) {
         StringBuilder retval = new StringBuilder(512);
         retval.append("uri: ");
@@ -696,7 +686,7 @@ public class Utils {
         retval.append(request.getProtocolVersion());
         retval.append("\r\n");
         retval.append("------------ headers -----------\r\n");
-        Iterator <Entry<String, String>> it = request.headers().iterator();
+        Iterator<Entry<String, String>> it = request.headers().iterator();
         while (it.hasNext()) {
             Entry entry = it.next();
             retval.append(entry.getKey());
@@ -706,12 +696,12 @@ public class Utils {
         }
 
         retval.append("--------------------------------\r\n");
-        
+
         if (request instanceof DefaultFullHttpRequest) {
-            DefaultFullHttpRequest fr = (DefaultFullHttpRequest)request;
+            DefaultFullHttpRequest fr = (DefaultFullHttpRequest) request;
             if (fr.content() != null) {
                 byte[] data = getHttpPostContent(fr.content());
-            
+
                 if (data != null) {
                     retval.append("------------ content -----------\r\n");
                     retval.append(new String(getHttpPostContent(fr.content())));
@@ -719,64 +709,62 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval.toString();
     }
-    
+
     public static byte[] getHttpPostContent(ByteBuf content) {
         byte[] retval = null;
         if (content.isReadable()) {
             ByteBuffer nioBuffer = content.nioBuffer();
             retval = new byte[nioBuffer.remaining()];
             nioBuffer.get(retval);
-        } 
-        
+        }
+
         return retval;
     }
-    
-    public static KualiTest findKualiTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static KualiTest findKualiTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName, String testName) {
         KualiTest retval = null;
-        
+
         Platform platform = findPlatform(configuration, platformName);
-        
+
         if (platform != null) {
             for (TestHeader th : platform.getPlatformTests().getTestHeaderArray()) {
                 if (StringUtils.equalsIgnoreCase(testName, th.getTestName())) {
                     File f = buildTestFile(configuration.getRepositoryLocation(), th);
-                    
+
                     if ((f.exists() && f.isFile())) {
                         KualiTestDocument doc;
                         try {
                             doc = KualiTestDocument.Factory.parse(f);
                             retval = doc.getKualiTest();
                             retval.setTestHeader(th);
-                        } 
-                        
-                        catch (Exception ex) {
+                        } catch (Exception ex) {
                             LOG.error(ex.toString(), ex);
-                        } 
-                        
+                        }
+
                         break;
                     }
                 }
             }
         }
-        
+
         return retval;
     }
-    
+
     public static String cleanDisplayText(String input) {
         String retval = "";
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("cleanDisplayText: input=" + input);
         }
-        
+
         if (StringUtils.isNotBlank(input)) {
-            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", " ").trim();  
+            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", " ").trim();
         }
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("cleanDisplayText: retval=" + retval);
         }
@@ -787,15 +775,15 @@ public class Utils {
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
-    
+
     public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         File handlerDir = new File(configuration.getTagHandlersLocation());
-        
+
         if (handlerDir.exists() && handlerDir.isDirectory()) {
             File[] files = handlerDir.listFiles(new XMLFileFilter());
 
             Arrays.sort(files, new TagHandlerFileComparator());
-            
+
             for (File f : files) {
                 try {
                     TagHandlersDocument doc = TagHandlersDocument.Factory.parse(f);
@@ -809,43 +797,39 @@ public class Utils {
                                 key = (th.getApplication() + "." + th.getTagName());
                             }
 
-                            List <HtmlTagHandler> thl =  TAG_HANDLERS.get(key);
+                            List<HtmlTagHandler> thl = TAG_HANDLERS.get(key);
 
                             if (thl == null) {
                                 TAG_HANDLERS.put(key, thl = new ArrayList<HtmlTagHandler>());
                             }
 
                             try {
-                                HtmlTagHandler hth = (HtmlTagHandler)Class.forName(th.getHandlerClassName()).newInstance();
+                                HtmlTagHandler hth = (HtmlTagHandler) Class.forName(th.getHandlerClassName()).newInstance();
                                 hth.setTagHandler(th);
                                 thl.add(hth);
-                            } 
-                            
-                            catch (Exception ex) {
+                            } catch (Exception ex) {
                                 LOG.warn(ex.toString(), ex);
                             }
                         }
                     }
-                }
-                
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     LOG.error("Error loading tag handler file", ex);
                 }
             }
         }
-        
+
         // sort the handler so we hit most contrained matching test first the 
         // fall through to more generic tests
-        for (List <HtmlTagHandler> l : TAG_HANDLERS.values()) {
+        for (List<HtmlTagHandler> l : TAG_HANDLERS.values()) {
             Collections.sort(l, new HtmlTagHandlerComparator());
         }
     }
 
-    public static boolean isTagMatch(Node node, ParentTagMatch parentTagMatch, ChildTagMatch childTagMatch, TagMatchAttribute[] attributes) {
+    public static boolean isTagMatch(Node node, TagMatcher tm) {
         boolean retval = true;
-        
-        if ((attributes != null) && (attributes.length > 0)) {
-            for (TagMatchAttribute att : attributes) {
+
+        if ((tm.getMatchAttributes() != null) && (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0)) {
+            for (TagMatchAttribute att : tm.getMatchAttributes().getMatchAttributeArray()) {
                 if (!node.hasAttr(att.getName())) {
                     retval = false;
                     break;
@@ -871,7 +855,7 @@ public class Utils {
                     } else if (att.getValue().contains("*")) {
                         String nodeData = node.attr(att.getName());
                         String attData = att.getValue();
-                        
+
                         int pos = attData.indexOf("*");
                         if (StringUtils.isBlank(nodeData)) {
                             retval = false;
@@ -886,7 +870,7 @@ public class Utils {
                                 }
                             } else {
                                 String s1 = attData.substring(0, pos);
-                                String s2 = attData.substring(pos+1);
+                                String s2 = attData.substring(pos + 1);
 
                                 if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
                                     retval = false;
@@ -907,33 +891,31 @@ public class Utils {
                 }
             }
         }
-        
+
         // if we have a match and a child tag matcher - check the children
         if (retval) {
-            if (isChildTagMatchFailure(node, childTagMatch)) {
+            if (isChildTagMatchFailure(node, tm.getChildTagMatch())) {
                 retval = false;
             }
-        }   
-        
-        if (retval) {
-            if (isParentTagMatchFailure(node, parentTagMatch)) {
-                retval = false;
-            }
-            
         }
-        
+
+        if (retval) {
+            if (isParentTagMatchFailure(node, tm.getParentTagMatch())) {
+                retval = false;
+            }
+        }
+
         return retval;
     }
-    
+
     public static boolean isChildTagMatchFailure(Node node, ChildTagMatch childTagMatch) {
         boolean retval = false;
-        
+
         if ((childTagMatch != null) && (node != null)) {
             if (node.childNodeSize() > 0) {
                 boolean foundone = false;
-                Set <String> childTagNames = new HashSet<String>();
+                Set<String> childTagNames = new HashSet<String>();
 
-                
                 StringTokenizer st = new StringTokenizer(childTagMatch.getChildTagName(), "|");
 
                 while (st.hasMoreTokens()) {
@@ -990,15 +972,15 @@ public class Utils {
                 retval = true;
             }
         }
-        
+
         return retval;
     }
-   
+
     public static boolean isParentTagMatchFailure(Node node, ParentTagMatch parentTagMatch) {
         boolean retval = false;
-        
+
         if ((parentTagMatch != null) && (node != null)) {
-            Set <String> parentTagNames = new HashSet<String>();
+            Set<String> parentTagNames = new HashSet<String>();
 
             StringTokenizer st = new StringTokenizer(parentTagMatch.getParentTagName(), "|");
 
@@ -1007,13 +989,13 @@ public class Utils {
             }
             Node validParent = null;
             Node parent = node.parentNode();
-            
+
             // if we are looking for table and this is a tbody ten move up 1 level
             if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(parentTagMatch.getParentTagName())
                 && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(parent.nodeName())) {
                 parent = parent.parentNode();
             }
-            
+
             if (parent != null) {
                 if (parentTagNames.contains(parent.nodeName())) {
                     if (parentTagMatch.getMatchAttributes() != null) {
@@ -1039,7 +1021,7 @@ public class Utils {
                                 } else {
                                     ok = false;
                                 }
-                                
+
                                 if (!ok) {
                                     break;
                                 }
@@ -1054,30 +1036,30 @@ public class Utils {
                     }
                 }
             }
-        
+
             retval = (validParent == null);
         }
-        
+
         return retval;
     }
 
     public static Node getMatchingChild(TagMatcher tm, Node node) {
         Node retval = null;
-        
+
         if (node.childNodeSize() > 0) {
             retval = getMatchingSibling(tm, node.childNode(0));
         }
-        
+
         return retval;
     }
-    
+
     public static Node getMatchingParent(TagMatcher tm, Node node) {
         Node retval = null;
-    
+
         Node parent = node.parentNode();
         int cnt = 0;
         int totalCnt = Integer.MAX_VALUE;
-        
+
         boolean limited = false;
         String sdef = tm.getSearchDefinition();
         if (StringUtils.isNotBlank(sdef)) {
@@ -1086,7 +1068,7 @@ public class Utils {
                 limited = true;
             }
         }
-        
+
         while ((cnt < totalCnt) && (parent != null)) {
             if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
                 cnt++;
@@ -1094,23 +1076,23 @@ public class Utils {
                 if (tm.getMatchAttributes() != null) {
                     attrs = tm.getMatchAttributes().getMatchAttributeArray();
                 }
-                
-                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm.getParentTagMatch(), tm.getChildTagMatch(), attrs)) {
+
+                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm)) {
                     retval = parent;
                     break;
                 }
             }
-            
+
             parent = parent.parentNode();
         }
-        
+
         return retval;
     }
-    
+
     public static int getSiblingNodeSearchDirection(String searchDefinition) {
         int retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_INVALID;
-        
-        switch(searchDefinition.charAt(0)) {
+
+        switch (searchDefinition.charAt(0)) {
             case '-':
                 retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS;
                 break;
@@ -1132,24 +1114,24 @@ public class Utils {
                 break;
 
         }
-        
+
         return retval;
     }
-    
+
     public static Node getMatchingSibling(TagMatcher tm, Node node) {
         Node retval = null;
 
         String searchDefinition = tm.getSearchDefinition();
-        
+
         // default to search all children forward
         if (StringUtils.isBlank(searchDefinition)) {
             searchDefinition = "+*";
         }
-        
+
         int startIndex = node.siblingIndex();
         int cnt = 0;
-        
-        switch(getSiblingNodeSearchDirection(searchDefinition)) {
+
+        switch (getSiblingNodeSearchDirection(searchDefinition)) {
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS:
                 if (startIndex > -1) {
                     int targetCnt = Integer.MAX_VALUE;
@@ -1160,18 +1142,18 @@ public class Utils {
                     } else {
                         limited = false;
                     }
-                    
+
                     Node prev = node.previousSibling();
-                    
+
                     while ((prev != null) && (cnt < targetCnt)) {
                         if (prev.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm.getParentTagMatch(), tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                            if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm)) {
                                 retval = prev;
                                 break;
-                            } 
+                            }
                         }
-                    
+
                         prev = prev.previousSibling();
                     }
                 }
@@ -1179,7 +1161,7 @@ public class Utils {
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_NEXT:
                 if (startIndex > -1) {
                     int targetCnt = Integer.MAX_VALUE;
-                    
+
                     boolean limited = true;
                     // if we have an * then loop through all siblins
                     if (!searchDefinition.substring(1).equals("*")) {
@@ -1192,18 +1174,17 @@ public class Utils {
                         limited = false;
                     }
 
-                    
                     Node next = node.nextSibling();
-                    
+
                     while ((next != null) && (cnt < targetCnt)) {
                         if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm.getParentTagMatch(), tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                            if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm)) {
                                 retval = next;
                                 break;
-                            } 
+                            }
                         }
-                    
+
                         next = next.nextSibling();
                     }
                 }
@@ -1211,7 +1192,7 @@ public class Utils {
             case Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE:
                 if (startIndex > -1) {
                     int targetCnt = Integer.MAX_VALUE;
-                    
+
                     boolean limited = true;
                     // if we have an * then loop through all chiildren
                     if (!searchDefinition.equals("*")) {
@@ -1219,45 +1200,43 @@ public class Utils {
                     } else {
                         limited = false;
                     }
-                    
+
                     Node child = node.parentNode().childNode(0);
-                    
+
                     while ((child != null) && (cnt < targetCnt)) {
                         if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) 
-                                && isTagMatch(child, tm.getParentTagMatch(), tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
+                            if ((!limited || (cnt == targetCnt))
+                                && isTagMatch(child, tm)) {
                                 retval = child;
                                 break;
-                            } 
+                            }
                         }
-                    
+
                         child = child.nextSibling();
                     }
                 }
                 break;
         }
 
-        
         return retval;
     }
-    
+
     public static int getSiblingIndexByTagType(Node node) {
         int retval = 0;
-        
+
         Node parent = node.parentNode();
-        
+
         for (Node sibling : parent.childNodes()) {
             if (sibling.siblingIndex() == node.siblingIndex()) {
                 break;
             }
-            
+
             if (sibling.nodeName().equals(node.nodeName())) {
                 retval++;
             }
         }
-        
-        
+
         return retval;
     }
 
@@ -1266,46 +1245,47 @@ public class Utils {
 
         if ((tagMatchers != null) && (tagMatchers.length > 0)) {
             Node curnode = node;
-            
+
             for (int i = 0; i < tagMatchers.length; ++i) {
                 TagMatcher tm = tagMatchers[i];
                 String sdef = tm.getSearchDefinition();
-                
+
                 // "I" is a key to match to same sibling index as parent
                 // used for table column header matching. Will need to clone
                 // original matcher in this case
                 if (StringUtils.isNotBlank(sdef) && sdef.startsWith(Constants.NODE_INDEX_MATCHER_CODE)) {
-                    tm = (TagMatcher)tm.copy();
+                    tm = (TagMatcher) tm.copy();
                     if (sdef.length() > 1) {
                         tm.setSearchDefinition("" + (getSiblingIndexByTagType(node) + Integer.parseInt(sdef.substring(1))));
                     } else {
-                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node)+1));
+                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node) + 1));
                     }
-                } 
-                
+                }
+
                 curnode = Utils.getMatchingTagNode(tm, curnode);
             }
 
             if (curnode != null) {
                 retval = Utils.cleanDisplayText(curnode.toString());
             }
-            
+
             if (LOG.isDebugEnabled()) {
                 LOG.debug("getMatchedNodeText: tag=" + node.nodeName() + ", text=" + retval);
             }
         }
-        
+
         return retval;
     }
-    
+
     public static Node getMatchingTagNode(TagMatcher tm, Node node) {
         Node retval = null;
-        
+
         if ((tm != null) && (node != null)) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.nodeName());
             }
-            switch(tm.getMatchType().intValue()) {
+
+            switch (tm.getMatchType().intValue()) {
                 case TagMatchType.INT_CHILD:
                     retval = getMatchingChild(tm, node);
                     break;
@@ -1316,39 +1296,39 @@ public class Utils {
                     retval = getMatchingSibling(tm, node);
                     break;
                 case TagMatchType.INT_CURRENT:
-                    if (isTagMatch(node, tm.getParentTagMatch(), tm.getChildTagMatch(), tm.getMatchAttributes().getMatchAttributeArray())) {
-                       retval = node;
+                    if (isTagMatch(node, tm)) {
+                        retval = node;
                     }
                     break;
             }
         }
-        
+
         return retval;
     }
-    
+
     public static HtmlTagHandler getHtmlTagHandler(String app, Node node) {
         HtmlTagHandler retval = null;
-        
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("getHtmlTagHandler - " + node.nodeName());
         }
-        
-        List <HtmlTagHandler> handlerList = new ArrayList<HtmlTagHandler>();
-        
+
+        List<HtmlTagHandler> handlerList = new ArrayList<HtmlTagHandler>();
+
         // add the application specific handlers first
-        List <HtmlTagHandler> thl = TAG_HANDLERS.get(app + "." + node.nodeName().trim().toLowerCase());
-        
+        List<HtmlTagHandler> thl = TAG_HANDLERS.get(app + "." + node.nodeName().trim().toLowerCase());
+
         if (thl != null) {
             handlerList.addAll(thl);
         }
-        
+
         // add the general handlers
         thl = TAG_HANDLERS.get("all." + node.nodeName().trim().toLowerCase());
-        
+
         if (thl != null) {
             handlerList.addAll(thl);
         }
-        
+
         if (!handlerList.isEmpty()) {
             for (HtmlTagHandler hth : handlerList) {
                 boolean match = true;
@@ -1361,32 +1341,30 @@ public class Utils {
                         }
                     }
                 }
-                
+
                 if (match) {
                     retval = hth;
                     break;
                 }
             }
         }
-        
+
         if (retval == null) {
             if (isHtmlContainer(node)) {
                 retval = new DefaultContainerTagHandler();
             }
         }
-        
-        
-        
+
         return retval;
     }
-    
+
     public static boolean isHtmlContainer(Node node) {
         return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.nodeName().toLowerCase().trim());
     }
-    
+
     public static String[] getValidTestTypesForPlatform(Platform platform) {
-        List <String> retval = new ArrayList<String>();
-        
+        List<String> retval = new ArrayList<String>();
+
         if (platform != null) {
             String[] testTypes = Utils.getXmlEnumerations(TestType.class);
 
@@ -1404,12 +1382,12 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval.toArray(new String[retval.size()]);
     }
 
     public static String[] getValidCheckpointTypesForPlatform(TestType.Enum testType, Platform platform) {
-        List <String> retval = new ArrayList<String>();
+        List<String> retval = new ArrayList<String>();
         String[] checkpointTypes = Utils.getXmlEnumerations(CheckpointType.class);
 
         for (String checkpointType : checkpointTypes) {
@@ -1435,59 +1413,59 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval.toArray(new String[retval.size()]);
     }
 
     public static String buildCheckpointSectionName(HtmlTagHandler th, Node node) {
         StringBuilder retval = new StringBuilder(128);
-        
+
         String subSectionName = th.getSubSectionName(node);
         String sectionName = th.getSectionName(node);
         String subSectionAdditional = th.getSubSectionAdditional(node);
 
         retval.append("<html><span style='white-space: nowrap;'>");
-        
+
         boolean haveSection = StringUtils.isNotBlank(sectionName);
         if (haveSection) {
-            String s =  sectionName;
+            String s = sectionName;
             if (StringUtils.isNotBlank(subSectionName)) {
                 s = (sectionName + ": ");
-            } 
-            
+            }
+
             retval.append(buildHtmlStyle(Constants.HTML_BOLD_BLUE_STYLE, s));
         }
-        
+
         if (StringUtils.isNotBlank(subSectionName)) {
             retval.append(subSectionName);
-        } 
+        }
 
         if (StringUtils.isNotBlank(subSectionAdditional)) {
             retval.append(" - ");
             retval.append(subSectionAdditional);
         }
-        
+
         retval.append("</span></html>");
         return retval.toString();
     }
-    
+
     public static boolean isValidContainerNode(Node node) {
         boolean retval = true;
-        
+
         if (node.childNodeSize() == 1) {
             if (Constants.HTML_TEXT_NODE_NAME.equals(node.childNode(0).nodeName())) {
                 retval = false;
             }
         }
-        
+
         return retval;
     }
-    
+
     public static DatabaseConnection findDatabaseConnectionByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String dbname) {
         DatabaseConnection retval = null;
-        
+
         if ((configuration != null) && StringUtils.isNotBlank(dbname)) {
-            if ((configuration.getDatabaseConnections() != null) 
+            if ((configuration.getDatabaseConnections() != null)
                 && (configuration.getDatabaseConnections().sizeOfDatabaseConnectionArray() > 0)) {
                 for (DatabaseConnection db : configuration.getDatabaseConnections().getDatabaseConnectionArray()) {
                     if (dbname.equalsIgnoreCase(db.getName())) {
@@ -1497,17 +1475,17 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
 
     public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String wsname) {
         WebService retval = null;
-        
+
         if ((configuration != null) && StringUtils.isNotBlank(wsname)) {
-            if ((configuration.getWebServices() != null) 
+            if ((configuration.getWebServices() != null)
                 && (configuration.getWebServices().sizeOfWebServiceArray() > 0)) {
-                for (WebService ws: configuration.getWebServices().getWebServiceArray()) {
+                for (WebService ws : configuration.getWebServices().getWebServiceArray()) {
                     if (wsname.equalsIgnoreCase(ws.getName())) {
                         retval = ws;
                         break;
@@ -1515,26 +1493,43 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
 
     @SuppressWarnings("empty-statement")
     public static void closeDatabaseResources(Connection conn, Statement stmt, ResultSet res) {
-        try { if (res != null) { res.close(); } } catch (SQLException ex) {};
-        try { if (stmt != null) { stmt.close(); } } catch (SQLException ex) {};
-        try { if (conn != null) { conn.close(); } } catch (SQLException ex) {};
-    } 
-
-    public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        DatabaseConnection dbconn) throws ClassNotFoundException, SQLException  {
-        Class.forName(dbconn.getJdbcDriver());
-        return DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
+        try {
+            if (res != null) {
+                res.close();
+            }
+        } catch (SQLException ex) {
+        };
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+        } catch (SQLException ex) {
+        };
+        try {
+            if (conn != null) {
+                conn.close();
+            }
+        } catch (SQLException ex) {
+        };
     }
-    
+
+    public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
+        Class.forName(dbconn.getJdbcDriver());
+        Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
+        retval.setReadOnly(true);
+        return retval;
+    }
+
     public static String getJdbcTypeName(int jdbcType, int decimalDigits) {
         String retval = Constants.DATA_TYPE_OTHER;
-        
+
         if (isStringJdbcType(jdbcType)) {
             retval = Constants.DATA_TYPE_STRING;
         } else if (isIntegerJdbcType(jdbcType, decimalDigits)) {
@@ -1551,58 +1546,58 @@ public class Utils {
 
     public static String cleanTableDisplayName(String input) {
         String retval = input;
-        
+
         if (StringUtils.isNotBlank(input)) {
             if (input.endsWith("Impl")) {
                 retval = input.substring(0, input.length() - 4);
             }
         }
-        
+
         return retval;
     }
 
     public static boolean isIntegerJdbcType(int jdbcType, int decimalDigits) {
         boolean retval = false;
-        
+
         if (isNumericJdbcType(jdbcType)) {
             retval = (decimalDigits == 0);
         }
-        
+
         return retval;
     }
-    
+
     public static boolean isFloatJdbcType(int jdbcType, int decimalDigits) {
         boolean retval = false;
-        
+
         if (isNumericJdbcType(jdbcType)) {
             retval = (decimalDigits > 0);
         }
-        
+
         return retval;
     }
 
     public static boolean isStringJdbcType(int jdbcType) {
         boolean retval = false;
-        
-        switch(jdbcType) {
+
+        switch (jdbcType) {
             case java.sql.Types.LONGNVARCHAR:
             case java.sql.Types.LONGVARCHAR:
             case java.sql.Types.NCHAR:
             case java.sql.Types.NCLOB:
             case java.sql.Types.NVARCHAR:
-            case java.sql.Types.VARCHAR:         
+            case java.sql.Types.VARCHAR:
             case java.sql.Types.SQLXML:
                 retval = true;
                 break;
         }
-        
+
         return retval;
     }
 
     public static boolean isTimestampJdbcType(int jdbcType) {
         return (jdbcType == java.sql.Types.TIMESTAMP);
     }
-    
+
     public static boolean isDateJdbcType(int jdbcType) {
         return (jdbcType == java.sql.Types.DATE);
     }
@@ -1613,8 +1608,8 @@ public class Utils {
 
     public static boolean isNumericJdbcType(int jdbcType) {
         boolean retval = false;
-        
-        switch(jdbcType) {
+
+        switch (jdbcType) {
             case java.sql.Types.BIGINT:
             case java.sql.Types.INTEGER:
             case java.sql.Types.SMALLINT:
@@ -1624,7 +1619,7 @@ public class Utils {
                 retval = true;
                 break;
         }
-        
+
         return retval;
     }
 
@@ -1633,11 +1628,11 @@ public class Utils {
     }
 
     public static List<String> getAggregateFunctionsForType(int jdbcType) {
-        List <String> retval = new ArrayList<String>();
-        
+        List<String> retval = new ArrayList<String>();
+
         for (String s : Constants.AGGREGATE_FUNCTIONS) {
-            if (StringUtils.isBlank(s) 
-                || isNumericJdbcType(jdbcType) 
+            if (StringUtils.isBlank(s)
+                || isNumericJdbcType(jdbcType)
                 || Constants.COUNT.equals(s)) {
                 retval.add(s);
             } else if (isDateTimeJdbcType(jdbcType)) {
@@ -1646,11 +1641,10 @@ public class Utils {
                 }
             }
         }
-        
-        
+
         return retval;
     }
-    
+
     public static String buildHtmlStyle(String style, String data) {
         return style.replace("^", data);
     }
@@ -1664,43 +1658,42 @@ public class Utils {
         } else {
             retval.append("");
         }
-        
+
         return retval.toString();
     }
-    
+
     public static Calendar truncate(Calendar cal) {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        
+
         return cal;
     }
-    
-    public static String buildCsvLine(List <String> columns) {
+
+    public static String buildCsvLine(List<String> columns) {
         StringBuilder retval = new StringBuilder(256);
         String comma = "";
-        
+
         for (String s : columns) {
             retval.append(comma);
             retval.append("\"");
-            
+
             if (StringUtils.isNotBlank(s)) {
                 retval.append(s);
-            } 
-            
-            
+            }
+
             retval.append("\"");
-            
+
             comma = ",";
         }
-        
+
         return retval.toString();
     }
-    
+
     public static JmxConnection findJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String jmxName) {
         JmxConnection retval = null;
-        
+
         if (configuration.getJmxConnections() != null) {
             for (JmxConnection jmx : configuration.getJmxConnections().getJmxConnectionArray()) {
                 if (jmx.getName().equals(jmxName)) {
@@ -1709,36 +1702,36 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
-    
-    public static String[] getEmailToAddresses(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+
+    public static String[] getEmailToAddresses(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite, TestHeader testHeader) {
-        Set <String> retval = new HashSet<String>();
+        Set<String> retval = new HashSet<String>();
         Platform platform = null;
-        
+
         if (testSuite != null) {
             if (StringUtils.isNotBlank(testSuite.getEmailAddresses())) {
                 StringTokenizer st = new StringTokenizer(testSuite.getEmailAddresses(), ",");
                 while (st.hasMoreTokens()) {
                     retval.add(st.nextToken().trim());
                 }
-                
+
                 platform = findPlatform(configuration, testSuite.getPlatformName());
-            }             
-            
+            }
+
         } else if (testHeader != null) {
             platform = findPlatform(configuration, testHeader.getPlatformName());
         }
-        
+
         if ((platform != null) && StringUtils.isNotBlank(platform.getEmailAddresses())) {
             StringTokenizer st = new StringTokenizer(platform.getEmailAddresses(), ",");
             while (st.hasMoreTokens()) {
                 retval.add(st.nextToken().trim());
             }
         }
-        
+
         if (StringUtils.isNotBlank(configuration.getEmailSetup().getToAddresses())) {
             StringTokenizer st = new StringTokenizer(configuration.getEmailSetup().getToAddresses(), ",");
             while (st.hasMoreTokens()) {
@@ -1748,18 +1741,18 @@ public class Utils {
 
         return retval.toArray(new String[retval.size()]);
     }
-    
-    public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestSuite testSuite, TestHeader testHeader, List <File> testResults) {
-    
+
+    public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        TestSuite testSuite, TestHeader testHeader, List<File> testResults) {
+
         if (StringUtils.isNotBlank(configuration.getEmailSetup().getFromAddress())
             && StringUtils.isNotBlank(configuration.getEmailSetup().getMailHost())) {
-      
+
             String[] toAddresses = getEmailToAddresses(configuration, testSuite, testHeader);
-            
+
             if (toAddresses.length > 0) {
                 Properties props = new Properties();
-                 props.put("mail.smtp.host", configuration.getEmailSetup().getMailHost());
+                props.put("mail.smtp.host", configuration.getEmailSetup().getMailHost());
                 Session session = Session.getDefaultInstance(props, null);
 
                 try {
@@ -1781,19 +1774,18 @@ public class Utils {
                         subject.append(", Test: ");
                         subject.append(testHeader.getTestName());
                     }
-                    
-                    msg.setSubject(subject.toString());
 
+                    msg.setSubject(subject.toString());
 
                     StringBuilder msgtxt = new StringBuilder(256);
                     msgtxt.append("Please see test output in the following attached files:\n");
-                    
+
                     for (File f : testResults) {
                         msgtxt.append(f.getName());
                         msgtxt.append("\n");
                     }
-                    
-                      // create and fill the first message part
+
+                    // create and fill the first message part
                     MimeBodyPart mbp1 = new MimeBodyPart();
                     mbp1.setText(msgtxt.toString());
 
@@ -1812,23 +1804,21 @@ public class Utils {
                             mp.addBodyPart(mbp2);
                         }
                     }
-                    
+
                     // add the Multipart to the message
                     msg.setContent(mp);
 
                     // set the Date: header
-                    msg.setSentDate(new Date());                    
-                    
-                    Transport.send(msg);
-                } 
+                    msg.setSentDate(new Date());
 
-                catch (MessagingException ex) {
+                    Transport.send(msg);
+                } catch (MessagingException ex) {
                     LOG.warn(ex.toString(), ex);
-                } 
+                }
             }
         }
     }
-    
+
     public static Map<String, String> buildLabelMap(List<Node> labelNodes) {
         Map<String, String> retval = new HashMap<String, String>();
 
@@ -1843,50 +1833,57 @@ public class Utils {
         return retval;
     }
 
-
     public static boolean isRadioOrCheckboxInput(Node node) {
         boolean retval = false;
-        
+
         if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.nodeName())) {
             String type = node.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE);
-            
+
             retval = (Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(type)
                 || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(type));
         }
-        
+
         return retval;
     }
-    
+
     public static boolean isNodeProcessed(Set processedNodes, Node node) {
         boolean retval = false;
-        
+
         if (isRadioOrCheckboxInput(node)) {
             retval = processedNodes.contains(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
-            
+
             if (!retval) {
                 processedNodes.add(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
             }
         } else {
             retval = processedNodes.contains(node.attr(Constants.NODE_ID));
-            
+
             if (!retval) {
                 processedNodes.add(node.attr(Constants.NODE_ID));
             }
         }
-        
+
         return retval;
     }
 
     public static String[] loadPlatformNames(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
-        List <String> retval = new ArrayList<String>();
+        List<String> retval = new ArrayList<String>();
 
         if (configuration.getPlatforms() != null) {
             for (Platform platform : configuration.getPlatforms().getPlatformArray()) {
                 retval.add(platform.getName());
             }
         }
-        
+
         return retval.toArray(new String[retval.size()]);
     }
 
+   
+    public static String tidify(String body) {
+        Tidy tidy = new Tidy();
+        tidy.setXHTML(true);
+        StringWriter writer = new StringWriter();
+        tidy.parse(new StringReader(body), writer);
+        return writer.getBuffer().toString();
+    }
 }

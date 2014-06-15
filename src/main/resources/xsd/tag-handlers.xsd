@@ -32,6 +32,7 @@
             <xs:element name="application" type="xs:string" minOccurs="0"/>
             <xs:element name="tag-name" type="xs:string"/>
             <xs:element name="handler-class-name" type="xs:string"/>
+            <xs:element name="sort-index" type="xs:int" default="1000"/>
             <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
             <xs:element name="label-matcher" type="tag-matchers" minOccurs="0"/>
             <xs:element name="section-matcher" type="tag-matchers" minOccurs="0"/>

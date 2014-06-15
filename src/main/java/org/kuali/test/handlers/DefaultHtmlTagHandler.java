@@ -36,7 +36,13 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     
     @Override
     public boolean isContainer(Node node) {
-        return false;
+        boolean retval = false;
+        if (Constants.HTML_TAG_TYPE_TD.equalsIgnoreCase(node.nodeName()) 
+            || Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(node.nodeName())) {
+            retval = (findFirstChildNode(node, Constants.HTML_TAG_TYPE_TABLE) != null);
+        }
+        
+        return retval;
     }
 
     @Override
@@ -165,4 +171,66 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
 
+    protected Node findFirstChildNode(Node parent, String nodeName) {
+        Node retval = null;
+        
+        for (Node child : parent.childNodes()) {
+            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+                retval = child;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+
+    protected List <Node> findChildNodes(Node parent, String nodeName) {
+        List <Node> retval = new ArrayList<Node>();
+        
+        for (Node child : parent.childNodes()) {
+            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+                retval.add(child);
+            }
+        }
+        
+        return retval;
+    }
+    
+    protected Node findChildNode(Node curnode, String nodeName, String attributeName, String attributeValue) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           if (curnode.nodeName().equals(nodeName) && attributeValue.equals(curnode.attr(attributeName))) {
+               retval = curnode;
+           } else {
+               for (Node child : curnode.childNodes()) {
+                   retval = findChildNode(child, nodeName, attributeName, attributeValue);
+                   if (retval != null) {
+                       break;
+                   }
+               }
+           }
+       }
+       
+       return retval;
+    }
+
+
+    protected Node findFirstParentNode(Node curnode, String nodeName) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           Node parent = curnode.parent();
+           
+           while (parent != null) {
+               if (parent.nodeName().equals(nodeName)) {
+                   retval = parent;
+                   break;
+               }
+               parent = parent.parent();
+           }
+       }
+       
+       return retval;
+    }
 }
