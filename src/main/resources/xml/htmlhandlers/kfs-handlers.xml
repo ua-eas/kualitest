@@ -167,21 +167,14 @@
             </tag-matcher>
             <tag-matcher>
                 <match-type>parent</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>1</search-definition>
-                <child-tag-match>
-                    <child-tag-name>td</child-tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>infoline</value>
-                        </match-attribute>
-                        <match-attribute>
-                            <name>rowspan</name>
-                            <value>2</value>
-                        </match-attribute>
-                    </match-attributes>
-                </child-tag-match>
+                <tag-name>div</tag-name>
+                <search-definition>*</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>tab-container</value>
+                    </match-attribute>
+                </match-attributes>
             </tag-matcher>
             <tag-matcher>
                 <match-type>parent</match-type>

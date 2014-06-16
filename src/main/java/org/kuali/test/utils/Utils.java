@@ -20,8 +20,6 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -90,9 +88,7 @@ import org.kuali.test.TestType;
 import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
-import org.kuali.test.handlers.DefaultContainerTagHandler;
 import org.kuali.test.handlers.HtmlTagHandler;
-import org.w3c.tidy.Tidy;
 
 public class Utils {
 
@@ -1349,12 +1345,6 @@ public class Utils {
             }
         }
 
-        if (retval == null) {
-            if (isHtmlContainer(node)) {
-                retval = new DefaultContainerTagHandler();
-            }
-        }
-
         return retval;
     }
 
@@ -1452,10 +1442,12 @@ public class Utils {
     public static boolean isValidContainerNode(Node node) {
         boolean retval = true;
 
-        if (node.childNodeSize() == 1) {
-            if (Constants.HTML_TEXT_NODE_NAME.equals(node.childNode(0).nodeName())) {
-                retval = false;
+        if (node.childNodeSize() > 0) {
+            if (node.childNodeSize() == 1) {
+                retval = !Constants.HTML_TEXT_NODE_NAME.equals(node.childNode(0).nodeName());
             }
+        } else {
+            retval = false;
         }
 
         return retval;
@@ -1878,12 +1870,133 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
-   
-    public static String tidify(String body) {
-        Tidy tidy = new Tidy();
-        tidy.setXHTML(true);
-        StringWriter writer = new StringWriter();
-        tidy.parse(new StringReader(body), writer);
-        return writer.getBuffer().toString();
+    public static Node findFirstChildNode(Node parent, String nodeName) {
+        Node retval = null;
+        
+        for (Node child : parent.childNodes()) {
+            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+                retval = child;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+
+     public static List <Node> findChildNodes(Node parent, String nodeName) {
+        List <Node> retval = new ArrayList<Node>();
+        
+        for (Node child : parent.childNodes()) {
+            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+                retval.add(child);
+            }
+        }
+        
+        return retval;
+    }
+    
+     public static Node findChildNode(Node curnode, String nodeName, String attributeName, String attributeValue) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           if (curnode.nodeName().equals(nodeName) && attributeValue.equals(curnode.attr(attributeName))) {
+               retval = curnode;
+           } else {
+               for (Node child : curnode.childNodes()) {
+                   retval = findChildNode(child, nodeName, attributeName, attributeValue);
+                   if (retval != null) {
+                       break;
+                   }
+               }
+           }
+       }
+       
+       return retval;
+    }
+
+
+     public static Node findFirstParentNode(Node curnode, String nodeName) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           Node parent = curnode.parent();
+           
+           while (parent != null) {
+               if (parent.nodeName().equals(nodeName)) {
+                   retval = parent;
+                   break;
+               }
+               parent = parent.parent();
+           }
+       }
+       
+       return retval;
+    }
+
+     public static Node findFirstParentNode(Node curnode, String nodeName, String attributeName, String attributeValue) {
+        Node retval = null;  
+        Node parent = curnode.parent();
+
+        while (parent != null) {
+            if (parent.nodeName().equals(nodeName)) {
+                 if (attributeValue.equalsIgnoreCase(parent.attr(attributeName))) {
+                     retval = parent;
+                     break;
+                 }
+            }
+            parent = parent.parent();
+        }
+       
+       return retval;
+    }
+
+     public static Node findPreviousSiblingNode(Node curnode, String nodeName) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           Node sibling = curnode.previousSibling();
+           
+           while (sibling != null) {
+               if (sibling.nodeName().equals(nodeName)) {
+                   retval = sibling;
+                   break;
+               }
+               sibling = sibling.previousSibling();
+           }
+       }
+       
+       return retval;
+    }
+
+    public static Node findNextSiblingNode(Node curnode, String nodeName) {
+       Node retval = null;
+       
+       if (curnode != null) {
+           Node sibling = curnode.nextSibling();
+           
+           while (sibling != null) {
+               if (sibling.nodeName().equals(nodeName)) {
+                   retval = sibling;
+                   break;
+               }
+               sibling = sibling.nextSibling();
+           }
+       }
+       
+       return retval;
+    }
+
+
+    public static boolean containsChildNode(Node parent, String nodeName) {
+        boolean retval = false;
+        
+        for (Node child : parent.childNodes()) {
+            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+                retval = true;
+                break;
+            }
+        }
+        
+        return retval;
     }
 }

@@ -36,6 +36,7 @@ import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.safety.Whitelist;
@@ -61,7 +62,6 @@ import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
 
 /**
  * 
@@ -288,18 +288,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         // if we get html back then clean and get the iframe body node
         if (o != null) {
-            retval = Jsoup.parse(Utils.tidify(Jsoup.clean(o.toString(), whitelist))).body();
+            retval = Jsoup.parse(Jsoup.clean(o.toString(), whitelist)).body();
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("*********************** iframe ****************************");
-            LOG.debug("id: " + iframeNode.attr("id"));
-            LOG.debug("name: " + iframeNode.attr("name"));
-            LOG.debug("jscall: " + js);
-            LOG.debug("html: " + retval);
-            LOG.debug("**********************************************************");
-        }
-        
         return retval;
     }
     
@@ -366,15 +357,52 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private Node getRootNodeFromHtml(final JWebBrowser webBrowser, List <Node> labelNodes, String html) {
-        Whitelist whitelist = getHtmlWhitelist();
-        String cleanhtml = Utils.tidify(Jsoup.clean(html, whitelist));
-        
         if (LOG.isDebugEnabled()) {
-            LOG.debug("************************** clean html ***************************");
-            LOG.debug(cleanhtml);
+            LOG.debug("========================= dirt html =======================");
+            LOG.debug(html);
+            LOG.debug("===========================================================");
         }
-        Node retval = Jsoup.parse(cleanhtml).body();
+        
+        
+        Whitelist whitelist = getHtmlWhitelist();
+        Document doc = Jsoup.parse(Jsoup.clean(html, whitelist));
+      
+        /*
+        try {
+            File f = new File("/home/rbtucker/tst.html");
+            
+            byte[] b = new byte[(int)f.length()];
+            
+            
+            FileInputStream fis = new FileInputStream(f);
+            fis.read(b);
+            fis.close();
+            
+             doc = Jsoup.parse(Jsoup.clean(new String(b), whitelist));
+            
+            PrintWriter pw = new PrintWriter("/home/rbtucker/tst2.html");
+            pw.printf(doc.toString());
+            pw.close();
+        }
+
+        catch (Exception ex) {};
+        
+        */
+        // remove some problem/unneccessary nodes
+        for (String selector : Constants.REMOVE_DOCUMENT_NODE_SELECTORS) {
+            doc.select(selector).remove();
+        }
+        
+        Node retval = doc.body();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("========================= clean html =======================");
+            LOG.debug(doc.toString());
+            LOG.debug("===========================================================");
+        }
+        
         traverseNode(webBrowser, whitelist, labelNodes, retval);
+        
         return retval;
     }
     

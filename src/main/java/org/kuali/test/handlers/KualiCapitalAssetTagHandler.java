@@ -70,19 +70,25 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
         String retval = "";
         
         Node parent = node.parent();
-        
         while (parent != null) {
             if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.nodeName())) {
-                Node td = findFirstChildNode(parent, Constants.HTML_TAG_TYPE_TD);
+                Node table = Utils.findFirstParentNode(parent, Constants.HTML_TAG_TYPE_TABLE);
                 
-                if ((td != null) 
-                    && "infoline".equalsIgnoreCase(td.attr(Constants.HTML_TAG_ATTRIBUTE_CLASS))
-                    && "2".equalsIgnoreCase(td.attr(Constants.HTML_TAG_ATTRIBUTE_ROWSPAN))) {
-                    retval = Utils.cleanDisplayText(td.toString());
-                    break;
+                if ((table != null) 
+                    && "datatable".equalsIgnoreCase(table.attr(Constants.HTML_TAG_ATTRIBUTE_CLASS))
+                    && "Capital Asset Items".equalsIgnoreCase(table.attr(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
+                    Node sibling = Utils.findPreviousSiblingNode(parent, Constants.HTML_TAG_TYPE_TR);
+                    
+                    if (sibling != null) {
+                        Node td = Utils.findFirstChildNode(sibling, Constants.HTML_TAG_TYPE_TD);
+                        
+                        if (td != null) {
+                            retval = Utils.cleanDisplayText(td.toString());
+                            break;
+                        }
+                    }
                 }
             }
-            
             parent = parent.parent();
         }
         

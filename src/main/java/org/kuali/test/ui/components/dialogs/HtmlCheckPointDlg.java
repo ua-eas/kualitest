@@ -194,16 +194,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
 
         HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("incoming node: " + node.nodeName() + " - id=" + node.attr("id") + ", name=" + node.attr("name"));
-            if (th == null) {
-                LOG.debug("no tag handler found");
-            } else {
-                LOG.debug("tag handler: " + th.getClass().getName());
-            }
-        }
-
+        
         if (th != null) {
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);
@@ -225,7 +216,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-                
+
                 if ((cp != null) && !Utils.isNodeProcessed(processedNodes, node)) {
                     if (StringUtils.isBlank(cp.getPropertyGroup()) 
                         || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
@@ -245,25 +236,13 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName())) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("checkpoint[" + cp.getDisplayName() + "]: name: "
-                                + cp.getPropertyName() + ", value: " + cp.getPropertyValue()
-                                + ", propertyGroup: " + cp.getPropertyGroup());
-                        }
-
                         checkpointProperties.add(cp);
-                    } else {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("no display value for - " + cp.getPropertyName() + "=" + cp.getPropertyValue());
-                        }
                     }
                 }
             }
-        } else {
-            if (Utils.isValidContainerNode(node)) {
-                for (Node child : node.childNodes()) {
-                    processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
-                }
+        } else if (Utils.isValidContainerNode(node)) {
+            for (Node child : node.childNodes()) {
+                processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
             }
         }
     }
@@ -383,10 +362,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         }
 
         return retval;
-    }
-
-    private boolean haveSelectedParameters() {
-        return false;
     }
 
     private boolean checkpointNameExists() {

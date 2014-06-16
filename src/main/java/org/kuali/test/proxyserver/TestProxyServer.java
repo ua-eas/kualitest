@@ -86,7 +86,6 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
-                        
                         if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
                             if (isHtmlResponse(response)) {
@@ -97,10 +96,10 @@ public class TestProxyServer {
                         } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
                             HttpContent c = (HttpContent)httpObject;
                             c.retain();
-                            ByteBuffer buf = ByteBuffer.allocate(c.content().capacity());
+                            ByteBuffer buf = ByteBuffer.allocateDirect(c.content().capacity());
                             c.content().copy().readBytes(buf);
                             c.release();
-                            currentHtmlResponse.append(new String(buf.array()));
+                            currentHtmlResponse.append(buf.asCharBuffer());
                             if (httpObject instanceof LastHttpContent) {
                                 if (currentHtmlResponse != null) {
                                     webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
