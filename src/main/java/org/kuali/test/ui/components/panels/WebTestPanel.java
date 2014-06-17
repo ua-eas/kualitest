@@ -26,6 +26,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities.EscapeMode;
 import org.jsoup.nodes.Node;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.NodeVisitor;
@@ -62,6 +64,7 @@ import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  * 
@@ -363,37 +366,39 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             LOG.debug("===========================================================");
         }
         
+        html = Utils.tidify(html);
         
-        Whitelist whitelist = getHtmlWhitelist();
-        Document doc = Jsoup.parse(Jsoup.clean(html, whitelist));
-      
-        /*
         try {
-            File f = new File("/home/rbtucker/tst.html");
-            
-            byte[] b = new byte[(int)f.length()];
-            
-            
-            FileInputStream fis = new FileInputStream(f);
-            fis.read(b);
-            fis.close();
-            
-             doc = Jsoup.parse(Jsoup.clean(new String(b), whitelist));
-            
-            PrintWriter pw = new PrintWriter("/home/rbtucker/tst2.html");
-            pw.printf(doc.toString());
+            PrintWriter pw = new PrintWriter("/home/rbtucker/tst1.html");
+            pw.print(html);
             pw.close();
         }
 
-        catch (Exception ex) {};
+        catch (Exception ex) {
+            ex.toString();
+        };
         
-        */
+        
+        Whitelist whitelist = getHtmlWhitelist();
+        Document doc = Jsoup.parse(Jsoup.clean(html, whitelist));
+        doc.outputSettings().escapeMode(EscapeMode.xhtml);     
+        
         // remove some problem/unneccessary nodes
         for (String selector : Constants.REMOVE_DOCUMENT_NODE_SELECTORS) {
             doc.select(selector).remove();
         }
         
         Node retval = doc.body();
+
+        try {
+            PrintWriter pw = new PrintWriter("/home/rbtucker/tst2.html");
+            pw.print("<html>" + retval.toString() + "</html>");
+            pw.close();
+        }
+
+        catch (Exception ex) {
+            ex.toString();
+        };
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("========================= clean html =======================");

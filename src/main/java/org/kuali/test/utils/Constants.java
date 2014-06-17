@@ -225,6 +225,7 @@ public class Constants {
     }
     
 
+    public static final String HTML_TAG_TYPE_HTML = "html";
     public static final String HTML_TAG_TYPE_OPTION = "option";
     public static final String HTML_TAG_TYPE_LABEL = "label";
     public static final String HTML_TAG_TYPE_INPUT = "input";
@@ -276,7 +277,7 @@ public class Constants {
     public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
     public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
     public static final String[] DEFAULT_HTML_WHITELIST_TAGS = {
-        "html",
+        HTML_TAG_TYPE_HTML,
         HTML_TAG_TYPE_INPUT, 
         HTML_TAG_TYPE_DIV, 
         HTML_TAG_TYPE_LABEL, 

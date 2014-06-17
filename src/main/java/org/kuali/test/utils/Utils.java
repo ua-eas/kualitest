@@ -20,6 +20,8 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -89,6 +91,7 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
+import org.w3c.tidy.Tidy;
 
 public class Utils {
 
@@ -1998,5 +2001,19 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    
+      public static String tidify(String input) {
+        Tidy tidy = new Tidy();
+        tidy.setMakeClean(true);
+        tidy.setXHTML(true);
+        tidy.setHideComments(true);
+        tidy.setDropEmptyParas(true);
+        tidy.setDropFontTags(true);
+        
+        StringWriter writer = new StringWriter();
+        tidy.parse(new StringReader(input), writer);
+        return writer.getBuffer().toString();
     }
 }
