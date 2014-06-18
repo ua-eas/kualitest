@@ -16,12 +16,12 @@
 
 package org.kuali.test.handlers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import static org.kuali.test.handlers.DefaultHtmlTagHandler.LOG;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 
 public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
@@ -95,32 +95,23 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
     @Override
     public String getSubSectionAdditional(Element node) {
         String retval = null;
+
+        Element e = Utils.findFirstChildNode(node, Constants.HTML_TAG_TYPE_DIV);
         
-        String data = Utils.cleanDisplayText(node);
-        
-        int pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
-        
-        if (pos1 < 0) {
-            Node parent = node.getParentNode();
-            while (Utils.isElement(parent)) {
-                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.getNodeName())) {
-                    data = Utils.cleanDisplayText(parent);
-                    pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
-                    break;
+        if (e != null) {
+            String id = e.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+            if (StringUtils.isNotBlank(id)) {
+                int pos = id.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
+                if (pos > -1) {
+                    int pos2 = id.indexOf("]", pos);
+
+                    if ((pos2 > -1) && (pos2 > pos)) {
+                        int indx = Integer.parseInt(id.substring(pos + Constants.SOURCE_ACCOUNTING_LINE_MATCH.length(), pos2));
+                        retval = Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "account[" + (indx+1) + "]");
+                    }
                 }
-                parent = parent.getParentNode();
             }
         }
-
-        if (pos1 > -1) {
-            int pos2 = data.indexOf("]", pos1);
-            
-            if ((pos2 > -1) && (pos2 > pos1)) {
-                int indx = Integer.parseInt(data.substring(pos1 + Constants.SOURCE_ACCOUNTING_LINE_MATCH.length(), pos2));
-                retval = Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "account[" + (indx+1) + "]");
-            }
-        }
-
         
         return retval;
     }
