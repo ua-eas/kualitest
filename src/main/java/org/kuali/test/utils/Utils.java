@@ -2083,14 +2083,59 @@ public class Utils {
     public static void removeTagsFromDocument(Document doc, String[] tagnames) {
         List <Node> removeList = new ArrayList<Node>();
         for (String tag : tagnames) {
-            NodeList l= doc.getDocumentElement().getElementsByTagName(tag);
+            // if this tag has a '.' in the name the attribute(s) are specified
+            // in the form '<tagname>.<attname>=<attvalue>,<attname>=<attvalue>...'
+            int pos = tag.indexOf(".");
+            String tagname = tag;
+            Map <String, String> attmap = null;
+            if (pos > -1) {
+                tagname = tag.substring(0, pos);
+                attmap = new HashMap<String, String>();
+                StringTokenizer st = new StringTokenizer(tag.substring(pos+1), ",");
+                
+                while (st.hasMoreTokens()) {
+                    String s = st.nextToken();
+                    pos = s.indexOf("=");
+                    if (pos > -1) {
+                        attmap.put(s.substring(0, pos), s.substring(pos+1));
+                    }
+                }
+            }
+            
+            NodeList l= doc.getDocumentElement().getElementsByTagName(tagname);
             for (int i = 0; i < l.getLength(); ++i) {
-                removeList.add(l.item(i));
+                Element item = (Element)l.item(i);
+                
+                // if attribute is specified check the node for matching attribute
+                if (attmap != null) {
+                    boolean canRemove = (attmap.size() > 0);
+
+                    for (String key : attmap.keySet()) {
+                        String checkValue = attmap.get(key);
+                        String val = item.getAttribute(key);
+                    
+                        if (StringUtils.isNotBlank(val)) {
+                            if (!val.equalsIgnoreCase(checkValue)) {
+                                canRemove = false;
+                                break;
+                            }
+                        }
+                        
+                        if (canRemove) {
+                            removeList.add(item);
+                        }
+                    }
+                } else {
+                    removeList.add(item);
+                }
             }
         }
 
         for (Node node : removeList) {
-            node.getParentNode().removeChild(node);
+            // this check required because we may have already removed the parent
+            if (node.getParentNode() != null) {
+                node.getParentNode().removeChild(node);
+            }
         }
     }
     

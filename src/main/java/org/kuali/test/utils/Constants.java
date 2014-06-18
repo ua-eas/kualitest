@@ -398,7 +398,10 @@ public class Constants {
         "script",
         "link",
         "img",
-        "meta"
+        "meta",
+        "input.type=image",
+        "input.type=hidden,value=CLOSE",
+        "input.type=hidden,value=OPEN"
     };
     
 }
