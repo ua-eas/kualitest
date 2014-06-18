@@ -210,12 +210,6 @@
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>
-                <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
                 <tag-name>tr</tag-name>
                 <search-definition>2</search-definition>
                 <match-attributes></match-attributes>
@@ -395,12 +389,6 @@
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>
-                <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
                 <tag-name>tr</tag-name>
                 <search-definition>3</search-definition>
                 <match-attributes></match-attributes>
@@ -422,12 +410,6 @@
                         <value>datatable</value>
                     </match-attribute>
                 </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>
@@ -549,12 +531,6 @@
                         <value>datatable</value>
                     </match-attribute>
                 </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>
@@ -995,12 +971,6 @@
                         <value>view/add notes</value>
                     </match-attribute>
                 </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>tbody</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>

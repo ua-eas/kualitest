@@ -2068,7 +2068,7 @@ public class Utils {
             tidy = new Tidy();
             tidy.setMakeClean(true);
             tidy.setXHTML(true);
-            tidy.setQuiet(true);
+            tidy.setShowWarnings(false);
             tidy.setMakeBare(true);
             tidy.setHideComments(true);
             tidy.setDropEmptyParas(true);
@@ -2088,8 +2088,7 @@ public class Utils {
                 removeList.add(l.item(i));
             }
         }
-        
-        
+
         for (Node node : removeList) {
             node.getParentNode().removeChild(node);
         }
@@ -2101,9 +2100,11 @@ public class Utils {
         // remove tags we do not want
         removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
 
-        System.out.println("===============================");
-        getTidy().pprint(retval, System.out);
-        System.out.println("===============================");
+        if (LOG.isDebugEnabled()) {
+            System.out.println("====================================================================");
+            getTidy().pprint(retval, System.out);
+            System.out.println("====================================================================");
+        }
         
         return retval;
     }
