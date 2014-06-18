@@ -16,12 +16,12 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
+import org.w3c.dom.Element;
 
 
 public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public boolean isContainer(Node node) {
+    public boolean isContainer(Element node) {
         return true;
     }
 }

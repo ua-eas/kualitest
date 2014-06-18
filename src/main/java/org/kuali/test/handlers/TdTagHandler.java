@@ -16,25 +16,27 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
 
 
 public class TdTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(Node node) {
+    public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
         
         if (isSelectWrapper(node)) {
-            retval.setPropertyValue(getSelectedOption(node.childNode(0)));
+            retval.setPropertyValue(getSelectedOption((Element)node.getFirstChild()));
         } else if (isRadioWrapper(node)) {
-            retval.setPropertyValue(getSelectedRadioValue(node.childNode(0), node.childNode(0).attr(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            Element c = (Element)node.getFirstChild();
+            retval.setPropertyValue(getSelectedRadioValue((Element)node.getFirstChild(), c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
         } else if (isCheckboxWrapper(node)) {
-            retval.setPropertyValue(getSelectedCheckboxValues(node.childNode(0), node.childNode(0).attr(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            Element c = (Element)node.getFirstChild();
+            retval.setPropertyValue(getSelectedCheckboxValues(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
         } else {
-            retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
+            retval.setPropertyValue(Utils.cleanDisplayText(node));
         }
 
         if (LOG.isDebugEnabled()) {
@@ -45,7 +47,7 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getSectionName(Node node) {
+    public String getSectionName(Element node) {
         String retval = null;
         if (getTagHandler().getSectionMatcher() != null) {
             retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
@@ -59,7 +61,7 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getSubSectionName(Node node) {
+    public String getSubSectionName(Element node) {
         String retval = null;
         if (getTagHandler().getSubSectionMatcher() != null) {
             retval = Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node); 
@@ -72,33 +74,33 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         return retval;
     }
     
-    private boolean isSelectWrapper(Node node) {
-        return ((node.childNodeSize() > 0) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.childNode(0).nodeName()));
+    private boolean isSelectWrapper(Element node) {
+        return (node.hasChildNodes() && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getFirstChild().getNodeName()));
     }
 
-    private boolean isRadioWrapper(Node node) {
+    private boolean isRadioWrapper(Element node) {
         boolean retval = false;
         
         if (isInputWrapper(node)) {
-            Node child = node.childNode(0);
-            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(child.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE));
+            Element child = (Element)node.getFirstChild();
+            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE));
         }
         
         return retval;
     }
         
-    private boolean isCheckboxWrapper(Node node) {
+    private boolean isCheckboxWrapper(Element node) {
         boolean retval = false;
         
         if (isInputWrapper(node)) {
-            Node child = node.childNode(0);
-            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(child.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE));
+            Element child = (Element)node.getFirstChild();
+            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE));
         }
         
         return retval;
     }
 
-    private boolean isInputWrapper(Node node) {
-        return ((node.childNodeSize() > 0)  && Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.childNode(0).nodeName()));
+    private boolean isInputWrapper(Element node) {
+        return (node.hasChildNodes()  && Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getFirstChild().getNodeName()));
     }
 }

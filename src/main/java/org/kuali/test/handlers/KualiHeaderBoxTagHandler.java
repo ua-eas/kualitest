@@ -17,23 +17,23 @@
 package org.kuali.test.handlers;
 
 import javax.swing.JComponent;
-import org.jsoup.nodes.Node;
 import org.kuali.test.utils.Constants;
+import org.w3c.dom.Element;
 
 
 public class KualiHeaderBoxTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public JComponent getContainerComponent(Node node) {
+    public JComponent getContainerComponent(Element node) {
         return getNewPanel(node);
     }
 
     @Override
-    public boolean isContainer(Node node) {
+    public boolean isContainer(Element node) {
         return true;
     }
 
     @Override
-    public String getGroupName(Node node) {
+    public String getGroupName(Element node) {
         return Constants.HEADER_INFO_PANEL_NAME;
     }
 }

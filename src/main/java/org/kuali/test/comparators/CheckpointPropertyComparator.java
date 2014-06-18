@@ -55,7 +55,18 @@ public class CheckpointPropertyComparator implements Comparator <CheckpointPrope
         }
         
         if (retval == 0) {
-            retval = o1.getPropertyName().toLowerCase().compareTo(o2.getPropertyName().toLowerCase());
+            String s1 = "";
+            String s2 = "";
+            
+            if (StringUtils.isNotBlank(o1.getPropertyName())) {
+                s1 = o1.getPropertyName().toLowerCase();
+            }
+            
+            if (StringUtils.isNotBlank(o2.getPropertyName())) {
+                s2 = o2.getPropertyName().toLowerCase();
+            }
+            
+            retval = s1.compareTo(s2);
         }
         
         return retval;

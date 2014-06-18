@@ -31,7 +31,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Node;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
@@ -49,6 +48,7 @@ import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -63,7 +63,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
 
 
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, Node rootNode, List<Node> labelNodes) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader,Element rootNode, List<Element> labelNodes) {
         super(mainFrame);
         this.testHeader = testHeader;
 
@@ -80,7 +80,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         initComponents(rootNode, labelNodes);
     }
 
-    private void initComponents(Node rootNode, List<Node> labelNodes) {
+    private void initComponents(Element rootNode, List<Element> labelNodes) {
         String[] labels = new String[]{
             "Checkpoint Name"
         };
@@ -107,7 +107,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         setResizable(true);
     }
 
-    private BasePanel buildPropertyContainer(final Node rootNode, final List<Node> labelNodes) {
+    private BasePanel buildPropertyContainer(final Element rootNode, final List<Element> labelNodes) {
         final BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
@@ -190,7 +190,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         Map<String, String> labelMap,
         List<CheckpointProperty> checkpointProperties,
         Set<String> processedNodes,
-        Node node) {
+        Element node) {
         Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
 
         HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
@@ -207,7 +207,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                         + ", group name: " + groupStack.peek());
                 }
 
-                for (Node child : node.childNodes()) {
+                for (Element child : Utils.getChildElements(node)) {
                     processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
                 }
 
@@ -228,7 +228,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                     if (th.getTagHandler().getLabelMatcher() != null) {
                         cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
                     } else if (labelMap.containsKey(cp.getPropertyName())) {
-                        cp.setDisplayName(labelMap.get(cp.getPropertyName()));
+                        cp.setDisplayName(Utils.trimString(labelMap.get(cp.getPropertyName())));
                     }
 
                     if (StringUtils.isNotBlank(cp.getPropertyValue())) {
@@ -241,7 +241,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
                 }
             }
         } else if (Utils.isValidContainerNode(node)) {
-            for (Node child : node.childNodes()) {
+            for (Element child : Utils.getChildElements(node)) {
                 processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
             }
         }

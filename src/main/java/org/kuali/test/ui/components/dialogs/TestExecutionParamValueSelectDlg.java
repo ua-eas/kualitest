@@ -33,7 +33,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
@@ -50,6 +49,7 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
 
 
 public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements ListSelectionListener {
@@ -59,16 +59,16 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
     
     public TestExecutionParamValueSelectDlg(TestCreator mainframe, 
         JDialog parent, 
-        List <Node> labelNodes, 
-        Node rootNode, 
+        List <Element> labelNodes, 
+        Element rootNode, 
         TestHeader testHeader) {
         super(mainframe, parent);
         setTitle("Test Execution Parameter Select");
         this.testHeader = testHeader;
-        initComponents(labelNodes, rootNode);
+        initComponents(rootNode, labelNodes);
     }
 
-    private void initComponents(final List <Node> labelNodes, final Node rootNode) {
+    private void initComponents(final Element rootNode, final List <Element> labelNodes) {
         final BasePanel basePanel = new BasePanel(getMainframe());
        
         new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
@@ -174,7 +174,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         Map<String, String> labelMap,
         List<TestExecutionParameter> parameters,
         Set<String> processedNodes,
-        Node node) {
+        Element node) {
         Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
 
         HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
@@ -186,7 +186,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
                     groupStack.push(groupName);
                 }
 
-                for (Node child : node.childNodes()) {
+                for (Element child : Utils.getChildElements(node)) {
                     processNode(groupStack, labelMap, parameters, processedNodes, child);
                 }
 
@@ -205,7 +205,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
                     if (th.getTagHandler().getLabelMatcher() != null) {
                         cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
                     } else if (labelMap.containsKey(cp.getPropertyName())) {
-                        cp.setDisplayName(labelMap.get(cp.getPropertyName()));
+                        cp.setDisplayName(Utils.trimString(labelMap.get(cp.getPropertyName())));
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName())) {
@@ -217,7 +217,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
             }
         } else {
             if (Utils.isValidContainerNode(node)) {
-                for (Node child : node.childNodes()) {
+                for (Element child : Utils.getChildElements(node)) {
                     processNode(groupStack, labelMap, parameters, processedNodes, child);
                 }
             }

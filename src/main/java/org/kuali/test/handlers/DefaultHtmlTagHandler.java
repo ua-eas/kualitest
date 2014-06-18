@@ -24,11 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
 
 
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
@@ -36,11 +36,11 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     private TagHandler tagHandler;
     
     @Override
-    public boolean isContainer(Node node) {
+    public boolean isContainer(Element node) {
         boolean retval = false;
-        if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(node.nodeName()) 
-            || Constants.HTML_TAG_TYPE_TD.equalsIgnoreCase(node.nodeName()) 
-            || Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(node.nodeName())) {
+        if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(node.getNodeName()) 
+            || Constants.HTML_TAG_TYPE_TD.equalsIgnoreCase(node.getNodeName()) 
+            || Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(node.getNodeName())) {
             retval = Utils.containsChildNode(node, Constants.HTML_TAG_TYPE_TABLE);
         }
         
@@ -48,32 +48,30 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     }
 
     @Override
-    public JComponent getContainerComponent(Node node) {
+    public JComponent getContainerComponent(Element node) {
         return null;
     }
 
     @Override
-    public CheckpointProperty getCheckpointProperty(Node node) {
+    public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
 
-        if (node.hasAttr("value")) {
-            retval.setPropertyValue(node.attr("value"));
+        if (node.hasAttribute("value")) {
+            retval.setPropertyValue(node.getAttribute("value"));
         }
         
-        if (node.hasAttr("id")) {
-            retval.setPropertyName(node.attr("id"));
-        } else if (node.hasAttr("name")) {
-            retval.setPropertyName(node.attr("name"));
-        } else {
-            retval.setPropertyName(node.attr("test-id"));
-        }
+        if (node.hasAttribute("id")) {
+            retval.setPropertyName(Utils.trimString(node.getAttribute("id")));
+        } else if (node.hasAttribute("name")) {
+            retval.setPropertyName(Utils.trimString(node.getAttribute("name")));
+        } 
         
-        retval.setDisplayName(retval.getPropertyName());
+        retval.setDisplayName(Utils.trimString(retval.getPropertyName()));
 
         return retval;
     }
     
-    protected JPanel getNewPanel(Node tag) {
+    protected JPanel getNewPanel(Element tag) {
         JPanel retval = new JPanel();
         retval.setName(getGroupName(tag));
         return retval;
@@ -94,32 +92,32 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     }
     
     @Override
-    public String getGroupName(Node node) {
+    public String getGroupName(Element node) {
         return null;
     }
 
     @Override
-    public String getSectionName(Node node) {
+    public String getSectionName(Element node) {
         return null;
     }
 
     @Override
-    public String getSubSectionName(Node node) {
+    public String getSubSectionName(Element node) {
         return null;
     }
 
     @Override
-    public String getSubSectionAdditional(Node node) {
+    public String getSubSectionAdditional(Element node) {
         return null;
     }
     
-    protected String getSelectedRadioValue(Node node, String name) {
+    protected String getSelectedRadioValue(Element node, String name) {
         String retval = "";
         
-        for (Node sibling : node.siblingNodes()) {
-            if (name.equals(sibling.attr("name"))) {
-                if (StringUtils.isNotBlank(sibling.attr("checked"))) {
-                    retval = sibling.attr("value");
+        for (Element sibling : Utils.getSiblingElements(node)) {
+            if (name.equals(sibling.getAttribute("name"))) {
+                if (StringUtils.isNotBlank(sibling.getAttribute("checked"))) {
+                    retval = sibling.getAttribute("value");
                     break;
                 }
             }
@@ -128,13 +126,13 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
     
-    protected String getSelectedOption(Node node) {
+    protected String getSelectedOption(Element node) {
         String retval = "";
         
-        for (Node sibling : node.siblingNodes()) {
-            if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.nodeName())) {
-                if (StringUtils.isNotBlank(sibling.attr("selected"))) {
-                    retval = sibling.attr("value");
+        for (Element sibling : Utils.getSiblingElements(node)) {
+            if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.getNodeName())) {
+                if (StringUtils.isNotBlank(sibling.getAttribute("selected"))) {
+                    retval = sibling.getAttribute("value");
                     break;
                 }
             }
@@ -143,16 +141,16 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
 
-    protected String getSelectedCheckboxValues(Node node, String name) {
+    protected String getSelectedCheckboxValues(Element node, String name) {
         String retval = "";
         
         List <String> l = new ArrayList<String>();
 
         
-        for (Node sibling : node.siblingNodes()) {
-            if (name.equals(sibling.attr("name"))) {
-                if (StringUtils.isNotBlank(sibling.attr("selected"))) {
-                    l.add(sibling.attr("value"));
+        for (Element sibling : Utils.getSiblingElements(node)) {
+            if (name.equals(sibling.getAttribute("name"))) {
+                if (StringUtils.isNotBlank(sibling.getAttribute("selected"))) {
+                    l.add(sibling.getAttribute("value"));
                     break;
                 }
             }

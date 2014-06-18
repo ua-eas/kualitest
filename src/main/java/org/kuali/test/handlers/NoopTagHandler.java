@@ -16,13 +16,13 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
+import org.w3c.dom.Element;
 
 
 public class NoopTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(Node node) {
+    public CheckpointProperty getCheckpointProperty(Element node) {
         return null;
     }
 }

@@ -34,7 +34,9 @@
         <eclipse.swt.version>4.3</eclipse.swt.version>
         <littleshoot.proxy.version>1.0.0-beta7</littleshoot.proxy.version>
         <jcalendar.version>1.4</jcalendar.version>
+        <!--
         <jsoup.version>1.7.3</jsoup.version>
+        -->
     </properties>
     <dependencies>
         <dependency>
@@ -128,11 +130,13 @@
             <version>${jcalendar.version}</version>
             <type>jar</type>
         </dependency>
+        <!--
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+        -->
         <dependency>
             <groupId>com.oracle</groupId>
             <artifactId>ojdbc14</artifactId>

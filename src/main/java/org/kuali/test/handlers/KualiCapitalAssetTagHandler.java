@@ -17,10 +17,11 @@
 package org.kuali.test.handlers;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
@@ -29,15 +30,15 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     public static final String ASSET_LOCATION_SUB_SECTION = "Location";
 
     @Override
-    public CheckpointProperty getCheckpointProperty(Node node) {
+    public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
-        retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
+        retval.setPropertyValue(Utils.cleanDisplayText(node));
         retval.setPropertyGroup(CAPITAL_ASSET_PROPERTY_GROUP);
         return retval;
     }
     
     @Override
-    public String getSectionName(Node node) {
+    public String getSectionName(Element node) {
         StringBuilder retval = new StringBuilder(32);
         retval.append(CAPITAL_ASSET_ITEMS_SECTION); 
         
@@ -45,7 +46,7 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getSubSectionName(Node node) {
+    public String getSubSectionName(Element node) {
         StringBuilder retval = new StringBuilder(64);
         
         String ss = null;
@@ -66,30 +67,32 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
         return retval.toString();
     }
     
-    private String getItemNumberForLocation(Node node) {
+    private String getItemNumberForLocation(Element node) {
         String retval = "";
         
-        Node parent = node.parent();
-        while (parent != null) {
-            if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.nodeName())) {
-                Node table = Utils.findFirstParentNode(parent, Constants.HTML_TAG_TYPE_TABLE);
+        Node parent = node.getParentNode();
+        while (Utils.isElement(parent)) {
+            if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.getNodeName())) {
+                Element table = Utils.findFirstParentNode((Element)parent, Constants.HTML_TAG_TYPE_TABLE);
                 
                 if ((table != null) 
-                    && "datatable".equalsIgnoreCase(table.attr(Constants.HTML_TAG_ATTRIBUTE_CLASS))
-                    && "Capital Asset Items".equalsIgnoreCase(table.attr(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
-                    Node sibling = Utils.findPreviousSiblingNode(parent, Constants.HTML_TAG_TYPE_TR);
+                    && "datatable".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS))
+                    && "Capital Asset Items".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
+                    Element sibling = Utils.findPreviousSiblingNode((Element)parent, Constants.HTML_TAG_TYPE_TR);
                     
                     if (sibling != null) {
-                        Node td = Utils.findFirstChildNode(sibling, Constants.HTML_TAG_TYPE_TD);
+                        Element td = Utils.findFirstChildNode(sibling, Constants.HTML_TAG_TYPE_TD);
                         
                         if (td != null) {
-                            retval = Utils.cleanDisplayText(td.toString());
+                            retval = Utils.cleanDisplayText(td);
                             break;
                         }
                     }
                 }
             }
-            parent = parent.parent();
+            
+            
+            parent = parent.getParentNode();
         }
         
         return retval;

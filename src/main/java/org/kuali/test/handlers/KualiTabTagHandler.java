@@ -16,21 +16,21 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
+import org.w3c.dom.Element;
 
 
 public class KualiTabTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public boolean isContainer(Node node) {
+    public boolean isContainer(Element node) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug("tag: " + node.nodeName() + ", id=" + node.attr("id") + ", name=" + node.attr("name"));
+            LOG.debug("tag: " + node.getNodeName() + ", id=" + node.getAttribute("id") + ", name=" + node.getAttribute("name"));
         }
         return true;
     }
 
     @Override
-    public String getGroupName(Node node) {
-        String id = node.attr("id");
+    public String getGroupName(Element node) {
+        String id = node.getAttribute("id");
         String retval = id;
         int pos1 = id.indexOf("-");
         int pos2 = id.lastIndexOf("-");

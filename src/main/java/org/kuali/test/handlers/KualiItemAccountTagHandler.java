@@ -16,44 +16,45 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
 import org.kuali.test.CheckpointProperty;
 import static org.kuali.test.handlers.DefaultHtmlTagHandler.LOG;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 
 public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(Node node) {
+    public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
 
-        Node anchor = findAnchor(node);
+        Element anchor = findAnchor(node);
         
         if (anchor != null) {
-            retval.setPropertyValue(Utils.cleanDisplayText(anchor.toString()));
+            retval.setPropertyValue(Utils.cleanDisplayText(anchor));
         } else {
-            retval.setPropertyValue(Utils.cleanDisplayText(node.toString()));
+            retval.setPropertyValue(Utils.cleanDisplayText(node));
         }
         
         return retval;
     }
 
-    private Node findAnchor(Node node) {
-        Node retval = null;
+    private Element findAnchor(Element node) {
+        Element retval = null;
         
-        Node cnode = null;
-        for (Node child : node.childNodes()) {
-            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(child.nodeName())
-                || Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(child.nodeName())) {
+        Element cnode = null;
+        for (Element child : Utils.getChildElements(node)) {
+            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(child.getNodeName())
+                || Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(child.getNodeName())) {
                 cnode = child;
                  break;
             }
         }
 
         if (cnode != null) {
-            for (Node child : cnode.childNodes()) {
-                if (Constants.HTML_TAG_TYPE_ANCHOR.equalsIgnoreCase(child.nodeName())) {
+            for (Element child : Utils.getChildElements(cnode)) {
+                if (Constants.HTML_TAG_TYPE_ANCHOR.equalsIgnoreCase(child.getNodeName())) {
                     retval = child;
                     break;
                 }
@@ -64,7 +65,7 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
     }
     
     @Override
-    public String getSectionName(Node node) {
+    public String getSectionName(Element node) {
         String retval = null;
         if (getTagHandler().getSectionMatcher() != null) {
             retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
@@ -78,7 +79,7 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getSubSectionName(Node node) {
+    public String getSubSectionName(Element node) {
         String retval = null;
         if (getTagHandler().getSubSectionMatcher() != null) {
             retval = Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node); 
@@ -92,22 +93,22 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
     }
 
     @Override
-    public String getSubSectionAdditional(Node node) {
+    public String getSubSectionAdditional(Element node) {
         String retval = null;
         
-        String data = node.toString();
+        String data = Utils.cleanDisplayText(node);
         
         int pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
         
         if (pos1 < 0) {
-            Node parent = node.parentNode();
-            while (parent != null) {
-                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.nodeName())) {
-                    data = parent.toString();
+            Node parent = node.getParentNode();
+            while (Utils.isElement(parent)) {
+                if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.getNodeName())) {
+                    data = Utils.cleanDisplayText(parent);
                     pos1 = data.indexOf(Constants.SOURCE_ACCOUNTING_LINE_MATCH);
                     break;
                 }
-                parent = parent.parentNode();
+                parent = parent.getParentNode();
             }
         }
 

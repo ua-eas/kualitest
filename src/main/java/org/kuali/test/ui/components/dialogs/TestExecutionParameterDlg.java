@@ -30,7 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.jsoup.nodes.Node;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -43,6 +42,7 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -247,8 +247,8 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     }
     
     private void showSearch() {
-       final List <Node> labelNodes = new ArrayList<Node>();
-       final Node rootNode = webTestPanel.getHtmlRootNode(labelNodes);
+       final List <Element> labelNodes = new ArrayList<Element>();
+       final Element rootNode = webTestPanel.getHtmlRootNode(labelNodes);
 
         TestExecutionParamValueSelectDlg dlg 
             = new TestExecutionParamValueSelectDlg(getMainframe(), this, labelNodes, rootNode, webTestPanel.getTestHeader());

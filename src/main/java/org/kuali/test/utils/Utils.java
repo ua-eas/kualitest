@@ -57,13 +57,11 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Node;
-import org.jsoup.safety.Whitelist;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
@@ -91,13 +89,18 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.tidy.Tidy;
 
 public class Utils {
-
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
-
+    private static Tidy tidy;
+    
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
     public static String[] getPlatformNames(Platform[] platforms) {
@@ -753,22 +756,36 @@ public class Utils {
         return retval;
     }
 
-    public static String cleanDisplayText(String input) {
-        String retval = "";
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("cleanDisplayText: input=" + input);
+    public static boolean isTextNode(Node node) {
+        return ((node != null) && (node.getNodeType() == Node.TEXT_NODE));
+    }
+    
+    public static void getCleanedText(Node node, StringBuilder buf) {
+        NodeList children = node.getChildNodes();
+        
+        for (int i = 0; i < children.getLength(); ++i) {
+            Node child = children.item(i);
+            
+            if (isTextNode(child)) {
+                buf.append(child.getNodeValue());
+            } else {
+                getCleanedText(child, buf);
+            }
         }
-
-        if (StringUtils.isNotBlank(input)) {
-            retval = Jsoup.clean(input, Whitelist.none()).replace("&nbsp;", " ").trim();
+    }
+    
+    public static String trimString(String in) {
+        if (StringUtils.isNotBlank(in)) {
+            return in.trim().replaceAll("[^\\x00-\\x7F]", "");
+        } else {
+            return "";
         }
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("cleanDisplayText: retval=" + retval);
-        }
-
-        return retval;
+    }
+    
+    public static String cleanDisplayText(Node node) {
+        StringBuilder buf = new StringBuilder(128);
+        getCleanedText(node, buf);
+        return Utils.trimString(StringEscapeUtils.unescapeHtml4(buf.toString()));
     }
 
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
@@ -824,12 +841,13 @@ public class Utils {
         }
     }
 
-    public static boolean isTagMatch(Node node, TagMatcher tm) {
+    public static boolean isTagMatch(Element node, TagMatcher tm) {
         boolean retval = true;
-
         if ((tm.getMatchAttributes() != null) && (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0)) {
             for (TagMatchAttribute att : tm.getMatchAttributes().getMatchAttributeArray()) {
-                if (!node.hasAttr(att.getName())) {
+                NamedNodeMap m = node.getAttributes();
+
+                if (StringUtils.isBlank(node.getAttribute(att.getName()))) {
                     retval = false;
                     break;
                 } else {
@@ -841,7 +859,7 @@ public class Utils {
                         while (st.hasMoreTokens()) {
                             String token = st.nextToken();
 
-                            if (token.equalsIgnoreCase(node.attr(att.getName()))) {
+                            if (token.equalsIgnoreCase(node.getAttribute(att.getName()))) {
                                 foundit = true;
                                 break;
                             }
@@ -852,7 +870,7 @@ public class Utils {
                             break;
                         }
                     } else if (att.getValue().contains("*")) {
-                        String nodeData = node.attr(att.getName());
+                        String nodeData = node.getAttribute(att.getName());
                         String attData = att.getValue();
 
                         int pos = attData.indexOf("*");
@@ -882,7 +900,7 @@ public class Utils {
                         }
                     } else {
                         String val = att.getValue();
-                        if (!val.equalsIgnoreCase(node.attr(att.getName()))) {
+                        if (!val.equalsIgnoreCase(node.getAttribute(att.getName()))) {
                             retval = false;
                             break;
                         }
@@ -907,11 +925,27 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isChildTagMatchFailure(Node node, ChildTagMatch childTagMatch) {
+    public static List <Element> getChildElements(Element node) {
+        List <Element> retval = new ArrayList<Element>();
+        
+        Node child = node.getFirstChild();
+        
+        while (child != null) {
+            if (child instanceof Element) {
+                retval.add((Element)child);
+            }
+            
+            child = child.getNextSibling();
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isChildTagMatchFailure(Element node, ChildTagMatch childTagMatch) {
         boolean retval = false;
 
         if ((childTagMatch != null) && (node != null)) {
-            if (node.childNodeSize() > 0) {
+            if (node.hasChildNodes()) {
                 boolean foundone = false;
                 Set<String> childTagNames = new HashSet<String>();
 
@@ -921,14 +955,14 @@ public class Utils {
                     childTagNames.add(st.nextToken());
                 }
 
-                for (Node child : node.childNodes()) {
-                    if (childTagNames.contains(child.nodeName())) {
+                for (Element child : getChildElements(node)) {
+                    if (childTagNames.contains(child.getTagName())) {
                         foundone = true;
                         if (childTagMatch.getMatchAttributes() != null) {
                             if (childTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
                                 for (TagMatchAttribute att : childTagMatch.getMatchAttributes().getMatchAttributeArray()) {
                                     if ((att != null) && StringUtils.isNotBlank(att.getName())) {
-                                        String childAttr = child.attr(att.getName());
+                                        String childAttr = child.getAttribute(att.getName());
                                         if (StringUtils.isBlank(childAttr)) {
                                             retval = true;
                                         } else {
@@ -975,7 +1009,7 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isParentTagMatchFailure(Node node, ParentTagMatch parentTagMatch) {
+    public static boolean isParentTagMatchFailure(Element node, ParentTagMatch parentTagMatch) {
         boolean retval = false;
 
         if ((parentTagMatch != null) && (node != null)) {
@@ -986,22 +1020,23 @@ public class Utils {
             while (st.hasMoreTokens()) {
                 parentTagNames.add(st.nextToken());
             }
-            Node validParent = null;
-            Node parent = node.parentNode();
+            
+            Element validParent = null;
+            Node parent = node.getParentNode();
 
             // if we are looking for table and this is a tbody ten move up 1 level
             if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(parentTagMatch.getParentTagName())
-                && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(parent.nodeName())) {
-                parent = parent.parentNode();
+                && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(parent.getNodeName())) {
+                parent = parent.getParentNode();
             }
 
-            if (parent != null) {
-                if (parentTagNames.contains(parent.nodeName())) {
+            if (isElement(parent)) {
+                if (parentTagNames.contains(parent.getNodeName())) {
                     if (parentTagMatch.getMatchAttributes() != null) {
                         if (parentTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
                             boolean ok = true;
                             for (TagMatchAttribute att : parentTagMatch.getMatchAttributes().getMatchAttributeArray()) {
-                                String parentAttr = parent.attr(att.getName());
+                                String parentAttr = ((Element)parent).getAttribute(att.getName());
                                 if (StringUtils.isNotBlank(parentAttr)) {
                                     int pos = att.getValue().indexOf('*');
 
@@ -1027,11 +1062,11 @@ public class Utils {
                             }
 
                             if (ok) {
-                                validParent = parent;
+                                validParent = (Element)parent;
                             }
                         }
                     } else {
-                        validParent = parent;
+                        validParent = (Element)parent;
                     }
                 }
             }
@@ -1042,20 +1077,22 @@ public class Utils {
         return retval;
     }
 
-    public static Node getMatchingChild(TagMatcher tm, Node node) {
-        Node retval = null;
+    
+    public static Element getMatchingChild(TagMatcher tm, Element node) {
+        Element retval = null;
 
-        if (node.childNodeSize() > 0) {
-            retval = getMatchingSibling(tm, node.childNode(0));
+        List <Element> l = getChildElements(node);
+        if (!l.isEmpty()) {
+            retval = getMatchingSibling(tm, l.get(0));
         }
 
         return retval;
     }
 
-    public static Node getMatchingParent(TagMatcher tm, Node node) {
-        Node retval = null;
+    public static Element getMatchingParent(TagMatcher tm, Element node) {
+        Element retval = null;
 
-        Node parent = node.parentNode();
+        Node parent = node.getParentNode();
         int cnt = 0;
         int totalCnt = Integer.MAX_VALUE;
 
@@ -1068,21 +1105,21 @@ public class Utils {
             }
         }
 
-        while ((cnt < totalCnt) && (parent != null)) {
-            if (parent.nodeName().equalsIgnoreCase(tm.getTagName())) {
+        while ((cnt < totalCnt) && isElement(parent)) {
+            if (parent.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                 cnt++;
                 TagMatchAttribute[] attrs = null;
                 if (tm.getMatchAttributes() != null) {
                     attrs = tm.getMatchAttributes().getMatchAttributeArray();
                 }
 
-                if ((!limited || (cnt == totalCnt)) && isTagMatch(parent, tm)) {
-                    retval = parent;
+                if ((!limited || (cnt == totalCnt)) && isTagMatch((Element)parent, tm)) {
+                    retval = (Element)parent;
                     break;
                 }
             }
 
-            parent = parent.parentNode();
+            parent = parent.getParentNode();
         }
 
         return retval;
@@ -1117,8 +1154,53 @@ public class Utils {
         return retval;
     }
 
-    public static Node getMatchingSibling(TagMatcher tm, Node node) {
-        Node retval = null;
+    public static Element getPreviousSiblingElement(Node node) {
+        Element retval = null;
+        
+        Node sibling = node.getPreviousSibling();
+        
+        while ((sibling != null) && !isElement(sibling)) {
+            sibling = sibling.getPreviousSibling();
+        }
+        
+        if (isElement(sibling)) {
+            retval = (Element)sibling;
+        }
+        
+        return retval;
+    }
+    
+    public static Element getNextSiblingElement(Node node) {
+        Element retval = null;
+        
+        Node sibling = node.getNextSibling();
+        
+        while ((sibling != null) && !isElement(sibling)) {
+            sibling = sibling.getNextSibling();
+        }
+        
+        if (isElement(sibling)) {
+            retval = (Element)sibling;
+        }
+        
+        return retval;
+    }
+
+    public static int getChildNodeIndex(Element node) {
+        int retval = 0;
+
+        Element curnode = getPreviousSiblingElement(node);
+        
+        while(curnode != null) {
+            retval++;
+            curnode = getPreviousSiblingElement(curnode);
+        }
+        
+        return retval;
+    }
+    
+    public static Element getMatchingSibling(TagMatcher tm, Element node) {
+        Element retval = null;
 
         String searchDefinition = tm.getSearchDefinition();
 
@@ -1127,7 +1209,7 @@ public class Utils {
             searchDefinition = "+*";
         }
 
-        int startIndex = node.siblingIndex();
+        int startIndex = getChildNodeIndex(node);
         int cnt = 0;
 
         switch (getSiblingNodeSearchDirection(searchDefinition)) {
@@ -1142,10 +1224,10 @@ public class Utils {
                         limited = false;
                     }
 
-                    Node prev = node.previousSibling();
+                    Element prev = getPreviousSiblingElement(node);
 
                     while ((prev != null) && (cnt < targetCnt)) {
-                        if (prev.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                        if (prev.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm)) {
                                 retval = prev;
@@ -1153,7 +1235,7 @@ public class Utils {
                             }
                         }
 
-                        prev = prev.previousSibling();
+                        prev = getPreviousSiblingElement(prev);
                     }
                 }
                 break;
@@ -1173,10 +1255,10 @@ public class Utils {
                         limited = false;
                     }
 
-                    Node next = node.nextSibling();
+                    Element next = getNextSiblingElement(node);
 
                     while ((next != null) && (cnt < targetCnt)) {
-                        if (next.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                        if (next.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm)) {
                                 retval = next;
@@ -1184,7 +1266,7 @@ public class Utils {
                             }
                         }
 
-                        next = next.nextSibling();
+                        next = getNextSiblingElement(next);
                     }
                 }
                 break;
@@ -1200,10 +1282,9 @@ public class Utils {
                         limited = false;
                     }
 
-                    Node child = node.parentNode().childNode(0);
 
-                    while ((child != null) && (cnt < targetCnt)) {
-                        if (child.nodeName().equalsIgnoreCase(tm.getTagName())) {
+                    for (Element child : getChildElements((Element)node.getParentNode())) {
+                        if (child.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
                             if ((!limited || (cnt == targetCnt))
                                 && isTagMatch(child, tm)) {
@@ -1211,8 +1292,6 @@ public class Utils {
                                 break;
                             }
                         }
-
-                        child = child.nextSibling();
                     }
                 }
                 break;
@@ -1221,17 +1300,17 @@ public class Utils {
         return retval;
     }
 
-    public static int getSiblingIndexByTagType(Node node) {
+    public static int getSiblingIndexByTagType(Element node) {
         int retval = 0;
 
-        Node parent = node.parentNode();
+        Element parent = (Element)node.getParentNode();
 
-        for (Node sibling : parent.childNodes()) {
-            if (sibling.siblingIndex() == node.siblingIndex()) {
+        for (Element sibling : getChildElements(parent)) {
+            if (getChildNodeIndex(sibling) == getChildNodeIndex(node)) {
                 break;
             }
 
-            if (sibling.nodeName().equals(node.nodeName())) {
+            if (sibling.getNodeName().equals(node.getNodeName())) {
                 retval++;
             }
         }
@@ -1239,11 +1318,11 @@ public class Utils {
         return retval;
     }
 
-    public static String getMatchedNodeText(TagMatcher[] tagMatchers, Node node) {
+    public static String getMatchedNodeText(TagMatcher[] tagMatchers, Element node) {
         String retval = null;
 
         if ((tagMatchers != null) && (tagMatchers.length > 0)) {
-            Node curnode = node;
+            Element curnode = node;
 
             for (int i = 0; i < tagMatchers.length; ++i) {
                 TagMatcher tm = tagMatchers[i];
@@ -1265,23 +1344,23 @@ public class Utils {
             }
 
             if (curnode != null) {
-                retval = Utils.cleanDisplayText(curnode.toString());
+                retval = Utils.cleanDisplayText(curnode);
             }
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug("getMatchedNodeText: tag=" + node.nodeName() + ", text=" + retval);
+                LOG.debug("getMatchedNodeText: tag=" + node.getNodeName() + ", text=" + retval);
             }
         }
 
         return retval;
     }
 
-    public static Node getMatchingTagNode(TagMatcher tm, Node node) {
-        Node retval = null;
+    public static Element getMatchingTagNode(TagMatcher tm, Element node) {
+        Element retval = null;
 
         if ((tm != null) && (node != null)) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.nodeName());
+                LOG.debug("match type: " + tm.getMatchType() + ", tag: " + node.getNodeName());
             }
 
             switch (tm.getMatchType().intValue()) {
@@ -1305,24 +1384,24 @@ public class Utils {
         return retval;
     }
 
-    public static HtmlTagHandler getHtmlTagHandler(String app, Node node) {
+    public static HtmlTagHandler getHtmlTagHandler(String app, Element node) {
         HtmlTagHandler retval = null;
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("getHtmlTagHandler - " + node.nodeName());
+            LOG.debug("getHtmlTagHandler - " + node.getNodeName());
         }
-
+        
         List<HtmlTagHandler> handlerList = new ArrayList<HtmlTagHandler>();
 
         // add the application specific handlers first
-        List<HtmlTagHandler> thl = TAG_HANDLERS.get(app + "." + node.nodeName().trim().toLowerCase());
+        List<HtmlTagHandler> thl = TAG_HANDLERS.get(app + "." + node.getNodeName().trim().toLowerCase());
 
         if (thl != null) {
             handlerList.addAll(thl);
         }
 
         // add the general handlers
-        thl = TAG_HANDLERS.get("all." + node.nodeName().trim().toLowerCase());
+        thl = TAG_HANDLERS.get("all." + node.getNodeName().trim().toLowerCase());
 
         if (thl != null) {
             handlerList.addAll(thl);
@@ -1351,8 +1430,8 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isHtmlContainer(Node node) {
-        return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.nodeName().toLowerCase().trim());
+    public static boolean isHtmlContainer(Element node) {
+        return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.getNodeName().toLowerCase().trim());
     }
 
     public static String[] getValidTestTypesForPlatform(Platform platform) {
@@ -1410,7 +1489,7 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
-    public static String buildCheckpointSectionName(HtmlTagHandler th, Node node) {
+    public static String buildCheckpointSectionName(HtmlTagHandler th, Element node) {
         StringBuilder retval = new StringBuilder(128);
 
         String subSectionName = th.getSubSectionName(node);
@@ -1442,18 +1521,8 @@ public class Utils {
         return retval.toString();
     }
 
-    public static boolean isValidContainerNode(Node node) {
-        boolean retval = true;
-
-        if (node.childNodeSize() > 0) {
-            if (node.childNodeSize() == 1) {
-                retval = !Constants.HTML_TEXT_NODE_NAME.equals(node.childNode(0).nodeName());
-            }
-        } else {
-            retval = false;
-        }
-
-        return retval;
+    public static boolean isValidContainerNode(Element node) {
+        return !getChildElements(node).isEmpty();
     }
 
     public static DatabaseConnection findDatabaseConnectionByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String dbname) {
@@ -1814,25 +1883,25 @@ public class Utils {
         }
     }
 
-    public static Map<String, String> buildLabelMap(List<Node> labelNodes) {
+    public static Map<String, String> buildLabelMap(List<Element> labelNodes) {
         Map<String, String> retval = new HashMap<String, String>();
 
-        for (Node label : labelNodes) {
-            String key = label.attr("for");
+        for (Element label : labelNodes) {
+            String key = label.getAttribute("for");
 
             if (StringUtils.isNotBlank(key)) {
-                retval.put(key, cleanDisplayText(label.toString()));
+                retval.put(key, cleanDisplayText(label));
             }
         }
 
         return retval;
     }
 
-    public static boolean isRadioOrCheckboxInput(Node node) {
+    public static boolean isRadioOrCheckboxInput(Element node) {
         boolean retval = false;
 
-        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.nodeName())) {
-            String type = node.attr(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getNodeName())) {
+            String type = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE);
 
             retval = (Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(type)
                 || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(type));
@@ -1841,20 +1910,20 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isNodeProcessed(Set processedNodes, Node node) {
+    public static boolean isNodeProcessed(Set processedNodes, Element node) {
         boolean retval = false;
 
         if (isRadioOrCheckboxInput(node)) {
-            retval = processedNodes.contains(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            retval = processedNodes.contains(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME));
 
             if (!retval) {
-                processedNodes.add(node.attr(Constants.HTML_TAG_ATTRIBUTE_NAME));
+                processedNodes.add(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME));
             }
         } else {
-            retval = processedNodes.contains(node.attr(Constants.NODE_ID));
+            retval = processedNodes.contains(node.getAttribute(Constants.NODE_ID));
 
             if (!retval) {
-                processedNodes.add(node.attr(Constants.NODE_ID));
+                processedNodes.add(node.getAttribute(Constants.NODE_ID));
             }
         }
 
@@ -1873,11 +1942,11 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
-    public static Node findFirstChildNode(Node parent, String nodeName) {
-        Node retval = null;
+    public static Element findFirstChildNode(Element parent, String nodeName) {
+        Element retval = null;
         
-        for (Node child : parent.childNodes()) {
-            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+        for (Element child : getChildElements(parent)) {
+            if (nodeName.equalsIgnoreCase(child.getNodeName())) {
                 retval = child;
                 break;
             }
@@ -1886,11 +1955,11 @@ public class Utils {
         return retval;
     }
 
-     public static List <Node> findChildNodes(Node parent, String nodeName) {
-        List <Node> retval = new ArrayList<Node>();
+     public static List <Element> findChildNodes(Element parent, String nodeName) {
+        List <Element> retval = new ArrayList<Element>();
         
-        for (Node child : parent.childNodes()) {
-            if (nodeName.equalsIgnoreCase(child.nodeName())) {
+        for (Element child : getChildElements(parent)) {
+            if (nodeName.equalsIgnoreCase(child.getNodeName())) {
                 retval.add(child);
             }
         }
@@ -1898,14 +1967,14 @@ public class Utils {
         return retval;
     }
     
-     public static Node findChildNode(Node curnode, String nodeName, String attributeName, String attributeValue) {
-       Node retval = null;
+     public static Element findChildNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
+       Element retval = null;
        
        if (curnode != null) {
-           if (curnode.nodeName().equals(nodeName) && attributeValue.equals(curnode.attr(attributeName))) {
+           if (curnode.getNodeName().equals(nodeName) && attributeValue.equals(curnode.getAttribute(attributeName))) {
                retval = curnode;
            } else {
-               for (Node child : curnode.childNodes()) {
+               for (Element child : getChildElements(curnode)) {
                    retval = findChildNode(child, nodeName, attributeName, attributeValue);
                    if (retval != null) {
                        break;
@@ -1918,71 +1987,71 @@ public class Utils {
     }
 
 
-     public static Node findFirstParentNode(Node curnode, String nodeName) {
-       Node retval = null;
+     public static Element findFirstParentNode(Element curnode, String nodeName) {
+       Element retval = null;
        
        if (curnode != null) {
-           Node parent = curnode.parent();
+           Element parent = (Element)curnode.getParentNode();
            
            while (parent != null) {
-               if (parent.nodeName().equals(nodeName)) {
+               if (parent.getNodeName().equals(nodeName)) {
                    retval = parent;
                    break;
                }
-               parent = parent.parent();
+               parent = (Element)parent.getParentNode();
            }
        }
        
        return retval;
     }
 
-     public static Node findFirstParentNode(Node curnode, String nodeName, String attributeName, String attributeValue) {
-        Node retval = null;  
-        Node parent = curnode.parent();
+     public static Element findFirstParentNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
+        Element retval = null;  
+        Element parent = (Element)curnode.getParentNode();
 
         while (parent != null) {
-            if (parent.nodeName().equals(nodeName)) {
-                 if (attributeValue.equalsIgnoreCase(parent.attr(attributeName))) {
+            if (parent.getNodeName().equals(nodeName)) {
+                 if (attributeValue.equalsIgnoreCase(parent.getAttribute(attributeName))) {
                      retval = parent;
                      break;
                  }
             }
-            parent = parent.parent();
+            parent = (Element)parent.getParentNode();
         }
        
        return retval;
     }
 
-     public static Node findPreviousSiblingNode(Node curnode, String nodeName) {
-       Node retval = null;
+     public static Element findPreviousSiblingNode(Element curnode, String nodeName) {
+       Element retval = null;
        
        if (curnode != null) {
-           Node sibling = curnode.previousSibling();
+           Element sibling = getPreviousSiblingElement(curnode);
            
            while (sibling != null) {
-               if (sibling.nodeName().equals(nodeName)) {
+               if (sibling.getNodeName().equals(nodeName)) {
                    retval = sibling;
                    break;
                }
-               sibling = sibling.previousSibling();
+               sibling = getPreviousSiblingElement(sibling);
            }
        }
        
        return retval;
     }
 
-    public static Node findNextSiblingNode(Node curnode, String nodeName) {
-       Node retval = null;
+    public static Element findNextSiblingNode(Element curnode, String nodeName) {
+       Element retval = null;
        
        if (curnode != null) {
-           Node sibling = curnode.nextSibling();
+           Element sibling = getNextSiblingElement(curnode);
            
            while (sibling != null) {
-               if (sibling.nodeName().equals(nodeName)) {
+               if (sibling.getNodeName().equals(nodeName)) {
                    retval = sibling;
                    break;
                }
-               sibling = sibling.nextSibling();
+               sibling = getNextSiblingElement(sibling);
            }
        }
        
@@ -1990,30 +2059,77 @@ public class Utils {
     }
 
 
-    public static boolean containsChildNode(Node parent, String nodeName) {
-        boolean retval = false;
+    public static boolean containsChildNode(Element parent, String nodeName) {
+        return (parent.getElementsByTagName(nodeName).getLength() > 0);
+    }
+
+    public static Tidy getTidy() {
+        if (tidy == null) {
+            tidy = new Tidy();
+            tidy.setMakeClean(true);
+            tidy.setXHTML(true);
+            tidy.setQuiet(true);
+            tidy.setMakeBare(true);
+            tidy.setHideComments(true);
+            tidy.setDropEmptyParas(true);
+            tidy.setDropFontTags(true);
+            tidy.setForceOutput(true);
+        }
         
-        for (Node child : parent.childNodes()) {
-            if (nodeName.equalsIgnoreCase(child.nodeName())) {
-                retval = true;
-                break;
+        return tidy;
+        
+    }
+
+    public static void removeTagsFromDocument(Document doc, String[] tagnames) {
+        List <Node> removeList = new ArrayList<Node>();
+        for (String tag : tagnames) {
+            NodeList l= doc.getDocumentElement().getElementsByTagName(tag);
+            for (int i = 0; i < l.getLength(); ++i) {
+                removeList.add(l.item(i));
+            }
+        }
+        
+        
+        for (Node node : removeList) {
+            node.getParentNode().removeChild(node);
+        }
+    }
+    
+    public static Document tidify(String input) {
+        Document retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
+        
+        // remove tags we do not want
+        removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+
+        System.out.println("===============================");
+        getTidy().pprint(retval, System.out);
+        System.out.println("===============================");
+        
+        return retval;
+    }
+
+    public static boolean isElement(Node node) {
+        return ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE));
+    }
+    
+    public static List <Element> getSiblingElements(Element element) {
+        List <Element> retval = new ArrayList<Element>();
+        
+        if (isElement(element.getParentNode())) {
+            retval = getChildElements((Element)element.getParentNode());
+            
+            if (retval != null) {
+                Iterator <Element> it = retval.iterator();
+                
+                while (it.hasNext()) {
+                    if (it.next() == element) {
+                        it.remove();
+                        break;
+                    }
+                }
             }
         }
         
         return retval;
-    }
-    
-    
-      public static String tidify(String input) {
-        Tidy tidy = new Tidy();
-        tidy.setMakeClean(true);
-        tidy.setXHTML(true);
-        tidy.setHideComments(true);
-        tidy.setDropEmptyParas(true);
-        tidy.setDropFontTags(true);
-        
-        StringWriter writer = new StringWriter();
-        tidy.parse(new StringReader(input), writer);
-        return writer.getBuffer().toString();
     }
 }

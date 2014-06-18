@@ -16,18 +16,18 @@
 
 package org.kuali.test.handlers;
 
-import org.jsoup.nodes.Node;
 import org.kuali.test.utils.Constants;
+import org.w3c.dom.Element;
 
 
 public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
     @Override
-    public boolean isContainer(Node node) {
+    public boolean isContainer(Element node) {
         return true;
     }
 
     @Override
-    public String getGroupName(Node node) {
+    public String getGroupName(Element node) {
         return Constants.ROUTELOG_HTML_PROPERTY_GROUP;
     }
     
