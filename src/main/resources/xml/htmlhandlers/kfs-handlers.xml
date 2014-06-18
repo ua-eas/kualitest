@@ -115,40 +115,9 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </label-matcher>
-        <section-matcher>
-            <tag-matcher>
-                <match-type>parent</match-type>
-                <tag-name>tr</tag-name>
-                <match-attributes>
-                </match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>sibling</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>-*</search-definition>
-                <match-attributes>
-                </match-attributes>
-                <child-tag-match>
-                    <child-tag-name>td</child-tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>subhead</value>
-                        </match-attribute>
-                    </match-attributes>
-                </child-tag-match>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>td</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes>
-                </match-attributes>
-            </tag-matcher>
-        </section-matcher>
     </handler>
 
-    <!-- items handler for capital asset -->
+    <!-- items handler1 for capital asset -->
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
@@ -225,43 +194,69 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </label-matcher>
-        <sub-section-matcher>
+        <section-matcher>
             <tag-matcher>
-                <match-type>parent</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>1</search-definition>
-                <child-tag-match>
-                    <child-tag-name>td</child-tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>infoline</value>
-                        </match-attribute>
-                        <match-attribute>
-                            <name>rowspan</name>
-                            <value>2</value>
-                        </match-attribute>
-                    </match-attributes>
-                </child-tag-match>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
+                <match-type>sibling</match-type>
                 <tag-name>td</tag-name>
                 <search-definition>1</search-definition>
                 <match-attributes>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>infoline</value>
-                        </match-attribute>
-                        <match-attribute>
-                            <name>rowspan</name>
-                            <value>2</value>
-                        </match-attribute>
-                    </match-attributes>
                 </match-attributes>
             </tag-matcher>
-        </sub-section-matcher>
+        </section-matcher>
+    </handler>
+
+    <!-- items handler2 for capital asset  -->
+    <handler>
+        <application>KFS</application>
+        <tag-name>td</tag-name>
+        <handler-class-name>org.kuali.test.handlers.KualiCapitalAssetTagHandler</handler-class-name>
+        <sort-index>2</sort-index>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>td</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datacell</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
+                <tag-name>td</tag-name>
+                <search-definition>*</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>infoline</value>
+                    </match-attribute>
+                    <match-attribute>
+                        <name>colspan</name>
+                        <value>10</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
+                <tag-name>table</tag-name>
+                <search-definition>*</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datatable</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+        <label-matcher>
+            <tag-matcher>
+                <match-type>sibling</match-type>
+                <tag-name>th</tag-name>
+                <search-definition>-1</search-definition>
+                <match-attributes></match-attributes>
+            </tag-matcher>
+        </label-matcher>
     </handler>
 
     <!-- asset handler for capital asset location -->
@@ -269,7 +264,7 @@
         <application>KFS</application>
         <tag-name>td</tag-name>
         <handler-class-name>org.kuali.test.handlers.KualiCapitalAssetTagHandler</handler-class-name>
-        <sort-index>2</sort-index>
+        <sort-index>3</sort-index>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -305,39 +300,6 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </label-matcher>
-        <sub-section-matcher>
-            <tag-matcher>
-                <match-type>parent</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes></match-attributes>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>sibling</match-type>
-                <tag-name>tr</tag-name>
-                <search-definition>-*</search-definition>
-                <child-tag-match>
-                    <child-tag-name>td</child-tag-name>
-                    <match-attributes>
-                        <match-attribute>
-                            <name>class</name>
-                            <value>subhead</value>
-                        </match-attribute>
-                    </match-attributes>
-                </child-tag-match>
-            </tag-matcher>
-            <tag-matcher>
-                <match-type>child</match-type>
-                <tag-name>td</tag-name>
-                <search-definition>1</search-definition>
-                <match-attributes>
-                    <match-attribute>
-                        <name>class</name>
-                        <value>subhead</value>
-                    </match-attribute>
-                </match-attributes>
-            </tag-matcher>
-        </sub-section-matcher>
     </handler>
 
     <!-- handler for items tab - any tds with "Items Section" table -->
@@ -906,18 +868,19 @@
                     <match-attribute>
                         <name>name</name>
                         <!--  can use "|" to seperate "or" values for matching -->
-                        <value>docNum|businessObjectClassName</value>
+                        <value>docNum</value>
                     </match-attribute>
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
     </handler>
 
-    <!-- handler for notes tab -->
+    <!-- noop handler for notes tab control row -->
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.NoopTagHandler</handler-class-name>
+        <sort-index>5</sort-index>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -939,6 +902,70 @@
                         <value>tab-NotesandAttachments-div</value>
                     </match-attribute>
                 </match-attributes>
+                <child-tag.match>
+                    <child-tag-name>div</child-tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>tab-container</value>
+                        </match-attribute>
+                    </match-attributes>
+                </child-tag.match>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
+                <tag-name>table</tag-name>
+                <search-definition>*</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datatable</value>
+                    </match-attribute>
+                    <match-attribute>
+                        <name>summary</name>
+                        <value>view/add notes</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+        </tag-matchers>
+    </handler>
+
+    <!-- handler for notes tab -->
+    <handler>
+        <application>KFS</application>
+        <tag-name>td</tag-name>
+        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <sort-index>6</sort-index>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>td</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>class</name>
+                        <value>datacell center</value>
+                    </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>parent</match-type>
+                <tag-name>div</tag-name>
+                <search-definition>*</search-definition>
+                <match-attributes>
+                    <match-attribute>
+                        <name>id</name>
+                        <value>tab-NotesandAttachments-div</value>
+                    </match-attribute>
+                </match-attributes>
+                <child-tag.match>
+                    <child-tag-name>div</child-tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>tab-container</value>
+                        </match-attribute>
+                    </match-attributes>
+                </child-tag.match>
             </tag-matcher>
             <tag-matcher>
                 <match-type>parent</match-type>
@@ -959,18 +986,22 @@
         <label-matcher>
             <tag-matcher>
                 <match-type>parent</match-type>
-                <tag-name>table</tag-name>
+                <tag-name>tbody</tag-name>
                 <search-definition>*</search-definition>
-                <match-attributes>
-                    <match-attribute>
-                        <name>class</name>
-                        <value>datatable</value>
-                    </match-attribute>
-                    <match-attribute>
-                        <name>summary</name>
-                        <value>view/add notes</value>
-                    </match-attribute>
-                </match-attributes>
+                <match-attributes></match-attributes>
+                <parent-tag-match>
+                    <parent-tag-name>table</parent-tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>datatable</value>
+                        </match-attribute>
+                        <match-attribute>
+                            <name>summary</name>
+                            <value>view/add notes</value>
+                        </match-attribute>
+                    </match-attributes>
+                </parent-tag-match>
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>

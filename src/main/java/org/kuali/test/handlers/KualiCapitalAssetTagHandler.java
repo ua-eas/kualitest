@@ -26,8 +26,6 @@ import org.w3c.dom.Node;
 
 public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     public static final String CAPITAL_ASSET_PROPERTY_GROUP = "CapitalAsset";
-    public static final String CAPITAL_ASSET_ITEMS_SECTION = "Capital Asset Item";
-    public static final String ASSET_LOCATION_SUB_SECTION = "Location";
 
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
@@ -40,29 +38,27 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     @Override
     public String getSectionName(Element node) {
         StringBuilder retval = new StringBuilder(32);
-        retval.append(CAPITAL_ASSET_ITEMS_SECTION); 
+        
+        retval.append(CAPITAL_ASSET_PROPERTY_GROUP); 
         
         return retval.toString();
     }
 
     @Override
     public String getSubSectionName(Element node) {
-        StringBuilder retval = new StringBuilder(64);
+        StringBuilder retval = new StringBuilder(32);
         
-        String ss = null;
-        
-        if (getTagHandler().getSubSectionMatcher() != null) {
-            ss = Utils.getMatchedNodeText(getTagHandler().getSubSectionMatcher().getTagMatcherArray(), node); 
+        String itemNum = "";
+        if (getTagHandler().getSectionMatcher() == null) {
+            itemNum = getItemNumberForLocation(node);
+        } else {
+            itemNum = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
+        }
+       
+        if (StringUtils.isNotBlank(itemNum) && StringUtils.isNumeric(itemNum)) {
+            retval.append(Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "[" + itemNum + "]"));
         }
 
-        if (StringUtils.isNotBlank(ss)) {
-            if (ASSET_LOCATION_SUB_SECTION.equalsIgnoreCase(ss)) {
-                retval.append(getItemNumberForLocation(node));
-                retval.append(" ");
-            }                 
-            
-            retval.append(ss);
-        }
         
         return retval.toString();
     }
@@ -72,25 +68,28 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
         
         Node parent = node.getParentNode();
         while (Utils.isElement(parent)) {
-            if (Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.getNodeName())) {
-                Element table = Utils.findFirstParentNode((Element)parent, Constants.HTML_TAG_TYPE_TABLE);
-                
-                if ((table != null) 
-                    && "datatable".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS))
-                    && "Capital Asset Items".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
-                    Element sibling = Utils.findPreviousSiblingNode((Element)parent, Constants.HTML_TAG_TYPE_TR);
-                    
-                    if (sibling != null) {
-                        Element td = Utils.findFirstChildNode(sibling, Constants.HTML_TAG_TYPE_TD);
+            if (Utils.isElement(parent.getParentNode())) {
+                if (Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(parent.getParentNode().getNodeName())
+                    && Constants.HTML_TAG_TYPE_TR.equalsIgnoreCase(parent.getNodeName())) {
+
+                    Element table = (Element)parent.getParentNode();
+
+                    if ("datatable".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS))
+                        && "Capital Asset Items".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
                         
-                        if (td != null) {
-                            retval = Utils.cleanDisplayText(td);
-                            break;
+                        Element sibling = Utils.findPreviousSiblingNode((Element)parent, Constants.HTML_TAG_TYPE_TR);
+
+                        if (sibling != null) {
+                            Element td = Utils.findFirstChildNode(sibling, Constants.HTML_TAG_TYPE_TD);
+
+                            if (td != null) {
+                                retval = Utils.cleanDisplayText(td);
+                                break;
+                            }
                         }
                     }
                 }
             }
-            
             
             parent = parent.getParentNode();
         }

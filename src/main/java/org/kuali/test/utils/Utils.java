@@ -1300,6 +1300,26 @@ public class Utils {
         return retval;
     }
 
+    public static int getSiblingIndex(Element node) {
+        int retval = -1;
+
+        Element parent = (Element)node.getParentNode();
+
+        List <Element> elements = getChildElements(parent);
+        
+        int indx = 0;
+        for (Node curnode : getChildElements(parent)) {
+            if (node == curnode) {
+                retval = indx;
+                break;
+            }
+            
+            indx++;
+        }
+        
+        return retval;
+    }
+
     public static int getSiblingIndexByTagType(Element node) {
         int retval = 0;
 
@@ -1334,9 +1354,9 @@ public class Utils {
                 if (StringUtils.isNotBlank(sdef) && sdef.startsWith(Constants.NODE_INDEX_MATCHER_CODE)) {
                     tm = (TagMatcher) tm.copy();
                     if (sdef.length() > 1) {
-                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node) + Integer.parseInt(sdef.substring(1))));
+                        tm.setSearchDefinition("" + (getSiblingIndex(node) + Integer.parseInt(sdef.substring(1))));
                     } else {
-                        tm.setSearchDefinition("" + (getSiblingIndexByTagType(node) + 1));
+                        tm.setSearchDefinition("" + (getSiblingIndex(node) + 1));
                     }
                 }
 
