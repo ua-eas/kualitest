@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 
 public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     public static final String CAPITAL_ASSET_PROPERTY_GROUP = "CapitalAsset";
+    public static final String CAPITAL_ASSET_ITEMS_TABLE_SUMMARY = "Capital Asset Items";
 
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
@@ -74,8 +75,8 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
 
                     Element table = (Element)parent.getParentNode();
 
-                    if ("datatable".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS))
-                        && "Capital Asset Items".equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
+                    if (Constants.HTML_TAG_ATTRIBUTE_CLASS_DATATABLE.equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS))
+                        && CAPITAL_ASSET_ITEMS_TABLE_SUMMARY.equalsIgnoreCase(table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SUMMARY))) {
                         
                         Element sibling = Utils.findPreviousSiblingNode((Element)parent, Constants.HTML_TAG_TYPE_TR);
 
