@@ -19,7 +19,9 @@ package org.kuali.test.runner.execution;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -31,6 +33,7 @@ import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -47,6 +50,8 @@ public class TestExecutionContext extends Thread {
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
+    
+    private Map<String, String> executionParameterMap = new HashMap<String, String>();
     
     private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
     
@@ -360,6 +365,26 @@ public class TestExecutionContext extends Thread {
 
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
+    }
+
+    public Map<String, String> getExecutionParameterMap() {
+        return executionParameterMap;
+    }
+    
+    private String findTestExecutionParameterValue(TestExecutionParameter ep) {
+        return null;
+    }
+    
+    public void addTestExecutionParameter(TestExecutionParameter ep) {
+        String value = findTestExecutionParameterValue(ep);
+            
+        if (StringUtils.isNotBlank(value)) {
+           executionParameterMap.put(ep.getName(), value);
+        }
+    }
+
+    public void getTestExecutionParameterValue(String parameterName) {
+        executionParameterMap.get(parameterName);
     }
 }
 

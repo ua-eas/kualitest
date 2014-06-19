@@ -37,9 +37,17 @@ public class OperationExecutionFactory {
     
     public OperationExecution getOperationExecution(TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
-        
-        // if this is not a checkpoint operation then it is am http request
-        if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
+
+        if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op)) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("executing operation: type=execution parameter[" 
+                    + op.getOperation().getTestExecutionParameter().getName() 
+                    + "=" + op.getOperation().getTestExecutionParameter().getValue() + "]");
+            }
+
+            testContext.addTestExecutionParameter(op.getOperation().getTestExecutionParameter());
+            
+        } else if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "], name=" + op.getOperation().getCheckpointOperation().getName());
             }
@@ -61,7 +69,7 @@ public class OperationExecutionFactory {
                     retval = new WebServiceOperationExecution(testContext, op.getOperation());
                     break;
             }
-        } else {
+        } else if (TestOperationType.HTTP_REQUEST.equals(op)) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUri());
             }

@@ -54,7 +54,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             TestExecutionContext context = getTestExecutionContext();
-            // clear last response stotage
+            // clear last response storage
             context.getLastHttpResponseData(true);
 
             // Get the response
