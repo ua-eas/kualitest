@@ -28,6 +28,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
@@ -46,6 +50,7 @@ import javax.swing.JToolBar;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.JmxConnection;
@@ -393,6 +398,68 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private void setCreateTestEnabled(boolean enabled) {
         createTestButton.setEnabled(enabled);
         createTestMenuItem.setEnabled(enabled);
+    }
+
+    public void handleDeleteTest(TestHeader testHeader) {
+        if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
+            String platformName = testHeader.getPlatformName();
+            String testFileName = testHeader.getTestFileName();
+            
+            Platform p = Utils.findPlatform(getConfiguration(), platformName);
+            
+            if (p != null) {
+                if (p.getTestSuites() != null) {
+                    TestSuite[] testSuites = p.getTestSuites().getTestSuiteArray();
+
+                    for (TestSuite testSuite: testSuites) {
+                        if (testSuite.getSuiteTests() != null) {
+                            List <SuiteTest> l = new ArrayList<SuiteTest>();
+                            SuiteTest[] suiteTests = testSuite.getSuiteTests().getSuiteTestArray();
+                            for (int i = 0; i < suiteTests.length; ++i) {
+                                if (!suiteTests[i].getTestHeader().getTestName().equalsIgnoreCase(testHeader.getTestName())) {
+                                    l.add(suiteTests[i]);
+                                }
+                            }
+                            
+                            testSuite.getSuiteTests().setSuiteTestArray(l.toArray(new SuiteTest[l.size()]));
+                        }
+                    }
+                }
+                
+                if (p.getPlatformTests() != null) {
+                    TestHeader[] platformTests = p.getPlatformTests().getTestHeaderArray();
+                    
+                    for (int i = 0; i < platformTests.length; ++i) {
+                        if (platformTests[i].getTestName().equalsIgnoreCase(testHeader.getTestName())) {
+                            p.getPlatformTests().removeTestHeader(i);
+                            break;
+                        }
+                    }
+                }
+                
+                
+                try {
+                    File f = new File(testFileName);
+                    
+                    if (f.exists() && f.isFile()) {
+                        FileUtils.forceDelete(f);
+                    }
+                    
+                    testRepositoryTree.saveConfiguration();
+
+                    p = Utils.findPlatform(getConfiguration(), platformName);
+
+                    
+                    getPlatformTestsPanel().populateList(p);
+                    
+                    testRepositoryTree.refreshPlatformNode(p);
+                } 
+                
+                catch (IOException ex) {
+                    UIUtils.showError(this, "File Delete Error", "Error occurred while deleting test file - " + testFileName);
+                }
+            }
+        }
     }
 
     public void handleCreateTest(Platform platform) {

@@ -378,7 +378,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             if (pnode != null) {
                 DefaultMutableTreeNode nodeToMove = findSuiteTestNode(suiteTest);
 
-                if (nodeToMove != null) {
+                if ((nodeToMove != null) && (nodeToMove != suiteTestTargetNode)) {
                     TestSuite testSuite = (TestSuite)pnode.getUserObject();
 
                     SuiteTest[] tests = testSuite.getSuiteTests().getSuiteTestArray();
@@ -386,7 +386,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                     int pos1 = Utils.getSuiteTestArrayIndex(tests, suiteTest);
                     int pos2 = Utils.getSuiteTestArrayIndex(tests, (SuiteTest)suiteTestTargetNode.getUserObject());;
 
-                    if ((pos1 > -1) && (pos2 > -1)) {
+                    if ((pos1 > -1) && (pos2 > -1) && (pos1 != pos2)) {
                         SuiteTest save = (SuiteTest)tests[pos1].copy();
                         
                         if (pos1 > pos2) {
@@ -414,6 +414,18 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                     }
                 }
             }
+        }
+    }
+    
+    public void refreshPlatformNode(Platform platform) {
+        DefaultMutableTreeNode node = findPlatformNodeByName(platform.getName());
+        
+        if (node != null) {
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
+            int indx = parent.getIndex(node);
+            getModel().removeNodeFromParent(node);
+            getModel().insertNodeInto(new RepositoryNode(getConfiguration(), platform), parent, indx);
+            getModel().reload(parent);
         }
     }
 }

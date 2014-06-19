@@ -47,7 +47,6 @@ import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
-import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -193,9 +192,7 @@ public class PlatformTestsPanel extends BasePanel
         if (Constants.SHOW_TEST_INFORMATION_ACTION.equals(e.getActionCommand())) {
             getMainframe().handleShowTestInformation(currentTestHeader);
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
-            if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + currentTestHeader.getTestName() + "'?")) {
-                // TODO: add delete code here
-            }
+            getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
             new SplashDisplay(getMainframe(), "RunningT Test", "Running test " + currentTestHeader.getTestName()) {
                 @Override
