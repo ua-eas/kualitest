@@ -61,6 +61,7 @@ public class PlatformTestsPanel extends BasePanel
     private JList testList;
     private Platform currentPlatform;
     private JPopupMenu popupMenu;
+    private JMenuItem deleteTestMenuItem;
     private TestHeader currentTestHeader;
     
     public PlatformTestsPanel(TestCreator mainframe, Platform platform) {
@@ -91,15 +92,17 @@ public class PlatformTestsPanel extends BasePanel
         popupMenu.add(m);
         m.addActionListener(this);
         popupMenu.add(new JSeparator());
-        m = new JMenuItem(DELETE_TEST);
-        popupMenu.add(m);
-        m.addActionListener(this);
+        deleteTestMenuItem = new JMenuItem(DELETE_TEST);
+        popupMenu.add(deleteTestMenuItem);
+        deleteTestMenuItem.addActionListener(this);
         
         testList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         testList.addMouseListener(new MouseAdapter() {
             private void myPopupEvent(MouseEvent e) {
                 int indx = testList.locationToIndex(e.getPoint());
                 if (indx > -1) {
+                    // only allow deleting 1 test at a time
+                    deleteTestMenuItem.setEnabled((getSelectedTests() != null) && (getSelectedTests().size() == 1));
                     showPopup((String)testList.getModel().getElementAt(indx), e.getX(), e.getY());
                 }
             }
