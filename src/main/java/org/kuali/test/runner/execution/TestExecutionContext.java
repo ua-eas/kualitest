@@ -176,11 +176,11 @@ public class TestExecutionContext extends Thread {
         // check for max runtime exceeded
         long runtime = ((System.currentTimeMillis() - start) / 1000);
         if ((test.getTestHeader().getMaxRunTime() > 0) && (runtime > test.getTestHeader().getMaxRunTime())) {
-            poiHelper.writeFailureEntry(createTestRuntimeFailure(test.getTestHeader(), runtime), new Date(start), null);
+            poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(test.getTestHeader(), runtime), new Date(start), null);
         }
     }
 
-    private TestOperation createTestRuntimeFailure(TestHeader testHeader, long runtime) {
+    private TestOperation createTestRuntimeCheckOperation(TestHeader testHeader, long runtime) {
         TestOperation retval = TestOperation.Factory.newInstance();
         Operation op = Operation.Factory.newInstance();
         Checkpoint checkpoint = Checkpoint.Factory.newInstance();
