@@ -104,10 +104,24 @@ public class TestExecutionContext extends Thread {
         poiHelper.writeColumnHeaders();
 
         if (testSuite != null) {
+            int defaultTestWaitInterval = configuration.getDefaultTestWaitInterval();
+            
             for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
                 KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
 
                 if (test != null) {
+                    
+                    // add pause between tests if configured
+                    if (defaultTestWaitInterval > 0) {
+                        try {
+                            Thread.sleep(defaultTestWaitInterval * 1000);
+                        } 
+                        
+                        catch (InterruptedException ex) {
+                            LOG.warn(ex.toString(), ex);
+                        }
+                    }
+
                     poiHelper.writeTestHeader(test);
                     runTest(test, poiHelper);
                 }

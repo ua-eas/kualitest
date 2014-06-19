@@ -3,6 +3,7 @@
    <repository-location>/home/rbtucker/tmp/kuali-test-repository</repository-location>
    <test-result-location>/home/rbtucker/tmp/kuali-test-results</test-result-location>
    <tag-handlers-location>/home/rbtucker/env/test/kualitest/src/main/resources/xml/htmlhandlers</tag-handlers-location>
+   <default-test-wait-interval>2</default-test-wait-interval>
    <additional-db-info-location>/home/rbtucker/env/test/kualitest/src/main/resources/xml/additional-db-info</additional-db-info-location>
    <database-connections>
       <database-connection>
