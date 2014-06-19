@@ -64,7 +64,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         init();
         addTreeSelectionListener(mainframe.getPlatformTestsPanel());
         new RepositoryDropTargetAdapter(this);
-        new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_LINK, this);
+        new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             TestSuite testSuite = (TestSuite)getParentUserObject(selectedNode);
             
             if (testSuite != null) {
-                event.startDrag(DragSource.DefaultMoveNoDrop, 
+                event.startDrag(DragSource.DefaultCopyNoDrop, 
                     new RepositoryTransferable<TestSuite, SuiteTest>(new RepositoryTransferData(testSuite, selectedNode.getUserObject()), DndHelper.getTestOrderDataFlavor()),
                     new RepositoryDragSourceAdapter());
             }
@@ -336,6 +336,14 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
 
         getMainframe().getSaveConfigurationButton().setEnabled(configuration.getModified());
         getMainframe().getSaveConfigurationMenuItem().setEnabled(configuration.getModified());
+    }
+
+    public void addSuiteTests(TestSuite testSuite, List <String> testNames) {
+        DefaultMutableTreeNode node = findTestSuiteNodeByName(testSuite.getPlatformName(), testSuite.getName());
+        
+        if (node != null) {
+            addSuiteTests(node, testNames);
+        }
     }
     
     private void addSuiteTests(DefaultMutableTreeNode testSuiteNode, List <String> testNames) {

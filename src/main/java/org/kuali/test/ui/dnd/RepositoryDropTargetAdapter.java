@@ -41,7 +41,7 @@ public class RepositoryDropTargetAdapter extends DropTargetAdapter {
     private DropTarget dropTarget;
 
     public RepositoryDropTargetAdapter(RepositoryTree repositoryTree) {
-        this(repositoryTree, DnDConstants.ACTION_LINK);
+        this(repositoryTree, DnDConstants.ACTION_COPY);
     }
 
     public RepositoryDropTargetAdapter(RepositoryTree repositoryTree, int ops) {
@@ -132,7 +132,7 @@ public class RepositoryDropTargetAdapter extends DropTargetAdapter {
     }
     
     private boolean isTestLinkTransfer(Transferable t, int ops, DataFlavor dataFlavor) {
-        boolean retval = ((t != null) && (ops == DnDConstants.ACTION_LINK) && dataFlavor.equals(DndHelper.getTestDataFlavor()));
+        boolean retval = ((t != null) && (ops == DnDConstants.ACTION_COPY) && dataFlavor.equals(DndHelper.getTestDataFlavor()));
         
         if (LOG.isDebugEnabled()) {
             LOG.debug("isTestLinkTransfer: " + retval);
@@ -142,7 +142,7 @@ public class RepositoryDropTargetAdapter extends DropTargetAdapter {
     }
     
     private boolean isTestOrderTransfer(Transferable t, int ops, DataFlavor dataFlavor) {
-        boolean retval = ((t != null) && (ops == DnDConstants.ACTION_LINK) && dataFlavor.equals(DndHelper.getTestOrderDataFlavor()));
+        boolean retval = ((t != null) && (ops == DnDConstants.ACTION_COPY) && dataFlavor.equals(DndHelper.getTestOrderDataFlavor()));
         if (LOG.isDebugEnabled()) {
             LOG.debug("isTestOrderTransfer: " + retval);
         }

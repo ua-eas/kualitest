@@ -63,6 +63,7 @@ import org.kuali.test.TestType;
 import org.kuali.test.WebService;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
+import org.kuali.test.ui.components.dialogs.AddTestsDlg;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
@@ -459,6 +460,14 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     UIUtils.showError(this, "File Delete Error", "Error occurred while deleting test file - " + testFileName);
                 }
             }
+        }
+    }
+
+    public void handleAddTests(TestSuite testSuite) {
+        AddTestsDlg dlg = new AddTestsDlg(this, testSuite);
+        
+        if (dlg.isSaved()) {
+            testRepositoryTree.addSuiteTests(testSuite, dlg.getSelectedTests());
         }
     }
 

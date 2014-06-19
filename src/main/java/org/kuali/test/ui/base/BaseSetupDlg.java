@@ -129,12 +129,17 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     public boolean isEditmode() {
         return editmode;
     }
+    
+    protected boolean getInitialSavedState() {
+        return true;
+    }
 
     protected void addStandardButtons() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
         p.add(saveButton = new JButton(saveActionCommand = getSaveText()));
         saveButton.addActionListener(this);
+        saveButton.setEnabled(getInitialSavedState());
         
         p.add(cancelButton = new JButton(cancelActionCommand = getCancelText()));
         cancelButton.addActionListener(this);
@@ -169,8 +174,6 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected void displayExistingNameAlert(String type, String name) {
         UIUtils.showError(this, type, type + "'" + name + "' name already exists");
     }
-    
-   
     
     @Override
     public Insets getInsets() {

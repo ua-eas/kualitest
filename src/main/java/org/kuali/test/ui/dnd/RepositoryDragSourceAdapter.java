@@ -44,7 +44,7 @@ public class RepositoryDragSourceAdapter extends DragSourceAdapter {
 
     @Override
     public void dragExit(DragSourceEvent dse) {
-        dse.getDragSourceContext().setCursor(DragSource.DefaultLinkNoDrop);
+        dse.getDragSourceContext().setCursor(DragSource.DefaultCopyNoDrop);
     }
     
 }

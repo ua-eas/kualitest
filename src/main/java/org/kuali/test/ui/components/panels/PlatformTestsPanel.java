@@ -33,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -61,9 +63,16 @@ public class PlatformTestsPanel extends BasePanel
     private JPopupMenu popupMenu;
     private TestHeader currentTestHeader;
     
-    public PlatformTestsPanel(TestCreator mainframe) {
+    public PlatformTestsPanel(TestCreator mainframe, Platform platform) {
         super(mainframe);
         initComponents();
+        if (platform != null) {
+            populateList(platform);
+        }
+    }
+
+    public PlatformTestsPanel(TestCreator mainframe) {
+        this(mainframe, null);
     }
 
     private void initComponents() {
@@ -86,6 +95,7 @@ public class PlatformTestsPanel extends BasePanel
         popupMenu.add(m);
         m.addActionListener(this);
         
+        testList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         testList.addMouseListener(new MouseAdapter() {
             private void myPopupEvent(MouseEvent e) {
                 int indx = testList.locationToIndex(e.getPoint());
@@ -98,7 +108,7 @@ public class PlatformTestsPanel extends BasePanel
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     myPopupEvent(e);
-                }
+                } 
             }
 
             @Override
@@ -107,10 +117,9 @@ public class PlatformTestsPanel extends BasePanel
                     myPopupEvent(e);
                 }
             }
-            
         });
         
-        new DragSource().createDefaultDragGestureRecognizer(testList, DnDConstants.ACTION_LINK, this);
+        new DragSource().createDefaultDragGestureRecognizer(testList, DnDConstants.ACTION_COPY, this);
     }
     
     private void showPopup(String testName, int x, int y) {
@@ -201,5 +210,13 @@ public class PlatformTestsPanel extends BasePanel
                 }
             };
         }
+    }
+    
+    public void addListSelectionListener(ListSelectionListener listener) {
+        testList.addListSelectionListener(listener);
+    }
+    
+    public List<String> getSelectedTests() {
+        return (List<String>)testList.getSelectedValuesList();
     }
 }

@@ -38,7 +38,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
     public static final String ADD_TEST_SUITE_ACTION = "Add Test Suite";
     public static final String EDIT_TEST_SUITE_ACTION = "Edit Test Suite";
     public static final String DELETE_TEST_SUITE_ACTION = "Delete Test Suite";
-    public static final String ADD_TEST_ACTION = "Add Test";
+    public static final String ADD_TESTS_ACTION = "Add Test(s)";
     public static final String EDIT_TEST_ACTION = "Edit Test";
     public static final String RUN_TEST_SUITE_ACTION = "Run Test Suite";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
@@ -64,6 +64,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleDeleteTestSuite(actionNode);
         } else if (Constants.CREATE_TEST.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleCreateTest((Platform)actionNode.getUserObject());
+        } else if (ADD_TESTS_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleAddTests((TestSuite)actionNode.getUserObject());
         } else if (REMOVE_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleRemoveTest(actionNode);
         } else if (Constants.SHOW_TEST_INFORMATION_ACTION.equalsIgnoreCase(e.getActionCommand())) {
@@ -118,11 +120,11 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             m.addActionListener(this);
 
             add(new JSeparator());
-            m = new JMenuItem(ADD_TEST_ACTION);
+            m = new JMenuItem(ADD_TESTS_ACTION);
             add(m);
             m.addActionListener(this);
         } else if (node.getUserObject() instanceof SuiteTest) {
-            JMenuItem m = new JMenuItem(ADD_TEST_ACTION);
+            JMenuItem m = new JMenuItem(ADD_TESTS_ACTION);
             add(m);
             m.addActionListener(this);
             
