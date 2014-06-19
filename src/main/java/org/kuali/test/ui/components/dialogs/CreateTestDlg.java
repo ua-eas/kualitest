@@ -157,7 +157,7 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setDescription(description.getText());
                 testHeader.setDateCreated(Calendar.getInstance());
                 testHeader.setPlatformName((String)platforms.getSelectedItem());
-                testHeader.setTestSuiteName("no-test-suite");
+                testHeader.setTestSuiteName(Constants.NO_TEST_SUITE_NAME);
                 testHeader.setCreatedBy("default-user");
                 if (StringUtils.isBlank(maxRunTime.getText())) {
                     testHeader.setMaxRunTime(0);

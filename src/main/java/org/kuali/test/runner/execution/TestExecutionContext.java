@@ -22,13 +22,20 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointProperty;
+import org.kuali.test.CheckpointType;
+import org.kuali.test.ComparisonOperator;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
@@ -161,11 +168,49 @@ public class TestExecutionContext extends Thread {
             LOG.info("---------------------------------------------------------------------");
         }
         
+        long start = System.currentTimeMillis();
         for (TestOperation op : test.getOperations().getOperationArray()) {
             executeTestOperation(op, poiHelper);
         }
+
+        // check for max runtime exceeded
+        long runtime = ((System.currentTimeMillis() - start) / 1000);
+        if ((test.getTestHeader().getMaxRunTime() > 0) && (runtime > test.getTestHeader().getMaxRunTime())) {
+            poiHelper.writeFailureEntry(createTestRuntimeFailure(test.getTestHeader(), runtime), new Date(start), null);
+        }
     }
 
+    private TestOperation createTestRuntimeFailure(TestHeader testHeader, long runtime) {
+        TestOperation retval = TestOperation.Factory.newInstance();
+        Operation op = Operation.Factory.newInstance();
+        Checkpoint checkpoint = Checkpoint.Factory.newInstance();
+
+        checkpoint.setName("test runtime check");
+        checkpoint.setTestName(testHeader.getTestName());
+
+        if (StringUtils.isNotBlank(testHeader.getTestSuiteName())
+            && !Constants.NO_TEST_SUITE_NAME.equals(testHeader.getTestSuiteName())) {
+            checkpoint.setTestSuite(testHeader.getTestSuiteName());
+        }
+
+        checkpoint.setType(CheckpointType.RUNTIME);
+
+        checkpoint.addNewCheckpointProperties();
+        CheckpointProperty cp = checkpoint.getCheckpointProperties().addNewCheckpointProperty();
+        cp.setActualValue("" + runtime);
+        cp.setPropertyGroup(Constants.SYSTEM_PROPERTY_GROUP);
+        cp.setDisplayName("Max Runtime(sec)");
+        cp.setOnFailure(testHeader.getOnRuntimeFailure());
+        cp.setOperator(ComparisonOperator.LESS_THAN_OR_EQUAL);
+        cp.setValueType(ValueType.INT);
+        cp.setPropertyValue("" + testHeader.getMaxRunTime());
+        cp.setPropertyName("maxruntime");
+        retval.setOperation(op);
+        retval.setOperationType(TestOperationType.CHECKPOINT);
+
+        return retval;
+    }
+    
     private void executeTestOperation(TestOperation op, PoiHelper poiHelper) {
         OperationExecution opExec = null;
         

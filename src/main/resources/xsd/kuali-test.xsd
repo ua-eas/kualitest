@@ -152,9 +152,10 @@
     
     <xs:simpleType name="checkpoint-type">
         <xs:restriction base="xs:string">
+            <xs:enumeration value="file"/>
             <xs:enumeration value="http"/>
             <xs:enumeration value="memory"/>
-            <xs:enumeration value="file"/>
+            <xs:enumeration value="runtime"/>
             <xs:enumeration value="sql"/>
             <xs:enumeration value="web service"/>
         </xs:restriction>

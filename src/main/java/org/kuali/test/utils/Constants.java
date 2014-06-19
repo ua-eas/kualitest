@@ -161,7 +161,8 @@ public class Constants {
     public static final String SQL_QUERY = "sql-query";
     public static final String SAVE_QUERY_RESULTS = "save-query-results";
     public static final String ROW_COUNT = "row-count";
-
+    public static final String NO_TEST_SUITE_NAME = "no-test-suite";
+    
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
     public static final String DELETE_COLUMN_ACTION = "Delete Column";

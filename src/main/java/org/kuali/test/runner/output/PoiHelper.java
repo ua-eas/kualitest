@@ -302,7 +302,10 @@ public class PoiHelper {
 
         cell = row.createCell(8);
         cell.setCellStyle(cellStyleNormal);
-        cell.setCellValue(ex.getMessage());
+        
+        if (ex != null) {
+            cell.setCellValue(ex.getMessage());
+        }
     }
 
     private FailureAction.Enum findMaxFailureAction(TestOperation op) {
