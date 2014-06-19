@@ -19,7 +19,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.URL;
 import java.net.URLConnection;
 import org.apache.log4j.Logger;
 import org.kuali.test.HtmlRequestOperation;
@@ -43,8 +42,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         HtmlRequestOperation reqop = null;
         try {
             reqop = getOperation().getHtmlRequestOperation();
-            URL url = new URL(reqop.getUri());
-            URLConnection conn = url.openConnection();
+
+            URLConnection conn = this.getTestExecutionContext().getURLConnection(reqop.getUri());
+            
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("uri: " + reqop.getUri());
+                LOG.debug("parameters: " + reqop.getRequestParameters());
+            }
             
             if (Constants.HTTP_REQUEST_METHOD_POST.equals(reqop.getMethod())) {
                 conn.setDoOutput(true);

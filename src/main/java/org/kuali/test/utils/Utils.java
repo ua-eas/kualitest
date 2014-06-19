@@ -588,6 +588,7 @@ public class Utils {
         }
 
         HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
+        testop.setOperationType(TestOperationType.HTTP_REQUEST);
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         boolean ispost = false;

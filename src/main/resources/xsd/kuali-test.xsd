@@ -116,6 +116,7 @@
             <xs:element name="group" type="xs:string"/>
             <xs:element name="section" type="xs:string" minOccurs="0"/>
             <xs:element name="sub-section" type="xs:string" minOccurs="0"/>
+            <xs:element name="remove" type="xs:boolean" default="false"/>
         </xs:sequence>
     </xs:complexType>
 

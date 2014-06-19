@@ -17,6 +17,11 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,7 +55,7 @@ public class TestExecutionContext extends Thread {
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
-    
+    private HttpURLConnection urlConnection;
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
     
     private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
@@ -102,51 +107,56 @@ public class TestExecutionContext extends Thread {
     }
     
     public void runTest() {
-        startTime= new Date();
-        
-        PoiHelper poiHelper = new PoiHelper();
-        poiHelper.writeReportHeader(testSuite, kualiTest);
-        poiHelper.writeColumnHeaders();
+        try {
+            startTime= new Date();
 
-        if (testSuite != null) {
-            int defaultTestWaitInterval = configuration.getDefaultTestWaitInterval();
-            
-            for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
-                KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
+            PoiHelper poiHelper = new PoiHelper();
+            poiHelper.writeReportHeader(testSuite, kualiTest);
+            poiHelper.writeColumnHeaders();
 
-                if (test != null) {
-                    
-                    // add pause between tests if configured
-                    if (defaultTestWaitInterval > 0) {
-                        try {
-                            Thread.sleep(defaultTestWaitInterval * 1000);
-                        } 
-                        
-                        catch (InterruptedException ex) {
-                            LOG.warn(ex.toString(), ex);
+            if (testSuite != null) {
+                int defaultTestWaitInterval = configuration.getDefaultTestWaitInterval();
+
+                for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
+                    KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
+
+                    if (test != null) {
+
+                        // add pause between tests if configured
+                        if (defaultTestWaitInterval > 0) {
+                            try {
+                                Thread.sleep(defaultTestWaitInterval * 1000);
+                            } 
+
+                            catch (InterruptedException ex) {
+                                LOG.warn(ex.toString(), ex);
+                            }
                         }
+
+                        poiHelper.writeTestHeader(test);
+                        runTest(test, poiHelper);
                     }
-
-                    poiHelper.writeTestHeader(test);
-                    runTest(test, poiHelper);
                 }
+            } else if (kualiTest != null) {
+                runTest(kualiTest, poiHelper);
             }
-        } else if (kualiTest != null) {
-            runTest(kualiTest, poiHelper);
+
+            endTime= new Date();
+            testResultsFile = new File(buildTestReportFileName());
+
+            poiHelper.writeFile(testResultsFile);
         }
-
-        endTime= new Date();
-
-        TestHeader testHeader = null;
-
-        if (kualiTest != null) {
-            testHeader = kualiTest.getTestHeader();
+        
+        finally {
+            cleanup();
+            completed = true;
         }
-
-        testResultsFile = new File(buildTestReportFileName());
-        poiHelper.writeFile(testResultsFile);
-
-        completed = true;
+    }
+    
+    private void cleanup() {
+        if (urlConnection != null) {
+            urlConnection.disconnect();
+        }
     }
     
     private String buildTestReportFileName() {
@@ -375,16 +385,28 @@ public class TestExecutionContext extends Thread {
         return null;
     }
     
-    public void addTestExecutionParameter(TestExecutionParameter ep) {
-        String value = findTestExecutionParameterValue(ep);
-            
-        if (StringUtils.isNotBlank(value)) {
-           executionParameterMap.put(ep.getName(), value);
+    public void processTestExecutionParameter(TestExecutionParameter ep) {
+        if (!ep.getRemove()) {
+            String value = findTestExecutionParameterValue(ep);
+
+            if (StringUtils.isNotBlank(value)) {
+               executionParameterMap.put(ep.getName(), value);
+            }
+        } else {
+            executionParameterMap.remove(ep.getName());
         }
     }
-
+    
     public void getTestExecutionParameterValue(String parameterName) {
         executionParameterMap.get(parameterName);
+    }
+    
+    public URLConnection getURLConnection(String uri) throws MalformedURLException, IOException {
+        if (urlConnection == null) {
+            urlConnection = (HttpURLConnection)new URL(uri).openConnection();
+        }
+        
+        return urlConnection;
     }
 }
 

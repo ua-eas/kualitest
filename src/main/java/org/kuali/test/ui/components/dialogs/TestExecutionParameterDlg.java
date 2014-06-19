@@ -22,7 +22,9 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -101,7 +103,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         value.setEditable(false);
         
         SearchButton b = new SearchButton();
-        p.add(new SearchButton());
+        p.add(b);
         
         b.addActionListener(new ActionListener() {
             @Override
@@ -177,10 +179,35 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     
     private List <TestExecutionParameter> loadTestExecutionParameters() {
         List <TestExecutionParameter> retval = new ArrayList<TestExecutionParameter>();
+
+        List <TestExecutionParameter> tmp = new ArrayList<TestExecutionParameter>();
         
-        for (TestOperation op : webTestPanel.getTestProxyServer().getTestOperations()) {
-            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)) {
-                retval.add(op.getOperation().getTestExecutionParameter());
+        // iterate from end to get last active parameters
+        List <TestOperation> operations = webTestPanel.getTestProxyServer().getTestOperations();
+        
+        if ((operations != null) && !operations.isEmpty()) {
+            Set <String> hs = new HashSet<String>();
+            for (int i = (operations.size() - 1); i >= 0; --i) {
+                TestOperation op = webTestPanel.getTestProxyServer().getTestOperations().get(i);
+                if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)) {
+                    TestExecutionParameter tec = op.getOperation().getTestExecutionParameter();
+                    
+                    // if we have not seen this parameter before and it is not in remove status then
+                    // it is currently active - add it to list
+                    if (!hs.contains(tec.getName()) && !tec.getRemove()) {
+                        tmp.add(tec);
+                    }
+
+                    hs.add(tec.getName());
+                }
+            }
+        }
+        
+        // if we found some active parameters
+        if (!tmp.isEmpty()) {
+            // add active parameters in ascending order
+            for (int i = (tmp.size() - 1); i >= 0; --i) {
+                retval.add(tmp.get(i));
             }
         }
         
@@ -192,8 +219,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         boolean retval = false;
         boolean oktosave = true;
         String nm = (String)name.getSelectedItem();
+        
         if (StringUtils.isNotBlank(nm) 
-            && StringUtils.isNotBlank(value.getText())) {
+            && ((((removedParameters != null) && !removedParameters.isEmpty())
+                || StringUtils.isNotBlank(value.getText())))) {
             
             if (!isEditmode()) {
                 if (parameterNameExists()) {
@@ -262,6 +291,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             
             if (testExecutionParameter != null) {
                 value.setText(testExecutionParameter.getDisplayName() + " - current screen value=" + testExecutionParameter.getValue());
+                testExecutionParameter.setRemove(false);
             }
         }
     }  

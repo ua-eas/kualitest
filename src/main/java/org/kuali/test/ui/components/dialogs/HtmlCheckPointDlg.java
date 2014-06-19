@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
@@ -72,9 +73,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             setEditmode(true);
         } else {
             setTitle("Add new checkpoint");
-            this.checkpoint = Checkpoint.Factory.newInstance();
-            this.checkpoint.setName("new checkpoint");
-            this.checkpoint.setTestName(testHeader.getTestName());
+            checkpoint = Checkpoint.Factory.newInstance();
+            checkpoint.setName("new checkpoint");
+            checkpoint.setTestName(testHeader.getTestName());
+            checkpoint.setType(CheckpointType.HTTP);
         }
 
         initComponents(rootNode, labelNodes);

@@ -45,7 +45,7 @@ public class OperationExecutionFactory {
                     + "=" + op.getOperation().getTestExecutionParameter().getValue() + "]");
             }
 
-            testContext.addTestExecutionParameter(op.getOperation().getTestExecutionParameter());
+            testContext.processTestExecutionParameter(op.getOperation().getTestExecutionParameter());
             
         } else if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {

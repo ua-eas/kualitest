@@ -27,10 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -293,9 +290,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private Element getRootNodeFromHtml(final JWebBrowser webBrowser, List <Element> labelNodes, String html) {
         Document doc = Utils.tidify(html);
         traverseNode(doc.getDocumentElement(), webBrowser, labelNodes);
-
-        Utils.getTidy().pprint(doc, System.out);
-        
         return doc.getDocumentElement();
     }
 
@@ -492,31 +486,22 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private void handleAddExecutionParameter() {
-        Element rootNode =  getHtmlRootNode(new ArrayList<Element>());
-        
         TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), this, null);
         
         if (dlg.isSaved()) {
-            TestExecutionParameter param = (TestExecutionParameter)dlg.getNewRepositoryObject();
-            Set <String> hs = new HashSet<String>();
-            
             if (dlg.getRemovedParameters() != null) {
                 for (TestExecutionParameter curatt : dlg.getRemovedParameters()) {
-                    hs.add(curatt.getName());
-                }
-            
-                Iterator <TestOperation> it = testProxyServer.getTestOperations().iterator();
-
-                while (it.hasNext()) {
-                    TestOperation op = it.next();
-                    if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)
-                        && hs.contains(op.getOperation().getTestExecutionParameter().getName())) {
-                        it.remove();
-                    }
+                    TestExecutionParameter rematt = (TestExecutionParameter)curatt.copy();
+                    rematt.setRemove(true);
+                    addTestExecutionParameter(rematt);
                 }
             }
             
-            addTestExecutionParameter(dlg.getTestExecutionParameter());
+            TestExecutionParameter tec = dlg.getTestExecutionParameter();
+            
+            if (StringUtils.isNotBlank(tec.getName()) && StringUtils.isNotBlank(tec.getValue())) {
+                addTestExecutionParameter(dlg.getTestExecutionParameter());
+            }
         }
     }
 

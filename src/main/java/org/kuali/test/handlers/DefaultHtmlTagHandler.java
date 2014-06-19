@@ -56,13 +56,13 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
 
-        if (node.hasAttribute("value")) {
+        if (StringUtils.isNotBlank(node.getAttribute("value"))) {
             retval.setPropertyValue(node.getAttribute("value"));
         }
         
-        if (node.hasAttribute("id")) {
+        if (StringUtils.isNotBlank(node.getAttribute("id"))) {
             retval.setPropertyName(Utils.trimString(node.getAttribute("id")));
-        } else if (node.hasAttribute("name")) {
+        } else if (StringUtils.isNotBlank(node.getAttribute("name"))) {
             retval.setPropertyName(Utils.trimString(node.getAttribute("name")));
         } 
         

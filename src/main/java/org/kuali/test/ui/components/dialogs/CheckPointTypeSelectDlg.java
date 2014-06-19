@@ -58,7 +58,20 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
         JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
         getContentPane().add(p, BorderLayout.CENTER);
+        
 
+        switch(testType.intValue()) {
+            case TestType.INT_DATABASE:
+                break;
+            case TestType.INT_FILE:
+                break;
+            case TestType.INT_WEB:
+                checkPointTypes.setSelectedItem(CheckpointType.HTTP.toString());
+                break;
+            case TestType.INT_WEB_SERVICE:
+                break;
+        }
+        
         addStandardButtons();
         setDefaultBehavior();
     }
