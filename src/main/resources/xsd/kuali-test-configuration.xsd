@@ -35,6 +35,7 @@
                 <xs:element name="email-setup" type="email-setup"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
                 <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names"/>
+                <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -53,6 +54,12 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="parameters-requiring-encryption">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="platforms">
         <xs:sequence>

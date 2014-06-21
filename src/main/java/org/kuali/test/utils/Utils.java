@@ -605,7 +605,8 @@ public class Utils {
         return retval.toString();
     }
 
-    public static void populateHttpRequestOperation(TestOperation testop, HttpRequest request) {
+    public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        TestOperation testop, HttpRequest request) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(getHttpRequestDetails(request));
         }
@@ -644,14 +645,80 @@ public class Utils {
                     if (data != null) {
                         RequestParameter param = op.getRequestParameters().addNewParameter();
                         param.setName(Constants.PARAMETER_NAME_CONTENT);
-                        param.setValue(new String(data));
+                        param.setValue(cleanRequestData(configuration, new String(data)));
                     }
                 }
             }
         }
     }
 
-    public static TestOperation buildTestOperation(TestOperationType.Enum optype, Object inputData) {
+    public static int[] getParameterPosition(String input, String parameterName) {
+        int[] retval = null;
+        
+        if (StringUtils.isNotBlank(input) && StringUtils.isNotBlank(parameterName)) {
+            int pos1 = input.toLowerCase().indexOf(parameterName.toLowerCase() + "=");
+            
+            if (pos1 > -1) {
+                int pos2 = Math.min(input.indexOf("&", pos1), input.length());
+                
+                if (pos2 > pos1) {
+                    retval = new int[] {pos1, pos2};
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static String[] getParameterData(String input, int[] pos) {
+        String[] retval = null;
+        
+        if (StringUtils.isNotBlank(input) && (pos != null)) {
+            String s = input.substring(pos[0], pos[1]);
+
+            int pos1 = s.indexOf("=");
+
+            if (pos1 > -1) {
+                retval = new String[] {s.substring(0, pos1).trim(), s.substring(pos1+1).trim()};
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String cleanRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+        String retval = input;
+        
+        Set <String> hs = new HashSet<String>();
+        // encrypt specified parameters
+        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+            if (!hs.contains(parameterName)) {
+                hs.add(parameterName);
+                int[] paramPosition = getParameterPosition(retval, parameterName);
+
+                if (paramPosition != null) {
+                    String[] parameterData = getParameterData(retval, paramPosition);
+
+                    if (parameterData != null) {
+                        StringBuilder buf = new StringBuilder(retval.length());
+
+                        buf.append(input.substring(0, paramPosition[0]));
+                        buf.append(parameterData[0]);
+                        buf.append("=");
+                        buf.append(encrypt(configuration, parameterData[1]));
+                        buf.append(retval.substring(paramPosition[1]));
+
+                        retval = buf.toString();
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        TestOperationType.Enum optype, Object inputData) {
         TestOperation retval = TestOperation.Factory.newInstance();
 
         retval.setOperationType(optype);
@@ -659,7 +726,7 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(retval, (HttpRequest)inputData);
+                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData);
                     break;
             }
         }
@@ -2228,6 +2295,7 @@ public class Utils {
         String retval = "";
         
         try {
+            // use StrongTextEncryptor with JCE installed for more secutity
             BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
             textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
             retval = textEncryptor.encrypt(input);
@@ -2244,6 +2312,7 @@ public class Utils {
         String retval = "";
         
         try {
+            // use StrongTextEncryptor with JCE installed for more secutity
             BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
             textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
             retval =  textEncryptor.decrypt(input);

@@ -82,4 +82,7 @@
        <name>documentNumber</name>
        <name>accountNumber</name>
    </test-execution-parameter-names>
+   <parameters-requiring-encryption>
+       <name>password</name>
+   </parameters-requiring-encryption>
 </kuali-test-configuration>

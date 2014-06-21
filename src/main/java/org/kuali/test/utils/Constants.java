@@ -164,7 +164,7 @@ public class Constants {
     public static final String NO_TEST_SUITE_NAME = "no-test-suite";
     public static final String HTTP_HEADER_REFERER = "Referer";
     public static final String HTTP_HEADER_HOST = "Host";
-    public static final String JSESSION_PARAMETER_CHECK_STRING = ";jsessionid=";
+    public static final String PASSWORD = "password";
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";

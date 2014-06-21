@@ -72,7 +72,7 @@ public class TestProxyServer {
                             HttpRequest request = (HttpRequest)httpObject;
                             if (isValidTestRequest(request)) {
                                 if (httpObject instanceof HttpRequest) {
-                                    testOperations.add(Utils.buildTestOperation(TestOperationType.HTTP_REQUEST, request));
+                                    testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request));
                                 }
                             }
                         }
