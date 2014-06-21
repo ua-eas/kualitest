@@ -440,6 +440,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 
                 
                 try {
+                    
                     File f = new File(testFileName);
                     
                     if (f.exists() && f.isFile()) {
@@ -447,13 +448,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     }
                     
                     testRepositoryTree.saveConfiguration();
-
-                    p = Utils.findPlatform(getConfiguration(), platformName);
-
-                    
-                    getPlatformTestsPanel().populateList(p);
-                    
-                    testRepositoryTree.refreshPlatformNode(p);
+                    testRepositoryTree.selectPlatformByName(platformName);
+                    platformTestsPanel.populateList(p);
                 } 
                 
                 catch (IOException ex) {

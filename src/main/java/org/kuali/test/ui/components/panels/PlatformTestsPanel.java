@@ -181,6 +181,7 @@ public class PlatformTestsPanel extends BasePanel
 
     public void populateList(Platform platform) {
         if (platform != null) {
+            currentPlatform = platform;
             if (LOG.isDebugEnabled()) {
                 LOG.debug("populating test for platform " + platform.getName());
             }

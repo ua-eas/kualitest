@@ -28,6 +28,7 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlError;
@@ -57,7 +58,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     private static final Logger LOG = Logger.getLogger(RepositoryTree.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private RepositoryPopupMenu popupMenu;
-
+    
     public RepositoryTree(TestCreator mainframe) {
         super(mainframe);
         popupMenu = new RepositoryPopupMenu(mainframe);
@@ -435,5 +436,33 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
             getModel().insertNodeInto(new RepositoryNode(getConfiguration(), platform), parent, indx);
             getModel().reload(parent);
         }
+    }
+    
+    private boolean isPlatform(DefaultMutableTreeNode node) {
+        return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof Platform));
+    }
+    
+    private boolean isTestSuite(DefaultMutableTreeNode node) {
+        return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof TestSuite));
+    }
+    
+    public Platform selectPlatformByName(String platformName) {
+        Platform retval = null;
+        Enumeration <DefaultMutableTreeNode> e = getRootNode().children();
+        
+        while (e.hasMoreElements()) {
+            DefaultMutableTreeNode node = e.nextElement();
+            
+           Platform p = (Platform)node.getUserObject();
+            
+            if (p.getName().equals(platformName)) {
+                getSelectionModel().setSelectionPath(new TreePath(node.getPath()));
+                retval = p;
+                break;
+            }
+        }
+        
+        
+        return retval;
     }
 }
