@@ -87,7 +87,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             while ((line = reader.readLine()) != null) {
                 tec.getLastHttpResponseData().append(line);
             }
-            
+
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 Map <String, List<String>> headers = conn.getHeaderFields();
                 
@@ -116,7 +116,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             LOG.error(ex.toString(), ex);
             
-            throw new TestException("an IOException occured while for http request: " 
+            throw new TestException("an IOException occured while processing http request: " 
                 + uri + ", error: " +  ex.toString(), getOperation(), ex);
         }
         

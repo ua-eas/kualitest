@@ -692,6 +692,7 @@ public class Utils {
         retval.append(input.substring(0, parameterPosition[0]));
         retval.append(parameterData[0]);
         retval.append("=");
+        retval.append(parameterData[1]);
         retval.append(input.substring(parameterPosition[1]));
 
         return retval.toString();
@@ -705,6 +706,7 @@ public class Utils {
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
             if (!hs.contains(parameterName)) {
                 hs.add(parameterName);
+                
                 int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
 
                 if (paramPosition != null) {
@@ -2298,15 +2300,17 @@ public class Utils {
     public static String encrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = "";
         
-        try {
-            // use StrongTextEncryptor with JCE installed for more secutity
-            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-            textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
-            retval = textEncryptor.encrypt(input);
-        }
+        if (StringUtils.isNotBlank(input)) {
+            try {
+                // use StrongTextEncryptor with JCE installed for more secutity
+                BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+                textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+                retval = textEncryptor.encrypt(input);
+            }
 
-        catch (Exception ex) {
-            LOG.warn(ex.toString(), ex);
+            catch (Exception ex) {
+                LOG.warn(ex.toString(), ex);
+            }
         }
         
         return retval;
@@ -2315,15 +2319,17 @@ public class Utils {
     public static String decrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = "";
         
-        try {
-            // use StrongTextEncryptor with JCE installed for more secutity
-            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-            textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
-            retval =  textEncryptor.decrypt(input);
-        }
-        
-        catch (Exception ex) {
-            LOG.warn(ex.toString(), ex);
+        if (StringUtils.isNotBlank(input)) {
+            try {
+                // use StrongTextEncryptor with JCE installed for more secutity
+                BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+                textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+                retval =  textEncryptor.decrypt(input);
+            }
+
+            catch (Exception ex) {
+                LOG.warn(ex.toString(), ex);
+            }
         }
         
         return retval;

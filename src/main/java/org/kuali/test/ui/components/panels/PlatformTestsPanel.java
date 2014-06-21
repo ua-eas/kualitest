@@ -183,7 +183,7 @@ public class PlatformTestsPanel extends BasePanel
         if (platform != null) {
             currentPlatform = platform;
             if (LOG.isDebugEnabled()) {
-                LOG.debug("populating test for platform " + platform.getName());
+                LOG.debug("populating test list for platform " + platform.getName());
             }
             clearList();
             DefaultListModel model = (DefaultListModel) testList.getModel();
