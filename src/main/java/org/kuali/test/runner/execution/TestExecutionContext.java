@@ -405,6 +405,22 @@ public class TestExecutionContext extends Thread {
     
     public String replaceTestExecutionParameters(String input) {
         String retval = input;
+        
+        // decrypt encrypted parameters
+        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+            int[] parameterPosition = Utils.getParameterPosition(retval, parameterName);
+            
+            if (parameterPosition != null) {
+                String[] parameterData = Utils.getParameterData(retval, parameterPosition);
+                
+                if (parameterData != null) {
+                    parameterData[1] = Utils.decrypt(configuration, parameterData[1]);
+                
+                    retval = Utils.replaceParameterString(retval, parameterPosition, parameterData);
+                }
+            }
+        }
+        
         return retval;
     }
     

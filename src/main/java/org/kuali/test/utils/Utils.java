@@ -645,7 +645,7 @@ public class Utils {
                     if (data != null) {
                         RequestParameter param = op.getRequestParameters().addNewParameter();
                         param.setName(Constants.PARAMETER_NAME_CONTENT);
-                        param.setValue(cleanRequestData(configuration, new String(data)));
+                        param.setValue(secureRequestDataForStorage(configuration, new String(data)));
                     }
                 }
             }
@@ -685,8 +685,19 @@ public class Utils {
         
         return retval;
     }
+
+    public static String replaceParameterString(String input, int[] parameterPosition, String[] parameterData) {
+        StringBuilder retval = new StringBuilder(input.length());
+
+        retval.append(input.substring(0, parameterPosition[0]));
+        retval.append(parameterData[0]);
+        retval.append("=");
+        retval.append(input.substring(parameterPosition[1]));
+
+        return retval.toString();
+    }
     
-    public static String cleanRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+    public static String secureRequestDataForStorage(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = input;
         
         Set <String> hs = new HashSet<String>();
@@ -700,15 +711,8 @@ public class Utils {
                     String[] parameterData = getParameterData(retval, paramPosition);
 
                     if (parameterData != null) {
-                        StringBuilder buf = new StringBuilder(retval.length());
-
-                        buf.append(input.substring(0, paramPosition[0]));
-                        buf.append(parameterData[0]);
-                        buf.append("=");
-                        buf.append(encrypt(configuration, parameterData[1]));
-                        buf.append(retval.substring(paramPosition[1]));
-
-                        retval = buf.toString();
+                        parameterData[1] = encrypt(configuration, parameterData[1]);
+                        retval = replaceParameterString(retval, paramPosition, parameterData);
                     }
                 }
             }
