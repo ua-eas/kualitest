@@ -399,8 +399,8 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    public void getTestExecutionParameterValue(String parameterName) {
-        executionParameterMap.get(parameterName);
+    public String getTestExecutionParameterValue(String parameterName) {
+        return executionParameterMap.get(parameterName);
     }
     
     public String replaceTestExecutionParameters(String input) {
@@ -408,7 +408,7 @@ public class TestExecutionContext extends Thread {
         
         // decrypt encrypted parameters
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-            int[] parameterPosition = Utils.getParameterPosition(retval, parameterName);
+            int[] parameterPosition = Utils.getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
             
             if (parameterPosition != null) {
                 String[] parameterData = Utils.getParameterData(retval, parameterPosition);
@@ -425,23 +425,19 @@ public class TestExecutionContext extends Thread {
     }
     
     public void addCookie(String cookie) {
-        Map <String, String> params = new HashMap<String, String>();
-        int pos = cookie.toLowerCase().indexOf("path=");
-            
-        if (pos > -1) {
-            int pos2 = cookie.indexOf(";", pos);
+        int[] parameterPosition = Utils.getParameterPosition(cookie, Constants.PARAMETER_NAME_PATH, Constants.SEPARATOR_SEMICOLON);
+        
+        if (parameterPosition != null) {
+            String[] parameterData = Utils.getParameterData(cookie, parameterPosition);
 
-            if (pos2 > pos) {
-                String path = cookie.substring(pos + "path=".length(), pos2);
-                if (StringUtils.isNotBlank(path)) {
-                    List <String> l = cookieMap.get(path);
+            if (parameterData != null) {
+                List <String> l = cookieMap.get(parameterData[0]);
 
-                    if (l == null) {
-                        cookieMap.put(path, l = new ArrayList<String>());
-                    }
-                    
-                    l.add(cookie);
+                if (l == null) {
+                    cookieMap.put(parameterData[0], l = new ArrayList<String>());
                 }
+
+                l.add(cookie);
             }
         }
     }

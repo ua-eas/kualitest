@@ -652,14 +652,14 @@ public class Utils {
         }
     }
 
-    public static int[] getParameterPosition(String input, String parameterName) {
+    public static int[] getParameterPosition(String input, String parameterName, String separator) {
         int[] retval = null;
         
         if (StringUtils.isNotBlank(input) && StringUtils.isNotBlank(parameterName)) {
             int pos1 = input.toLowerCase().indexOf(parameterName.toLowerCase() + "=");
             
             if (pos1 > -1) {
-                int pos2 = Math.min(input.indexOf("&", pos1), input.length());
+                int pos2 = Math.min(input.indexOf(separator, pos1), input.length());
                 
                 if (pos2 > pos1) {
                     retval = new int[] {pos1, pos2};
@@ -705,7 +705,7 @@ public class Utils {
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
             if (!hs.contains(parameterName)) {
                 hs.add(parameterName);
-                int[] paramPosition = getParameterPosition(retval, parameterName);
+                int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
 
                 if (paramPosition != null) {
                     String[] parameterData = getParameterData(retval, paramPosition);

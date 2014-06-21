@@ -181,6 +181,9 @@ public class Constants {
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
     public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
     public static final String PARAMETER_NAME_CONTENT = "content";
+    public static final String PARAMETER_NAME_PATH = "path";
+    public static final String SEPARATOR_AMPERSTAND = "&";
+    public static final String SEPARATOR_SEMICOLON = ";";
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
