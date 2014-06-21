@@ -45,7 +45,6 @@ public class DatabaseDlg extends BaseSetupDlg {
     private JPasswordField password;
     private JComboBox <String> type;
     private JCheckBox configuredTablesOnly;
-    private boolean editmode = false;
     
     /**
      * 
@@ -98,7 +97,14 @@ public class DatabaseDlg extends BaseSetupDlg {
         driver = new JTextField(dbconnection.getJdbcDriver(), 30);
         schema = new JTextField(dbconnection.getSchema(), 15);
         username = new JTextField(dbconnection.getUsername(), 20);
-        password = new JPasswordField(dbconnection.getPassword(), 20);
+        
+        String pass = "";
+        
+        if (StringUtils.isNotBlank(dbconnection.getPassword())) {
+            pass = Utils.decrypt(getConfiguration(), dbconnection.getPassword());
+        }
+    
+        password = new JPasswordField(pass, 20);
         configuredTablesOnly = new JCheckBox();
         
         configuredTablesOnly.setSelected(dbconnection.getConfiguredTablesOnly());
@@ -123,7 +129,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             && StringUtils.isNotBlank(password.getText())
             && StringUtils.isNotBlank(driver.getText())) {
             
-            if (!editmode) {
+            if (!isEditmode()) {
                 if (databaseConnectionNameExists()) {
                     oktosave = false;
                     displayExistingNameAlert("Database Connection", name.getText());
@@ -135,7 +141,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            if (!editmode) {
+            if (!isEditmode()) {
                 dbconnection = getConfiguration().getDatabaseConnections().addNewDatabaseConnection();
             }
             
@@ -144,7 +150,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             dbconnection.setJdbcDriver(driver.getText());
             dbconnection.setSchema(schema.getText());
             dbconnection.setUsername(username.getText());
-            dbconnection.setPassword(password.getText());
+            dbconnection.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
             dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
             dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
             setSaved(true);

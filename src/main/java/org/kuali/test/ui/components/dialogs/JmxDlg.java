@@ -26,6 +26,7 @@ import org.kuali.test.JmxConnection;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -37,7 +38,6 @@ public class JmxDlg extends BaseSetupDlg {
     private JTextField jmxUrl;
     private JTextField username;
     private JPasswordField password;
-    private boolean editmode = false;
     
     /**
      * 
@@ -81,7 +81,13 @@ public class JmxDlg extends BaseSetupDlg {
         
         jmxUrl = new JTextField(jmx.getJmxUrl(), 30);
         username = new JTextField(jmx.getUsername(), 20);
-        password = new JPasswordField(jmx.getPassword(), 20);
+        
+        String pass = "";
+        if (StringUtils.isNotBlank(jmx.getPassword())) {
+            pass = Utils.decrypt(getConfiguration(), jmx.getPassword());
+        }
+        
+        password = new JPasswordField(pass, 20);
         
         JComponent[] components = {name, jmxUrl, username, password};
 
@@ -99,7 +105,7 @@ public class JmxDlg extends BaseSetupDlg {
         if (StringUtils.isNotBlank(name.getText()) 
             && StringUtils.isNotBlank(jmxUrl.getText())) {
             
-            if (!editmode) {
+            if (!isEditmode()) {
                 if (jmxConnectionNameExists()) {
                     oktosave = false;
                     displayExistingNameAlert("JMX Connection", name.getText());
@@ -111,7 +117,7 @@ public class JmxDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            if (!editmode) {
+            if (!isEditmode()) {
                 if (getConfiguration().getJmxConnections() == null) {
                     getConfiguration().addNewJmxConnections();
                 }
@@ -124,7 +130,7 @@ public class JmxDlg extends BaseSetupDlg {
 
             if (StringUtils.isNotBlank(username.getText())) {
                 jmx.setUsername(username.getText());
-                jmx.setPassword(password.getText());
+                jmx.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
             } else {
                 jmx.setUsername("");
                 jmx.setPassword("");

@@ -19,12 +19,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.URLConnection;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 
@@ -43,33 +48,63 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         try {
             reqop = getOperation().getHtmlRequestOperation();
 
-            URLConnection conn = this.getTestExecutionContext().getURLConnection(reqop.getUri());
+            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUri()));
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.setDoInput(true);
+            conn.setInstanceFollowRedirects(true);
             
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("uri: " + reqop.getUri());
-                LOG.debug("parameters: " + reqop.getRequestParameters());
+            TestExecutionContext tec = getTestExecutionContext();
+            List <String> cookies = tec.getCookies(url.getPath());
+            
+            if (cookies != null) {
+                for (String cookie : cookies) {
+                    conn.addRequestProperty("Cookie", cookie);
+                }
             }
             
             if (Constants.HTTP_REQUEST_METHOD_POST.equals(reqop.getMethod())) {
-                conn.setDoOutput(true);
-                writer = new OutputStreamWriter(conn.getOutputStream());
-                //writer.write(reqop.getRequestParameters());
-                writer.flush();
+                if (reqop.getRequestParameters()!= null) {
+                    for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
+                        if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
+                            if (StringUtils.isNotBlank(param.getValue())) {
+                                conn.setDoOutput(true);
+                                writer = new OutputStreamWriter(conn.getOutputStream());
+                                writer.write(getTestExecutionContext().replaceTestExecutionParameters(param.getValue()));
+                                writer.flush();
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-
-            TestExecutionContext context = getTestExecutionContext();
+            
             // clear last response storage
-            context.getLastHttpResponseData(true);
+            tec.clearLastHttpResponse();
 
             // Get the response
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                context.getLastHttpResponseData().append(line);
+                tec.getLastHttpResponseData().append(line);
+            }
+            
+            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                Map <String, List<String>> headers = conn.getHeaderFields();
+                
+                for (String key : headers.keySet()) {
+                    if ("Set-Cookie".equalsIgnoreCase(key)) {
+                        List <String> l = headers.get(key);
+                        for (String s : l) {
+                            tec.addCookie(s);
+                        }
+                    }
+                }
             }
             
             if (LOG.isDebugEnabled()) {
-                LOG.debug(context.getLastHttpResponseData().toString());
+                LOG.debug("********************************* http response ***********************************");
+                LOG.debug(tec.getLastHttpResponseData().toString());
+                LOG.debug("***********************************************************************************");
             }
         } 
         
@@ -78,7 +113,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (reqop != null) {
               uri = reqop.getUri();
             }
-            throw new TestException("an IOException occured while attempting to make an http request to uri: " + uri, getOperation(), ex);
+            
+            LOG.error(ex.toString(), ex);
+            
+            throw new TestException("an IOException occured while for http request: " 
+                + uri + ", error: " +  ex.toString(), getOperation(), ex);
         }
         
         finally {

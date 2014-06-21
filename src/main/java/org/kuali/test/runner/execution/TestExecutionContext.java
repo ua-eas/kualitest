@@ -17,11 +17,6 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,8 +50,8 @@ public class TestExecutionContext extends Thread {
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
-    private HttpURLConnection urlConnection;
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
+    private Map<String, List<String>> cookieMap = new HashMap<String, List<String>>();
     
     private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
     
@@ -154,9 +149,6 @@ public class TestExecutionContext extends Thread {
     }
     
     private void cleanup() {
-        if (urlConnection != null) {
-            urlConnection.disconnect();
-        }
     }
     
     private String buildTestReportFileName() {
@@ -199,7 +191,10 @@ public class TestExecutionContext extends Thread {
         
         long start = System.currentTimeMillis();
         for (TestOperation op : test.getOperations().getOperationArray()) {
-            executeTestOperation(op, poiHelper);
+            // if executeTestOperation returns false we want to halt test
+            if (!executeTestOperation(op, poiHelper)) {
+                break;
+            }
         }
 
         // check for max runtime exceeded
@@ -240,7 +235,14 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
-    private void executeTestOperation(TestOperation op, PoiHelper poiHelper) {
+    /**
+     * 
+     * @param op
+     * @param poiHelper
+     * @return true to conitue test - false to halt
+     */
+    private boolean executeTestOperation(TestOperation op, PoiHelper poiHelper) {
+        boolean retval = true;
         OperationExecution opExec = null;
         
         Date opStartTime = new Date();
@@ -255,8 +257,10 @@ public class TestExecutionContext extends Thread {
         } 
         
         catch (TestException ex) {
-            poiHelper.writeFailureEntry(op, opStartTime, ex);
+            retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
         }
+        
+        return retval;
     }
     
     
@@ -308,17 +312,15 @@ public class TestExecutionContext extends Thread {
         return completed;
     }
     
-    public StringBuilder getLastHttpResponseData() {
-        return getLastHttpResponseData(false);
+    public void clearLastHttpResponse() {
+        if (lastHttpResponseData != null) {
+            lastHttpResponseData.setLength(0);
+        }
     }
-    
-    public StringBuilder getLastHttpResponseData(boolean clear) {
+
+    public StringBuilder getLastHttpResponseData() {
         if (lastHttpResponseData == null) {
             lastHttpResponseData= new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-        }
-        
-        if (clear) {
-            lastHttpResponseData.setLength(0);
         }
         
         return lastHttpResponseData;
@@ -401,12 +403,43 @@ public class TestExecutionContext extends Thread {
         executionParameterMap.get(parameterName);
     }
     
-    public URLConnection getURLConnection(String uri) throws MalformedURLException, IOException {
-        if (urlConnection == null) {
-            urlConnection = (HttpURLConnection)new URL(uri).openConnection();
+    public String replaceTestExecutionParameters(String input) {
+        String retval = input;
+        return retval;
+    }
+    
+    public void addCookie(String cookie) {
+        Map <String, String> params = new HashMap<String, String>();
+        int pos = cookie.toLowerCase().indexOf("path=");
+            
+        if (pos > -1) {
+            int pos2 = cookie.indexOf(";", pos);
+
+            if (pos2 > pos) {
+                String path = cookie.substring(pos + "path=".length(), pos2);
+                if (StringUtils.isNotBlank(path)) {
+                    List <String> l = cookieMap.get(path);
+
+                    if (l == null) {
+                        cookieMap.put(path, l = new ArrayList<String>());
+                    }
+                    
+                    l.add(cookie);
+                }
+            }
         }
+    }
+    
+    public List <String> getCookies(String path) {
+        List <String> retval = new ArrayList<String>();
         
-        return urlConnection;
+        for (String key : cookieMap.keySet()) {
+            if (path.startsWith(key)) {
+                retval.addAll(cookieMap.get(key));
+            }
+        }
+
+        return retval;
     }
 }
 

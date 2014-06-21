@@ -162,6 +162,9 @@ public class Constants {
     public static final String SAVE_QUERY_RESULTS = "save-query-results";
     public static final String ROW_COUNT = "row-count";
     public static final String NO_TEST_SUITE_NAME = "no-test-suite";
+    public static final String HTTP_HEADER_REFERER = "Referer";
+    public static final String HTTP_HEADER_HOST = "Host";
+    public static final String JSESSION_PARAMETER_CHECK_STRING = ";jsessionid=";
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -177,6 +180,7 @@ public class Constants {
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
     public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
+    public static final String PARAMETER_NAME_CONTENT = "content";
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

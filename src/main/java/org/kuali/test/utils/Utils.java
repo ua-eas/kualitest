@@ -59,9 +59,11 @@ import javax.mail.internet.MimeMultipart;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.geronimo.mail.util.Base64;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
+import org.jasypt.util.text.BasicTextEncryptor;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
@@ -581,6 +583,27 @@ public class Utils {
     public static boolean wantHttpRequestHeader(String key) {
         return false;
     }
+    
+    public static String buildUrlFromRequest(HttpRequest request) {
+        StringBuilder retval = new StringBuilder(128);
+        
+        String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
+        
+        String s = "https://";
+        if (referer != null) {
+            int pos = referer.indexOf(":");
+            if (pos > -1) {
+                s = referer.substring(0, pos+3);
+            }
+        }
+        
+        retval.append(s);
+        retval.append(request.headers().get(Constants.HTTP_HEADER_HOST));
+        retval.append(request.getUri());
+        
+        
+        return retval.toString();
+    }
 
     public static void populateHttpRequestOperation(TestOperation testop, HttpRequest request) {
         if (LOG.isDebugEnabled()) {
@@ -591,7 +614,6 @@ public class Utils {
         testop.setOperationType(TestOperationType.HTTP_REQUEST);
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
-        boolean ispost = false;
 
         Iterator<Entry<String, String>> it = request.headers().iterator();
 
@@ -609,9 +631,8 @@ public class Utils {
         }
 
         String method = request.getMethod().name();
-
         op.setMethod(method);
-        op.setUri(request.getUri());
+        op.setUri(buildUrlFromRequest(request));
 
         // if this is a post then try to get content
         if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
@@ -622,7 +643,7 @@ public class Utils {
 
                     if (data != null) {
                         RequestParameter param = op.getRequestParameters().addNewParameter();
-                        param.setName("content");
+                        param.setName(Constants.PARAMETER_NAME_CONTENT);
                         param.setValue(new String(data));
                     }
                 }
@@ -638,7 +659,7 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(retval, (HttpRequest) inputData);
+                    populateHttpRequestOperation(retval, (HttpRequest)inputData);
                     break;
             }
         }
@@ -679,6 +700,7 @@ public class Utils {
 
     public static String getHttpRequestDetails(HttpRequest request) {
         StringBuilder retval = new StringBuilder(512);
+        retval.append("******************** http request *******************\r\n");
         retval.append("uri: ");
         retval.append(request.getUri());
         retval.append("\r\n");
@@ -713,6 +735,7 @@ public class Utils {
             }
         }
 
+        retval.append("******************************************************\r\n");
         return retval.toString();
     }
 
@@ -1607,7 +1630,7 @@ public class Utils {
     public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
         Class.forName(dbconn.getJdbcDriver());
-        Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), dbconn.getPassword());
+        Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(configuration, dbconn.getPassword()));
         retval.setReadOnly(true);
         return retval;
     }
@@ -2195,6 +2218,39 @@ public class Utils {
                     }
                 }
             }
+        }
+        
+        return retval;
+    }
+    
+   
+    public static String encrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+        String retval = "";
+        
+        try {
+            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+            textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+            retval = textEncryptor.encrypt(input);
+        }
+
+        catch (Exception ex) {
+            LOG.warn(ex.toString(), ex);
+        }
+        
+        return retval;
+    }
+    
+    public static String decrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+        String retval = "";
+        
+        try {
+            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+            textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+            retval =  textEncryptor.decrypt(input);
+        }
+        
+        catch (Exception ex) {
+            LOG.warn(ex.toString(), ex);
         }
         
         return retval;

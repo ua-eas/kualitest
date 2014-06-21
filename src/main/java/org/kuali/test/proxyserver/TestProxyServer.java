@@ -68,8 +68,13 @@ public class TestProxyServer {
                 return new HttpFiltersAdapter(originalRequest) {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
-                        if (isValidTestRequest(originalRequest)) {
-                            testOperations.add(Utils.buildTestOperation(TestOperationType.HTTP_REQUEST, originalRequest));
+                        if (httpObject instanceof HttpRequest) {
+                            HttpRequest request = (HttpRequest)httpObject;
+                            if (isValidTestRequest(request)) {
+                                if (httpObject instanceof HttpRequest) {
+                                    testOperations.add(Utils.buildTestOperation(TestOperationType.HTTP_REQUEST, request));
+                                }
+                            }
                         }
                         return null;
                     }
@@ -98,10 +103,15 @@ public class TestProxyServer {
                             c.retain();
                             ByteBuffer buf = ByteBuffer.allocateDirect(c.content().capacity());
                             c.content().copy().readBytes(buf);
-                            c.release();
                             currentHtmlResponse.append(buf.asCharBuffer());
+                            c.release();
                             if (httpObject instanceof LastHttpContent) {
                                 if (currentHtmlResponse != null) {
+                                    if (LOG.isDebugEnabled()) {
+                                        LOG.debug("************************ html response **************************");
+                                        LOG.debug(currentHtmlResponse.toString());
+                                        LOG.debug("*****************************************************************");
+                                    }
                                     webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
                                     currentHtmlResponse = null;
                                 }
@@ -201,9 +211,9 @@ public class TestProxyServer {
         }
         
         if (retval) {
-            if (LOG.isDebugEnabled()) {
+           if (LOG.isDebugEnabled()) {
                 LOG.debug(Utils.getHttpRequestDetails(request));
-            }
+           }
         }
         
         if (LOG.isDebugEnabled()) {
@@ -239,27 +249,6 @@ public class TestProxyServer {
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
             retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
         }
-        
-        return retval;
-    }
-    
-    private boolean isTestableResponse(HttpResponse response) {
-        boolean retval = false;
-        
-        String contentType = response.headers().get(Constants.HTTP_RESPONSE_CONTENT_TYPE);
-        
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("contentType: " + contentType);
-        }
-        
-        if (StringUtils.isNotBlank(contentType)) {
-            retval = contentType.toLowerCase().startsWith(Constants.MIME_TYPE_HTML);
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("isTestableResponse: " + retval);
-        }
-        
         
         return retval;
     }

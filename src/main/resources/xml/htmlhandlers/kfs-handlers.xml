@@ -868,7 +868,7 @@
                     <match-attribute>
                         <name>name</name>
                         <!--  can use "|" to seperate "or" values for matching -->
-                        <value>docNum</value>
+                        <value>docNum|lt</value>
                     </match-attribute>
                 </match-attributes>
             </tag-matcher>

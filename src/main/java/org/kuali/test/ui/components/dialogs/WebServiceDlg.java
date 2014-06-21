@@ -26,6 +26,7 @@ import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -37,7 +38,6 @@ public class WebServiceDlg extends BaseSetupDlg {
     private JTextField wsdlUrl;
     private JTextField username;
     private JPasswordField password;
-    private boolean editmode = false;
     
     /**
      * 
@@ -81,7 +81,14 @@ public class WebServiceDlg extends BaseSetupDlg {
         
         wsdlUrl = new JTextField(webService.getWsdlUrl(), 30);
         username = new JTextField(webService.getUsername(), 20);
-        password = new JPasswordField(webService.getPassword(), 20);
+        
+        String pass = "";
+        
+        if (StringUtils.isNotBlank(webService.getPassword())) {
+            pass = Utils.decrypt(getConfiguration(), webService.getPassword());
+        }
+        
+        password = new JPasswordField(pass, 20);
         
         JComponent[] components = {name, wsdlUrl, username, password};
 
@@ -99,7 +106,7 @@ public class WebServiceDlg extends BaseSetupDlg {
         if (StringUtils.isNotBlank(name.getText()) 
             && StringUtils.isNotBlank(wsdlUrl.getText())) {
             
-            if (!editmode) {
+            if (!isEditmode()) {
                 if (webServiceNameExists()) {
                     oktosave = false;
                     displayExistingNameAlert("Web Service", name.getText());
@@ -111,7 +118,7 @@ public class WebServiceDlg extends BaseSetupDlg {
         }
         
         if (oktosave) {
-            if (!editmode) {
+            if (!isEditmode()) {
                 webService = getConfiguration().getWebServices().addNewWebService();
             }
         
@@ -120,7 +127,7 @@ public class WebServiceDlg extends BaseSetupDlg {
 
             if (StringUtils.isNotBlank(username.getText())) {
                 webService.setUsername(username.getText());
-                webService.setPassword(password.getText());
+                webService.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
             } else {
                 webService.setUsername("");
                 webService.setPassword("");

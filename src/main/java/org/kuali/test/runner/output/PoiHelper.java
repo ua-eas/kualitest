@@ -44,6 +44,7 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
@@ -210,16 +211,50 @@ public class PoiHelper {
         }
     }
 
+    private String getOperationNameForOutput(TestOperation op) {
+        String retval = "";
+        switch (op.getOperationType().intValue()) {
+            case TestOperationType.INT_CHECKPOINT:
+                retval = op.getOperation().getCheckpointOperation().getName();
+                break;
+            case TestOperationType.INT_HTTP_REQUEST:
+                retval = op.getOperation().getHtmlRequestOperation().getUri();
+                break;
+            case TestOperationType.INT_TEST_EXECUTION_PARAMETER:
+                retval = op.getOperation().getTestExecutionParameter().getDisplayName();
+                break;
+        }
+        
+        return retval;
+    }
+    
+    private String getOperationTypeForOutput(TestOperation op) {
+        String retval = "";
+        switch (op.getOperationType().intValue()) {
+            case TestOperationType.INT_CHECKPOINT:
+                retval = op.getOperation().getCheckpointOperation().getType().toString();
+                break;
+            case TestOperationType.INT_HTTP_REQUEST:
+                retval = TestOperationType.HTTP_REQUEST.toString();
+                break;
+            case TestOperationType.INT_TEST_EXECUTION_PARAMETER:
+                retval = TestOperationType.TEST_EXECUTION_PARAMETER.toString();
+                break;
+        }
+        
+        return retval;
+    }
+
     private Row writeBaseEntryInformation(TestOperation op, Date startTime) {
         Row retval = wb.getSheetAt(0).createRow(++currentReportRow);
         // checkpoint name
         Cell cell = retval.createCell(0);
-        cell.setCellValue(op.getOperation().getCheckpointOperation().getName());
+        cell.setCellValue(getOperationNameForOutput(op));
         cell.setCellStyle(cellStyleNormal);
 
-        // cehckpoint type
+        // checkpoint type
         cell = retval.createCell(1);
-        cell.setCellValue(op.getOperation().getCheckpointOperation().getType().toString());
+        cell.setCellValue(getOperationTypeForOutput(op));
         cell.setCellStyle(cellStyleNormal);
 
         // start time
@@ -241,27 +276,37 @@ public class PoiHelper {
 
         // expected values
         cell = retval.createCell(5);
-        StringBuilder s = new StringBuilder(128);
-        for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-            s.append(cp.getPropertyName());
-            s.append("=");
-            s.append(cp.getPropertyValue());
-            s.append("\n");
-        }
+        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
+            StringBuilder s = new StringBuilder(128);
+            for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                s.append(cp.getPropertyName());
+                s.append("=");
+                s.append(cp.getPropertyValue());
+                s.append("\n");
+            }
 
-        cell.setCellValue(s.toString());
+            cell.setCellValue(s.toString());
+        } else {
+            cell.setCellValue("");
+        }
+        
         cell.setCellStyle(cellStyleNormal);
 
         // actual values
         cell = retval.createCell(6);
-        s.setLength(0);
-        for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-            s.append(cp.getPropertyName());
-            s.append("=");
-            s.append(cp.getActualValue());
-            s.append("\n");
+        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
+            StringBuilder s = new StringBuilder(128);
+            for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                s.append(cp.getPropertyName());
+                s.append("=");
+                s.append(cp.getActualValue());
+                s.append("\n");
+            }
+            cell.setCellValue(s.toString());
+        } else {
+            cell.setCellValue("");
         }
-        cell.setCellValue(s.toString());
+
         cell.setCellStyle(cellStyleNormal);
 
         return retval;
@@ -277,13 +322,21 @@ public class PoiHelper {
 
     }
 
-    public void writeFailureEntry(TestOperation op, Date startTime, TestException ex) {
+    /**
+     * 
+     * @param op
+     * @param startTime
+     * @param ex
+     * @return true to continue test - false to halt
+     */
+    public boolean writeFailureEntry(TestOperation op, Date startTime, TestException ex) {
+        boolean retval = true;
         Row row = writeBaseEntryInformation(op, startTime);
 
         // status
         Cell cell = row.createCell(7);
 
-        FailureAction.Enum failureAction = findMaxFailureAction(op);
+        FailureAction.Enum failureAction = findMaxFailureAction(op, ex);
 
         switch (failureAction.intValue()) {
             case FailureAction.INT_IGNORE:
@@ -295,6 +348,7 @@ public class PoiHelper {
             case FailureAction.INT_ERROR_CONTINUE:
             case FailureAction.INT_ERROR_HALT_TEST:
                 cell.setCellStyle(cellStyleError);
+                retval = (failureAction.intValue() ==  FailureAction.INT_ERROR_CONTINUE);
                 break;
         }
 
@@ -306,25 +360,34 @@ public class PoiHelper {
         if (ex != null) {
             cell.setCellValue(ex.getMessage());
         }
+        
+        return retval;
     }
 
-    private FailureAction.Enum findMaxFailureAction(TestOperation op) {
+    private FailureAction.Enum findMaxFailureAction(TestOperation op, TestException ex) {
         FailureAction.Enum retval = null;
+        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
+            if (op.getOperation().getCheckpointOperation().getCheckpointProperties() != null) {
+                for (CheckpointProperty prop : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                    FailureAction.Enum fa = prop.getOnFailure();
 
-        if (op.getOperation().getCheckpointOperation().getCheckpointProperties() != null) {
-            for (CheckpointProperty prop : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                FailureAction.Enum fa = prop.getOnFailure();
-
-                if (retval == null) {
-                    retval = fa;
-                } else {
-                    if (fa.intValue() > retval.intValue()) {
+                    if (retval == null) {
                         retval = fa;
+                    } else {
+                        if (fa.intValue() > retval.intValue()) {
+                            retval = fa;
+                        }
                     }
                 }
             }
         }
-
+        
+        if (retval == null) {
+            if ((ex != null) && (ex.getCause() != null)) {
+                retval = FailureAction.ERROR_HALT_TEST;
+            }
+        }
+        
         return retval;
     }
 

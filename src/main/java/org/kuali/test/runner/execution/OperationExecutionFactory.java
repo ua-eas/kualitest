@@ -38,7 +38,7 @@ public class OperationExecutionFactory {
     public OperationExecution getOperationExecution(TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
 
-        if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op)) {
+        if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=execution parameter[" 
                     + op.getOperation().getTestExecutionParameter().getName() 
@@ -69,7 +69,7 @@ public class OperationExecutionFactory {
                     retval = new WebServiceOperationExecution(testContext, op.getOperation());
                     break;
             }
-        } else if (TestOperationType.HTTP_REQUEST.equals(op)) {
+        } else if (TestOperationType.HTTP_REQUEST.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUri());
             }
