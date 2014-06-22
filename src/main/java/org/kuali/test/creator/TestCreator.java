@@ -113,6 +113,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private WebServiceTree webServiceTree;
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
+    private String encryptionPassword;
 
     public TestCreator(String configFileName) {
         this.configFileName = configFileName;
@@ -938,5 +939,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         retval.add(toolbar, BorderLayout.CENTER);
         
         return retval;
+    }
+
+    public String getEncryptionPassword() {
+        return Utils.getEncryptionPassword(getConfiguration());
     }
 }

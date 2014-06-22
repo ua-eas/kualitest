@@ -101,7 +101,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         String pass = "";
         
         if (StringUtils.isNotBlank(dbconnection.getPassword())) {
-            pass = Utils.decrypt(getConfiguration(), dbconnection.getPassword());
+            pass = Utils.decrypt(getMainframe().getEncryptionPassword(), dbconnection.getPassword());
         }
     
         password = new JPasswordField(pass, 20);
@@ -150,7 +150,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             dbconnection.setJdbcDriver(driver.getText());
             dbconnection.setSchema(schema.getText());
             dbconnection.setUsername(username.getText());
-            dbconnection.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
+            dbconnection.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
             dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
             dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
             setSaved(true);

@@ -20,11 +20,13 @@ import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -57,9 +59,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.geronimo.mail.util.Base64;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
@@ -102,6 +104,7 @@ public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
+    private static String encryptionPassword;
     
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
@@ -606,9 +609,13 @@ public class Utils {
     }
 
     public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperation testop, HttpRequest request) {
+        TestOperation testop, HttpRequest request, String redirectUrl) {
         if (LOG.isDebugEnabled()) {
-            LOG.debug(getHttpRequestDetails(request));
+            if (request != null) {
+                LOG.debug(getHttpRequestDetails(request));
+            } else {
+                LOG.debug("redirect url: " + redirectUrl);
+            }
         }
 
         HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
@@ -616,39 +623,44 @@ public class Utils {
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
 
-        Iterator<Entry<String, String>> it = request.headers().iterator();
+        if (request != null) {
+            Iterator<Entry<String, String>> it = request.headers().iterator();
 
-        while (it.hasNext()) {
-            Entry<String, String> entry = it.next();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(entry.getKey() + "=" + entry.getValue());
+            while (it.hasNext()) {
+                Entry<String, String> entry = it.next();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(entry.getKey() + "=" + entry.getValue());
+                }
+
+                if (wantHttpRequestHeader(entry.getKey())) {
+                    RequestHeader header = op.getRequestHeaders().addNewHeader();
+                    header.setName(entry.getKey());
+                    header.setValue(entry.getValue());
+                }
             }
 
-            if (wantHttpRequestHeader(entry.getKey())) {
-                RequestHeader header = op.getRequestHeaders().addNewHeader();
-                header.setName(entry.getKey());
-                header.setValue(entry.getValue());
-            }
-        }
+            String method = request.getMethod().name();
+            op.setMethod(method);
+            op.setUri(buildUrlFromRequest(request));
 
-        String method = request.getMethod().name();
-        op.setMethod(method);
-        op.setUri(buildUrlFromRequest(request));
+            // if this is a post then try to get content
+            if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
+                if (request instanceof FullHttpRequest) {
+                    FullHttpRequest fr = (FullHttpRequest) request;
+                    if (fr.content() != null) {
+                        byte[] data = getHttpPostContent(fr.content());
 
-        // if this is a post then try to get content
-        if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
-            if (request instanceof FullHttpRequest) {
-                FullHttpRequest fr = (FullHttpRequest) request;
-                if (fr.content() != null) {
-                    byte[] data = getHttpPostContent(fr.content());
-
-                    if (data != null) {
-                        RequestParameter param = op.getRequestParameters().addNewParameter();
-                        param.setName(Constants.PARAMETER_NAME_CONTENT);
-                        param.setValue(secureRequestDataForStorage(configuration, new String(data)));
+                        if (data != null) {
+                            RequestParameter param = op.getRequestParameters().addNewParameter();
+                            param.setName(Constants.PARAMETER_NAME_CONTENT);
+                            param.setValue(secureRequestDataForStorage(configuration,new String(data)));
+                        }
                     }
                 }
             }
+        } else {
+            op.setMethod(Constants.HTTP_REQUEST_METHOD_GET);
+            op.setUri(redirectUrl);
         }
     }
 
@@ -713,7 +725,7 @@ public class Utils {
                     String[] parameterData = getParameterData(retval, paramPosition);
 
                     if (parameterData != null) {
-                        parameterData[1] = encrypt(configuration, parameterData[1]);
+                        parameterData[1] = encrypt(getEncryptionPassword(configuration), parameterData[1]);
                         retval = replaceParameterString(retval, paramPosition, parameterData);
                     }
                 }
@@ -732,7 +744,11 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData);
+                    if (inputData instanceof HttpRequest) {
+                        populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData, null);
+                    } else {
+                        populateHttpRequestOperation(configuration, retval, null, inputData.toString());
+                    }
                     break;
             }
         }
@@ -1700,10 +1716,9 @@ public class Utils {
         };
     }
 
-    public static Connection getDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
+    public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
         Class.forName(dbconn.getJdbcDriver());
-        Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(configuration, dbconn.getPassword()));
+        Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(password, dbconn.getPassword()));
         retval.setReadOnly(true);
         return retval;
     }
@@ -2297,14 +2312,14 @@ public class Utils {
     }
     
    
-    public static String encrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
-        String retval = "";
+    public static String encrypt(String password, String input) {
+        String retval = input;
         
-        if (StringUtils.isNotBlank(input)) {
+        if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
             try {
                 // use StrongTextEncryptor with JCE installed for more secutity
                 BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-                textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+                textEncryptor.setPassword(password);
                 retval = textEncryptor.encrypt(input);
             }
 
@@ -2316,14 +2331,14 @@ public class Utils {
         return retval;
     }
     
-    public static String decrypt(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
-        String retval = "";
+    public static String decrypt(String password, String input) {
+        String retval = input;
         
-        if (StringUtils.isNotBlank(input)) {
+        if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
             try {
                 // use StrongTextEncryptor with JCE installed for more secutity
                 BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-                textEncryptor.setPassword(new String(Base64.encode(configuration.getRepositoryLocation().getBytes())));
+                textEncryptor.setPassword(password);
                 retval =  textEncryptor.decrypt(input);
             }
 
@@ -2333,5 +2348,41 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    
+    public static boolean isHttpRedirect(int status) {
+        return ((status == HttpURLConnection.HTTP_MOVED_TEMP)
+            || (status == HttpURLConnection.HTTP_MOVED_PERM)
+            || (status == HttpURLConnection.HTTP_SEE_OTHER));
+    }
+    
+    
+    public static String getEncryptionPassword(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        if (encryptionPassword == null) {
+            String pass = Constants.DEFAULT_ENCRYPTION_PASSWORD;
+            
+            if (StringUtils.isNotBlank(configuration.getEncryptionPasswordFile())) {
+                File f = new File(configuration.getEncryptionPasswordFile());
+                if (f.exists() && f.isFile()) {
+                    FileInputStream fis = null;
+        
+                    try {
+                        fis = new FileInputStream(f);
+                        byte[] buf = new byte[(int)f.length()];
+                        fis.read(buf);
+                        pass = new String(buf);
+                    }
+                    
+                    catch (Exception ex) {
+                    }
+                }
+            }
+            
+            encryptionPassword = Base64.encodeBase64String(pass.getBytes());
+            
+        }
+        
+        return encryptionPassword;
     }
 }

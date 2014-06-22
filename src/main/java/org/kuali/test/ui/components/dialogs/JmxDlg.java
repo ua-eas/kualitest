@@ -84,7 +84,7 @@ public class JmxDlg extends BaseSetupDlg {
         
         String pass = "";
         if (StringUtils.isNotBlank(jmx.getPassword())) {
-            pass = Utils.decrypt(getConfiguration(), jmx.getPassword());
+            pass = Utils.decrypt(getMainframe().getEncryptionPassword(), jmx.getPassword());
         }
         
         password = new JPasswordField(pass, 20);
@@ -130,7 +130,7 @@ public class JmxDlg extends BaseSetupDlg {
 
             if (StringUtils.isNotBlank(username.getText())) {
                 jmx.setUsername(username.getText());
-                jmx.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
+                jmx.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
             } else {
                 jmx.setUsername("");
                 jmx.setPassword("");

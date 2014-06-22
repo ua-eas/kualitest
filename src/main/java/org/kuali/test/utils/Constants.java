@@ -164,7 +164,17 @@ public class Constants {
     public static final String NO_TEST_SUITE_NAME = "no-test-suite";
     public static final String HTTP_HEADER_REFERER = "Referer";
     public static final String HTTP_HEADER_HOST = "Host";
-    public static final String PASSWORD = "password";
+    public static final String HTTP_HEADER_COOKIE = "Cookie";
+    public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
+    public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+    public static final String UNKNOWN = "unknown";
+    public static final String HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
+    public static final String HTTP_HEADER_ACCEPT_LANGUAGE_US = "en-US,en;q=0.8";
+    public static final String HTTP_HEADER_USER_AGENT = "User-Agent";
+    public static final String HTTP_HEADER_USER_AGENT_MOZILLA = "Mozilla";
+    public static final int DEFAULT_HTTP_REQUEST_READ_TIMEOUT = 5000;
+    public static final String JSESSIONID_PARAMETER_NAME = "jsessionid";
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -280,6 +290,7 @@ public class Constants {
     public static final String DATA_TYPE_DATE = "date";
     public static final String DATA_TYPE_TIMESTAMP = "timestamp";
     public static final String DATA_TYPE_FLOAT = "float";
+    public static final String DEFAULT_ENCRYPTION_PASSWORD = "kjashdsayr87ewr8463fjkewyr4398";
     
     public static final String TEST_RUNNER_CONFIG_FILENAME = "test-runner-config.xml";
     

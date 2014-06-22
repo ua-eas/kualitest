@@ -60,7 +60,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                 if (dbconn == null) {
                     errorMessage = "cannot find database connection information for platform '" + platform.getName() + "'";
                 } else {
-                    conn = Utils.getDatabaseConnection(configuration, dbconn);
+                    conn = Utils.getDatabaseConnection(Utils.getEncryptionPassword(configuration), dbconn);
                     stmt = conn.createStatement();
                     res = stmt.executeQuery(sqlQuery);
                     ResultSetMetaData md = res.getMetaData();

@@ -85,4 +85,5 @@
    <parameters-requiring-encryption>
        <name>password</name>
    </parameters-requiring-encryption>
+   <encryption-password-file>/home/myname/mypasswordfile</encryption-password-file>
 </kuali-test-configuration>

@@ -36,6 +36,7 @@
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
                 <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names"/>
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption"/>
+                <xs:element name="encryption-password-file" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

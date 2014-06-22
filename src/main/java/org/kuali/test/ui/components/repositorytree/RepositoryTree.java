@@ -70,15 +70,17 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
 
     @Override
     public void dragGestureRecognized(DragGestureEvent event) {
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getSelectionPath().getLastPathComponent();
-        
-        if (isSuiteTest(selectedNode)) {
-            TestSuite testSuite = (TestSuite)getParentUserObject(selectedNode);
-            
-            if (testSuite != null) {
-                event.startDrag(DragSource.DefaultCopyNoDrop, 
-                    new RepositoryTransferable<TestSuite, SuiteTest>(new RepositoryTransferData(testSuite, selectedNode.getUserObject()), DndHelper.getTestOrderDataFlavor()),
-                    new RepositoryDragSourceAdapter());
+        if (getSelectionPath() != null) {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getSelectionPath().getLastPathComponent();
+
+            if (isSuiteTest(selectedNode)) {
+                TestSuite testSuite = (TestSuite)getParentUserObject(selectedNode);
+
+                if (testSuite != null) {
+                    event.startDrag(DragSource.DefaultCopyNoDrop, 
+                        new RepositoryTransferable<TestSuite, SuiteTest>(new RepositoryTransferData(testSuite, selectedNode.getUserObject()), DndHelper.getTestOrderDataFlavor()),
+                        new RepositoryDragSourceAdapter());
+                }
             }
         }
     }

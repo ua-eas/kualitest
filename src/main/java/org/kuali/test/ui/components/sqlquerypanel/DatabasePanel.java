@@ -169,7 +169,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
 
                     if (dbconn != null) {
-                        conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                        conn = Utils.getDatabaseConnection(getMainframe().getEncryptionPassword(), dbconn);
                         DatabaseMetaData dmd = conn.getMetaData();
                         res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
 
@@ -255,7 +255,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
             
             if (dbconn != null) {
-                conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                conn = Utils.getDatabaseConnection(getMainframe().getEncryptionPassword(), dbconn);
                 DatabaseMetaData dmd = conn.getMetaData();
                 SqlQueryNode baseTableNode = new SqlQueryNode(getMainframe().getConfiguration(), td);
                 rootNode.add(baseTableNode);
@@ -1113,7 +1113,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
         if (dbconn != null) {
             try {
-                conn = Utils.getDatabaseConnection(getMainframe().getConfiguration(), dbconn);
+                conn = Utils.getDatabaseConnection(getMainframe().getEncryptionPassword(), dbconn);
                 stmt = conn.createStatement();
 
                 String sql = getSqlQueryString(SQL_FORMAT_VALIDATE);

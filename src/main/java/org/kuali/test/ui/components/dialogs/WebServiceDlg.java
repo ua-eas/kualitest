@@ -85,7 +85,7 @@ public class WebServiceDlg extends BaseSetupDlg {
         String pass = "";
         
         if (StringUtils.isNotBlank(webService.getPassword())) {
-            pass = Utils.decrypt(getConfiguration(), webService.getPassword());
+            pass = Utils.decrypt(Utils.getEncryptionPassword(getConfiguration()), webService.getPassword());
         }
         
         password = new JPasswordField(pass, 20);
@@ -127,7 +127,7 @@ public class WebServiceDlg extends BaseSetupDlg {
 
             if (StringUtils.isNotBlank(username.getText())) {
                 webService.setUsername(username.getText());
-                webService.setPassword(Utils.encrypt(getConfiguration(), password.getText()));
+                webService.setPassword(Utils.encrypt(Utils.getEncryptionPassword(getConfiguration()), password.getText()));
             } else {
                 webService.setUsername("");
                 webService.setPassword("");

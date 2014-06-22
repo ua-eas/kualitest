@@ -354,4 +354,9 @@ public class TestRunner {
         
         return retval;
     }
+    
+    public String getEncryptionPassword() {
+        return Utils.getEncryptionPassword(configuration);
+    }
+
 }

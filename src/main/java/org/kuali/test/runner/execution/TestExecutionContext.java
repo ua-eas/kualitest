@@ -414,7 +414,7 @@ public class TestExecutionContext extends Thread {
                 String[] parameterData = Utils.getParameterData(retval, parameterPosition);
                 
                 if (parameterData != null) {
-                    parameterData[1] = Utils.decrypt(configuration, parameterData[1]);
+                    parameterData[1] = Utils.decrypt(Utils.getEncryptionPassword(configuration), parameterData[1]);
                 
                     retval = Utils.replaceParameterString(retval, parameterPosition, parameterData);
                 }
@@ -431,10 +431,10 @@ public class TestExecutionContext extends Thread {
             String[] parameterData = Utils.getParameterData(cookie, parameterPosition);
 
             if (parameterData != null) {
-                List <String> l = cookieMap.get(parameterData[0]);
+                List <String> l = cookieMap.get(parameterData[1]);
 
                 if (l == null) {
-                    cookieMap.put(parameterData[0], l = new ArrayList<String>());
+                    cookieMap.put(parameterData[1], l = new ArrayList<String>());
                 }
 
                 l.add(cookie);
@@ -442,15 +442,36 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    public List <String> getCookies(String path) {
-        List <String> retval = new ArrayList<String>();
+    public static String StripProtocol(String input) {
+        String retval = input;
         
-        for (String key : cookieMap.keySet()) {
-            if (path.startsWith(key)) {
-                retval.addAll(cookieMap.get(key));
+        if (StringUtils.isNotBlank(input)) {
+            int pos = input.indexOf("://");
+            
+            if (pos > -1) {
+                retval = input.substring(pos + "://".length());
             }
         }
+        
+        return retval;
+    }
+    
+    public List <String> getCookies(String path) {
+        List <String> retval = new ArrayList<String>();
+        if (StringUtils.isNotBlank(path)) {
+            // strip off http(s):// and start with just /
+            String tstpath = StripProtocol(path);
+            
+            if (tstpath.charAt(0) != '/') {
+                tstpath = ("/" + tstpath);
+            }
 
+            for (String key : cookieMap.keySet()) {
+                if (tstpath.startsWith(key)) {
+                    retval.addAll(cookieMap.get(key));
+                }
+            }
+        }
         return retval;
     }
 }

@@ -32,6 +32,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
@@ -40,6 +41,40 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         super(context, op);
     }
 
+    private String handleJsessionId(String url, List <String> cookies) {
+        String retval = url;
+        int[] parameterPos = Utils.getParameterPosition(url, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_SEMICOLON);
+                
+        if (parameterPos != null) {
+            String[] parameterData = Utils.getParameterData(url, parameterPos);
+
+            // if we have a jsessionid the check the cookies for the latest one
+            if (parameterData != null) {
+                for (int i = cookies.size() - 1; i > -1; --i) {
+                    String cookie = cookies.get(i);
+System.out.println("--------------------cookie=" + cookie);                 
+                    // if we find a cookie with jsessionid the grab the jsessionid
+                    if (cookie.toLowerCase().contains(Constants.JSESSIONID_PARAMETER_NAME)) {
+                        int[] parameterPos2 = Utils.getParameterPosition(cookie, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_SEMICOLON);
+
+                        if (parameterPos2 != null) {
+                            String[] parameterData2 = Utils.getParameterData(cookie, parameterPos2);
+                            if (parameterData2 != null) {
+                                
+                                System.out.println("----------------->oldid=" + parameterData[1] + ", newid=" + parameterData2[1]);
+                                parameterData[1] = parameterData2[1];
+                                retval = Utils.replaceParameterString(url, parameterPos, parameterData);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return retval;
+    }
+    
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         OutputStreamWriter writer = null;
@@ -47,27 +82,40 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         HtmlRequestOperation reqop = null;
         try {
             reqop = getOperation().getHtmlRequestOperation();
-
-            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUri()));
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            conn.setDoInput(true);
-            conn.setInstanceFollowRedirects(true);
             
             TestExecutionContext tec = getTestExecutionContext();
-            List <String> cookies = tec.getCookies(url.getPath());
-            
-            if (cookies != null) {
-                for (String cookie : cookies) {
-                    conn.addRequestProperty("Cookie", cookie);
-                }
+            List <String> cookies = tec.getCookies(reqop.getUri());
+
+            // if we have cookies then lets check the url for a
+            // jsessionid, if it has a jsessionid then we will see if
+            // there is a jsessionid cookie for this call then we will
+            // blow it in
+            if ((cookies != null) && !cookies.isEmpty()) {
+                reqop.setUri(handleJsessionId(reqop.getUri(), cookies));
             }
             
+            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUri()));
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            conn.setReadTimeout(Constants.DEFAULT_HTTP_REQUEST_READ_TIMEOUT);
+            conn.addRequestProperty(Constants.HTTP_HEADER_ACCEPT_LANGUAGE, Constants.HTTP_HEADER_ACCEPT_LANGUAGE_US);
+            conn.addRequestProperty(Constants.HTTP_HEADER_USER_AGENT, Constants.HTTP_HEADER_USER_AGENT_MOZILLA);
+            conn.setDoInput(true);
+            conn.setInstanceFollowRedirects(true);
+
+            // add cookies for this path
+            if (cookies != null) {
+                for (String cookie : cookies) {
+                    conn.addRequestProperty(Constants.HTTP_HEADER_COOKIE, cookie);
+                }
+            }
+
             if (Constants.HTTP_REQUEST_METHOD_POST.equals(reqop.getMethod())) {
+                conn.setDoOutput(true);
                 if (reqop.getRequestParameters()!= null) {
+                    conn.addRequestProperty(Constants. HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
                     for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
                         if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
                             if (StringUtils.isNotBlank(param.getValue())) {
-                                conn.setDoOutput(true);
                                 writer = new OutputStreamWriter(conn.getOutputStream());
                                 writer.write(getTestExecutionContext().replaceTestExecutionParameters(param.getValue()));
                                 writer.flush();
@@ -77,7 +125,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             }
-            
+
             // clear last response storage
             tec.clearLastHttpResponse();
 
@@ -88,28 +136,30 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 tec.getLastHttpResponseData().append(line);
             }
 
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            int status = conn.getResponseCode();
+            
+            if (status == HttpURLConnection.HTTP_OK) {
                 Map <String, List<String>> headers = conn.getHeaderFields();
-                
+
                 for (String key : headers.keySet()) {
-                    if ("Set-Cookie".equalsIgnoreCase(key)) {
+                    if (Constants.HTTP_HEADER_SET_COOKIE.equalsIgnoreCase(key)) {
                         List <String> l = headers.get(key);
                         for (String s : l) {
                             tec.addCookie(s);
                         }
-                    }
+                    } 
                 }
-            }
-            
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("********************************* http response ***********************************");
-                LOG.debug(tec.getLastHttpResponseData().toString());
-                LOG.debug("***********************************************************************************");
-            }
+
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("********************************* http response ***********************************");
+                    LOG.debug(tec.getLastHttpResponseData().toString());
+                    LOG.debug("***********************************************************************************");
+                }
+            } 
         } 
         
         catch (IOException ex) {
-            String uri = "unknown";
+            String uri = Constants.UNKNOWN;
             if (reqop != null) {
               uri = reqop.getUri();
             }

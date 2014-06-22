@@ -178,7 +178,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
 
                         if (StringUtils.isNotBlank(ws.getUsername())) {
                             options.setUserName(ws.getUsername());
-                            options.setPassword(Utils.decrypt(getMainframe().getConfiguration(), ws.getPassword()));
+                            options.setPassword(Utils.decrypt(getMainframe().getEncryptionPassword(), ws.getPassword()));
                         }
                         
                         Iterator <AxisOperation> it = wsClient.getAxisService().getOperations();

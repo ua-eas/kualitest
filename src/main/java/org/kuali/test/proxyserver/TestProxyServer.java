@@ -97,17 +97,6 @@ public class TestProxyServer {
                                 if (response.getStatus().code() == HttpServletResponse.SC_OK) {
                                     currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
                                 } 
-                                
-                                /*
-                                else if (Utils.isHttpRedirect(response.getStatus().code())) {
-                                    String location = response.headers().get("Location");
-                                    
-                                    if (StringUtils.isNotBlank(location)) {
-                                        testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, location));
-                                    }
-                                }
-                                    
-                                    */
                             }
                         } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
                             HttpContent c = (HttpContent)httpObject;
