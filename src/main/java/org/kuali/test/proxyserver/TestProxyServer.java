@@ -110,10 +110,9 @@ public class TestProxyServer {
                         } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
                             HttpContent c = (HttpContent)httpObject;
                             c.retain();
-                            ByteBuffer buf = ByteBuffer.allocateDirect(c.content().capacity());
-                            c.content().copy().readBytes(buf);
+                            ByteBuffer buf = ByteBuffer.allocate(c.content().capacity());
+                            c.content().duplicate().readBytes(buf).release();
                             currentHtmlResponse.append(buf.asCharBuffer());
-                            c.release();
                             if (httpObject instanceof LastHttpContent) {
                                 if (currentHtmlResponse != null) {
                                     if (LOG.isDebugEnabled()) {
