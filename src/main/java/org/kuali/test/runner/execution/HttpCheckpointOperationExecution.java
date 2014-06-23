@@ -17,6 +17,8 @@
 package org.kuali.test.runner.execution;
 
 import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -48,7 +50,15 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         String html = getTestExecutionContext().getLastHttpResponseData().toString();
         
         if (StringUtils.isNotBlank(html)) {
+            Checkpoint cp = getOperation().getCheckpointOperation();
             
+            if (cp != null) {
+                if (cp.getCheckpointProperties() != null) {
+                    for (CheckpointProperty property : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
+                        
+                    }
+                }
+            }
         }
     }
 }

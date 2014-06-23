@@ -265,7 +265,7 @@ public class TestExecutionContext extends Thread {
         cp.setOperator(ComparisonOperator.LESS_THAN_OR_EQUAL);
         cp.setValueType(ValueType.INT);
         cp.setPropertyValue("" + testHeader.getMaxRunTime());
-        cp.setPropertyName("maxruntime");
+        cp.setPropertyName(Constants.MAX_RUNTIME_PROPERTY_NAME);
         retval.setOperation(op);
         retval.setOperationType(TestOperationType.CHECKPOINT);
 

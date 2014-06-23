@@ -15,16 +15,14 @@
  */
 package org.kuali.test.ui.components.dialogs;
 
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
@@ -34,22 +32,18 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
-import org.kuali.test.ComparisonOperator;
-import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
 import org.kuali.test.creator.TestCreator;
-import org.kuali.test.handlers.HtmlTagHandler;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -70,7 +64,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
      * @param rootNode
      * @param labelNodes
      */
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader,Element rootNode, List<Element> labelNodes) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, JWebBrowser webBrowser, String html) {
         super(mainFrame);
         this.testHeader = testHeader;
 
@@ -85,10 +79,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             checkpoint.setType(CheckpointType.HTTP);
         }
 
-        initComponents(rootNode, labelNodes);
+        initComponents(webBrowser, html);
     }
 
-    private void initComponents(Element rootNode, List<Element> labelNodes) {
+    private void initComponents(JWebBrowser webBrowser, String html) {
         String[] labels = new String[]{
             "Checkpoint Name"
         };
@@ -101,74 +95,65 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         BasePanel p = new BasePanel(getMainframe());
 
+        addStandardButtons();
+
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        BasePanel propertyContainer = buildPropertyContainer(rootNode, labelNodes);
+        BasePanel propertyContainer = buildPropertyContainer(webBrowser, html);
 
         p.add(propertyContainer, BorderLayout.CENTER);
 
         getContentPane().add(p, BorderLayout.CENTER);
 
-        addStandardButtons();
-
         setDefaultBehavior();
         setResizable(true);
     }
 
-    private BasePanel buildPropertyContainer(final Element rootNode, final List<Element> labelNodes) {
+    private BasePanel buildPropertyContainer(final JWebBrowser webBrowser, final String html) {
         final BasePanel retval = new BasePanel(getMainframe());
         retval.setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
-            @Override
-            protected void runProcess() {
-                Map<String, String> labelMap = Utils.buildLabelMap(labelNodes);
-                List<CheckpointProperty> checkpointProperties = new ArrayList<CheckpointProperty>();
+        HtmlDomProcessor.DomInformation dominfo 
+            = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(getMainframe().getConfiguration(), 
+                testHeader.getPlatformName()), webBrowser, html);
 
-                Stack<String> groupStack = new Stack();
-                groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+        //processNode(groupStack, labelMap, checkpointProperties, new HashSet<String>(), rootNode);
 
-                processNode(groupStack, labelMap, checkpointProperties, new HashSet<String>(), rootNode);
+        Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
-                Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(checkpointProperties);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("labelNodes.size(): " + dominfo.getLabelMap().size());
+            LOG.debug("CheckpointProperty list size: " + dominfo.getCheckpointProperties().size());
+            LOG.debug("CheckpointProperty map.size: " + pmap.size());
+        }
 
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("labelNodes.size(): " + labelNodes.size());
-                    LOG.debug("CheckpointProperty list size: " + checkpointProperties.size());
-                    LOG.debug("CheckpointProperty map.size: " + pmap.size());
-                }
+        // if we have more than 1 group then we will use tabs
+        if (pmap.size() > 1) {
+            JTabbedPane tp = new JTabbedPane();
+            List<String> tabNames = new ArrayList(pmap.keySet());
+            Collections.sort(tabNames, new HtmlCheckpointTabComparator());
 
-                // if we have more than 1 group then we will use tabs
-                if (pmap.size() > 1) {
-                    JTabbedPane tp = new JTabbedPane();
-                    List<String> tabNames = new ArrayList(pmap.keySet());
-                    Collections.sort(tabNames, new HtmlCheckpointTabComparator());
+            for (String s : tabNames) {
+                if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
+                    List<CheckpointProperty> props = pmap.get(s);
 
-                    for (String s : tabNames) {
-                        if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
-                            List<CheckpointProperty> props = pmap.get(s);
-
-                            if ((props != null) && !props.isEmpty()) {
-                                CheckpointTable t = buildParameterTable(s, props, true);
-                                checkpointTables.add(t);
-                                tp.addTab(s, new TablePanel(t));
-                            }
-                        }
+                    if ((props != null) && !props.isEmpty()) {
+                        CheckpointTable t = buildParameterTable(s, props, true);
+                        checkpointTables.add(t);
+                        tp.addTab(s, new TablePanel(t));
                     }
-
-                    retval.add(tp, BorderLayout.CENTER);
-
-                } else if (pmap.size() == 1) {
-                    TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
-                    retval.add(p, BorderLayout.CENTER);
-                } else {
-                    retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
                 }
-
-                retval.getParent().validate();
-                getSaveButton().setEnabled(!JLabel.class.equals(retval.getCenterComponent().getClass()));
-
             }
-        };
+
+            retval.add(tp, BorderLayout.CENTER);
+
+        } else if (pmap.size() == 1) {
+            TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            retval.add(p, BorderLayout.CENTER);
+        } else {
+            retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
+        }
+
+        getSaveButton().setEnabled(!JLabel.class.equals(retval.getCenterComponent().getClass()));
 
         return retval;
     }
@@ -193,69 +178,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         return retval;
     }
-
-    private void processNode(Stack<String> groupStack,
-        Map<String, String> labelMap,
-        List<CheckpointProperty> checkpointProperties,
-        Set<String> processedNodes,
-        Element node) {
-        Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
-
-        HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
-        
-        if (th != null) {
-            if (th.isContainer(node)) {
-                String groupName = th.getGroupName(node);
-                if (StringUtils.isNotBlank(groupName)) {
-                    groupStack.push(groupName);
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("tag handler: " + th.getClass().getName()
-                        + ", group name: " + groupStack.peek());
-                }
-
-                for (Element child : Utils.getChildElements(node)) {
-                    processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
-                }
-
-                if (StringUtils.isNotBlank(groupName)) {
-                    groupStack.pop();
-                }
-            } else {
-                CheckpointProperty cp = th.getCheckpointProperty(node);
-
-                if ((cp != null) && !Utils.isNodeProcessed(processedNodes, node)) {
-                    if (StringUtils.isBlank(cp.getPropertyGroup()) 
-                        || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
-                        cp.setPropertyGroup(groupStack.peek());
-                    }
-                    
-                    cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
-
-                    if (th.getTagHandler().getLabelMatcher() != null) {
-                        cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
-                    } else if (labelMap.containsKey(cp.getPropertyName())) {
-                        cp.setDisplayName(Utils.trimString(labelMap.get(cp.getPropertyName())));
-                    }
-
-                    if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                        cp.setOperator(ComparisonOperator.EQUAL_TO);
-                    }
-
-                    if (StringUtils.isNotBlank(cp.getDisplayName())) {
-                        checkpointProperties.add(cp);
-                    }
-                }
-            }
-        } else if (Utils.isValidContainerNode(node)) {
-            for (Element child : Utils.getChildElements(node)) {
-                processNode(groupStack, labelMap, checkpointProperties, processedNodes, child);
-            }
-        }
-    }
-
- 
 
     private CheckpointTable buildParameterTable(String groupName, List<CheckpointProperty> checkpointProperties, boolean forTab) {
         TableConfiguration config = new TableConfiguration();

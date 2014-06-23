@@ -199,6 +199,7 @@ public class Constants {
     public static final String SEPARATOR_AMPERSTAND = "&";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_QUESTION = "?";
+    public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

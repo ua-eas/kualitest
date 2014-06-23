@@ -52,9 +52,6 @@ import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * 
@@ -65,7 +62,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
-    private int nodeId = 0;
     private String lastProxyHtmlResponse;
     private ToolbarButton executionAttribute;
     
@@ -218,7 +214,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
 
-    private String getCurrentHtmlResponse(JWebBrowser wb) {
+   public String getCurrentHtmlResponse(JWebBrowser wb) {
         int proxyLength = 0;
         String retval = wb.getHTMLContent();
         
@@ -242,18 +238,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
-        List <Element> labelNodes = new ArrayList<Element>();
-        nodeId = 1;
-        
+        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, getCurrentHtmlResponse(wb));
 
-        Element rootNode = getHtmlRootNode(labelNodes);
-
-        if (rootNode != null) {
-            HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), rootNode, labelNodes);
-
-            if (dlg.isSaved()) {
-                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
-            }
+        if (dlg.isSaved()) {
+            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
         }
     }
 
@@ -288,58 +276,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
         }
     }
-    
-    private Element getIframeBody(JWebBrowser webBrowser, Element iframeNode) {
-        Element retval = null;
-            
-        String js = getJsIframeDataCall(iframeNode);
 
-        Object o = webBrowser.executeJavascriptWithResult(js);
-
-        // if we get html back then clean and get the iframe body node
-        if (o != null) {
-            retval = Utils.tidify(o.toString()).getDocumentElement();
-        }
-
-        return retval;
-    }
-    
-    private Element getRootNodeFromHtml(final JWebBrowser webBrowser, List <Element> labelNodes, String html) {
-        Document doc = Utils.tidify(html);
-        traverseNode(doc.getDocumentElement(), webBrowser, labelNodes);
-        return doc.getDocumentElement();
-    }
-
-    private void traverseNode(Element parentNode, JWebBrowser webBrowser, List <Element> labelNodes) {
-        for (Element childNode : Utils.getChildElements(parentNode)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("child node: " + childNode.getNodeName());
-            }
-            childNode.setAttribute(Constants.NODE_ID, Constants.NODE_ID + (nodeId++));
-            
-            // if this tag is an iframe we will load by javascript call
-            if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(childNode.getTagName())) {
-                Element iframeBody = getIframeBody(webBrowser, childNode);
-
-                if (iframeBody != null) {
-                    childNode.appendChild(iframeBody);
-                    traverseNode(iframeBody, webBrowser, labelNodes);
-                }
-            } else if (Constants.HTML_TAG_TYPE_LABEL.equalsIgnoreCase(childNode.getTagName())) {
-                String att = childNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_FOR);
-
-                if (StringUtils.isNotBlank(att)) {
-                    labelNodes.add(childNode);
-                }
-            }
-
-            traverseNode(childNode, webBrowser, labelNodes);
-        }
-     }
-
-    /**
-     *
-     */
     @Override
     protected void handleCancelTest() {
         testProxyServer.getTestOperations().clear();
@@ -351,9 +288,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         closeProxyServer();
     }
 
-    /**
-     *
-     */
     @Override
     protected void handleStartTest() {
         getMainframe().getCreateTestButton().setEnabled(false);
@@ -362,7 +296,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         executionAttribute.setEnabled(true);
     }
 
-    private JWebBrowser getCurrentBrowser() {
+    public JWebBrowser getCurrentBrowser() {
         JWebBrowser retval = null;
         WebBrowserPanel p = (WebBrowserPanel)tabbedPane.getSelectedComponent();
         
@@ -442,36 +376,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
-    private String getJsIframeDataCall(Element iframeNode) {
-        StringBuilder retval = new StringBuilder(512);
-        String src = iframeNode.getAttribute("src");
-        
-        if (!src.startsWith("http")) {
-            String id = iframeNode.getAttribute("id");
-            String name = iframeNode.getAttribute("name");
-            if (StringUtils.isNotBlank(id)) {
-                retval.append("return document.getElementById('");
-                retval.append(id);
-                retval.append("')");
-            } else {
-                retval.append("return document.getElementsByTagName('");
-                retval.append(name);
-                retval.append("')[0]");
-            }
-
-            retval.append(".contentDocument.body.innerHTML;");
-        } else {
-            retval.append("var xmlhttp=new XMLHttpRequest();");
-            retval.append("xmlhttp.open('GET','");
-            retval.append(src);
-            retval.append("',false);");
-            retval.append("xmlhttp.send();");
-            retval.append("if (xmlhttp.status==200) { return xmlhttp.responseText; } else { return null; };");
-        }
-        
-        return retval.toString();
-    }
-
     /**
      *
      * @return
@@ -523,17 +427,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
         
         return retval;
-    }
-    
-    /**
-     *
-     * @param labelNodes
-     * @return
-     */
-    public Element getHtmlRootNode(List <Element> labelNodes) {
-        nodeId = 1;
-        JWebBrowser wb = getCurrentBrowser();
-        return getRootNodeFromHtml(wb, labelNodes, getCurrentHtmlResponse(wb));
     }
     
     private void handleAddExecutionParameter() {

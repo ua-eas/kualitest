@@ -16,40 +16,34 @@
 
 package org.kuali.test.ui.components.dialogs;
 
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
-import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
 import org.kuali.test.comparators.TestExecutionParameterComparator;
 import org.kuali.test.creator.TestCreator;
-import org.kuali.test.handlers.HtmlTagHandler;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -64,72 +58,52 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
      *
      * @param mainframe
      * @param parent
-     * @param labelNodes
-     * @param rootNode
      * @param testHeader
      */
     public TestExecutionParamValueSelectDlg(TestCreator mainframe, 
-        JDialog parent, 
-        List <Element> labelNodes, 
-        Element rootNode, 
-        TestHeader testHeader) {
+        JDialog parent, TestHeader testHeader, JWebBrowser wb, String html) {
         super(mainframe, parent);
         setTitle("Test Execution Parameter Select");
         this.testHeader = testHeader;
-        initComponents(rootNode, labelNodes);
+        initComponents(wb, html);
     }
 
-    private void initComponents(final Element rootNode, final List <Element> labelNodes) {
+    private void initComponents(final JWebBrowser wb, final String html) {
         final BasePanel basePanel = new BasePanel(getMainframe());
-       
-        new SplashDisplay(this, "Parsing HTML", "Parsing web page content...") {
-           @Override
-           protected void processCompleted() {
-               basePanel.getParent().validate();
-           }
-            
-            @Override
-            protected void runProcess() {
-                Map<String, String> labelMap = Utils.buildLabelMap(labelNodes);
-                List<TestExecutionParameter> testExecutionParameters = new ArrayList<TestExecutionParameter>();
 
-                Stack<String> groupStack = new Stack();
-                
-                groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+        HtmlDomProcessor.DomInformation dominfo 
+            = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(getMainframe().getConfiguration(), 
+                testHeader.getPlatformName()), wb, html);
 
-                processNode(groupStack, labelMap, testExecutionParameters, new HashSet<String>(), rootNode);
+        Map<String, List<CheckpointProperty>> pmap = loadPropertiesMap(dominfo.getCheckpointProperties());
 
-                Map<String, List<TestExecutionParameter>> pmap = loadParameterMap(testExecutionParameters);
+        // if we have more than 1 group then we will use tabs
+        if (pmap.size() > 1) {
+            JTabbedPane tp = new JTabbedPane();
+            List<String> tabNames = new ArrayList(pmap.keySet());
+            Collections.sort(tabNames, new HtmlCheckpointTabComparator());
 
-                // if we have more than 1 group then we will use tabs
-                if (pmap.size() > 1) {
-                    JTabbedPane tp = new JTabbedPane();
-                    List<String> tabNames = new ArrayList(pmap.keySet());
-                    Collections.sort(tabNames, new HtmlCheckpointTabComparator());
+            for (String s : tabNames) {
+                if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
+                    List<CheckpointProperty> properties = pmap.get(s);
 
-                    for (String s : tabNames) {
-                        if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
-                            List<TestExecutionParameter> params = pmap.get(s);
+                    if ((properties != null) && !properties.isEmpty()) {
+                        BaseTable t = buildParameterTable(s, properties, true);
+                        parameterTables.add(t);
 
-                            if ((params != null) && !params.isEmpty()) {
-                                BaseTable t = buildParameterTable(s, params, true);
-                                parameterTables.add(t);
-
-                                tp.addTab(s, new TablePanel(t));
-                            }
-                        }
+                        tp.addTab(s, new TablePanel(t));
                     }
-
-                    basePanel.add(tp, BorderLayout.CENTER);
-
-                } else if (pmap.size() == 1) {
-                    TablePanel p = new TablePanel(buildParameterTable(basePanel.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
-                    basePanel.add(p, BorderLayout.CENTER);
-                } else {
-                    basePanel.add(new JLabel("No test execution parameters found", JLabel.CENTER), BorderLayout.CENTER);
                 }
             }
-        };
+
+            basePanel.add(tp, BorderLayout.CENTER);
+
+        } else if (pmap.size() == 1) {
+            TablePanel p = new TablePanel(buildParameterTable(basePanel.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            basePanel.add(p, BorderLayout.CENTER);
+        } else {
+            basePanel.add(new JLabel("No test execution parameters found", JLabel.CENTER), BorderLayout.CENTER);
+        }
       
         getContentPane().add(basePanel, BorderLayout.CENTER);
         addStandardButtons();
@@ -164,10 +138,17 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         for (BaseTable t : parameterTables) {
             int selrow = t.getSelectedRow();
             if (t.getSelectedRow() > -1) {
-                List <TestExecutionParameter> l = t.getModel().getData();
+                List <CheckpointProperty> l = t.getModel().getData();
                 
                 if ((selrow >= 0) && (selrow < l.size())) {
-                    testExecutionParameter = l.get(selrow);
+                    CheckpointProperty property = l.get(selrow);
+                    testExecutionParameter = TestExecutionParameter.Factory.newInstance();
+                    testExecutionParameter.setDisplayName(property.getDisplayName());
+                    testExecutionParameter.setGroup(property.getPropertyGroup());
+                    testExecutionParameter.setName(property.getPropertyName());
+                    testExecutionParameter.setSection(property.getPropertySection());
+                    testExecutionParameter.setSubSection(property.getPropertySubSection());
+                    
                     setSaved(true);
                     dispose();
                     break;
@@ -196,64 +177,8 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
     public Dimension getPreferredSize() {
         return new Dimension(800, 400);
     }
-   
-    private void processNode(Stack<String> groupStack,
-        Map<String, String> labelMap,
-        List<TestExecutionParameter> parameters,
-        Set<String> processedNodes,
-        Element node) {
-        Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
 
-        HtmlTagHandler th = Utils.getHtmlTagHandler(platform.getApplication().toString(), node);
-
-        if (th != null) {
-            if (th.isContainer(node)) {
-                String groupName = th.getGroupName(node);
-                if (StringUtils.isNotBlank(groupName)) {
-                    groupStack.push(groupName);
-                }
-
-                for (Element child : Utils.getChildElements(node)) {
-                    processNode(groupStack, labelMap, parameters, processedNodes, child);
-                }
-
-                if (StringUtils.isNotBlank(groupName)) {
-                    groupStack.pop();
-                }
-            } else {
-                CheckpointProperty cp = th.getCheckpointProperty(node);
-                
-                if ((cp != null) && !Utils.isNodeProcessed(processedNodes, node)) {
-                    TestExecutionParameter param = TestExecutionParameter.Factory.newInstance();
-                    
-                    param.setGroup(groupStack.peek());
-                    param.setSection(Utils.buildCheckpointSectionName(th, node));
-
-                    if (th.getTagHandler().getLabelMatcher() != null) {
-                        cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
-                    } else if (labelMap.containsKey(cp.getPropertyName())) {
-                        cp.setDisplayName(Utils.trimString(labelMap.get(cp.getPropertyName())));
-                    }
-
-                    if (StringUtils.isNotBlank(cp.getDisplayName())) {
-                        param.setDisplayName(cp.getDisplayName());
-                        param.setValue(cp.getPropertyValue());
-                        parameters.add(param);
-                    } 
-                }
-            }
-        } else {
-            if (Utils.isValidContainerNode(node)) {
-                for (Element child : Utils.getChildElements(node)) {
-                    processNode(groupStack, labelMap, parameters, processedNodes, child);
-                }
-            }
-        }
-    }
-
- 
-
-    private BaseTable buildParameterTable(String groupName, List<TestExecutionParameter> parameters, boolean forTab) {
+    private BaseTable buildParameterTable(String groupName, List<CheckpointProperty> properties, boolean forTab) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("test-execution-select-parameter-value");
         if (!forTab) {
@@ -274,9 +199,9 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         });
 
         config.setPropertyNames(new String[]{
-            "section",
+            "propertySection",
             "displayName",
-            "value"
+            "propertyValue"
         });
 
         config.setColumnTypes(new Class[]{
@@ -291,7 +216,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
             40
         });
 
-        config.setData(parameters);
+        config.setData(properties);
         
         BaseTable retval = new BaseTable(config);
         
@@ -303,21 +228,21 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         return retval;
     }
     
-    private Map<String, List<TestExecutionParameter>> loadParameterMap(List<TestExecutionParameter> testExecutionParameters) {
-        Map<String, List<TestExecutionParameter>> retval = new HashMap<String, List<TestExecutionParameter>>();
+    private Map<String, List<CheckpointProperty>> loadPropertiesMap(List<CheckpointProperty> testExecutionParameters) {
+        Map<String, List<CheckpointProperty>> retval = new HashMap<String, List<CheckpointProperty>>();
 
-        for (TestExecutionParameter param : testExecutionParameters) {
-            List<TestExecutionParameter> l = retval.get(param.getGroup());
+        for (CheckpointProperty property : testExecutionParameters) {
+            List<CheckpointProperty> l = retval.get(property.getPropertyGroup());
 
             if (l == null) {
-                retval.put(param.getGroup(), l = new ArrayList<TestExecutionParameter>());
+                retval.put(property.getPropertyGroup(), l = new ArrayList<CheckpointProperty>());
             }
 
-            l.add(param);
+            l.add(property);
         }
 
         TestExecutionParameterComparator c = new TestExecutionParameterComparator();
-        for (List<TestExecutionParameter> params : retval.values()) {
+        for (List<CheckpointProperty> params : retval.values()) {
             Collections.sort(params, c);
         }
 

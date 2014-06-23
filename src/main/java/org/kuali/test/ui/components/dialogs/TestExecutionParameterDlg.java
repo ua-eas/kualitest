@@ -16,6 +16,7 @@
 
 package org.kuali.test.ui.components.dialogs;
 
+import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -44,7 +45,6 @@ import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -296,11 +296,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     }
     
     private void showSearch() {
-       final List <Element> labelNodes = new ArrayList<Element>();
-       final Element rootNode = webTestPanel.getHtmlRootNode(labelNodes);
-
+        JWebBrowser wb = webTestPanel.getCurrentBrowser();
         TestExecutionParamValueSelectDlg dlg 
-            = new TestExecutionParamValueSelectDlg(getMainframe(), this, labelNodes, rootNode, webTestPanel.getTestHeader());
+            = new TestExecutionParamValueSelectDlg(getMainframe(), this, 
+                webTestPanel.getTestHeader(), wb, webTestPanel.getCurrentHtmlResponse(wb));
         
         if (dlg.isSaved()) {
             List <TestExecutionParameter> l = parameterTable.getTableData();

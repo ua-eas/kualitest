@@ -18,18 +18,18 @@ package org.kuali.test.comparators;
 
 import java.util.Comparator;
 import org.apache.commons.lang3.StringUtils;
-import org.kuali.test.TestExecutionParameter;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
-public class TestExecutionParameterComparator implements Comparator <TestExecutionParameter> {
+public class TestExecutionParameterComparator implements Comparator <CheckpointProperty> {
     @Override
-    public int compare(TestExecutionParameter o1, TestExecutionParameter o2) {
-        String g1 = o1.getGroup();
-        String g2 = o2.getGroup();
+    public int compare(CheckpointProperty o1, CheckpointProperty o2) {
+        String g1 = o1.getPropertyGroup();
+        String g2 = o2.getPropertyGroup();
         
         if (StringUtils.isBlank(g1)) {
             g1 = Constants.DEFAULT_HTML_PROPERTY_GROUP;
@@ -42,8 +42,8 @@ public class TestExecutionParameterComparator implements Comparator <TestExecuti
         int retval = g1.compareTo(g2);
 
         if (retval == 0) {
-            String s1 = o1.getSection();
-            String s2 = o2.getSection();
+            String s1 = o1.getPropertySection();
+            String s2 = o2.getPropertySection();
             
             if (StringUtils.isBlank(s1)) {
                 s1 = Constants.DEFAULT_HTML_PROPERTY_SECTION;
