@@ -58,11 +58,11 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
 
     /**
-     *
+     * 
      * @param mainFrame
      * @param testHeader
-     * @param rootNode
-     * @param labelNodes
+     * @param webBrowser
+     * @param html 
      */
     public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, JWebBrowser webBrowser, String html) {
         super(mainFrame);
@@ -116,8 +116,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(getMainframe().getConfiguration(), 
                 testHeader.getPlatformName()), webBrowser, html);
 
-        //processNode(groupStack, labelMap, checkpointProperties, new HashSet<String>(), rootNode);
-
         Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
         if (LOG.isDebugEnabled()) {
@@ -153,6 +151,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
         }
 
+        // if content is JLabel then this is an error message so disable save
         getSaveButton().setEnabled(!JLabel.class.equals(retval.getCenterComponent().getClass()));
 
         return retval;
@@ -332,5 +331,4 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     public boolean isResizable() {
         return true;
     }
-
 }
