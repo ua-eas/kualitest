@@ -111,6 +111,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             
             conn.setReadTimeout(Constants.DEFAULT_HTTP_REQUEST_READ_TIMEOUT);
+            conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            conn.addRequestProperty("Accept-Encoding", "gzip,defalte");
+            conn.addRequestProperty("Connection", "keep-alive");
             conn.addRequestProperty(Constants.HTTP_HEADER_ACCEPT_LANGUAGE, Constants.HTTP_HEADER_ACCEPT_LANGUAGE_US);
             conn.addRequestProperty(Constants.HTTP_HEADER_USER_AGENT, Constants.HTTP_HEADER_USER_AGENT_MOZILLA);
             conn.setDoInput(true);
@@ -163,7 +166,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         }
                     }
                 }
-
+                
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("********************************* http response ***********************************");
                     LOG.debug(tec.getLastHttpResponseData().toString());

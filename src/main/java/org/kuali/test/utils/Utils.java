@@ -66,6 +66,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.jasypt.util.text.BasicTextEncryptor;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
 import org.kuali.test.DatabaseConnection;
@@ -107,16 +108,10 @@ import org.w3c.tidy.Tidy;
 public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
 
-    /**
-     *
-     */
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
     private static String encryptionPassword;
     
-    /**
-     *
-     */
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
     /**
@@ -3032,5 +3027,30 @@ public class Utils {
         }
         
         return encryptionPassword;
+    }
+
+    public static boolean isCheckPointPropertyMatch(CheckpointProperty cp1, CheckpointProperty cp2) {
+        boolean retval = false;
+        if ((cp1 != null) && (cp2 != null)) {
+            String key1 = buildCheckpointPropertyKey(cp1);
+            String key2 = buildCheckpointPropertyKey(cp2);
+            retval = key1.equals(key2);
+        }
+        
+        return retval;
+    }
+    
+    public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
+        StringBuilder retval = new StringBuilder(128);
+        
+        retval.append(cp.getPropertyGroup());
+        retval.append(".");
+        retval.append(cp.getPropertySection());
+        retval.append(".");
+        retval.append(cp.getPropertySubSection());
+        retval.append(".");
+        retval.append(cp.getPropertyName());
+        
+        return retval.toString();
     }
 }

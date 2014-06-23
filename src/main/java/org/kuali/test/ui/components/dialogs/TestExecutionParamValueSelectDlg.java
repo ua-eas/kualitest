@@ -99,8 +99,10 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
             basePanel.add(tp, BorderLayout.CENTER);
 
         } else if (pmap.size() == 1) {
-            TablePanel p = new TablePanel(buildParameterTable(basePanel.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            BaseTable t;
+            TablePanel p = new TablePanel(t = buildParameterTable(basePanel.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
             basePanel.add(p, BorderLayout.CENTER);
+            parameterTables.add(t);
         } else {
             basePanel.add(new JLabel("No test execution parameters found", JLabel.CENTER), BorderLayout.CENTER);
         }
@@ -223,7 +225,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         retval.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         retval.setRowSelectionAllowed(true);
         retval.setColumnSelectionAllowed(false);
-        retval.getSelectionModel().addListSelectionListener(TestExecutionParamValueSelectDlg.this);
+        retval.getSelectionModel().addListSelectionListener(this);
 
         return retval;
     }

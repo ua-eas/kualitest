@@ -23,6 +23,8 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
+import org.kuali.test.utils.HtmlDomProcessor;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -48,17 +50,31 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         String html = getTestExecutionContext().getLastHttpResponseData().toString();
-        
         if (StringUtils.isNotBlank(html)) {
+            HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
+            
             Checkpoint cp = getOperation().getCheckpointOperation();
             
             if (cp != null) {
                 if (cp.getCheckpointProperties() != null) {
                     for (CheckpointProperty property : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
-                        
+                        property.setActualValue(findCurrentValue(dominfo, property));
                     }
                 }
             }
         }
+    }
+    
+    private String findCurrentValue(HtmlDomProcessor.DomInformation dominfo, CheckpointProperty property) {
+        String retval = null;
+        
+        for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
+            if (Utils.isCheckPointPropertyMatch(currentProperty, property)) {
+                retval = currentProperty.getActualValue();
+                break;
+            }
+        }
+        
+        return retval;
     }
 }
