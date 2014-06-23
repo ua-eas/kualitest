@@ -85,5 +85,8 @@
    <parameters-requiring-encryption>
        <name>password</name>
    </parameters-requiring-encryption>
+   <parameters-to-remove>
+       <name>ticket</name>
+   </parameters-to-remove>
    <encryption-password-file>/home/myname/mypasswordfile</encryption-password-file>
 </kuali-test-configuration>

@@ -754,7 +754,7 @@ public class Utils {
      * @param request
      * @return
      */
-    public static String buildUrlFromRequest(HttpRequest request) {
+    public static String buildUrlFromRequest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, HttpRequest request) {
         StringBuilder retval = new StringBuilder(128);
         
         String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
@@ -769,7 +769,7 @@ public class Utils {
         
         retval.append(s);
         retval.append(request.headers().get(Constants.HTTP_HEADER_HOST));
-        retval.append(request.getUri());
+        retval.append(processRequestData(configuration, request.getUri()));
         
         
         return retval.toString();
@@ -783,12 +783,10 @@ public class Utils {
      * @param redirectUrl
      */
     public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperation testop, HttpRequest request, String redirectUrl) {
+        TestOperation testop, HttpRequest request) {
         if (LOG.isDebugEnabled()) {
             if (request != null) {
                 LOG.debug(getHttpRequestDetails(request));
-            } else {
-                LOG.debug("redirect url: " + redirectUrl);
             }
         }
 
@@ -815,7 +813,7 @@ public class Utils {
 
             String method = request.getMethod().name();
             op.setMethod(method);
-            op.setUri(buildUrlFromRequest(request));
+            op.setUrl(buildUrlFromRequest(configuration, request));
 
             // if this is a post then try to get content
             if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
@@ -827,14 +825,11 @@ public class Utils {
                         if (data != null) {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
-                            param.setValue(secureRequestDataForStorage(configuration,new String(data)));
+                            param.setValue(processRequestData(configuration,new String(data)));
                         }
                     }
                 }
             }
-        } else {
-            op.setMethod(Constants.HTTP_REQUEST_METHOD_GET);
-            op.setUri(redirectUrl);
         }
     }
 
@@ -852,7 +847,11 @@ public class Utils {
             int pos1 = input.toLowerCase().indexOf(parameterName.toLowerCase() + "=");
             
             if (pos1 > -1) {
-                int pos2 = Math.min(input.indexOf(separator, pos1), input.length());
+                int pos2 = input.indexOf(separator, pos1);
+                
+                if (pos2 < 0) {
+                    pos2 = input.length();
+                }
                 
                 if (pos2 > pos1) {
                     retval = new int[] {pos1, pos2};
@@ -904,17 +903,43 @@ public class Utils {
         return retval.toString();
     }
     
+    
+    public static String removeParameterString(String input, int[] paramPosition) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            // start 1 back to get seperator
+            StringBuilder buf= new StringBuilder(input.length());
+            buf.append(input.substring(0, paramPosition[0] - 1));
+            if (paramPosition[1] < (input.length() - 1)) {
+                buf.append(paramPosition[1] + 1);
+            }
+            
+            retval = buf.toString();
+        }
+        return retval;
+    }
+    
     /**
      *
      * @param configuration
      * @param input
      * @return
      */
-    public static String secureRequestDataForStorage(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = input;
         
+        // strip specified parameters
+        for (String parameterName : configuration.getParametersToRemove().getNameArray()) {
+            int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
+
+            if (paramPosition != null) {
+                retval = removeParameterString(retval, paramPosition);
+            }
+        }
+
+        // encrypt specified securty parameters
         Set <String> hs = new HashSet<String>();
-        // encrypt specified parameters
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
             if (!hs.contains(parameterName)) {
                 hs.add(parameterName);
@@ -951,11 +976,7 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    if (inputData instanceof HttpRequest) {
-                        populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData, null);
-                    } else {
-                        populateHttpRequestOperation(configuration, retval, null, inputData.toString());
-                    }
+                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData);
                     break;
             }
         }

@@ -52,7 +52,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
     private String handleJsessionId(String url, List <String> cookies) {
         String retval = url;
-        int[] parameterPos = Utils.getParameterPosition(url, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_SEMICOLON);
+        int[] parameterPos = Utils.getParameterPosition(url, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_QUESTION);
                 
         if (parameterPos != null) {
             String[] parameterData = Utils.getParameterData(url, parameterPos);
@@ -61,7 +61,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (parameterData != null) {
                 for (int i = cookies.size() - 1; i > -1; --i) {
                     String cookie = cookies.get(i);
-System.out.println("--------------------cookie=" + cookie);                 
+
                     // if we find a cookie with jsessionid the grab the jsessionid
                     if (cookie.toLowerCase().contains(Constants.JSESSIONID_PARAMETER_NAME)) {
                         int[] parameterPos2 = Utils.getParameterPosition(cookie, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_SEMICOLON);
@@ -69,8 +69,6 @@ System.out.println("--------------------cookie=" + cookie);
                         if (parameterPos2 != null) {
                             String[] parameterData2 = Utils.getParameterData(cookie, parameterPos2);
                             if (parameterData2 != null) {
-                                
-                                System.out.println("----------------->oldid=" + parameterData[1] + ", newid=" + parameterData2[1]);
                                 parameterData[1] = parameterData2[1];
                                 retval = Utils.replaceParameterString(url, parameterPos, parameterData);
                                 break;
@@ -99,18 +97,19 @@ System.out.println("--------------------cookie=" + cookie);
             reqop = getOperation().getHtmlRequestOperation();
             
             TestExecutionContext tec = getTestExecutionContext();
-            List <String> cookies = tec.getCookies(reqop.getUri());
+            List <String> cookies = tec.getCookies(reqop.getUrl());
 
             // if we have cookies then lets check the url for a
             // jsessionid, if it has a jsessionid then we will see if
             // there is a jsessionid cookie for this call then we will
             // blow it in
             if ((cookies != null) && !cookies.isEmpty()) {
-                reqop.setUri(handleJsessionId(reqop.getUri(), cookies));
+                reqop.setUrl(handleJsessionId(reqop.getUrl(), cookies));
             }
             
-            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUri()));
+            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            
             conn.setReadTimeout(Constants.DEFAULT_HTTP_REQUEST_READ_TIMEOUT);
             conn.addRequestProperty(Constants.HTTP_HEADER_ACCEPT_LANGUAGE, Constants.HTTP_HEADER_ACCEPT_LANGUAGE_US);
             conn.addRequestProperty(Constants.HTTP_HEADER_USER_AGENT, Constants.HTTP_HEADER_USER_AGENT_MOZILLA);
@@ -140,7 +139,7 @@ System.out.println("--------------------cookie=" + cookie);
                     }
                 }
             }
-
+            
             // clear last response storage
             tec.clearLastHttpResponse();
 
@@ -162,7 +161,7 @@ System.out.println("--------------------cookie=" + cookie);
                         for (String s : l) {
                             tec.addCookie(s);
                         }
-                    } 
+                    }
                 }
 
                 if (LOG.isDebugEnabled()) {
@@ -170,13 +169,13 @@ System.out.println("--------------------cookie=" + cookie);
                     LOG.debug(tec.getLastHttpResponseData().toString());
                     LOG.debug("***********************************************************************************");
                 }
-            } 
+            }
         } 
         
         catch (IOException ex) {
             String uri = Constants.UNKNOWN;
             if (reqop != null) {
-              uri = reqop.getUri();
+              uri = reqop.getUrl();
             }
             
             LOG.error(ex.toString(), ex);

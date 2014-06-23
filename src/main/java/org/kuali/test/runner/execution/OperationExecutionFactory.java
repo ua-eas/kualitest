@@ -84,7 +84,7 @@ public class OperationExecutionFactory {
             }
         } else if (TestOperationType.HTTP_REQUEST.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUri());
+                LOG.info("executing operation: type=http request, url=" + op.getOperation().getHtmlRequestOperation().getUrl());
             }
             retval = new HttpRequestOperationExecution(testContext, op.getOperation());
         }

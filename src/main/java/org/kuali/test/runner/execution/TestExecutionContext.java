@@ -17,6 +17,9 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -273,7 +276,7 @@ public class TestExecutionContext extends Thread {
      * 
      * @param op
      * @param poiHelper
-     * @return true to conitue test - false to halt
+     * @return true to continue test - false to halt
      */
     private boolean executeTestOperation(TestOperation op, PoiHelper poiHelper) {
         boolean retval = true;
@@ -593,44 +596,26 @@ public class TestExecutionContext extends Thread {
     
     /**
      *
-     * @param input
-     * @return
-     */
-    public static String StripProtocol(String input) {
-        String retval = input;
-        
-        if (StringUtils.isNotBlank(input)) {
-            int pos = input.indexOf("://");
-            
-            if (pos > -1) {
-                retval = input.substring(pos + "://".length());
-            }
-        }
-        
-        return retval;
-    }
-    
-    /**
-     *
      * @param path
      * @return
      */
     public List <String> getCookies(String path) {
         List <String> retval = new ArrayList<String>();
-        if (StringUtils.isNotBlank(path)) {
-            // strip off http(s):// and start with just /
-            String tstpath = StripProtocol(path);
-            
-            if (tstpath.charAt(0) != '/') {
-                tstpath = ("/" + tstpath);
-            }
-
+        try {
+            String uri = new URL(path).toURI().getPath();
             for (String key : cookieMap.keySet()) {
-                if (tstpath.startsWith(key)) {
+                if (uri.startsWith(key)) {
                     retval.addAll(cookieMap.get(key));
                 }
             }
+        } 
+        
+        catch (MalformedURLException ex) {
+            LOG.warn(ex.toString(), ex);
+        } catch (URISyntaxException ex) {
+            LOG.warn(ex.toString(), ex);
         }
+        
         return retval;
     }
 }

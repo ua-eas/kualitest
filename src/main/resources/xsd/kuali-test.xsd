@@ -44,7 +44,7 @@
     <xs:complexType name="html-request-operation">
         <xs:sequence>
             <xs:element name="method" type="xs:string"/>
-            <xs:element name="uri" type="xs:string"/>
+            <xs:element name="url" type="xs:string"/>
             <xs:element name="request-headers" type="request-headers"/>
             <xs:element name="request-parameters" type="request-parameters"/>
         </xs:sequence>

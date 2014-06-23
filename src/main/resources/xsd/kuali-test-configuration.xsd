@@ -36,6 +36,7 @@
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
                 <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names"/>
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption"/>
+                <xs:element name="parameters-to-remove" type="parameters-to-remove"/>
                 <xs:element name="encryption-password-file" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
@@ -57,6 +58,12 @@
     </xs:simpleType>
 
     <xs:complexType name="parameters-requiring-encryption">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="parameters-to-remove">
         <xs:sequence>
             <xs:element name="name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
