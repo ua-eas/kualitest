@@ -21,7 +21,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlHierarchyComparator implements Comparator <TableData> {
     @Override
     public int compare(TableData o1, TableData o2) {

@@ -133,6 +133,10 @@ public class CreateTestDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -200,15 +204,27 @@ public class CreateTestDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public TestHeader getTestHeader() {
         return testHeader;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getSaveText() {
         return Constants.CONTINUE_ACTION;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "new-test-setup";

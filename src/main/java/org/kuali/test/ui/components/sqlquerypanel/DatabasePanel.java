@@ -73,13 +73,31 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.kuali.test.utils.XMLFileFilter;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DatabasePanel extends BaseCreateTestPanel  {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
     
+    /**
+     *
+     */
     public static int SQL_FORMAT_DISPLAY = 0;
+
+    /**
+     *
+     */
     public static int SQL_FORMAT_CLIPBOARD = 1;
+
+    /**
+     *
+     */
     public static int SQL_FORMAT_VALIDATE = 2;
+
+    /**
+     *
+     */
     public static int SQL_FORMAT_EXECUTE = 3;
     
     private JComboBox tableDropdown;
@@ -94,17 +112,33 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     
     private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     * @param forCheckpoint
+     */
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
         initComponents();
     }
 
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     */
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         this(mainframe, platform, testHeader, false);
     }
     
-
+    /**
+     *
+     * @return
+     */
     @Override
     protected JToolBar createToolbar() {
         if (!forCheckpoint) {
@@ -114,6 +148,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
+    /**
+     *
+     */
     @Override
     protected void initComponents() {
         super.initComponents();
@@ -379,6 +416,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
     
+    /**
+     *
+     * @param tname
+     * @return
+     */
     public String getTableDisplayName(String tname) {
         String retval = tname;
         
@@ -466,6 +508,13 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
+    /**
+     *
+     * @param tname
+     * @param cname
+     * @param configuredTablesOnly
+     * @return
+     */
     public String getColumnDisplayName(String tname, String cname, boolean configuredTablesOnly) {
         String retval = null;
         
@@ -489,10 +538,16 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
     
+    /**
+     *
+     */
     @Override
     protected void handleStartTest() {
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleCancelTest() {
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
@@ -501,6 +556,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         testOperations.clear();
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidSqlQuery()) {
@@ -522,6 +580,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         testOperations.add(testOp);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean handleSaveTest() {
         boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
@@ -535,26 +597,50 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     public SqlQueryTree getSqlQueryTree() {
         return sqlQueryTree;
     }
 
+    /**
+     *
+     * @return
+     */
     public SqlSelectPanel getSqlSelectPanel() {
         return sqlSelectPanel;
     }
 
+    /**
+     *
+     * @return
+     */
     public SqlWherePanel getSqlWherePanel() {
         return sqlWherePanel;
     }
 
+    /**
+     *
+     * @return
+     */
     public SqlDisplayPanel getSqlDisplayPanel() {
         return sqlDisplayPanel;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean haveSelectedColumns() {
         return (sqlQueryTree.getSelectedColumnsCount() > 0);
     }
     
+    /**
+     *
+     * @return
+     */
     public List <TableData> getSelectedDbObjects() {
         List <TableData> retval = new ArrayList<TableData>();
         
@@ -593,6 +679,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
 
+    /**
+     *
+     * @param td
+     * @return
+     */
     public String getTableDataTooltip(TableData td) {
         String retval = null;
         if (td.getTreeNode() != null) {
@@ -617,6 +708,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
     
+    /**
+     *
+     * @param format
+     * @return
+     */
     public String getSqlTabString(int format) {
         if (format == SQL_FORMAT_DISPLAY) {
             return Constants.HTML_TAB;
@@ -625,6 +721,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
+    /**
+     *
+     * @param format
+     * @return
+     */
     public String getSqlLineBreakString(int format) {
         if (format == SQL_FORMAT_DISPLAY) {
             return Constants.HTML_LINE_BREAK;
@@ -633,10 +734,23 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
 
+    /**
+     *
+     * @param format
+     * @param keyword
+     * @return
+     */
     public String getSqlKeywordString(int format, String keyword) {
         return getSqlKeywordString(format, keyword, true);
     }
     
+    /**
+     *
+     * @param format
+     * @param keyword
+     * @param includeLineBreak
+     * @return
+     */
     public String getSqlKeywordString(int format, String keyword, boolean includeLineBreak) {
         StringBuilder retval = new StringBuilder(64);
         if (format == SQL_FORMAT_DISPLAY) {
@@ -654,6 +768,11 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param format
+     * @return
+     */
     public String getSqlQueryString(int format) {
         StringBuilder retval = new StringBuilder(512);
 
@@ -1058,6 +1177,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
     
+    /**
+     *
+     * @param e
+     */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (e.getSource() == tableDropdown) {
@@ -1092,6 +1215,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isValidSqlQuery() {
         boolean retval = false;
         
@@ -1139,10 +1266,19 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isForCheckpoint() {
         return forCheckpoint;
     }
     
+    /**
+     *
+     * @param title
+     * @param panel
+     */
     public void addTab(String title, JPanel panel) {
         tabbedPane.addTab(title, panel);
     }

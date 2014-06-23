@@ -16,7 +16,10 @@
 
 package org.kuali.test.ui.components.sqlquerypanel;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class WhereColumnData extends BaseColumnData {
     private String openParenthesis;
     private String closeParenthesis;
@@ -24,42 +27,82 @@ public class WhereColumnData extends BaseColumnData {
     private String value;
     private String operator;
 
+    /**
+     *
+     * @return
+     */
     public String getOpenParenthesis() {
         return openParenthesis;
     }
 
+    /**
+     *
+     * @param openParenthesis
+     */
     public void setOpenParenthesis(String openParenthesis) {
         this.openParenthesis = openParenthesis;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCloseParenthesis() {
         return closeParenthesis;
     }
 
+    /**
+     *
+     * @param closeParenthesis
+     */
     public void setCloseParenthesis(String closeParenthesis) {
         this.closeParenthesis = closeParenthesis;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAndOr() {
         return andOr;
     }
 
+    /**
+     *
+     * @param andOr
+     */
     public void setAndOr(String andOr) {
         this.andOr = andOr;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getValue() {
         return value;
     }
 
+    /**
+     *
+     * @param value
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOperator() {
         return operator;
     }
 
+    /**
+     *
+     * @param operator
+     */
     public void setOperator(String operator) {
         this.operator = operator;
     }

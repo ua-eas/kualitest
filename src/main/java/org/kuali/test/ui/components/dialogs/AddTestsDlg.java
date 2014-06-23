@@ -38,6 +38,11 @@ public class AddTestsDlg extends BaseSetupDlg implements ListSelectionListener {
     private TestSuite testSuite;
     private PlatformTestsPanel testsPanel;
     
+    /**
+     *
+     * @param mainFrame
+     * @param testSuite
+     */
     public AddTestsDlg(TestCreator mainFrame, TestSuite testSuite) {
         super(mainFrame);
         this.platform = Utils.findPlatform(getConfiguration(), testSuite.getPlatformName());
@@ -53,11 +58,19 @@ public class AddTestsDlg extends BaseSetupDlg implements ListSelectionListener {
         setDefaultBehavior();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean getInitialSavedState() {
         return false;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = !getSelectedTests().isEmpty();
@@ -71,11 +84,19 @@ public class AddTestsDlg extends BaseSetupDlg implements ListSelectionListener {
         return new Dimension(300, 350);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "add-platform-tests";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getSaveText() {
         return Constants.OK_ACTION;
@@ -86,14 +107,26 @@ public class AddTestsDlg extends BaseSetupDlg implements ListSelectionListener {
         getSaveButton().setEnabled(!getSelectedTests().isEmpty());
     }
     
+    /**
+     *
+     * @return
+     */
     public List <String> getSelectedTests() {
         return testsPanel.getSelectedTests();
     }
 
+    /**
+     *
+     * @return
+     */
     public TestSuite getTestSuite() {
         return testSuite;
     }
 
+    /**
+     *
+     * @return
+     */
     public Platform getPlatform() {
         return platform;
     }

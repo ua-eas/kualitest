@@ -22,20 +22,40 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SearchButton extends JButton {
+
+    /**
+     *
+     */
     public SearchButton() {
         this(Constants.FILE_SEARCH_ICON, Constants.FILE_SEARCH_ACTION);
     }
 
+    /**
+     *
+     * @param icon
+     */
     public SearchButton(ImageIcon icon) {
         this(icon, Constants.FILE_SEARCH_ACTION);
     }
 
+    /**
+     *
+     * @param actionCommand
+     */
     public SearchButton(String actionCommand) {
         this(Constants.FILE_SEARCH_ICON, actionCommand);
     }
     
+    /**
+     *
+     * @param icon
+     * @param actionCommand
+     */
     public SearchButton(ImageIcon icon, String actionCommand) {
         super(icon);
         setActionCommand(actionCommand);

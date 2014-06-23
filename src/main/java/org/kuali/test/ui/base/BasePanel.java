@@ -22,23 +22,44 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.kuali.test.creator.TestCreator;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BasePanel extends JPanel {
     private TestCreator mainframe;
+
+    /**
+     *
+     * @param mainframe
+     */
     public BasePanel(TestCreator mainframe) {
         this.mainframe = mainframe;
         setLayout(new BorderLayout(3, 3));
     }
 
+    /**
+     *
+     * @param newComponent
+     */
     public void replaceCenterComponent(JComponent newComponent) {
         replaceComponent(newComponent, BorderLayout.CENTER);
     }
     
+    /**
+     *
+     * @return
+     */
     public JComponent getCenterComponent() {
         BorderLayout l = (BorderLayout)getLayout();
         return (JComponent)l.getLayoutComponent(BorderLayout.CENTER);
     }
     
+    /**
+     *
+     * @param newComponent
+     * @param constraints
+     */
     public void replaceComponent(JComponent newComponent, Object constraints) {
         BorderLayout l = (BorderLayout)getLayout();
         remove(l.getLayoutComponent(constraints));
@@ -46,6 +67,10 @@ public class BasePanel extends JPanel {
         getParent().validate();
     }
 
+    /**
+     *
+     * @return
+     */
     public TestCreator getMainframe() {
         return mainframe;
     }

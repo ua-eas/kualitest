@@ -31,19 +31,31 @@ import javax.swing.event.ListSelectionListener;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TablePanel extends JPanel implements ListSelectionListener {
     private BaseTable table;
     private JPanel labelPanel;
     private JButton addButton;
     private JButton deleteButton;
     
+    /**
+     *
+     * @param table
+     * @param numberOfRowsToDisplay
+     */
     public TablePanel(BaseTable table, int numberOfRowsToDisplay) {
         super(new BorderLayout(3, 3));
         this.table = table;
         initComponents(numberOfRowsToDisplay);
     }
     
+    /**
+     *
+     * @param table
+     */
     public TablePanel(BaseTable table) {
         this(table, Constants.DEFAULT_DISPLAY_TABLE_ROWS);
     }
@@ -67,11 +79,21 @@ public class TablePanel extends JPanel implements ListSelectionListener {
         return new Insets(3, 3, 3, 3);
     }
     
+    /**
+     *
+     * @return
+     */
     public JPanel getButtonPanel() {
         BorderLayout l = (BorderLayout)labelPanel.getLayout();
         return (JPanel)l.getLayoutComponent(BorderLayout.SOUTH);
     }
     
+    /**
+     *
+     * @param listener
+     * @param text
+     * @param tooltipText
+     */
     public void addAddButton(ActionListener listener, String text, String tooltipText) {;
         JPanel p = getButtonPanel();
         addButton = new JButton(text, Constants.ADD_ICON);
@@ -81,6 +103,12 @@ public class TablePanel extends JPanel implements ListSelectionListener {
         p.add(addButton);
     }
     
+    /**
+     *
+     * @param listener
+     * @param text
+     * @param tooltipText
+     */
     public void addDeleteButton(ActionListener listener, String text, String tooltipText) {
         JPanel p = getButtonPanel();
         deleteButton = new JButton(text, Constants.DELETE_ICON);
@@ -99,14 +127,26 @@ public class TablePanel extends JPanel implements ListSelectionListener {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public JButton getAddButton() {
         return addButton;
     }
 
+    /**
+     *
+     * @return
+     */
     public JButton getDeleteButton() {
         return deleteButton;
     }
 
+    /**
+     *
+     * @return
+     */
     public BaseTable getTable() {
         return table;
     }

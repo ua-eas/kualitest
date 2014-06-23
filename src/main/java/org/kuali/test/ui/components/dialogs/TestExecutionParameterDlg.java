@@ -51,6 +51,10 @@ import org.w3c.dom.Element;
  * @author rbtucker
  */
 public class TestExecutionParameterDlg extends BaseSetupDlg {
+
+    /**
+     *
+     */
     public static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
     
     private JComboBox name;
@@ -214,6 +218,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -256,6 +264,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return testExecutionParameter;
@@ -266,11 +278,19 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         return new Dimension(600, 300);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "test-execution-parameter";
     }
 
+    /**
+     *
+     * @return
+     */
     public List<TestExecutionParameter> getRemovedParameters() {
         return removedParameters;
     }
@@ -296,10 +316,18 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         }
     }  
 
+    /**
+     *
+     * @return
+     */
     public TestExecutionParameter getTestExecutionParameter() {
         return testExecutionParameter;
     }
 
+    /**
+     *
+     * @param actionCommand
+     */
     @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.REMOVE_PARAMETER_ACTION.equalsIgnoreCase(actionCommand)) {

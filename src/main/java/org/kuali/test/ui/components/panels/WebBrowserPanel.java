@@ -20,10 +20,17 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class WebBrowserPanel extends JPanel {
     private JWebBrowser webBrowser;
     
+    /**
+     *
+     * @param webBrowser
+     */
     public WebBrowserPanel(JWebBrowser webBrowser) {
         super(new BorderLayout());
         this.webBrowser = webBrowser;
@@ -34,6 +41,10 @@ public class WebBrowserPanel extends JPanel {
         add(webBrowser, BorderLayout.CENTER);
     }
 
+    /**
+     *
+     * @return
+     */
     public JWebBrowser getWebBrowser() {
         return webBrowser;
     }

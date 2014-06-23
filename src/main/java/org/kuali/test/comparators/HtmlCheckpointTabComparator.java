@@ -19,7 +19,10 @@ package org.kuali.test.comparators;
 import java.util.Comparator;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class HtmlCheckpointTabComparator implements Comparator<String>{
 
     @Override

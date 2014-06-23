@@ -38,13 +38,23 @@ import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.ui.utils.UIUtils;
 
-
+/**
+ *
+ * @author rbtucker
+ * @param <T>
+ */
 public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implements ComponentListener, ActionListener {
     private final DatabasePanel dbPanel;
     private JComboBox selectedTables;
     private TablePanel tablePanel;
     private Class columnTypeClass;
     
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     * @param columnTypeClass
+     */
     public BaseSqlPanel(TestCreator mainframe, DatabasePanel dbPanel, Class columnTypeClass) {
         super(mainframe);
         this.dbPanel = dbPanel;
@@ -52,6 +62,10 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         addComponentListener(this);
     }
 
+    /**
+     *
+     * @return
+     */
     public DatabasePanel getDbPanel() {
         return dbPanel;
     }
@@ -73,9 +87,16 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
     public void componentHidden(ComponentEvent e) {
     }
     
+    /**
+     *
+     */
     protected void handlePanelShown() {
     }
 
+    /**
+     *
+     * @param tableIndex
+     */
     protected void populateSelectedTables(int tableIndex) {
         tablePanel.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
         
@@ -95,7 +116,12 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         }
     }
     
-   protected void createTableCellEditorRenderer(final int tableIndex, final int colIndex) {
+    /**
+     *
+     * @param tableIndex
+     * @param colIndex
+     */
+    protected void createTableCellEditorRenderer(final int tableIndex, final int colIndex) {
         selectedTables = new JComboBox();
         
         getTable().getColumnModel().getColumn(tableIndex).setCellEditor(new ComboBoxCellEditor(selectedTables));
@@ -124,6 +150,10 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         getTable().getColumnModel().getColumn(tableIndex).setCellRenderer(new ComboBoxTableCellRenderer(new TableData[0]));
     }
     
+    /**
+     *
+     * @param colIndex
+     */
     protected void createColumnCellEditorRenderer(final int colIndex) {
         JComboBox cb = new JComboBox();
         getTable().getColumnModel().getColumn(colIndex).setCellEditor(new ComboBoxCellEditor(cb) {
@@ -179,9 +209,17 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         return retval.toArray(new ColumnData[retval.size()]);
     }
     
+    /**
+     *
+     * @param cd
+     */
     protected void handleColumnChanged(ColumnData cd) {
     }
 
+    /**
+     *
+     * @return
+     */
     protected BaseTable getTable() {
         BaseTable retval = null;
         
@@ -192,6 +230,9 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         return retval;
     }
     
+    /**
+     *
+     */
     public void clear() {
         BaseTable t = getTable();
         
@@ -204,7 +245,10 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         }
     }
     
-    
+    /**
+     *
+     * @return
+     */
     public List <T> getColumnData() {
         List <T> retval =  (List<T>)getTable().getTableData();
         
@@ -238,6 +282,11 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         return retval;
     }
     
+    /**
+     *
+     * @param cd
+     * @return
+     */
     protected boolean validateRequiredFields(T cd) {
         return true;
     }
@@ -283,33 +332,65 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
         }
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleUnprocessedActions(ActionEvent e) {
     }
     
+    /**
+     *
+     * @return
+     */
     protected String getAddAction() {
         return null;
     }
 
+    /**
+     *
+     * @return
+     */
     protected String getDeleteAction() {
         return null;
     }
     
+    /**
+     *
+     * @return
+     */
     protected String getRequiredColumnList() {
         return null;
     }
 
+    /**
+     *
+     * @return
+     */
     public TablePanel getTablePanel() {
         return tablePanel;
     }
 
+    /**
+     *
+     * @param tablePanel
+     */
     public void setTablePanel(TablePanel tablePanel) {
         this.tablePanel = tablePanel;
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean haveEntries() {
         return false;
     }
     
+    /**
+     *
+     * @param cd
+     */
     protected void initializeColumnData(T cd) {
     }
 }

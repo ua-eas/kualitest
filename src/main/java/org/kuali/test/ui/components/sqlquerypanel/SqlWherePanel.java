@@ -39,7 +39,10 @@ import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlWherePanel.class);
     private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
@@ -49,6 +52,11 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
     private final DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
     
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     */
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, WhereColumnData.class);
         initComponents();
@@ -228,10 +236,18 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
         return retval;
     }
 
+    /**
+     *
+     * @param wcd
+     * @return
+     */
     protected boolean validateRequiredFields(WhereColumnData wcd) {
         return (StringUtils.isNotBlank(wcd.getOperator())  && StringUtils.isNotBlank(wcd.getValue()));
     }
 
+    /**
+     *
+     */
     @Override
     protected void handlePanelShown() {
         populateSelectedTables(2);
@@ -273,26 +289,46 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getAddAction() {
         return Constants.ADD_COMPARISON_ACTION;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDeleteAction() {
         return Constants.DELETE_COMPARISON_ACTION;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getRequiredColumnList() {
         return "table, column, operator, value";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean haveEntries() {
         return !getTable().getTableData().isEmpty();
     }
 
+    /**
+     *
+     * @param cd
+     */
     protected void initializeColumnData(WhereColumnData cd) {
         if (!getTable().getTableData().isEmpty()) {
             cd.setAndOr(Constants.AND);

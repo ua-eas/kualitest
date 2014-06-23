@@ -53,6 +53,12 @@ public class FileCheckPointDlg extends BaseSetupDlg {
     private JComboBox fileFailure;
     private FileTestPanel filePanel;
 
+    /**
+     *
+     * @param mainFrame
+     * @param testHeader
+     * @param filePanel
+     */
     public FileCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, FileTestPanel filePanel) {
         super(mainFrame);
         this.testHeader = testHeader;
@@ -108,6 +114,10 @@ public class FileCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -199,6 +209,10 @@ public class FileCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return checkpoint;
@@ -213,6 +227,10 @@ public class FileCheckPointDlg extends BaseSetupDlg {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         if (!filePanel.isForCheckpoint()) {

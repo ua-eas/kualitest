@@ -18,8 +18,15 @@ package org.kuali.test.ui.components.buttons;
 
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class FileSearchButton extends SearchButton {
+
+    /**
+     *
+     */
     public FileSearchButton() {
         super(Constants.FILE_SEARCH_ICON);
     }

@@ -23,16 +23,38 @@ import org.kuali.test.JmxConnection;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class JmxPopupMenu extends BaseTreePopupMenu {
+
+    /**
+     *
+     */
     public static final String ADD_JMX_CONNECTION_ACTION = "Add JMX Connection";
+
+    /**
+     *
+     */
     public static final String EDIT_JMX_CONNECTION_ACTION = "Edit JMX Connection";
+
+    /**
+     *
+     */
     public static final String REMOVE_JMX_CONNECTION_ACTION = "Remove JMX Connection";
 
+    /**
+     *
+     * @param mainframe
+     */
     public JmxPopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 
+    /**
+     *
+     */
     @Override
     protected void initMenu() {
         JMenuItem m = new JMenuItem(ADD_JMX_CONNECTION_ACTION);
@@ -48,6 +70,11 @@ public class JmxPopupMenu extends BaseTreePopupMenu {
         m.addActionListener(this);
     }
     
+    /**
+     *
+     * @param actionNode
+     * @param e
+     */
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (ADD_JMX_CONNECTION_ACTION.equalsIgnoreCase(e.getActionCommand())) {

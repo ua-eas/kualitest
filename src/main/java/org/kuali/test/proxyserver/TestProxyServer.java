@@ -43,6 +43,10 @@ import org.littleshoot.proxy.HttpFiltersSourceAdapter;
 import org.littleshoot.proxy.extras.SelfSignedMitmManager;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
@@ -51,6 +55,11 @@ public class TestProxyServer {
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
+
+    /**
+     *
+     * @param webTestPanel
+     */
     public TestProxyServer(WebTestPanel webTestPanel) {
         this.webTestPanel = webTestPanel;
         try {
@@ -176,6 +185,9 @@ public class TestProxyServer {
         }
     }
 
+    /**
+     *
+     */
     public void stop() {
         try {
             proxyServer.stop();
@@ -187,14 +199,27 @@ public class TestProxyServer {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isProxyServerRunning() {
         return proxyServerRunning;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<TestOperation> getTestOperations() {
         return testOperations;
     }
     
+    /**
+     *
+     * @param request
+     * @return
+     */
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
         

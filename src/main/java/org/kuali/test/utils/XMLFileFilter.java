@@ -19,7 +19,10 @@ package org.kuali.test.utils;
 import java.io.File;
 import java.io.FileFilter;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class XMLFileFilter implements FileFilter {
     @Override
     public boolean accept(File f) {

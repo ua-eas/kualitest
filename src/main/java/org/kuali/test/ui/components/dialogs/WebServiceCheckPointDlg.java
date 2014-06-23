@@ -55,6 +55,12 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
     private IntegerTextField maxRunTime;
     private WebServicePanel wsPanel;
 
+    /**
+     *
+     * @param mainFrame
+     * @param testHeader
+     * @param wsPanel
+     */
     public WebServiceCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, WebServicePanel wsPanel) {
         super(mainFrame);
         this.testHeader = testHeader;
@@ -113,6 +119,10 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -188,6 +198,10 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return checkpoint;
@@ -202,6 +216,10 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         if (!wsPanel.isForCheckpoint()) {

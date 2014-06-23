@@ -44,7 +44,10 @@ import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
@@ -66,9 +69,20 @@ public class TestExecutionContext extends Thread {
     private boolean completed = false;
     
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
+
+    /**
+     *
+     */
     public TestExecutionContext() {
     }
     
+    /**
+     *
+     * @param configuration
+     * @param testSuite
+     * @param scheduledTime
+     * @param testRuns
+     */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         TestSuite testSuite, Date scheduledTime, int testRuns) {
         this.testSuite = testSuite;
@@ -78,11 +92,23 @@ public class TestExecutionContext extends Thread {
         platform = Utils.findPlatform(configuration, testSuite.getPlatformName());
     }
 
+    /**
+     *
+     * @param configuration
+     * @param testSuite
+     */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         TestSuite testSuite) {
         this(configuration, testSuite, null, 1);
     }
 
+    /**
+     *
+     * @param configuration
+     * @param kualiTest
+     * @param scheduledTime
+     * @param testRuns
+     */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         KualiTest kualiTest, Date scheduledTime, int testRuns) {
         this.kualiTest = kualiTest;
@@ -92,6 +118,11 @@ public class TestExecutionContext extends Thread {
         platform = Utils.findPlatform(configuration, kualiTest.getTestHeader().getPlatformName());
     }
 
+    /**
+     *
+     * @param configuration
+     * @param kualiTest
+     */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, KualiTest kualiTest) {
         this(configuration, kualiTest, null, 1);
     }
@@ -101,6 +132,9 @@ public class TestExecutionContext extends Thread {
         runTest();
     }
     
+    /**
+     *
+     */
     public void runTest() {
         try {
             startTime= new Date();
@@ -263,61 +297,114 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
-    
+    /**
+     *
+     * @return
+     */
     public TestSuite getTestSuite() {
         return testSuite;
     }
 
+    /**
+     *
+     * @param testSuite
+     */
     public void setTestSuite(TestSuite testSuite) {
         this.testSuite = testSuite;
     }
 
+    /**
+     *
+     * @return
+     */
     public KualiTest getKualiTest() {
         return kualiTest;
     }
 
+    /**
+     *
+     * @param kualiTest
+     */
     public void setKualiTest(KualiTest kualiTest) {
         this.kualiTest = kualiTest;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getStartTime() {
         return startTime;
     }
 
+    /**
+     *
+     * @param startTime
+     */
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getEndTime() {
         return endTime;
     }
 
+    /**
+     *
+     * @param endTime
+     */
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
     
+    /**
+     *
+     */
     public final void startTest() {
         start();
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getScheduledTime() {
         return scheduledTime;
     }
 
+    /**
+     *
+     * @param scheduledTime
+     */
     public void setScheduledTime(Date scheduledTime) {
         this.scheduledTime = scheduledTime;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isCompleted() {
         return completed;
     }
     
+    /**
+     *
+     */
     public void clearLastHttpResponse() {
         if (lastHttpResponseData != null) {
             lastHttpResponseData.setLength(0);
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public StringBuilder getLastHttpResponseData() {
         if (lastHttpResponseData == null) {
             lastHttpResponseData= new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
@@ -326,10 +413,18 @@ public class TestExecutionContext extends Thread {
         return lastHttpResponseData;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getTestRun() {
         return testRun;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<TestExecutionContext> getTestInstances() {
         List <TestExecutionContext> retval = new ArrayList<TestExecutionContext>();;
         retval.add(this);
@@ -347,38 +442,74 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
 
+    /**
+     *
+     * @param platform
+     */
     public void setPlatform(Platform platform) {
         this.platform = platform;
     }
 
+    /**
+     *
+     * @param testRun
+     */
     public void setTestRun(int testRun) {
         this.testRun = testRun;
     }
 
+    /**
+     *
+     * @param configuration
+     */
     public void setConfiguration(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         this.configuration = configuration;
     }
 
+    /**
+     *
+     * @return
+     */
     public List<File> getGeneratedCheckpointFiles() {
         return generatedCheckpointFiles;
     }
 
+    /**
+     *
+     * @return
+     */
     public File getTestResultsFile() {
         return testResultsFile;
     }
 
+    /**
+     *
+     * @return
+     */
     public Platform getPlatform() {
         return platform;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getTestRuns() {
         return testRuns;
     }
 
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
 
+    /**
+     *
+     * @return
+     */
     public Map<String, String> getExecutionParameterMap() {
         return executionParameterMap;
     }
@@ -387,6 +518,10 @@ public class TestExecutionContext extends Thread {
         return null;
     }
     
+    /**
+     *
+     * @param ep
+     */
     public void processTestExecutionParameter(TestExecutionParameter ep) {
         if (!ep.getRemove()) {
             String value = findTestExecutionParameterValue(ep);
@@ -399,10 +534,20 @@ public class TestExecutionContext extends Thread {
         }
     }
     
+    /**
+     *
+     * @param parameterName
+     * @return
+     */
     public String getTestExecutionParameterValue(String parameterName) {
         return executionParameterMap.get(parameterName);
     }
     
+    /**
+     *
+     * @param input
+     * @return
+     */
     public String replaceTestExecutionParameters(String input) {
         String retval = input;
         
@@ -424,6 +569,10 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
+    /**
+     *
+     * @param cookie
+     */
     public void addCookie(String cookie) {
         int[] parameterPosition = Utils.getParameterPosition(cookie, Constants.PARAMETER_NAME_PATH, Constants.SEPARATOR_SEMICOLON);
         
@@ -442,6 +591,11 @@ public class TestExecutionContext extends Thread {
         }
     }
     
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static String StripProtocol(String input) {
         String retval = input;
         
@@ -456,6 +610,11 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
+    /**
+     *
+     * @param path
+     * @return
+     */
     public List <String> getCookies(String path) {
         List <String> retval = new ArrayList<String>();
         if (StringUtils.isNotBlank(path)) {

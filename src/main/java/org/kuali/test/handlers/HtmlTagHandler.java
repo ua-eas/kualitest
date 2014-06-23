@@ -21,15 +21,70 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public interface HtmlTagHandler {
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public boolean isContainer(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public JComponent getContainerComponent(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public String getGroupName(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public String getSectionName(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public String getSubSectionName(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public String getSubSectionAdditional(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public CheckpointProperty getCheckpointProperty(Element tag);
+
+    /**
+     *
+     * @return
+     */
     public TagHandler getTagHandler();
+
+    /**
+     *
+     * @param tagHandler
+     */
     public void setTagHandler(TagHandler tagHandler);
 }

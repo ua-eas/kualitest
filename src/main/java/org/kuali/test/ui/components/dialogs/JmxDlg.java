@@ -98,6 +98,10 @@ public class JmxDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -160,11 +164,19 @@ public class JmxDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return jmx;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "jmx-connection-setup";

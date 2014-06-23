@@ -51,12 +51,23 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements ListSelectionListener {
     private TestExecutionParameter testExecutionParameter;
     private TestHeader testHeader;
     private List <BaseTable> parameterTables = new ArrayList<BaseTable>();
     
+    /**
+     *
+     * @param mainframe
+     * @param parent
+     * @param labelNodes
+     * @param rootNode
+     * @param testHeader
+     */
     public TestExecutionParamValueSelectDlg(TestCreator mainframe, 
         JDialog parent, 
         List <Element> labelNodes, 
@@ -126,16 +137,28 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getSaveText() {
         return Constants.OK_ACTION;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "test-execution-param-value-select";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         for (BaseTable t : parameterTables) {
@@ -160,6 +183,10 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
         return true;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return testExecutionParameter;

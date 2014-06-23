@@ -59,6 +59,10 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
     private KualiTestRunner testRunnerConfiguration;
     private BaseTable scheduledTestsTable;
     
+    /**
+     *
+     * @param mainFrame
+     */
     public ScheduleTestsDlg(TestCreator mainFrame) {
         super(mainFrame);
         setTitle("Schedule Tests");
@@ -167,6 +171,10 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -224,11 +232,19 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         return new Dimension(600, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "schedule-tests";
     }
     
+    /**
+     *
+     * @param actionCommand
+     */
     @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.REMOVE_TEST_ACTION.equals(actionCommand)) {

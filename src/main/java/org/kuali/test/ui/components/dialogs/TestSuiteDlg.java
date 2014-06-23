@@ -201,6 +201,10 @@ public class TestSuiteDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -265,6 +269,10 @@ public class TestSuiteDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return testSuite;
@@ -275,6 +283,10 @@ public class TestSuiteDlg extends BaseSetupDlg {
         return new Dimension(800, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "test-suite-setup";

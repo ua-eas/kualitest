@@ -24,8 +24,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.commons.lang3.StringUtils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
+
+    /**
+     *
+     */
     public BaseTreeCellRenderer() {
     }
     
@@ -63,6 +70,9 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
         return this;
     }
 
+    /**
+     *
+     */
     protected void setSelectionDisplay() {
         if (this.selected) {
             super.setBackground(getBackgroundSelectionColor());
@@ -80,10 +90,20 @@ public class BaseTreeCellRenderer extends DefaultTreeCellRenderer {
         }
     }
     
+    /**
+     *
+     * @param nod
+     * @return
+     */
     protected ImageIcon getIcon(DefaultMutableTreeNode nod) {
         return null;
     }
     
+    /**
+     *
+     * @param value
+     * @return
+     */
     protected String getTooltip(Object value) {
         return null;
     }

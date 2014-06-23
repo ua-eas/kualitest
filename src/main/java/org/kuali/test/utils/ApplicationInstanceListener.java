@@ -16,7 +16,14 @@
 
 package org.kuali.test.utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public interface ApplicationInstanceListener {
+
+    /**
+     *
+     */
     public void newInstanceCreated();
 }

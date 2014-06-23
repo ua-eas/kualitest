@@ -28,8 +28,17 @@ import javax.swing.JPanel;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class UIUtils {
+
+    /**
+     *
+     * @param c
+     * @return
+     */
     public static Window findWindow(Component c) {
         if (c == null) {
             return JOptionPane.getRootFrame();
@@ -40,6 +49,12 @@ public class UIUtils {
         }
     }
 
+    /**
+     *
+     * @param msg
+     * @param style
+     * @return
+     */
     public static String buildFormattedHtmlMessage(String msg, String style) {
         String retval = "";
         
@@ -57,28 +72,64 @@ public class UIUtils {
         return retval;
     }
     
+    /**
+     *
+     * @param msg
+     * @param width
+     * @return
+     */
     public static String buildFormattedHtmlMessage(String msg, int width) {
         return buildFormattedHtmlMessage(msg, "width: " + width + "px;");
     }
     
+    /**
+     *
+     * @param c
+     * @param title
+     * @param msg
+     */
     public static void showError(Component c, String title, String msg) {
         JOptionPane.showMessageDialog(findWindow(c), buildFormattedHtmlMessage(msg, 250), title, JOptionPane.ERROR_MESSAGE);
     }
     
+    /**
+     *
+     * @param c
+     * @param title
+     * @param prompt
+     * @return
+     */
     public static boolean promptForDelete(Component c, String title, String prompt) {
         return (JOptionPane.showConfirmDialog(findWindow(c), prompt, title, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION);
     }
 
+    /**
+     *
+     * @param c
+     * @param title
+     * @param prompt
+     * @return
+     */
     public static boolean promptForCancel(Component c, String title, String prompt) {
         return (JOptionPane.showConfirmDialog(findWindow(c), prompt, title, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION);
     }
     
+    /**
+     *
+     * @param c
+     * @return
+     */
     public static JPanel wrapPanel(JComponent c) {
         JPanel retval = new JPanel(new FlowLayout(FlowLayout.LEFT));
         retval.add(c);
         return retval;
     }
     
+    /**
+     *
+     * @param labels
+     * @return
+     */
     public static JPanel buildLabelGridPanel(String[] labels) {
         JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
         for (int i = 0; i < labels.length; ++i) {
@@ -94,6 +145,11 @@ public class UIUtils {
         return retval;
     }
     
+    /**
+     *
+     * @param components
+     * @return
+     */
     public static JPanel buildComponentGridPanel(JComponent[] components) {
         JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 2));
         for (JComponent c : components) {
@@ -103,6 +159,12 @@ public class UIUtils {
         return retval;
     }
     
+    /**
+     *
+     * @param labels
+     * @param components
+     * @return
+     */
     public static JPanel buildEntryPanel(String[] labels, JComponent[] components) {
         JPanel retval = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JPanel entryPanel = new JPanel(new BorderLayout(2, 1));

@@ -20,13 +20,25 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class ComboBoxCellEditor extends DefaultCellEditor {
+
+    /**
+     *
+     * @param cb
+     */
     public ComboBoxCellEditor(JComboBox cb) {
         super(cb);
         cb.setUI(new BasicComboBoxUI());
     }
 
+    /**
+     *
+     * @return
+     */
     public JComboBox getComboBox() {
         return (JComboBox)super.getComponent();
     }

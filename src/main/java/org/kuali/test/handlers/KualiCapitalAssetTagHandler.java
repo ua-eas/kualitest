@@ -23,11 +23,27 @@ import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     */
     public static final String CAPITAL_ASSET_PROPERTY_GROUP = "CapitalAsset";
+
+    /**
+     *
+     */
     public static final String CAPITAL_ASSET_ITEMS_TABLE_SUMMARY = "Capital Asset Items";
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
@@ -36,6 +52,11 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
         return retval;
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSectionName(Element node) {
         StringBuilder retval = new StringBuilder(32);
@@ -45,6 +66,11 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSubSectionName(Element node) {
         StringBuilder retval = new StringBuilder(32);

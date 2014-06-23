@@ -43,7 +43,10 @@ import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public abstract class BaseCreateTestPanel extends BasePanel implements ActionListener {
     private static final Logger LOG = Logger.getLogger(BaseCreateTestPanel.class);
     
@@ -53,6 +56,12 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private ToolbarButton createCheckpoint;
     private ToolbarButton saveTest;
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     */
     public BaseCreateTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe);
         this.platform = platform;
@@ -63,6 +72,9 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
 
+    /**
+     *
+     */
     protected void initComponents() {
         JToolBar tb = createToolbar();
         
@@ -71,6 +83,10 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
     
+    /**
+     *
+     * @return
+     */
     protected JToolBar createToolbar() {
         JToolBar retval = new JToolBar();
         retval.setFloatable(false);
@@ -131,14 +147,26 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     protected List <ToolbarButton> getCustomButtons() {
         return null;
     }
     
+    /**
+     *
+     * @return
+     */
     public Platform getPlatform() {
         return platform;
     }
 
+    /**
+     *
+     * @return
+     */
     public TestHeader getTestHeader() {
         return testHeader;
     }
@@ -180,30 +208,61 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public ToggleToolbarButton getStartTest() {
         return startTest;
     }
 
+    /**
+     *
+     * @param startTest
+     */
     public void setStartTest(ToggleToolbarButton startTest) {
         this.startTest = startTest;
     }
 
+    /**
+     *
+     * @return
+     */
     public ToolbarButton getCreateCheckpoint() {
         return createCheckpoint;
     }
 
+    /**
+     *
+     * @param createCheckpoint
+     */
     public void setCreateCheckpoint(ToolbarButton createCheckpoint) {
         this.createCheckpoint = createCheckpoint;
     }
 
+    /**
+     *
+     * @return
+     */
     public ToolbarButton getSaveTest() {
         return saveTest;
     }
 
+    /**
+     *
+     * @param saveTest
+     */
     public void setSaveTest(ToolbarButton saveTest) {
         this.saveTest = saveTest;
     }
     
+    /**
+     *
+     * @param repositoryLocation
+     * @param header
+     * @param testOperations
+     * @return
+     */
     protected boolean saveTest(String repositoryLocation, TestHeader header, List <TestOperation> testOperations) {
         boolean retval = false;
         KualiTestDocument.KualiTest test = KualiTestDocument.KualiTest.Factory.newInstance();
@@ -260,6 +319,9 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         return retval;
     }
 
+    /**
+     *
+     */
     protected void setInitialButtonState() {
         startTest.setSelected(false);
         startTest.setText(Constants.START_TEST_ACTION);
@@ -268,10 +330,36 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         saveTest.setEnabled(false);
     }
 
+    /**
+     *
+     * @return
+     */
     protected boolean isStartTestRequired() { return false; }
+
+    /**
+     *
+     */
     protected abstract void handleStartTest();
+
+    /**
+     *
+     */
     protected abstract void handleCancelTest();
+
+    /**
+     *
+     */
     protected abstract void handleCreateCheckpoint();
+
+    /**
+     *
+     * @return
+     */
     protected abstract boolean handleSaveTest();
+
+    /**
+     *
+     * @param e
+     */
     protected void handleUnprocessedActionEvent(ActionEvent e) {};
 }

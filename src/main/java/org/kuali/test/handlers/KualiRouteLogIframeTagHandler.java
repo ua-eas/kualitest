@@ -19,13 +19,27 @@ package org.kuali.test.handlers;
 import org.kuali.test.utils.Constants;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public boolean isContainer(Element node) {
         return true;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getGroupName(Element node) {
         return Constants.ROUTELOG_HTML_PROPERTY_GROUP;

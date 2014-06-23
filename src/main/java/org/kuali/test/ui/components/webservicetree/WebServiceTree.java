@@ -34,6 +34,11 @@ public class WebServiceTree extends BaseTree {
     private final KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private final WebServicePopupMenu popupMenu;
     
+    /**
+     *
+     * @param mainframe
+     * @param configuration
+     */
     public WebServiceTree(TestCreator mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         super(mainframe);
         setRootVisible(false);
@@ -43,20 +48,38 @@ public class WebServiceTree extends BaseTree {
         init();
     }
       
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected TreeCellRenderer getTreeCellRenderer() {
         return new WebServiceTreeCellRenderer();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected DefaultTreeModel getTreeModel() {
         return new WebServiceTreeModel(new WebServiceNode(configuration, null));
     }
     
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         if (node.getUserObject() instanceof WebService) {
@@ -64,6 +87,10 @@ public class WebServiceTree extends BaseTree {
         }
     }
     
+    /**
+     *
+     * @param webService
+     */
     public void addWebService(WebService webService) {
         getModel().insertNodeInto(new WebServiceNode(configuration, webService), getRootNode(), getRootNode().getChildCount());
     }

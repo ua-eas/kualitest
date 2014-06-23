@@ -25,9 +25,17 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TableCellIconButton extends JButton implements TableCellEditor, TableCellRenderer {
     int currentRow = -1;
+
+    /**
+     *
+     * @param icon
+     */
     public TableCellIconButton(ImageIcon icon) {
         super(icon);
         setBorder(BorderFactory.createEmptyBorder());
@@ -77,6 +85,10 @@ public class TableCellIconButton extends JButton implements TableCellEditor, Tab
         return this;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getCurrentRow() {
         return currentRow;
     }

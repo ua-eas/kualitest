@@ -24,21 +24,35 @@ import javax.swing.Icon ;
 import javax.swing.JTabbedPane ;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class CloseTabIcon implements Icon {
     private Icon icon = Constants.CLOSE_TAB_ICON;
     private JTabbedPane tabbedPane = null;
     private transient Rectangle position = null;
 
+    /**
+     *
+     */
     public CloseTabIcon() {
     }
 
+    /**
+     *
+     * @param icon
+     */
     public CloseTabIcon(Icon icon) {
         this.icon = icon;
     }
 
     /**
      * * when painting, remember last position painted.
+     * @param c
+     * @param g
+     * @param x
+     * @param y
      */
     @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {

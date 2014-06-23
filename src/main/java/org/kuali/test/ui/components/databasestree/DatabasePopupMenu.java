@@ -23,16 +23,38 @@ import org.kuali.test.DatabaseConnection;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DatabasePopupMenu extends BaseTreePopupMenu {
+
+    /**
+     *
+     */
     public static final String ADD_CONNECTION_ACTION = "Add Connection";
+
+    /**
+     *
+     */
     public static final String EDIT_CONNECTION_ACTION = "Edit Connection";
+
+    /**
+     *
+     */
     public static final String REMOVE_CONNECTION_ACTION = "Remove Connection";
 
+    /**
+     *
+     * @param mainframe
+     */
     public DatabasePopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 
+    /**
+     *
+     */
     @Override
     protected void initMenu() {
         JMenuItem m = new JMenuItem(ADD_CONNECTION_ACTION);
@@ -48,6 +70,11 @@ public class DatabasePopupMenu extends BaseTreePopupMenu {
         m.addActionListener(this);
     }
     
+    /**
+     *
+     * @param actionNode
+     * @param e
+     */
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (ADD_CONNECTION_ACTION.equalsIgnoreCase(e.getActionCommand())) {

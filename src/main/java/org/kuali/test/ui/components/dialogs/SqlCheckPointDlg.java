@@ -57,6 +57,12 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     private IntegerTextField maxRunTime;
     private DatabasePanel dbPanel;
 
+    /**
+     *
+     * @param mainFrame
+     * @param testHeader
+     * @param dbPanel
+     */
     public SqlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, DatabasePanel dbPanel) {
         super(mainFrame);
         this.testHeader = testHeader;
@@ -121,6 +127,10 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -198,6 +208,10 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return checkpoint;
@@ -212,6 +226,10 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         if (!dbPanel.isForCheckpoint()) {

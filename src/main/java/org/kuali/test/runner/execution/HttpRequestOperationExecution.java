@@ -34,9 +34,18 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
     
+    /**
+     *
+     * @param context
+     * @param op
+     */
     public HttpRequestOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
@@ -75,6 +84,12 @@ System.out.println("--------------------cookie=" + cookie);
         return retval;
     }
     
+    /**
+     *
+     * @param configuration
+     * @param platform
+     * @throws TestException
+     */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         OutputStreamWriter writer = null;

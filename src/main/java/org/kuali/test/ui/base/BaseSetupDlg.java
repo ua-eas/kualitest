@@ -39,7 +39,10 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     private static final Logger LOG = Logger.getLogger(BaseSetupDlg.class);
     private JButton saveButton;
@@ -50,18 +53,30 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     private boolean saved = false;
     private boolean editmode = false;
     
+    /**
+     *
+     * @param mainframe
+     */
     public BaseSetupDlg(TestCreator mainframe) {
         super(mainframe, true);
         this.mainframe = mainframe;
         getContentPane().setLayout(new BorderLayout());
     }
 
+    /**
+     *
+     * @param mainframe
+     * @param parent
+     */
     public BaseSetupDlg(TestCreator mainframe, JDialog parent) {
         super(parent, true);
         this.mainframe = mainframe;
         getContentPane().setLayout(new BorderLayout());
     }
 
+    /**
+     *
+     */
     protected void loadPreferences() {
       Preferences proot = Preferences.userRoot();
       Preferences node = proot.node(Constants.PREFS_DLG_NODE);
@@ -78,6 +93,9 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
       setBounds(left, top, width, height);
     }
     
+    /**
+     *
+     */
     protected void savePreferences() {
       Preferences proot = Preferences.userRoot();
       Preferences node = proot.node(Constants.PREFS_DLG_NODE);
@@ -92,6 +110,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
       node.putInt(nm + Constants.PREFS_DLG_HEIGHT, rect.height);
     }
     
+    /**
+     *
+     * @return
+     */
     protected abstract String getDialogName();
 
     @Override
@@ -100,7 +122,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         super.dispose(); 
     }
 
-    
+    /**
+     *
+     * @return
+     */
     protected TestCreator getMainframe() {
         return mainframe;
     }
@@ -110,30 +135,57 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         handleAction(e);
     }
 
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return getMainframe().getConfiguration();
     }
 
+    /**
+     *
+     * @param saved
+     */
     public void setSaved(boolean saved) {
         this.saved = saved;
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isSaved() {
         return saved;
     }
     
+    /**
+     *
+     * @param editmode
+     */
     public void setEditmode(boolean editmode) {
         this.editmode = editmode;
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isEditmode() {
         return editmode;
     }
     
+    /**
+     *
+     * @return
+     */
     protected boolean getInitialSavedState() {
         return true;
     }
 
+    /**
+     *
+     */
     protected void addStandardButtons() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
@@ -150,6 +202,9 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         getContentPane().add(p2, BorderLayout.SOUTH);
     }
     
+    /**
+     *
+     */
     protected void setDefaultBehavior() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(getMainframe());
@@ -163,14 +218,29 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return false;
     }
     
+    /**
+     *
+     * @param type
+     * @param msg
+     */
     protected void inputDataErrorsAlert(String type, String msg) {
         UIUtils.showError(this, type, "Input data errors:<br />" + msg);
     }
 
+    /**
+     *
+     * @param type
+     * @param requiredFields
+     */
     protected void displayRequiredFieldsMissingAlert(String type, String requiredFields) {
         UIUtils.showError(this, type, "Required fields are missing - please check fields:\n" + requiredFields);
     }
     
+    /**
+     *
+     * @param type
+     * @param name
+     */
     protected void displayExistingNameAlert(String type, String name) {
         UIUtils.showError(this, type, type + "'" + name + "' name already exists");
     }
@@ -185,6 +255,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return new Dimension(600, 300);
     }
     
+    /**
+     *
+     * @return
+     */
     protected String[] getDatabaseConnectionNames() {
         DatabaseConnection[] dbconns = getConfiguration().getDatabaseConnections().getDatabaseConnectionArray();
         String[] retval = new String[dbconns.length];
@@ -196,6 +270,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     protected String[] getWebServiceNames() {
         String[] retval = new String[0];
     
@@ -213,6 +291,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     protected String[] getJmxConnectionNames() {
         String[] retval = new String[0];
 
@@ -230,6 +312,10 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         return retval;
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleAction(ActionEvent e) {
         if (saveActionCommand.equalsIgnoreCase(e.getActionCommand())) {
             save();
@@ -240,25 +326,54 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     protected abstract boolean save();
+
+    /**
+     *
+     * @param actionCommand
+     */
     protected void handleOtherActions(String actionCommand) {};
     
+    /**
+     *
+     * @return
+     */
     public Object getNewRepositoryObject() {
         return null;
     }
     
+    /**
+     *
+     * @return
+     */
     protected JButton getSaveButton() {
         return saveButton;
     }
     
+    /**
+     *
+     * @return
+     */
     protected JButton getCancelButton() {
         return cancelButton;
     }
 
+    /**
+     *
+     * @return
+     */
     protected String getSaveText() {
         return Constants.SAVE_ACTION;
     }
 
+    /**
+     *
+     * @return
+     */
     protected String getCancelText() {
         return Constants.CANCEL_ACTION;
     }

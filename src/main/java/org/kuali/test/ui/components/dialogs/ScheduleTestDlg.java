@@ -55,6 +55,11 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     private JList platformTests;
     private ScheduledTest scheduledTest;
     
+    /**
+     *
+     * @param mainFrame
+     * @param parent
+     */
     public ScheduleTestDlg(TestCreator mainFrame, JDialog parent) {
         super(mainFrame, parent);
         initComponents();
@@ -111,6 +116,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -169,6 +178,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "schedule-test";
@@ -181,6 +194,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         }
     }
     
+    /**
+     *
+     * @param actionCommand
+     */
     @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.PLATFORM_SELECTED_ACTION.equals(actionCommand)) {
@@ -239,6 +256,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return scheduledTest;

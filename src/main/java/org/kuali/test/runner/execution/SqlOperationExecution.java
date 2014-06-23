@@ -36,12 +36,27 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlOperationExecution extends AbstractOperationExecution {
+
+    /**
+     *
+     * @param context
+     * @param op
+     */
     public SqlOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
     
+    /**
+     *
+     * @param configuration
+     * @param platform
+     * @throws TestException
+     */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         String sqlQuery = getParameter(Constants.SQL_QUERY);

@@ -21,7 +21,15 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.TableCellRenderer;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class CheckboxTableCellRenderer extends JCheckBox implements TableCellRenderer {
+
+    /**
+     *
+     */
     public CheckboxTableCellRenderer() {
         super();
     }

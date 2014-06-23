@@ -23,6 +23,11 @@ import javax.swing.tree.DefaultTreeModel;
  * @author rbtucker
  */
 public class WebServiceTreeModel extends DefaultTreeModel {
+
+    /**
+     *
+     * @param root
+     */
     public WebServiceTreeModel(WebServiceNode root) {
         super(root);
     }

@@ -20,7 +20,16 @@ import javax.swing.JLabel;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class RunningTestPanel extends BasePanel {
+
+    /**
+     *
+     * @param mainframe
+     */
     public RunningTestPanel(TestCreator mainframe) {
         super(mainframe);
         add(new JLabel("inactive", JLabel.CENTER));

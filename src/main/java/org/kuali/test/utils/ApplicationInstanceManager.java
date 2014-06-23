@@ -25,6 +25,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import org.apache.log4j.Logger;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class ApplicationInstanceManager {
     private static final Logger LOG = Logger.getLogger(ApplicationInstanceManager.class);
     
@@ -34,6 +38,10 @@ public class ApplicationInstanceManager {
      * Randomly chosen, but static, high socket number
      */
     public static final int SINGLE_INSTANCE_NETWORK_SOCKET1 = 44331;
+
+    /**
+     *
+     */
     public static final int SINGLE_INSTANCE_NETWORK_SOCKET2 = 44332;
 
     /**
@@ -44,6 +52,7 @@ public class ApplicationInstanceManager {
     /**
      * Registers this instance of the application.
      *
+     * @param networkSocket
      * @return true if first instance, false if not.
      */
     public static boolean registerInstance(int networkSocket) {
@@ -108,6 +117,10 @@ public class ApplicationInstanceManager {
         return true;
     }
 
+    /**
+     *
+     * @param listener
+     */
     public static void setApplicationInstanceListener(ApplicationInstanceListener listener) {
         subListener = listener;
     }

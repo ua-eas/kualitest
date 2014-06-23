@@ -35,12 +35,27 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class FileOperationExecution extends AbstractOperationExecution {
+
+    /**
+     *
+     * @param context
+     * @param op
+     */
     public FileOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
     
+    /**
+     *
+     * @param configuration
+     * @param platform
+     * @throws TestException
+     */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));

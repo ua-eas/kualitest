@@ -21,7 +21,10 @@ import java.util.List;
 import javax.swing.JLabel;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TableConfiguration {
     private String tableName;
     private String displayName;
@@ -32,30 +35,58 @@ public class TableConfiguration {
     private Class[] columnTypes = new Class[0];
     private List data;
 
+    /**
+     *
+     * @return
+     */
     public String getTableName() {
         return tableName;
     }
 
+    /**
+     *
+     * @param tableName
+     */
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
     
+    /**
+     *
+     * @return
+     */
     public String[] getHeaders() {
         return headers;
     }
 
+    /**
+     *
+     * @param headers
+     */
     public void setHeaders(String[] headers) {
         this.headers = headers;
     }
 
+    /**
+     *
+     * @return
+     */
     public String[] getPropertyNames() {
         return propertyNames;
     }
 
+    /**
+     *
+     * @param propertyNames
+     */
     public void setPropertyNames(String[] propertyNames) {
         this.propertyNames = propertyNames;
     }
 
+    /**
+     *
+     * @return
+     */
     public int[] getColumnWidths() {
         if (columnWidths.length == 0) {
             columnWidths = new int[headers.length];
@@ -68,10 +99,18 @@ public class TableConfiguration {
         return columnWidths;
     }
 
+    /**
+     *
+     * @param columnWidths
+     */
     public void setColumnWidths(int[] columnWidths) {
         this.columnWidths = columnWidths;
     }
 
+    /**
+     *
+     * @return
+     */
     public int[] getColumnAlignment() {
         if (columnAlignment.length == 0) {
             columnAlignment = new int[headers.length];
@@ -85,10 +124,18 @@ public class TableConfiguration {
 
     }
 
+    /**
+     *
+     * @param columnAlignment
+     */
     public void setColumnAlignment(int[] columnAlignment) {
         this.columnAlignment = columnAlignment;
     }
 
+    /**
+     *
+     * @return
+     */
     public Class[] getColumnTypes() {
         if (columnTypes.length == 0) {
             columnTypes = new Class[headers.length];
@@ -101,10 +148,18 @@ public class TableConfiguration {
         return columnTypes;
     }
 
+    /**
+     *
+     * @param columnTypes
+     */
     public void setColumnTypes(Class[] columnTypes) {
         this.columnTypes = columnTypes;
     }
 
+    /**
+     *
+     * @return
+     */
     public List getData() {
         if (data == null) {
             data = new ArrayList();
@@ -112,14 +167,26 @@ public class TableConfiguration {
         return data;
     }
 
+    /**
+     *
+     * @param data
+     */
     public void setData(List data) {
         this.data = data;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getDisplayName() {
         return displayName;
     }
 
+    /**
+     *
+     * @param displayName
+     */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }

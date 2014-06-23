@@ -44,6 +44,10 @@ import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class FileTestPanel extends BaseCreateTestPanel {
 
     private static final Logger LOG = Logger.getLogger(FileTestPanel.class);
@@ -55,16 +59,33 @@ public class FileTestPanel extends BaseCreateTestPanel {
 
     private boolean forCheckpoint;
 
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     */
     public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         this(mainframe, platform, testHeader, false);
     }
 
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     * @param forCheckpoint
+     */
     public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
         initComponents();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected JToolBar createToolbar() {
         if (forCheckpoint) {
@@ -74,6 +95,9 @@ public class FileTestPanel extends BaseCreateTestPanel {
         }
     }
 
+    /**
+     *
+     */
     protected void initComponents() {
         super.initComponents();
         
@@ -118,6 +142,9 @@ public class FileTestPanel extends BaseCreateTestPanel {
         }
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleCancelTest() {
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
@@ -126,6 +153,9 @@ public class FileTestPanel extends BaseCreateTestPanel {
         testOperations.clear();
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidFileSetup()) {
@@ -138,6 +168,10 @@ public class FileTestPanel extends BaseCreateTestPanel {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isValidFileSetup() {
         boolean retval = false;
         File f = new File(fileDirectory.getText());
@@ -177,6 +211,10 @@ public class FileTestPanel extends BaseCreateTestPanel {
         testOperations.add(testOp);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean handleSaveTest() {
         boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
@@ -190,6 +228,10 @@ public class FileTestPanel extends BaseCreateTestPanel {
         return retval;
     }
 
+    /**
+     *
+     * @param e
+     */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (Constants.FILE_SEARCH_ACTION.equals(e.getActionCommand())) {
@@ -261,26 +303,49 @@ public class FileTestPanel extends BaseCreateTestPanel {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isForCheckpoint() {
         return forCheckpoint;
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleStartTest() {
     }
     
+    /**
+     *
+     * @return
+     */
     public String getFileDirectory() {
         return fileDirectory.getText();
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFileNamePattern() {
         return fileNamePattern.getText();
     }
     
+    /**
+     *
+     * @return
+     */
     public String getContainingText() {
         return containingText.getText();
     }
     
+    /**
+     *
+     * @return
+     */
     public List <String> getSelectedFileComparisons() {
         List <String> retval = new ArrayList<String>();
         

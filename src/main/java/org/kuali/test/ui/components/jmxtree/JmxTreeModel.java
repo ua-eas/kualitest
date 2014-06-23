@@ -23,6 +23,11 @@ import javax.swing.tree.DefaultTreeModel;
  * @author rbtucker
  */
 public class JmxTreeModel extends DefaultTreeModel {
+
+    /**
+     *
+     * @param root
+     */
     public JmxTreeModel(JmxNode root) {
         super(root);
     }

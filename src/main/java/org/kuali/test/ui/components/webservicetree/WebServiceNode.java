@@ -27,11 +27,21 @@ import org.kuali.test.WebService;
  * @author rbtucker
  */
 public class WebServiceNode extends DefaultMutableTreeNode {
+
+    /**
+     *
+     */
     protected static Logger LOG = Logger.getLogger(WebServiceNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     
     // if platforms are passed in then this is root - handle a little differently
-    public WebServiceNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
+
+    /**
+     *
+     * @param configuration
+     * @param userObject
+     */
+        public WebServiceNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;
         

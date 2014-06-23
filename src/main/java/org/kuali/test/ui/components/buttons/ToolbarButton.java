@@ -20,18 +20,38 @@ import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class ToolbarButton extends JButton {
+
+    /**
+     *
+     * @param actionCommand
+     * @param icon
+     */
     public ToolbarButton(String actionCommand, ImageIcon icon) {
         this(actionCommand, actionCommand, icon);
     }
 
+    /**
+     *
+     * @param icon
+     * @param tooltip
+     */
     public ToolbarButton(ImageIcon icon, String tooltip) {
         super(icon);
         setToolTipText(tooltip);
         setMargin(new Insets(1, 1, 1, 3));
     }
 
+    /**
+     *
+     * @param actionCommand
+     * @param txt
+     * @param icon
+     */
     public ToolbarButton(String actionCommand, String txt, ImageIcon icon) {
         super(icon);
         setActionCommand(actionCommand);

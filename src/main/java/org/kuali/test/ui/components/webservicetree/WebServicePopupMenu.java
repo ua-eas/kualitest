@@ -23,16 +23,38 @@ import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class WebServicePopupMenu extends BaseTreePopupMenu {
+
+    /**
+     *
+     */
     public static final String ADD_WEB_SERVICE_ACTION = "Add Web Service";
+
+    /**
+     *
+     */
     public static final String EDIT_WEB_SERVICE_ACTION = "Edit Web Service";
+
+    /**
+     *
+     */
     public static final String REMOVE_WEB_SERVICE_ACTION = "Remove Web Service";
 
+    /**
+     *
+     * @param mainframe
+     */
     public WebServicePopupMenu(TestCreator mainframe) {
         super(mainframe);
     }
 
+    /**
+     *
+     */
     @Override
     protected void initMenu() {
         JMenuItem m = new JMenuItem(ADD_WEB_SERVICE_ACTION);
@@ -48,6 +70,11 @@ public class WebServicePopupMenu extends BaseTreePopupMenu {
         m.addActionListener(this);
     }
     
+    /**
+     *
+     * @param actionNode
+     * @param e
+     */
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (ADD_WEB_SERVICE_ACTION.equalsIgnoreCase(e.getActionCommand())) {

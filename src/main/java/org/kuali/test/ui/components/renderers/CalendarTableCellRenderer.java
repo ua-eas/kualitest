@@ -24,13 +24,24 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class CalendarTableCellRenderer extends DefaultTableCellRenderer {
     private SimpleDateFormat df;
+
+    /**
+     *
+     */
     public CalendarTableCellRenderer() {
         this(Constants.DEFAULT_TIMESTAMP_FORMAT_STRING);
     }
     
+    /**
+     *
+     * @param format
+     */
     public CalendarTableCellRenderer(String format) {
         df = new SimpleDateFormat(format);
     }

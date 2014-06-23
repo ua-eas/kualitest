@@ -27,20 +27,50 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlQueryPopupMenu extends BaseTreePopupMenu {
+
+    /**
+     *
+     */
     public static final String INNER_JOIN_ACTION = "Inner Join";
+
+    /**
+     *
+     */
     public static final String OUTER_JOIN_ACTION = "Outer Join";
+
+    /**
+     *
+     */
     public static final String SELECT_ALL_COLUMNS_ACTION = "Select All Columns";
+
+    /**
+     *
+     */
     public static final String DESELECT_ALL_COLUMNS_ACTION = "Deselect All Columns";
     
     private final SqlQueryTree tree;
     
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     * @param tree
+     */
     public SqlQueryPopupMenu(TestCreator mainframe, DatabasePanel dbPanel, SqlQueryTree tree) {
         super(mainframe);
         this.tree = tree;
     }
 
+    /**
+     *
+     * @param actionNode
+     * @param e
+     */
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (e.getActionCommand().equals(OUTER_JOIN_ACTION) 
@@ -86,6 +116,10 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
         } 
     }
     
+    /**
+     *
+     * @param node
+     */
     @Override
     protected void populateMenuForNode(DefaultMutableTreeNode node) {
         removeAll();

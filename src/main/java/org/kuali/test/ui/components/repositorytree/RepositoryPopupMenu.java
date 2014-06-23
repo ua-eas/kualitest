@@ -31,22 +31,70 @@ import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class RepositoryPopupMenu extends BaseTreePopupMenu {
+
+    /**
+     *
+     */
     public static final String ADD_PLATFORM_ACTION = "Add Platform";
+
+    /**
+     *
+     */
     public static final String EDIT_PLATFORM_ACTION = "Edit Platform";
+
+    /**
+     *
+     */
     public static final String ADD_TEST_SUITE_ACTION = "Add Test Suite";
+
+    /**
+     *
+     */
     public static final String EDIT_TEST_SUITE_ACTION = "Edit Test Suite";
+
+    /**
+     *
+     */
     public static final String DELETE_TEST_SUITE_ACTION = "Delete Test Suite";
+
+    /**
+     *
+     */
     public static final String ADD_TESTS_ACTION = "Add Test(s)";
+
+    /**
+     *
+     */
     public static final String EDIT_TEST_ACTION = "Edit Test";
+
+    /**
+     *
+     */
     public static final String RUN_TEST_SUITE_ACTION = "Run Test Suite";
+
+    /**
+     *
+     */
     public static final String REMOVE_TEST_ACTION = "Remove Test";
     
+    /**
+     *
+     * @param mainframe
+     */
     public RepositoryPopupMenu(TestCreator mainframe) {
         super(mainframe);
    }
 
+    /**
+     *
+     * @param actionNode
+     * @param e
+     */
     @Override
     protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (ADD_PLATFORM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
@@ -74,6 +122,10 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
         
     }
     
+    /**
+     *
+     * @param node
+     */
     @Override
     protected void populateMenuForNode(DefaultMutableTreeNode node) {
         removeAll();

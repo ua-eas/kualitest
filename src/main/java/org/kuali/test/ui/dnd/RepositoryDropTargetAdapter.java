@@ -34,16 +34,29 @@ import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class RepositoryDropTargetAdapter extends DropTargetAdapter {
     private static final Logger LOG = Logger.getLogger(RepositoryDropTargetAdapter.class);
     
     private RepositoryTree repositoryTree;
     private DropTarget dropTarget;
 
+    /**
+     *
+     * @param repositoryTree
+     */
     public RepositoryDropTargetAdapter(RepositoryTree repositoryTree) {
         this(repositoryTree, DnDConstants.ACTION_COPY);
     }
 
+    /**
+     *
+     * @param repositoryTree
+     * @param ops
+     */
     public RepositoryDropTargetAdapter(RepositoryTree repositoryTree, int ops) {
         this.repositoryTree = repositoryTree;
         dropTarget = new DropTarget(repositoryTree, ops, this, true, null);

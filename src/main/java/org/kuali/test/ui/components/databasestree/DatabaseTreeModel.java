@@ -23,6 +23,11 @@ import javax.swing.tree.DefaultTreeModel;
  * @author rbtucker
  */
 public class DatabaseTreeModel extends DefaultTreeModel {
+
+    /**
+     *
+     * @param root
+     */
     public DatabaseTreeModel(DatabaseNode root) {
         super(root);
     }

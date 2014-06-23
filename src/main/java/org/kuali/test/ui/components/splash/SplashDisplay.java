@@ -30,7 +30,10 @@ import org.apache.log4j.Logger;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SplashDisplay {
     private static final Logger LOG = Logger.getLogger(SplashDisplay.class);
 
@@ -42,10 +45,23 @@ public class SplashDisplay {
     private int progressMaxLimit;
     private JDialog dlg;
     
+    /**
+     *
+     * @param parent
+     * @param title
+     * @param message
+     */
     public SplashDisplay(Window parent, String title, String message) {
         this(parent, title, message, 0);
     }
     
+    /**
+     *
+     * @param parent
+     * @param title
+     * @param msg
+     * @param progressMaxLimit
+     */
     public SplashDisplay(Window parent, String title, String msg, int progressMaxLimit) {
         createDialog(parent, title, msg, progressMaxLimit);
     }
@@ -119,38 +135,81 @@ public class SplashDisplay {
         }.execute();
     }
 
+    /**
+     *
+     * @return
+     */
     public JLabel getLabel() {
         return label;
     }
     
+    /**
+     *
+     * @return
+     */
     public JProgressBar getProgressBar() {
         return progressBar;
     }
     
+    /**
+     *
+     * @return
+     */
     protected ImageIcon getIcon() {
         return Constants.CLOCK_ICON;
     }
     
+    /**
+     *
+     */
     protected void updateProgress() {};
+
+    /**
+     *
+     */
     protected void runProcess() {};
+
+    /**
+     *
+     */
     protected void processCompleted() {};
 
+    /**
+     *
+     * @return
+     */
     public Window getParentWindow() {
         return parentWindow;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getProgressMaxLimit() {
         return progressMaxLimit;
     }
 
+    /**
+     *
+     * @return
+     */
     public JDialog getDlg() {
         return dlg;
     }

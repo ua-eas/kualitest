@@ -32,9 +32,17 @@ import javax.swing.table.TableColumn;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BaseTable extends JTable {
     private boolean initializing = true;
+
+    /**
+     *
+     * @param config
+     */
     public BaseTable(TableConfiguration config) {
         super(new BaseTableModel(config));
 
@@ -63,11 +71,18 @@ public class BaseTable extends JTable {
         return retval.toString();
     }
 
+    /**
+     *
+     * @return
+     */
     public TableConfiguration getConfig() {
         BaseTableModel tm = (BaseTableModel)getModel();
         return tm.getConfig();
     }
     
+    /**
+     *
+     */
     public void saveTablePreferences() {
         TableConfiguration config = (TableConfiguration)getConfig();
         Preferences proot = Preferences.userRoot();
@@ -87,6 +102,11 @@ public class BaseTable extends JTable {
         return retval;
     }
 
+    /**
+     *
+     * @param col
+     * @return
+     */
     protected TableColumn getTableColumn(int col) {
         int colwidth =  getColumnWidth(col);
 
@@ -96,6 +116,12 @@ public class BaseTable extends JTable {
             getTableCellEditor(getConfig(), col));
     }
 
+    /**
+     *
+     * @param config
+     * @param col
+     * @return
+     */
     protected TableCellRenderer getTableCellRenderer(final TableConfiguration config, final int col) {
         return new DefaultTableCellRenderer() {
             @Override
@@ -107,6 +133,12 @@ public class BaseTable extends JTable {
         };
     }
 
+    /**
+     *
+     * @param config
+     * @param col
+     * @return
+     */
     protected TableCellEditor getTableCellEditor(TableConfiguration config, int col) {
         return new DefaultCellEditor(new JTextField());
     }
@@ -119,11 +151,20 @@ public class BaseTable extends JTable {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public List getTableData() {
         BaseTableModel tm = getModel();
         return tm.getData();
     }
 
+    /**
+     *
+     * @param row
+     * @return
+     */
     public Object getTableDataAt(int row) {
         Object retval = null;
         List l = getTableData();
@@ -157,10 +198,19 @@ public class BaseTable extends JTable {
 
     }
    
+    /**
+     *
+     * @param row
+     * @param col
+     * @return
+     */
     protected String getTooltip(int row, int col) {
         return null;
     }
 
+    /**
+     *
+     */
     public void clear() {
         BaseTableModel tm = this.getModel();
         List l = tm.getData();
@@ -171,6 +221,10 @@ public class BaseTable extends JTable {
         }
     }
     
+    /**
+     *
+     * @param data
+     */
     public void setTableData(List data) {
         clear();
         getModel().setData(data);

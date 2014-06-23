@@ -52,6 +52,10 @@ import org.kuali.test.ui.dnd.RepositoryTransferable;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class PlatformTestsPanel extends BasePanel 
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
@@ -64,6 +68,11 @@ public class PlatformTestsPanel extends BasePanel
     private JMenuItem deleteTestMenuItem;
     private TestHeader currentTestHeader;
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     */
     public PlatformTestsPanel(TestCreator mainframe, Platform platform) {
         super(mainframe);
         initComponents();
@@ -72,6 +81,10 @@ public class PlatformTestsPanel extends BasePanel
         }
     }
 
+    /**
+     *
+     * @param mainframe
+     */
     public PlatformTestsPanel(TestCreator mainframe) {
         this(mainframe, null);
     }
@@ -179,6 +192,10 @@ public class PlatformTestsPanel extends BasePanel
 
     }
 
+    /**
+     *
+     * @param platform
+     */
     public void populateList(Platform platform) {
         if (platform != null) {
             currentPlatform = platform;
@@ -196,6 +213,10 @@ public class PlatformTestsPanel extends BasePanel
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Platform getCurrentPlatform() {
         return currentPlatform;
     }
@@ -216,10 +237,18 @@ public class PlatformTestsPanel extends BasePanel
         }
     }
     
+    /**
+     *
+     * @param listener
+     */
     public void addListSelectionListener(ListSelectionListener listener) {
         testList.addListSelectionListener(listener);
     }
     
+    /**
+     *
+     * @return
+     */
     public List<String> getSelectedTests() {
         return (List<String>)testList.getSelectedValuesList();
     }

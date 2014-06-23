@@ -44,6 +44,12 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     private TreeCellRenderer treeCellRenderer;
     private int columnsSelected = 0;
     
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     * @param platform
+     */
     public SqlQueryTree(TestCreator mainframe, DatabasePanel dbPanel, Platform platform) {
         super(mainframe);
         this.dbPanel = dbPanel;
@@ -53,10 +59,18 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         init();
     }
 
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected TreeCellRenderer getTreeCellRenderer() {
         if (treeCellRenderer == null) {
@@ -66,17 +80,32 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
         return treeCellRenderer;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected DefaultTreeModel getTreeModel() {
         DefaultTreeModel retval = new SqlQueryTreeModel(new SqlQueryNode(configuration, platform));
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         popupMenu.show(this, node, x, y);
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getTooltip(DefaultMutableTreeNode node) {
         String retval = null;
@@ -153,14 +182,24 @@ public class SqlQueryTree extends BaseTree implements MouseListener {
     public void mouseExited(MouseEvent e) {
     }
     
+    /**
+     *
+     * @return
+     */
     public int getSelectedColumnsCount() {
         return columnsSelected;
     }
 
+    /**
+     *
+     */
     public void incrementColumnSelectedCount() {
         columnsSelected++;
     }
 
+    /**
+     *
+     */
     public void decrementColumnSelectedCount() {
         if (columnsSelected > 0) {
             columnsSelected--;

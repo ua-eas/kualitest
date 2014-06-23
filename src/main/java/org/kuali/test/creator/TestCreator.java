@@ -115,6 +115,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private PlatformTestsPanel platformTestsPanel;
     private String encryptionPassword;
 
+    /**
+     *
+     * @param configFileName
+     */
     public TestCreator(String configFileName) {
         this.configFileName = configFileName;
         if (LOG.isDebugEnabled()) {
@@ -402,6 +406,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         createTestMenuItem.setEnabled(enabled);
     }
 
+    /**
+     *
+     * @param testHeader
+     */
     public void handleDeleteTest(TestHeader testHeader) {
         if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
             String platformName = testHeader.getPlatformName();
@@ -460,6 +468,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param testSuite
+     */
     public void handleAddTests(TestSuite testSuite) {
         AddTestsDlg dlg = new AddTestsDlg(this, testSuite);
         
@@ -468,6 +480,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param platform
+     */
     public void handleCreateTest(Platform platform) {
         setCreateTestEnabled(false);
         CreateTestDlg dlg = new CreateTestDlg(this, platform);
@@ -499,16 +515,26 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         setCreateTestEnabled(true);
     }
 
+    /**
+     *
+     * @return
+     */
     public CreateTestPanel getCreateTestPanel() {
         return createTestPanel;
     }
 
-
+    /**
+     *
+     */
     public void handleExit() {
         savePreferences();
         System.exit(0);
     }
     
+    /**
+     *
+     * @param evt
+     */
     public void handleAddDatabaseConnection(ActionEvent evt) {
         DatabaseDlg dlg = new DatabaseDlg(this);
 
@@ -520,6 +546,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param databaseConnection
+     */
     public void handleEditDatabaseConnection(DatabaseConnection databaseConnection) {
         DatabaseDlg dlg = new DatabaseDlg(this, databaseConnection);
 
@@ -529,6 +559,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param evt
+     */
     public void handleAddWebService(ActionEvent evt) {
         WebServiceDlg dlg = new WebServiceDlg(this);
 
@@ -540,6 +574,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param ws
+     */
     public void handleEditWebService(WebService ws) {
         WebServiceDlg dlg = new WebServiceDlg(this, ws);
 
@@ -549,6 +587,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleRemoveWebService(DefaultMutableTreeNode actionNode) {
         WebService ws = (WebService) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Delete Web Service",
@@ -561,6 +603,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param evt
+     */
     public void handleAddJmxConnection(ActionEvent evt) {
         JmxDlg dlg = new JmxDlg(this);
 
@@ -572,6 +618,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param jmx
+     */
     public void handleEditJmxConnection(JmxConnection jmx) {
         JmxDlg dlg = new JmxDlg(this, jmx);
 
@@ -581,6 +631,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleRemoveJmxConnection(DefaultMutableTreeNode actionNode) {
         JmxConnection jmx = (JmxConnection) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Delete JMX Connection",
@@ -593,6 +647,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param evt
+     */
     public void handleAddPlatform(ActionEvent evt) {
         PlatformDlg dlg = new PlatformDlg(this);
 
@@ -606,6 +664,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param platform
+     */
     public void handleEditPlatform(Platform platform) {
         PlatformDlg dlg = new PlatformDlg(this, platform);
 
@@ -615,6 +677,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleAddEditTestSuite(DefaultMutableTreeNode actionNode) {
         Platform platform = null;
         TestSuite testSuite = null;
@@ -637,15 +703,27 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleShowTestInformation(DefaultMutableTreeNode actionNode) {
         SuiteTest suiteTest = (SuiteTest) actionNode.getUserObject();
         handleShowTestInformation(suiteTest.getTestHeader());
     }
 
+    /**
+     *
+     * @param testHeader
+     */
     public void handleShowTestInformation(TestHeader testHeader) {
         new TestInformationDlg(this, testHeader);
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleRemoveTest(DefaultMutableTreeNode actionNode) {
         SuiteTest suiteTest = (SuiteTest) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Remove Test",
@@ -658,6 +736,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleDeleteTestSuite(DefaultMutableTreeNode actionNode) {
         TestSuite testSuite = (TestSuite) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Delete Test Suite",
@@ -679,6 +761,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param actionNode
+     */
     public void handleRemoveDatabaseConnection(DefaultMutableTreeNode actionNode) {
         DatabaseConnection dbconn = (DatabaseConnection) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Delete Database Connection",
@@ -703,6 +789,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private void handleScheduleTests(ActionEvent evt) {
         new ScheduleTestsDlg(this);
     }
+
+    /**
+     *
+     */
     public void handleTestExecutionParameterNamesSetup() {
         TestExecutionParameterNamesDlg dlg = new TestExecutionParameterNamesDlg(this);
 
@@ -712,26 +802,50 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return testRepositoryTree.getConfiguration();
     }
 
+    /**
+     *
+     * @return
+     */
     public JButton getCreateTestButton() {
         return createTestButton;
     }
 
+    /**
+     *
+     * @return
+     */
     public JMenuItem getCreateTestMenuItem() {
         return createTestMenuItem;
     }
 
+    /**
+     *
+     * @return
+     */
     public JButton getSaveConfigurationButton() {
         return saveConfigurationButton;
     }
 
+    /**
+     *
+     * @return
+     */
     public JMenuItem getSaveConfigurationMenuItem() {
         return saveConfigurationMenuItem;
     }
     
+    /**
+     *
+     * @param args
+     */
     public static void main(final String args[]) {
         try {
             javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
@@ -774,18 +888,34 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getConfigFileName() {
         return configFileName;
     }
 
+    /**
+     *
+     * @param configFileName
+     */
     public void setConfigFileName(String configFileName) {
         this.configFileName = configFileName;
     }
 
+    /**
+     *
+     * @return
+     */
     public RepositoryTree getTestRepositoryTree() {
         return testRepositoryTree;
     }
 
+    /**
+     *
+     * @return
+     */
     public PlatformTestsPanel getPlatformTestsPanel() {
         return platformTestsPanel;
     }
@@ -941,6 +1071,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getEncryptionPassword() {
         return Utils.getEncryptionPassword(getConfiguration());
     }

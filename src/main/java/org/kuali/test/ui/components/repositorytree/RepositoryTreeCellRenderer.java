@@ -29,9 +29,18 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class RepositoryTreeCellRenderer extends BaseTreeCellRenderer {
+
+    /**
+     *
+     */
     public RepositoryTreeCellRenderer() {
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     protected ImageIcon getIcon(DefaultMutableTreeNode node) {
         ImageIcon retval = null;

@@ -35,11 +35,19 @@ import org.kuali.test.ui.components.sqlquerytree.TableData;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlSelectPanel.class);
     private JCheckBox distinct;
     
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     */
     public SqlSelectPanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, SelectColumnData.class);
         initComponents();
@@ -154,27 +162,46 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
         return retval;
     }
 
+    /**
+     *
+     * @param scd
+     * @return
+     */
     @Override
     protected boolean validateRequiredFields(SelectColumnData scd) {
         return ((scd.getTableData() != null) && (scd.getColumnData() != null));
     }
     
-    
+    /**
+     *
+     */
     @Override
     protected void handlePanelShown() {
         populateSelectedTables(0);
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getAddAction() {
         return Constants.ADD_COLUMN_ACTION;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDeleteAction() {
         return Constants.DELETE_COLUMN_ACTION;
     }
 
+    /**
+     *
+     * @param cd
+     */
     @Override
     protected void handleColumnChanged(ColumnData cd) {
         List <String> functions = Utils.getAggregateFunctionsForType(cd.getDataType());
@@ -190,15 +217,27 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getRequiredColumnList() {
         return "table, column";
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isDistinct() {
         return distinct.isSelected();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean haveEntries() {
         return !getTable().getTableData().isEmpty();

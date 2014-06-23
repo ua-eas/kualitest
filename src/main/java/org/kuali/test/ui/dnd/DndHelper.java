@@ -19,16 +19,35 @@ package org.kuali.test.ui.dnd;
 import java.awt.datatransfer.DataFlavor;
 import org.apache.log4j.Logger;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DndHelper {
     private static final Logger LOG = Logger.getLogger(DndHelper.class);
+
+    /**
+     *
+     */
     public static final String TEST_MIME_TYPE = "text/kuali-test-list";
+
+    /**
+     *
+     */
     public static final String TEST_ORDER_MIME_TYPE = "text/kuali-test-order";
     
+    /**
+     *
+     * @return
+     */
     public static DataFlavor getTestDataFlavor() {
         return getRepositoryStringDataFlavor(TEST_MIME_TYPE);
     }
     
+    /**
+     *
+     * @return
+     */
     public static DataFlavor getTestOrderDataFlavor() {
         return getRepositoryStringDataFlavor(TEST_ORDER_MIME_TYPE);
     }

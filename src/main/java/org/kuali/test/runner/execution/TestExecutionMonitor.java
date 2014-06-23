@@ -23,10 +23,18 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TestExecutionMonitor extends Thread {
     private static final int DEFAULT_TEST_MONITORING_SLEEP_TIME = 2000;
     private List <TestExecutionContext> testExecutionList;
+
+    /**
+     *
+     * @param testExecutionList
+     */
     public TestExecutionMonitor(List <TestExecutionContext> testExecutionList) {
         this.testExecutionList = testExecutionList;
         for (TestExecutionContext tec : testExecutionList) {

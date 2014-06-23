@@ -63,7 +63,13 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private JTextField name;
     List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
 
-
+    /**
+     *
+     * @param mainFrame
+     * @param testHeader
+     * @param rootNode
+     * @param labelNodes
+     */
     public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader,Element rootNode, List<Element> labelNodes) {
         super(mainFrame);
         this.testHeader = testHeader;
@@ -313,6 +319,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return new CheckpointTable(config);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -373,6 +383,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return checkpoint;
@@ -383,6 +397,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         return new Dimension(800, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "html-checkpoint-entry";

@@ -28,9 +28,17 @@ import org.kuali.test.utils.Constants;
  */
 public class DatabaseTreeCellRenderer extends BaseTreeCellRenderer {
 
+    /**
+     *
+     */
     public DatabaseTreeCellRenderer() {
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     protected ImageIcon getIcon(DefaultMutableTreeNode node) {
         ImageIcon retval = null;

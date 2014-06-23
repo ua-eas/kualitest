@@ -26,11 +26,21 @@ import org.kuali.test.Platform;
  * @author rbtucker
  */
 public class SqlQueryNode extends DefaultMutableTreeNode {
+
+    /**
+     *
+     */
     protected static Logger LOG = Logger.getLogger(SqlQueryNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     
     // if platforms are passed in then this is root - handle a little differently
-    public SqlQueryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
+
+    /**
+     *
+     * @param configuration
+     * @param userObject
+     */
+        public SqlQueryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;
     }

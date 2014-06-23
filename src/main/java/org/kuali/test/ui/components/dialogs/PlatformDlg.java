@@ -128,6 +128,10 @@ public class PlatformDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -200,11 +204,19 @@ public class PlatformDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return platform;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "platform-setup";

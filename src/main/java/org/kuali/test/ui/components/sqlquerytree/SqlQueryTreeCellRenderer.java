@@ -26,9 +26,18 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
+
+    /**
+     *
+     */
     public SqlQueryTreeCellRenderer() {
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     protected ImageIcon getIcon(DefaultMutableTreeNode node) {
         ImageIcon retval = null;

@@ -59,7 +59,10 @@ import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class WebServicePanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(WebServicePanel.class);
     private List <TestOperation> testOperations = new ArrayList<TestOperation>();
@@ -71,17 +74,34 @@ public class WebServicePanel extends BaseCreateTestPanel {
     private JComboBox failureAction;
     private boolean forCheckpoint;
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     */
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         this (mainframe, platform, testHeader, false);
     }
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     * @param forCheckpoint
+     */
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
         initComponents();
     }
 
-      @Override
+    /**
+     *
+     * @return
+     */
+    @Override
     protected JToolBar createToolbar() {
         if (forCheckpoint) {
             handleStartTest();
@@ -128,6 +148,9 @@ public class WebServicePanel extends BaseCreateTestPanel {
         };
     }
     
+    /**
+     *
+     */
     @Override
     protected void handleCancelTest() {
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
@@ -136,6 +159,9 @@ public class WebServicePanel extends BaseCreateTestPanel {
         testOperations.clear();
     }
    
+    /**
+     *
+     */
     @Override
     protected void handleStartTest() {
         final WebService ws = Utils.findWebServiceByName(getMainframe().getConfiguration(), getPlatform().getWebServiceName());
@@ -218,6 +244,9 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
     }
     
+    /**
+     *
+     */
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidWebServiceSetup()) {
@@ -230,6 +259,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
         } 
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isValidWebServiceSetup() {
         boolean retval = false;
         OperationWrapper ow = (OperationWrapper)operations.getSelectedItem();
@@ -263,6 +296,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
         testOperations.add(testOp);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean handleSaveTest() {
         boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
@@ -276,6 +313,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean isStartTestRequired() { 
         return true; 
@@ -313,6 +354,10 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
     }
 
+    /**
+     *
+     * @param e
+     */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (e.getSource() == operations) {
@@ -397,36 +442,67 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
     }
 
+    /**
+     *
+     */
     public class WebServiceInputParameter {
         private String parameterName;
         private String parameterType;
         private String value;
 
+        /**
+         *
+         * @return
+         */
         public String getParameterName() {
             return parameterName;
         }
 
+        /**
+         *
+         * @param parameterName
+         */
         public void setParameterName(String parameterName) {
             this.parameterName = parameterName;
         }
 
+        /**
+         *
+         * @return
+         */
         public String getParameterType() {
             return parameterType;
         }
 
+        /**
+         *
+         * @param parameterType
+         */
         public void setParameterType(String parameterType) {
             this.parameterType = parameterType;
         }
 
+        /**
+         *
+         * @return
+         */
         public String getValue() {
             return value;
         }
 
+        /**
+         *
+         * @param value
+         */
         public void setValue(String value) {
             this.value = value;
         }
     }
     
+    /**
+     *
+     * @return
+     */
     public String getWebServiceOperation() {
         String retval = null;
         
@@ -439,18 +515,34 @@ public class WebServicePanel extends BaseCreateTestPanel {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public List <WebServiceInputParameter> getInputParameters() {
         return inputParameters.getTableData();
     }
     
+    /**
+     *
+     * @return
+     */
     public String getExpectedResult() {
         return expectedResult.getText();
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFailureAction() {
         return (String)failureAction.getSelectedItem();
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isForCheckpoint() {
         return forCheckpoint;
     }

@@ -24,8 +24,15 @@ import javax.swing.SwingConstants;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class CheckboxTableCellEditor extends DefaultCellEditor implements CellEditorListener {
+
+    /**
+     *
+     */
     public CheckboxTableCellEditor() {
         super(new JCheckBox());
         addCellEditorListener(this);
@@ -47,6 +54,9 @@ public class CheckboxTableCellEditor extends DefaultCellEditor implements CellEd
         return retval;
     }
     
+    /**
+     *
+     */
     protected void handleEditingStopped() {
     }
 }

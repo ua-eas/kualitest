@@ -30,11 +30,23 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
+
+    /**
+     *
+     */
     protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
     private TagHandler tagHandler;
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public boolean isContainer(Element node) {
         boolean retval = false;
@@ -47,11 +59,21 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public JComponent getContainerComponent(Element node) {
         return null;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
@@ -71,46 +93,89 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
     
+    /**
+     *
+     * @param tag
+     * @return
+     */
     protected JPanel getNewPanel(Element tag) {
         JPanel retval = new JPanel();
         retval.setName(getGroupName(tag));
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     protected JTabbedPane getNewTabbedPane() {
         return new JTabbedPane();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public TagHandler getTagHandler() {
         return tagHandler;
     }
 
+    /**
+     *
+     * @param tagHandler
+     */
     @Override
     public void setTagHandler(TagHandler tagHandler) {
         this.tagHandler = tagHandler;
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getGroupName(Element node) {
         return null;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSectionName(Element node) {
         return null;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSubSectionName(Element node) {
         return null;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSubSectionAdditional(Element node) {
         return null;
     }
     
+    /**
+     *
+     * @param node
+     * @param name
+     * @return
+     */
     protected String getSelectedRadioValue(Element node, String name) {
         String retval = "";
         
@@ -126,6 +191,11 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     protected String getSelectedOption(Element node) {
         String retval = "";
         
@@ -141,6 +211,12 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @param name
+     * @return
+     */
     protected String getSelectedCheckboxValues(Element node, String name) {
         String retval = "";
         

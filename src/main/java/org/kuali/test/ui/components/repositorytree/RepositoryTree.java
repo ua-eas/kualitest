@@ -59,6 +59,10 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private RepositoryPopupMenu popupMenu;
     
+    /**
+     *
+     * @param mainframe
+     */
     public RepositoryTree(TestCreator mainframe) {
         super(mainframe);
         popupMenu = new RepositoryPopupMenu(mainframe);
@@ -99,14 +103,25 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof SuiteTest));
     }
     
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
 
+    /**
+     *
+     * @return
+     */
     public File getRepositoryRoot() {
         return new File(this.getConfiguration().getRepositoryLocation());
     }
 
+    /**
+     *
+     */
     public void saveConfiguration() {
         if (StringUtils.isNotBlank(getMainframe().getConfigFileName())) {
             File f = new File(getMainframe().getConfigFileName());
@@ -126,17 +141,29 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected TreeCellRenderer getTreeCellRenderer() {
         return new RepositoryTreeCellRenderer();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected DefaultTreeModel getTreeModel() {
         loadConfiguration(null);
         return new RepositoryTreeModel(new RepositoryNode(configuration, null));
     }
 
+    /**
+     *
+     * @param f
+     */
     public void loadConfiguration(File f) {
         File configFile = f;
         if (configFile == null) {
@@ -193,11 +220,21 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
     }
 
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         popupMenu.show(this, node, x, y);
     }
 
+    /**
+     *
+     * @param repositoryObject
+     */
     public void addRepositoryNode(Object repositoryObject) {
         addRepositoryNode(findRepositoryObjectParentNode(repositoryObject), repositoryObject);
     }
@@ -326,6 +363,12 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         return retval;
     }
     
+    /**
+     *
+     * @param dataFlavor
+     * @param data
+     * @param dropNode
+     */
     public void handleDataDrop(DataFlavor dataFlavor, RepositoryTransferData data, DefaultMutableTreeNode dropNode) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("dataFlavor: " + dataFlavor.toString() + ", targetType: " + data.getClass().getName() + ", targetName: " + getDropTargetName(dropNode.getUserObject()));
@@ -341,6 +384,11 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         getMainframe().getSaveConfigurationMenuItem().setEnabled(configuration.getModified());
     }
 
+    /**
+     *
+     * @param testSuite
+     * @param testNames
+     */
     public void addSuiteTests(TestSuite testSuite, List <String> testNames) {
         DefaultMutableTreeNode node = findTestSuiteNodeByName(testSuite.getPlatformName(), testSuite.getName());
         
@@ -428,6 +476,10 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
     }
     
+    /**
+     *
+     * @param platform
+     */
     public void refreshPlatformNode(Platform platform) {
         DefaultMutableTreeNode node = findPlatformNodeByName(platform.getName());
         
@@ -448,6 +500,11 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof TestSuite));
     }
     
+    /**
+     *
+     * @param platformName
+     * @return
+     */
     public Platform selectPlatformByName(String platformName) {
         Platform retval = null;
         Enumeration <DefaultMutableTreeNode> e = getRootNode().children();

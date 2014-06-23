@@ -21,12 +21,27 @@ import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class WebServiceOperationExecution extends AbstractOperationExecution {
+
+    /**
+     *
+     * @param context
+     * @param op
+     */
     public WebServiceOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
     
+    /**
+     *
+     * @param configuration
+     * @param platform
+     * @throws TestException
+     */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
     }

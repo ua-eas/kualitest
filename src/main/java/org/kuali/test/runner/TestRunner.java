@@ -56,7 +56,10 @@ public class TestRunner {
     private Timer testInquiryTimer;
     private Timer configurationUpdateTimer;
     
-    
+    /**
+     *
+     * @param args
+     */
     public static void main(final String args[]) {
         if (args.length != 1) {
             System.out.println("usage: TestRunner <config-file-path>");
@@ -77,10 +80,18 @@ public class TestRunner {
         }
     }
     
+    /**
+     *
+     * @param configuration
+     */
     public TestRunner(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         this.configuration = configuration;
     }
     
+    /**
+     *
+     * @param configFileName
+     */
     public TestRunner(String configFileName) {
         System.out.println("starting kuali test runner with file " + configFileName);
         if (loadConfiguration(configFileName)) {
@@ -121,6 +132,11 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @throws XmlException
+     * @throws IOException
+     */
     protected void updateTestRunnerConfiguration() throws XmlException, IOException {
         File trConfigFile =  Utils.getTestRunnerConfigurationFile(configuration);
                     
@@ -159,6 +175,9 @@ public class TestRunner {
         doc.save(f);
     }
     
+    /**
+     *
+     */
     public void stopRunner() {
         stopRunner = true;
         testInquiryTimer.cancel();
@@ -213,6 +232,13 @@ public class TestRunner {
         }
     }
     
+    /**
+     *
+     * @param platformName
+     * @param testName
+     * @param scheduledTime
+     * @param testRuns
+     */
     public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
@@ -229,6 +255,13 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @param platformName
+     * @param testSuiteName
+     * @param scheduledTime
+     * @param testRuns
+     */
     public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
@@ -245,6 +278,11 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @param platformName
+     * @param testName
+     */
     public void runTest(String platformName, String testName) {
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
@@ -257,6 +295,11 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @param platformName
+     * @param testSuiteName
+     */
     public void runTestSuite(String platformName, String testSuiteName) {
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
@@ -269,6 +312,11 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @param platformName
+     * @param testName
+     */
     public void unScheduleTest(String platformName, String testName) {
         Iterator <TestExecutionContext> it = scheduledTests.iterator();
         
@@ -285,6 +333,11 @@ public class TestRunner {
         }
     }
 
+    /**
+     *
+     * @param platformName
+     * @param testSuiteName
+     */
     public void unScheduleTestSuite(String platformName, String testSuiteName) {
         Iterator <TestExecutionContext> it = scheduledTests.iterator();
         
@@ -343,6 +396,10 @@ public class TestRunner {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public List <TestExecutionContext> getExecutingTests() {
         List <TestExecutionContext> retval = new ArrayList<TestExecutionContext>();
         
@@ -355,6 +412,10 @@ public class TestRunner {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getEncryptionPassword() {
         return Utils.getEncryptionPassword(configuration);
     }

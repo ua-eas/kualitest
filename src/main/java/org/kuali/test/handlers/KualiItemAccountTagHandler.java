@@ -23,8 +23,17 @@ import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
@@ -64,6 +73,11 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
         return retval;
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSectionName(Element node) {
         String retval = null;
@@ -78,6 +92,11 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSubSectionName(Element node) {
         String retval = null;
@@ -92,6 +111,11 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getSubSectionAdditional(Element node) {
         String retval = null;

@@ -34,6 +34,11 @@ public class JmxTree extends BaseTree {
     private final KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private final JmxPopupMenu popupMenu;
     
+    /**
+     *
+     * @param mainframe
+     * @param configuration
+     */
     public JmxTree(TestCreator mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         super(mainframe);
         setRootVisible(false);
@@ -43,20 +48,38 @@ public class JmxTree extends BaseTree {
         init();
     }
       
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected TreeCellRenderer getTreeCellRenderer() {
         return new JmxTreeCellRenderer();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected DefaultTreeModel getTreeModel() {
         return new JmxTreeModel(new JmxNode(configuration, null));
     }
     
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         if (node.getUserObject() instanceof JmxConnection) {
@@ -64,6 +87,10 @@ public class JmxTree extends BaseTree {
         }
     }
     
+    /**
+     *
+     * @param jmx
+     */
     public void addJmxConnection(JmxConnection jmx) {
         getModel().insertNodeInto(new JmxNode(configuration, jmx), getRootNode(), getRootNode().getChildCount());
     }

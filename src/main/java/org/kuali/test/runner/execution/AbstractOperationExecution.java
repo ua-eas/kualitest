@@ -33,13 +33,21 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.TestOutput;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public abstract class AbstractOperationExecution implements OperationExecution {
     private Operation op;
     private Map<String, String> parameterMap = new HashMap<String, String>();
     private Map<String, CheckpointProperty> propertyMap = new HashMap<String, CheckpointProperty>();
     private TestExecutionContext context;
     
+    /**
+     *
+     * @param context
+     * @param op
+     */
     public AbstractOperationExecution (TestExecutionContext context, Operation op) {
         this.op = op;
         this.context = context;
@@ -59,22 +67,47 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         }
     }
     
+    /**
+     *
+     * @param name
+     * @return
+     */
     protected String getParameter(String name) {
         return parameterMap.get(name);
     }
     
+    /**
+     *
+     * @return
+     */
     protected TestOutput initTestOutput() {
         return new TestOutput(op);
     }
 
+    /**
+     *
+     * @param name
+     * @return
+     */
     protected CheckpointProperty getProperty(String name) {
         return propertyMap.get(name);
     }
     
+    /**
+     *
+     * @return
+     */
     protected Operation getOperation() {
         return op;
     }
     
+    /**
+     *
+     * @param inputValue
+     * @param type
+     * @return
+     * @throws ParseException
+     */
     protected Object getValueForType(String inputValue, ValueType.Enum type) throws ParseException {
         Object retval = null;
         switch (type.intValue()) {
@@ -104,6 +137,13 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
     
+    /**
+     *
+     * @param inputValue
+     * @param type
+     * @return
+     * @throws ParseException
+     */
     protected List buildComparisonArrayFromString(String inputValue, ValueType.Enum type) throws ParseException {
         List retval = new ArrayList();
         
@@ -120,6 +160,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
     
+    /**
+     *
+     * @param cp
+     * @return
+     * @throws ParseException
+     */
     protected Object getComparisonValue(CheckpointProperty cp) throws ParseException {
         Object retval = null;
         ValueType.Enum type = cp.getValueType();
@@ -136,6 +182,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
     
+    /**
+     *
+     * @param cp
+     * @return
+     * @throws TestException
+     */
     protected boolean evaluateCheckpointProperty(CheckpointProperty cp) throws TestException {
         boolean retval = false;
         
@@ -222,6 +274,10 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     public TestExecutionContext getTestExecutionContext() {
         return context;
     }

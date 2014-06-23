@@ -23,6 +23,11 @@ import javax.swing.tree.DefaultTreeModel;
  * @author rbtucker
  */
 public class RepositoryTreeModel extends DefaultTreeModel {
+
+    /**
+     *
+     * @param root
+     */
     public RepositoryTreeModel(RepositoryNode root) {
         super(root);
     }

@@ -20,9 +20,17 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class KualiHeaderInfoCellTagHandler extends DefaultHtmlTagHandler {
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node);

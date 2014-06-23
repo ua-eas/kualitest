@@ -27,9 +27,18 @@ import org.kuali.test.KualiTestConfigurationDocument;
  * @author rbtucker
  */
 public class JmxNode extends DefaultMutableTreeNode {
+
+    /**
+     *
+     */
     protected static Logger LOG = Logger.getLogger(JmxNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     
+    /**
+     *
+     * @param configuration
+     * @param userObject
+     */
     public JmxNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;

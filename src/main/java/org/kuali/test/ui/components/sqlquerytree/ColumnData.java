@@ -20,7 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class ColumnData extends DBObjectData {
     private Integer primaryKeyIndex = Integer.MAX_VALUE;
     private int dataType;
@@ -28,22 +31,44 @@ public class ColumnData extends DBObjectData {
     private int decimalDigits = 0;
     boolean selected = false;
 
+    /**
+     *
+     * @param schema
+     * @param name
+     * @param displayName
+     */
     public ColumnData(String schema, String name, String displayName) {
         super(schema, name, displayName);
     }
 
+    /**
+     *
+     * @return
+     */
     public Integer getPrimaryKeyIndex() {
         return primaryKeyIndex;
     }
 
+    /**
+     *
+     * @param primaryKeyIndex
+     */
     public void setPrimaryKeyIndex(Integer primaryKeyIndex) {
         this.primaryKeyIndex = primaryKeyIndex;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getDataType() {
         return dataType;
     }
 
+    /**
+     *
+     * @param dataType
+     */
     public void setDataType(int dataType) {
         this.dataType = dataType;
     }
@@ -60,30 +85,58 @@ public class ColumnData extends DBObjectData {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     *
+     * @param width
+     */
     public void setWidth(int width) {
         this.width = width;
     }
 
+    /**
+     *
+     * @return
+     */
     public int getDecimalDigits() {
         return decimalDigits;
     }
 
+    /**
+     *
+     * @param decimalDigits
+     */
     public void setDecimalDigits(int decimalDigits) {
         this.decimalDigits = decimalDigits;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isSelected() {
         return selected;
     }
 
+    /**
+     *
+     * @param selected
+     */
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getDataTypeName() {
         return Utils.getJdbcTypeName(getDataType(), getDecimalDigits());
     }

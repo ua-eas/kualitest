@@ -34,6 +34,11 @@ public class DatabaseTree extends BaseTree {
     private final KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private final DatabasePopupMenu popupMenu;
     
+    /**
+     *
+     * @param mainframe
+     * @param configuration
+     */
     public DatabaseTree(TestCreator mainframe, KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         super(mainframe);
         setRootVisible(false);
@@ -43,20 +48,38 @@ public class DatabaseTree extends BaseTree {
         init();
     }
       
+    /**
+     *
+     * @return
+     */
     public KualiTestConfigurationDocument.KualiTestConfiguration getConfiguration() {
         return configuration;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected TreeCellRenderer getTreeCellRenderer() {
         return new DatabaseTreeCellRenderer();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected DefaultTreeModel getTreeModel() {
         return new DatabaseTreeModel(new DatabaseNode(configuration, null));
     }
     
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     @Override
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
         if (node.getUserObject() instanceof DatabaseConnection) {
@@ -64,6 +87,10 @@ public class DatabaseTree extends BaseTree {
         }
     }
     
+    /**
+     *
+     * @param dbconn
+     */
     public void addDatabaseConnection(DatabaseConnection dbconn) {
         getModel().insertNodeInto(new DatabaseNode(configuration, dbconn), getRootNode(), getRootNode().getChildCount());
     }

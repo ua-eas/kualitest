@@ -34,8 +34,16 @@ import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class CheckpointTable extends BaseTable {
+
+    /**
+     *
+     * @param config
+     */
     public CheckpointTable(TableConfiguration config) {
         super(config);
         

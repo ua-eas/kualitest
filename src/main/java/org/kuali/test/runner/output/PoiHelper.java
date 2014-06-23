@@ -49,6 +49,10 @@ import org.kuali.test.TestSuite;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class PoiHelper {
 
     private static final Logger LOG = Logger.getLogger(PoiHelper.class);
@@ -77,10 +81,17 @@ public class PoiHelper {
     private CellStyle cellStyleHeader = null;
     private Workbook wb;
 
+    /**
+     *
+     */
     public PoiHelper() {
         this(true);
     }
 
+    /**
+     *
+     * @param initilizeNewWorkbook
+     */
     public PoiHelper(boolean initilizeNewWorkbook) {
         if (initilizeNewWorkbook) {
             wb = new XSSFWorkbook();
@@ -168,6 +179,11 @@ public class PoiHelper {
         cellStyleHeader.setFont(font);
     }
 
+    /**
+     *
+     * @param testSuite
+     * @param kualiTest
+     */
     public void writeReportHeader(TestSuite testSuite, KualiTest kualiTest) {
         Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(currentReportRow);
@@ -201,6 +217,9 @@ public class PoiHelper {
 
     }
 
+    /**
+     *
+     */
     public void writeColumnHeaders() {
         Row row = wb.getSheetAt(0).createRow(++currentReportRow);
 
@@ -312,6 +331,11 @@ public class PoiHelper {
         return retval;
     }
 
+    /**
+     *
+     * @param op
+     * @param startTime
+     */
     public void writeSuccessEntry(TestOperation op, Date startTime) {
         Row row = writeBaseEntryInformation(op, startTime);
 
@@ -391,6 +415,10 @@ public class PoiHelper {
         return retval;
     }
 
+    /**
+     *
+     * @param test
+     */
     public void writeTestHeader(KualiTest test) {
         Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(++currentReportRow);
@@ -401,10 +429,19 @@ public class PoiHelper {
         cell.setCellStyle(cellStyleTestHeader);
     }
     
+    /**
+     *
+     * @param f
+     */
     public void writeFile(File f) {
         writeFile(f, wb);
     }
     
+    /**
+     *
+     * @param f
+     * @param workbook
+     */
     public void writeFile(File f, Workbook workbook) {
 
         FileOutputStream fos = null;
@@ -428,6 +465,13 @@ public class PoiHelper {
         }
     }
 
+    /**
+     *
+     * @param fileName
+     * @param inputFiles
+     * @param deleteExistingFiles
+     * @return
+     */
     public File mergeWorkbookFiles(String fileName, List<File> inputFiles, boolean deleteExistingFiles) {
         File retval = new File(fileName);
         XSSFWorkbook wbmerged = new XSSFWorkbook();

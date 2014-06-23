@@ -26,7 +26,10 @@ import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DateChooserCellEditor extends JDateChooserCellEditor implements TableCellRenderer {
     private final JDateChooser renderer = new JDateChooser();
     

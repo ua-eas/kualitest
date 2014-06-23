@@ -23,6 +23,11 @@ import javax.swing.tree.DefaultTreeModel;
  * @author rbtucker
  */
 public class SqlQueryTreeModel extends DefaultTreeModel {
+
+    /**
+     *
+     * @param root
+     */
     public SqlQueryTreeModel(SqlQueryNode root) {
         super(root);
     }

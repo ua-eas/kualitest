@@ -100,14 +100,30 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.tidy.Tidy;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class Utils {
     private static final Logger LOG = Logger.getLogger(Utils.class);
+
+    /**
+     *
+     */
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
     private static String encryptionPassword;
     
+    /**
+     *
+     */
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
+    /**
+     *
+     * @param platforms
+     * @return
+     */
     public static String[] getPlatformNames(Platform[] platforms) {
         String[] retval = new String[platforms.length];
         for (int i = 0; i < platforms.length; ++i) {
@@ -116,6 +132,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param platforms
+     * @param name
+     * @return
+     */
     public static Platform findPlatform(Platform[] platforms, String name) {
         Platform retval = null;
         for (int i = 0; i < platforms.length; ++i) {
@@ -127,6 +149,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param node
+     * @return
+     */
     public static Platform getPlatformForNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DefaultMutableTreeNode node) {
         Platform retval = null;
@@ -151,6 +179,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param platform
+     * @param testName
+     * @return
+     */
     public static TestHeader findTestHeaderByName(Platform platform, String testName) {
         TestHeader retval = null;
 
@@ -166,6 +200,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param platformName
+     * @return
+     */
     public static Platform findPlatform(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName) {
         Platform retval = null;
@@ -182,6 +222,13 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param testSuite
+     * @param testName
+     * @param testIndex
+     * @return
+     */
     public static SuiteTest findSuiteTestByName(TestSuite testSuite, String testName, int testIndex) {
         SuiteTest retval = null;
 
@@ -196,6 +243,13 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param platformName
+     * @param testSuiteName
+     * @return
+     */
     public static TestSuite findTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName, String testSuiteName) {
         TestSuite retval = null;
@@ -217,6 +271,12 @@ public class Utils {
 
     }
 
+    /**
+     *
+     * @param configuration
+     * @param dbconn
+     * @return
+     */
     public static boolean removeDatabaseConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DatabaseConnection dbconn) {
         boolean retval = false;
@@ -247,6 +307,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param ws
+     * @return
+     */
     public static boolean removeWebService(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         WebService ws) {
         boolean retval = false;
@@ -277,6 +343,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param jmx
+     * @return
+     */
     public static boolean removeJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, JmxConnection jmx) {
         boolean retval = false;
 
@@ -308,6 +380,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param suiteTest
+     * @return
+     */
     public static boolean removeSuiteTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         SuiteTest suiteTest) {
         boolean retval = false;
@@ -337,6 +415,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param testSuite
+     * @return
+     */
     public static boolean removeTestSuite(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite) {
         boolean retval = false;
@@ -363,6 +447,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param node
+     * @return
+     */
     public static boolean removeRepositoryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         DefaultMutableTreeNode node) {
         boolean retval = false;
@@ -388,6 +478,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param tests
+     * @param test
+     * @return
+     */
     public static int getSuiteTestArrayIndex(SuiteTest[] tests, SuiteTest test) {
         int retval = -1;
 
@@ -402,10 +498,21 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param clazz
+     * @return
+     */
     public static String[] getXmlEnumerations(Class clazz) {
         return getXmlEnumerations(clazz, false);
     }
 
+    /**
+     *
+     * @param clazz
+     * @param includeEmptyItem
+     * @return
+     */
     public static String[] getXmlEnumerations(Class clazz, boolean includeEmptyItem) {
         List<String> retval = new ArrayList<String>();
         Field[] fields = clazz.getDeclaredFields();
@@ -434,6 +541,12 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
+    /**
+     *
+     * @param url
+     * @param includeProtocol
+     * @return
+     */
     public static String getHostFromUrl(String url, boolean includeProtocol) {
         String retval = url;
 
@@ -458,6 +571,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param url
+     * @return
+     */
     public static String getContextFromUrl(String url) {
         String retval = null;
 
@@ -480,6 +598,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param o
+     * @param propertyName
+     * @return
+     */
     public static Object getObjectProperty(Object o, String propertyName) {
         Object retval = null;
 
@@ -506,6 +630,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param o
+     * @param propertyName
+     * @param value
+     */
     public static void setObjectProperty(Object o, String propertyName, Object value) {
         if (o != null) {
             try {
@@ -536,6 +666,12 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param o
+     * @param propertyName
+     * @return
+     */
     public static Class getPropertyClass(Object o, String propertyName) {
         Class retval = null;
         try {
@@ -549,14 +685,30 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param propertyName
+     * @return
+     */
     public static String buildSetMethodNameFromPropertyName(String propertyName) {
         return buildMethodNameFromPropertyName("set", propertyName);
     }
 
+    /**
+     *
+     * @param propertyName
+     * @return
+     */
     public static String buildGetMethodNameFromPropertyName(String propertyName) {
         return buildMethodNameFromPropertyName("get", propertyName);
     }
 
+    /**
+     *
+     * @param prefix
+     * @param propertyName
+     * @return
+     */
     public static String buildMethodNameFromPropertyName(String prefix, String propertyName) {
         String retval = null;
         if (StringUtils.isNoneBlank(prefix) && StringUtils.isNotBlank(propertyName)) {
@@ -570,6 +722,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param nm
+     * @return
+     */
     public static String getFileSuffix(String nm) {
         String retval = null;
 
@@ -583,10 +740,20 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param key
+     * @return
+     */
     public static boolean wantHttpRequestHeader(String key) {
         return false;
     }
     
+    /**
+     *
+     * @param request
+     * @return
+     */
     public static String buildUrlFromRequest(HttpRequest request) {
         StringBuilder retval = new StringBuilder(128);
         
@@ -608,6 +775,13 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param configuration
+     * @param testop
+     * @param request
+     * @param redirectUrl
+     */
     public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         TestOperation testop, HttpRequest request, String redirectUrl) {
         if (LOG.isDebugEnabled()) {
@@ -664,6 +838,13 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param input
+     * @param parameterName
+     * @param separator
+     * @return
+     */
     public static int[] getParameterPosition(String input, String parameterName, String separator) {
         int[] retval = null;
         
@@ -682,6 +863,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param input
+     * @param pos
+     * @return
+     */
     public static String[] getParameterData(String input, int[] pos) {
         String[] retval = null;
         
@@ -698,6 +885,13 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param input
+     * @param parameterPosition
+     * @param parameterData
+     * @return
+     */
     public static String replaceParameterString(String input, int[] parameterPosition, String[] parameterData) {
         StringBuilder retval = new StringBuilder(input.length());
 
@@ -710,6 +904,12 @@ public class Utils {
         return retval.toString();
     }
     
+    /**
+     *
+     * @param configuration
+     * @param input
+     * @return
+     */
     public static String secureRequestDataForStorage(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = input;
         
@@ -735,6 +935,13 @@ public class Utils {
         return retval;
     }
     
+    /**
+     *
+     * @param configuration
+     * @param optype
+     * @param inputData
+     * @return
+     */
     public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         TestOperationType.Enum optype, Object inputData) {
         TestOperation retval = TestOperation.Factory.newInstance();
@@ -756,6 +963,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static String formatForFileName(String input) {
         String retval = null;
         if (StringUtils.isNotBlank(input)) {
@@ -764,10 +976,21 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param header
+     * @return
+     */
     public static String getTestFileName(TestHeader header) {
         return formatForFileName(header.getTestName());
     }
 
+    /**
+     *
+     * @param repositoryLocation
+     * @param header
+     * @return
+     */
     public static File buildTestFile(String repositoryLocation, TestHeader header) {
         StringBuilder nm = new StringBuilder(256);
         nm.append(repositoryLocation);
@@ -780,6 +1003,10 @@ public class Utils {
         return new File(nm.toString());
     }
 
+    /**
+     *
+     * @return
+     */
     public static XmlOptions getSaveXmlOptions() {
         XmlOptions retval = new XmlOptions();
         retval.setSavePrettyPrint();
@@ -787,6 +1014,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param request
+     * @return
+     */
     public static String getHttpRequestDetails(HttpRequest request) {
         StringBuilder retval = new StringBuilder(512);
         retval.append("******************** http request *******************\r\n");
@@ -828,6 +1060,11 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param content
+     * @return
+     */
     public static byte[] getHttpPostContent(ByteBuf content) {
         byte[] retval = null;
         if (content.isReadable()) {
@@ -839,6 +1076,13 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param platformName
+     * @param testName
+     * @return
+     */
     public static KualiTest findKualiTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         String platformName, String testName) {
         KualiTest retval = null;
@@ -869,10 +1113,20 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static boolean isTextNode(Node node) {
         return ((node != null) && (node.getNodeType() == Node.TEXT_NODE));
     }
     
+    /**
+     *
+     * @param node
+     * @param buf
+     */
     public static void getCleanedText(Node node, StringBuilder buf) {
         NodeList children = node.getChildNodes();
         
@@ -887,6 +1141,11 @@ public class Utils {
         }
     }
     
+    /**
+     *
+     * @param in
+     * @return
+     */
     public static String trimString(String in) {
         if (StringUtils.isNotBlank(in)) {
             return in.trim().replaceAll("[^\\x00-\\x7F]", "");
@@ -895,16 +1154,30 @@ public class Utils {
         }
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static String cleanDisplayText(Node node) {
         StringBuilder buf = new StringBuilder(128);
         getCleanedText(node, buf);
         return Utils.trimString(StringEscapeUtils.unescapeHtml4(buf.toString()));
     }
 
+    /**
+     *
+     * @param configuration
+     * @return
+     */
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
 
+    /**
+     *
+     * @param configuration
+     */
     public static void initializeHtmlTagHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         File handlerDir = new File(configuration.getTagHandlersLocation());
 
@@ -954,6 +1227,12 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param node
+     * @param tm
+     * @return
+     */
     public static boolean isTagMatch(Element node, TagMatcher tm) {
         boolean retval = true;
         if ((tm.getMatchAttributes() != null) && (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0)) {
@@ -1038,6 +1317,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static List <Element> getChildElements(Element node) {
         List <Element> retval = new ArrayList<Element>();
         
@@ -1054,6 +1338,12 @@ public class Utils {
         return retval;
     }
     
+    /**
+     *
+     * @param node
+     * @param childTagMatch
+     * @return
+     */
     public static boolean isChildTagMatchFailure(Element node, ChildTagMatch childTagMatch) {
         boolean retval = false;
 
@@ -1122,6 +1412,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @param parentTagMatch
+     * @return
+     */
     public static boolean isParentTagMatchFailure(Element node, ParentTagMatch parentTagMatch) {
         boolean retval = false;
 
@@ -1190,7 +1486,12 @@ public class Utils {
         return retval;
     }
 
-    
+    /**
+     *
+     * @param tm
+     * @param node
+     * @return
+     */
     public static Element getMatchingChild(TagMatcher tm, Element node) {
         Element retval = null;
 
@@ -1202,6 +1503,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param tm
+     * @param node
+     * @return
+     */
     public static Element getMatchingParent(TagMatcher tm, Element node) {
         Element retval = null;
 
@@ -1238,6 +1545,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param searchDefinition
+     * @return
+     */
     public static int getSiblingNodeSearchDirection(String searchDefinition) {
         int retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_INVALID;
 
@@ -1267,6 +1579,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static Element getPreviousSiblingElement(Node node) {
         Element retval = null;
         
@@ -1283,6 +1600,11 @@ public class Utils {
         return retval;
     }
     
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static Element getNextSiblingElement(Node node) {
         Element retval = null;
         
@@ -1299,6 +1621,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static int getChildNodeIndex(Element node) {
         int retval = 0;
 
@@ -1312,6 +1639,12 @@ public class Utils {
         return retval;
     }
     
+    /**
+     *
+     * @param tm
+     * @param node
+     * @return
+     */
     public static Element getMatchingSibling(TagMatcher tm, Element node) {
         Element retval = null;
 
@@ -1413,6 +1746,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static int getSiblingIndex(Element node) {
         int retval = -1;
 
@@ -1433,6 +1771,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static int getSiblingIndexByTagType(Element node) {
         int retval = 0;
 
@@ -1451,6 +1794,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param tagMatchers
+     * @param node
+     * @return
+     */
     public static String getMatchedNodeText(TagMatcher[] tagMatchers, Element node) {
         String retval = null;
 
@@ -1488,6 +1837,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param tm
+     * @param node
+     * @return
+     */
     public static Element getMatchingTagNode(TagMatcher tm, Element node) {
         Element retval = null;
 
@@ -1517,6 +1872,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param app
+     * @param node
+     * @return
+     */
     public static HtmlTagHandler getHtmlTagHandler(String app, Element node) {
         HtmlTagHandler retval = null;
 
@@ -1563,10 +1924,20 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static boolean isHtmlContainer(Element node) {
         return Constants.DEFAULT_HTML_CONTAINER_TAGS.contains(node.getNodeName().toLowerCase().trim());
     }
 
+    /**
+     *
+     * @param platform
+     * @return
+     */
     public static String[] getValidTestTypesForPlatform(Platform platform) {
         List<String> retval = new ArrayList<String>();
 
@@ -1591,6 +1962,12 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
+    /**
+     *
+     * @param testType
+     * @param platform
+     * @return
+     */
     public static String[] getValidCheckpointTypesForPlatform(TestType.Enum testType, Platform platform) {
         List<String> retval = new ArrayList<String>();
         String[] checkpointTypes = Utils.getXmlEnumerations(CheckpointType.class);
@@ -1622,6 +1999,12 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
+    /**
+     *
+     * @param th
+     * @param node
+     * @return
+     */
     public static String buildCheckpointSectionName(HtmlTagHandler th, Element node) {
         StringBuilder retval = new StringBuilder(128);
 
@@ -1654,10 +2037,21 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static boolean isValidContainerNode(Element node) {
         return !getChildElements(node).isEmpty();
     }
 
+    /**
+     *
+     * @param configuration
+     * @param dbname
+     * @return
+     */
     public static DatabaseConnection findDatabaseConnectionByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String dbname) {
         DatabaseConnection retval = null;
 
@@ -1676,6 +2070,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param wsname
+     * @return
+     */
     public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String wsname) {
         WebService retval = null;
 
@@ -1694,6 +2094,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param conn
+     * @param stmt
+     * @param res
+     */
     @SuppressWarnings("empty-statement")
     public static void closeDatabaseResources(Connection conn, Statement stmt, ResultSet res) {
         try {
@@ -1716,6 +2122,14 @@ public class Utils {
         };
     }
 
+    /**
+     *
+     * @param password
+     * @param dbconn
+     * @return
+     * @throws ClassNotFoundException
+     * @throws SQLException
+     */
     public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
         Class.forName(dbconn.getJdbcDriver());
         Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(password, dbconn.getPassword()));
@@ -1723,6 +2137,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @param decimalDigits
+     * @return
+     */
     public static String getJdbcTypeName(int jdbcType, int decimalDigits) {
         String retval = Constants.DATA_TYPE_OTHER;
 
@@ -1740,6 +2160,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static String cleanTableDisplayName(String input) {
         String retval = input;
 
@@ -1752,6 +2177,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @param decimalDigits
+     * @return
+     */
     public static boolean isIntegerJdbcType(int jdbcType, int decimalDigits) {
         boolean retval = false;
 
@@ -1762,6 +2193,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @param decimalDigits
+     * @return
+     */
     public static boolean isFloatJdbcType(int jdbcType, int decimalDigits) {
         boolean retval = false;
 
@@ -1772,6 +2209,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isStringJdbcType(int jdbcType) {
         boolean retval = false;
 
@@ -1790,18 +2232,38 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isTimestampJdbcType(int jdbcType) {
         return (jdbcType == java.sql.Types.TIMESTAMP);
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isDateJdbcType(int jdbcType) {
         return (jdbcType == java.sql.Types.DATE);
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isTimeJdbcType(int jdbcType) {
         return (jdbcType == java.sql.Types.TIME);
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isNumericJdbcType(int jdbcType) {
         boolean retval = false;
 
@@ -1819,10 +2281,20 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static boolean isDateTimeJdbcType(int jdbcType) {
         return (isDateJdbcType(jdbcType) || isTimestampJdbcType(jdbcType) || isTimeJdbcType(jdbcType));
     }
 
+    /**
+     *
+     * @param jdbcType
+     * @return
+     */
     public static List<String> getAggregateFunctionsForType(int jdbcType) {
         List<String> retval = new ArrayList<String>();
 
@@ -1841,10 +2313,21 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param style
+     * @param data
+     * @return
+     */
     public static String buildHtmlStyle(String style, String data) {
         return style.replace("^", data);
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static String getLabelDataDisplay(String input) {
         StringBuilder retval = new StringBuilder(128);
         if (StringUtils.isNotBlank(input)) {
@@ -1858,6 +2341,11 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param cal
+     * @return
+     */
     public static Calendar truncate(Calendar cal) {
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -1867,6 +2355,11 @@ public class Utils {
         return cal;
     }
 
+    /**
+     *
+     * @param columns
+     * @return
+     */
     public static String buildCsvLine(List<String> columns) {
         StringBuilder retval = new StringBuilder(256);
         String comma = "";
@@ -1887,6 +2380,12 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param configuration
+     * @param jmxName
+     * @return
+     */
     public static JmxConnection findJmxConnection(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String jmxName) {
         JmxConnection retval = null;
 
@@ -1902,6 +2401,13 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @param testSuite
+     * @param testHeader
+     * @return
+     */
     public static String[] getEmailToAddresses(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite, TestHeader testHeader) {
         Set<String> retval = new HashSet<String>();
@@ -1938,6 +2444,13 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
+    /**
+     *
+     * @param configuration
+     * @param testSuite
+     * @param testHeader
+     * @param testResults
+     */
     public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite, TestHeader testHeader, List<File> testResults) {
 
@@ -2015,6 +2528,11 @@ public class Utils {
         }
     }
 
+    /**
+     *
+     * @param labelNodes
+     * @return
+     */
     public static Map<String, String> buildLabelMap(List<Element> labelNodes) {
         Map<String, String> retval = new HashMap<String, String>();
 
@@ -2029,6 +2547,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static boolean isRadioOrCheckboxInput(Element node) {
         boolean retval = false;
 
@@ -2042,6 +2565,12 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param processedNodes
+     * @param node
+     * @return
+     */
     public static boolean isNodeProcessed(Set processedNodes, Element node) {
         boolean retval = false;
 
@@ -2062,6 +2591,11 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param configuration
+     * @return
+     */
     public static String[] loadPlatformNames(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         List<String> retval = new ArrayList<String>();
 
@@ -2074,6 +2608,12 @@ public class Utils {
         return retval.toArray(new String[retval.size()]);
     }
 
+    /**
+     *
+     * @param parent
+     * @param nodeName
+     * @return
+     */
     public static Element findFirstChildNode(Element parent, String nodeName) {
         Element retval = null;
         
@@ -2087,7 +2627,13 @@ public class Utils {
         return retval;
     }
 
-     public static List <Element> findChildNodes(Element parent, String nodeName) {
+    /**
+     *
+     * @param parent
+     * @param nodeName
+     * @return
+     */
+    public static List <Element> findChildNodes(Element parent, String nodeName) {
         List <Element> retval = new ArrayList<Element>();
         
         for (Element child : getChildElements(parent)) {
@@ -2099,7 +2645,15 @@ public class Utils {
         return retval;
     }
     
-     public static Element findChildNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
+    /**
+     *
+     * @param curnode
+     * @param nodeName
+     * @param attributeName
+     * @param attributeValue
+     * @return
+     */
+    public static Element findChildNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
        Element retval = null;
        
        if (curnode != null) {
@@ -2118,8 +2672,13 @@ public class Utils {
        return retval;
     }
 
-
-     public static Element findFirstParentNode(Element curnode, String nodeName) {
+    /**
+     *
+     * @param curnode
+     * @param nodeName
+     * @return
+     */
+    public static Element findFirstParentNode(Element curnode, String nodeName) {
        Element retval = null;
        
        if (curnode != null) {
@@ -2137,7 +2696,15 @@ public class Utils {
        return retval;
     }
 
-     public static Element findFirstParentNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
+    /**
+     *
+     * @param curnode
+     * @param nodeName
+     * @param attributeName
+     * @param attributeValue
+     * @return
+     */
+    public static Element findFirstParentNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
         Element retval = null;  
         Element parent = (Element)curnode.getParentNode();
 
@@ -2154,7 +2721,13 @@ public class Utils {
        return retval;
     }
 
-     public static Element findPreviousSiblingNode(Element curnode, String nodeName) {
+    /**
+     *
+     * @param curnode
+     * @param nodeName
+     * @return
+     */
+    public static Element findPreviousSiblingNode(Element curnode, String nodeName) {
        Element retval = null;
        
        if (curnode != null) {
@@ -2172,6 +2745,12 @@ public class Utils {
        return retval;
     }
 
+    /**
+     *
+     * @param curnode
+     * @param nodeName
+     * @return
+     */
     public static Element findNextSiblingNode(Element curnode, String nodeName) {
        Element retval = null;
        
@@ -2190,11 +2769,20 @@ public class Utils {
        return retval;
     }
 
-
+    /**
+     *
+     * @param parent
+     * @param nodeName
+     * @return
+     */
     public static boolean containsChildNode(Element parent, String nodeName) {
         return (parent.getElementsByTagName(nodeName).getLength() > 0);
     }
 
+    /**
+     *
+     * @return
+     */
     public static Tidy getTidy() {
         if (tidy == null) {
             tidy = new Tidy();
@@ -2212,6 +2800,11 @@ public class Utils {
         
     }
 
+    /**
+     *
+     * @param doc
+     * @param tagnames
+     */
     public static void removeTagsFromDocument(Document doc, String[] tagnames) {
         List <Node> removeList = new ArrayList<Node>();
         for (String tag : tagnames) {
@@ -2271,6 +2864,11 @@ public class Utils {
         }
     }
     
+    /**
+     *
+     * @param input
+     * @return
+     */
     public static Document tidify(String input) {
         Document retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
         
@@ -2286,10 +2884,20 @@ public class Utils {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     public static boolean isElement(Node node) {
         return ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE));
     }
     
+    /**
+     *
+     * @param element
+     * @return
+     */
     public static List <Element> getSiblingElements(Element element) {
         List <Element> retval = new ArrayList<Element>();
         
@@ -2311,7 +2919,12 @@ public class Utils {
         return retval;
     }
     
-   
+    /**
+     *
+     * @param password
+     * @param input
+     * @return
+     */
     public static String encrypt(String password, String input) {
         String retval = input;
         
@@ -2331,6 +2944,12 @@ public class Utils {
         return retval;
     }
     
+    /**
+     *
+     * @param password
+     * @param input
+     * @return
+     */
     public static String decrypt(String password, String input) {
         String retval = input;
         
@@ -2350,14 +2969,22 @@ public class Utils {
         return retval;
     }
     
-    
+    /**
+     *
+     * @param status
+     * @return
+     */
     public static boolean isHttpRedirect(int status) {
         return ((status == HttpURLConnection.HTTP_MOVED_TEMP)
             || (status == HttpURLConnection.HTTP_MOVED_PERM)
             || (status == HttpURLConnection.HTTP_SEE_OTHER));
     }
     
-    
+    /**
+     *
+     * @param configuration
+     * @return
+     */
     public static String getEncryptionPassword(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         if (encryptionPassword == null) {
             String pass = Constants.DEFAULT_ENCRYPTION_PASSWORD;

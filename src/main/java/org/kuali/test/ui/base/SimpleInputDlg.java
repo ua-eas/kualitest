@@ -35,18 +35,31 @@ import org.apache.log4j.Logger;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public abstract class SimpleInputDlg extends JDialog implements ActionListener {
     private static final Logger LOG = Logger.getLogger(SimpleInputDlg.class);
     private boolean saved = false;
     private JTextField value;
     private String enteredValue;
     
+    /**
+     *
+     * @param frame
+     * @param labelTxt
+     */
     public SimpleInputDlg(JFrame frame, String labelTxt) {
         super(frame, true);
         initComponents(labelTxt);
     }
 
+    /**
+     *
+     * @param dlg
+     * @param labelTxt
+     */
     public SimpleInputDlg(JDialog dlg, String labelTxt) {
         super(dlg, true);
         initComponents(labelTxt);
@@ -62,6 +75,9 @@ public abstract class SimpleInputDlg extends JDialog implements ActionListener {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     */
     protected void addStandardButtons() {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
         
@@ -78,6 +94,9 @@ public abstract class SimpleInputDlg extends JDialog implements ActionListener {
         getContentPane().add(p2, BorderLayout.SOUTH);
     }
     
+    /**
+     *
+     */
     protected void setDefaultBehavior() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(getParent());
@@ -118,14 +137,28 @@ public abstract class SimpleInputDlg extends JDialog implements ActionListener {
         }
     }
 
+    /**
+     *
+     * @param inputValue
+     * @return
+     */
     protected boolean isInputError(String inputValue) {
         return false;
     }
 
+    /**
+     *
+     * @param inputValue
+     * @return
+     */
     protected String getErrorMessage(String inputValue) {
         return null;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getEnteredValue() {
         return enteredValue;
     }

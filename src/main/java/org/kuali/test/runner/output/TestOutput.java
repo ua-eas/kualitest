@@ -20,7 +20,10 @@ import java.util.Date;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.Operation;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TestOutput {
     private Date startTime;
     private Date endTime;
@@ -29,6 +32,10 @@ public class TestOutput {
     private String checkpointName;
     private String checkpointType;
     
+    /**
+     *
+     * @param op
+     */
     public TestOutput(Operation op) {
         startTime = new Date();
         if (op.getCheckpointOperation() != null) {
@@ -40,26 +47,50 @@ public class TestOutput {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getStartTime() {
         return startTime;
     }
 
+    /**
+     *
+     * @return
+     */
     public Date getEndTime() {
         return endTime;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTestName() {
         return testName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getTestSuiteName() {
         return testSuiteName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCheckpointName() {
         return checkpointName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getCheckpointType() {
         return checkpointType;
     }

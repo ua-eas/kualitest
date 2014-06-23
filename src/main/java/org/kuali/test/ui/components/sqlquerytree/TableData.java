@@ -21,7 +21,10 @@ import java.util.List;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TableData extends DBObjectData {
     private String schema;
     private DefaultMutableTreeNode treeNode;
@@ -31,10 +34,19 @@ public class TableData extends DBObjectData {
     private String foreignKeyName = null;
     private boolean outerJoin = false;
     
+    /**
+     *
+     */
     public TableData() {
         super(null, null, null);
     }
 
+    /**
+     *
+     * @param schema
+     * @param name
+     * @param displayName
+     */
     public TableData(String schema, String name, String displayName) {
         super(schema, name, displayName);
     }
@@ -68,30 +80,58 @@ public class TableData extends DBObjectData {
         return toString().compareTo(o.toString());
     }
 
+    /**
+     *
+     * @return
+     */
     public List<ColumnData> getColumns() {
         return columns;
     }
 
+    /**
+     *
+     * @param columns
+     */
     public void setColumns(List<ColumnData> columns) {
         this.columns = columns;
     }
     
+    /**
+     *
+     * @param col
+     */
     public void addColumn(ColumnData col) {
         columns.add(col);
     }
 
+    /**
+     *
+     * @return
+     */
     public List<TableData> getRelatedTables() {
         return relatedTables;
     }
 
+    /**
+     *
+     * @param relatedTables
+     */
     public void setRelatedTables(List<TableData> relatedTables) {
         this.relatedTables = relatedTables;
     }
     
+    /**
+     *
+     * @param table
+     */
     public void addRelatedTable(TableData table) {
         relatedTables.add(table);
     }
     
+    /**
+     *
+     * @return
+     */
     public List <String[]> getLinkColumns() {
         if (linkColumns == null) {
             linkColumns = new ArrayList<String[]>();
@@ -100,14 +140,26 @@ public class TableData extends DBObjectData {
         return linkColumns;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getForeignKeyName() {
         return foreignKeyName;
     }
 
+    /**
+     *
+     * @param foreignKeyName
+     */
     public void setForeignKeyName(String foreignKeyName) {
         this.foreignKeyName = foreignKeyName;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFullTableName() {
         StringBuilder retval = new StringBuilder(128);
 
@@ -140,22 +192,42 @@ public class TableData extends DBObjectData {
         return getFullTableName().hashCode();
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isOuterJoin() {
         return outerJoin;
     }
 
+    /**
+     *
+     * @param outerJoin
+     */
     public void setOuterJoin(boolean outerJoin) {
         this.outerJoin = outerJoin;
     }
 
+    /**
+     *
+     * @return
+     */
     public DefaultMutableTreeNode getTreeNode() {
         return treeNode;
     }
 
+    /**
+     *
+     * @param treeNode
+     */
     public void setTreeNode(DefaultMutableTreeNode treeNode) {
         this.treeNode = treeNode;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getDbTableName() {
         StringBuilder retval = new StringBuilder(128);
         

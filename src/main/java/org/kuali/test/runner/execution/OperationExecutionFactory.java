@@ -21,13 +21,20 @@ import org.kuali.test.CheckpointType;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class OperationExecutionFactory {
     private static final Logger LOG = Logger.getLogger(OperationExecutionFactory.class);
     private static OperationExecutionFactory instance;
 
     private OperationExecutionFactory() {};
     
+    /**
+     *
+     * @return
+     */
     public static OperationExecutionFactory getInstance() {
         if (instance == null) {
             instance = new OperationExecutionFactory();
@@ -35,6 +42,12 @@ public class OperationExecutionFactory {
         return instance;
     }
     
+    /**
+     *
+     * @param testContext
+     * @param op
+     * @return
+     */
     public OperationExecution getOperationExecution(TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
 

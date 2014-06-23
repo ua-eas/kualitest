@@ -106,7 +106,10 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         return retval;
     }
     
-    
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -141,11 +144,19 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         return new Dimension(400, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "test-execution-parameter-names";
     }
 
+    /**
+     *
+     * @param actionCommand
+     */
     @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.REMOVE_NAME_ACTION.equals(actionCommand)) {

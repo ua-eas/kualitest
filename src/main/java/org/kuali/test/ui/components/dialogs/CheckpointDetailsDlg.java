@@ -60,6 +60,10 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getCancelText() {
         return Constants.CLOSE_ACTION;
@@ -170,11 +174,19 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
         return new Dimension(700, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "checkpoint-details";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         return false;

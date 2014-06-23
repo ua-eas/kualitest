@@ -22,7 +22,10 @@ import java.awt.dnd.DragSourceAdapter;
 import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceEvent;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class RepositoryDragSourceAdapter extends DragSourceAdapter {
     @Override
     public void dragOver(DragSourceDragEvent dsde) {

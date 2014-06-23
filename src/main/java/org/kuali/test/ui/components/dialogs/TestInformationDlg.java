@@ -61,6 +61,12 @@ public class TestInformationDlg extends BaseSetupDlg {
         initComponents();
     }
 
+    /**
+     *
+     * @param mainFrame
+     * @param parentDlg
+     * @param testHeader
+     */
     public TestInformationDlg(TestCreator mainFrame, JDialog parentDlg, TestHeader testHeader) {
         super(mainFrame, parentDlg);
         this.testHeader = testHeader;
@@ -117,6 +123,10 @@ public class TestInformationDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getCancelText() {
         return Constants.CLOSE_ACTION;
@@ -217,11 +227,19 @@ public class TestInformationDlg extends BaseSetupDlg {
         return new Dimension(600, 400);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "test-information";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         return false;

@@ -20,12 +20,28 @@ import java.awt.Insets;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class ToggleToolbarButton extends JToggleButton {
+
+    /**
+     *
+     * @param actionCommand
+     * @param icon
+     */
     public ToggleToolbarButton(String actionCommand, ImageIcon icon) {
         this(actionCommand, actionCommand, icon, true);
     }
 
+    /**
+     *
+     * @param actionCommand
+     * @param txt
+     * @param icon
+     * @param includeText
+     */
     public ToggleToolbarButton(String actionCommand, String txt, ImageIcon icon, boolean includeText) {
         super(icon);
         setActionCommand(actionCommand);

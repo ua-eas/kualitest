@@ -21,7 +21,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class CheckpointPropertyComparator implements Comparator <CheckpointProperty> {
     @Override
     public int compare(CheckpointProperty o1, CheckpointProperty o2) {

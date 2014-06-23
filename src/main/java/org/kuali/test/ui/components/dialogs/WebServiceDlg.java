@@ -99,6 +99,10 @@ public class WebServiceDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -157,11 +161,19 @@ public class WebServiceDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return webService;
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "web-service-setup";

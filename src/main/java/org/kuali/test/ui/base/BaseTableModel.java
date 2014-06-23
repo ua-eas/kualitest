@@ -23,13 +23,20 @@ import org.apache.log4j.Logger;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BaseTableModel extends AbstractTableModel {
     private static Logger LOG = Logger.getLogger(BaseTableModel.class);
     
     private TableConfiguration config;
     private List data = new ArrayList();
     
+    /**
+     *
+     * @param config
+     */
     public BaseTableModel(TableConfiguration config) {
         super();
         this.config = config;
@@ -86,16 +93,28 @@ public class BaseTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     *
+     * @param inputData
+     */
     public void setData(List inputData) {
         data.clear();
         data.addAll(inputData);
         fireTableDataChanged();
     }
     
+    /**
+     *
+     * @return
+     */
     public List getData() {
         return data;
     }
 
+    /**
+     *
+     * @return
+     */
     public TableConfiguration getConfig() {
         return config;
     }

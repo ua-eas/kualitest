@@ -16,16 +16,31 @@
 
 package org.kuali.test.ui.components.editmasks;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class FloatTextField extends BaseEditMaskField {
+
+    /**
+     *
+     */
     public FloatTextField() {
         super(BaseEditMaskField.FLOAT_MASK);
     }
 
+    /**
+     *
+     * @param in
+     */
     public void setDouble(double in) {
         setText("" + in);
     }
     
+    /**
+     *
+     * @return
+     */
     public double getDouble() {
         double retval = 0;
         try {

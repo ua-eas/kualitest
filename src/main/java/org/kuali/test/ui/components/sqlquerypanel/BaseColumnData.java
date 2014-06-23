@@ -19,23 +19,42 @@ package org.kuali.test.ui.components.sqlquerypanel;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BaseColumnData {
     private TableData tableData;
     private ColumnData columnData;
 
+    /**
+     *
+     * @return
+     */
     public TableData getTableData() {
         return tableData;
     }
 
+    /**
+     *
+     * @param tableData
+     */
     public void setTableData(TableData tableData) {
         this.tableData = tableData;
     }
 
+    /**
+     *
+     * @return
+     */
     public ColumnData getColumnData() {
         return columnData;
     }
 
+    /**
+     *
+     * @param columnData
+     */
     public void setColumnData(ColumnData columnData) {
         this.columnData = columnData;
     }

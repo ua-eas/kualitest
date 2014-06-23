@@ -16,32 +16,59 @@
 
 package org.kuali.test.ui.components.sqlquerypanel;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class SelectColumnData extends BaseColumnData {
     private String function;
     private String order;
     private String ascDesc;
 
+    /**
+     *
+     * @return
+     */
     public String getFunction() {
         return function;
     }
 
+    /**
+     *
+     * @param function
+     */
     public void setFunction(String function) {
         this.function = function;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getOrder() {
         return order;
     }
 
+    /**
+     *
+     * @param order
+     */
     public void setOrder(String order) {
         this.order = order;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAscDesc() {
         return ascDesc;
     }
 
+    /**
+     *
+     * @param ascDesc
+     */
     public void setAscDesc(String ascDesc) {
         this.ascDesc = ascDesc;
     }

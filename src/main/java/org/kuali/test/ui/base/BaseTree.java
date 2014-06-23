@@ -33,14 +33,25 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.kuali.test.creator.TestCreator;
 
+/**
+ *
+ * @author rbtucker
+ */
 public abstract class BaseTree extends JTree implements TreeModelListener {
 
     private final TestCreator mainframe;
 
+    /**
+     *
+     * @param mainframe
+     */
     public BaseTree(TestCreator mainframe) {
         this.mainframe = mainframe;
     }
 
+    /**
+     *
+     */
     protected void init() {
         ToolTipManager.sharedInstance().registerComponent(this);
 
@@ -83,13 +94,27 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         return new Insets(10, 5, 0, 0);
     }
 
+    /**
+     *
+     * @return
+     */
     protected TreeCellRenderer getTreeCellRenderer() {
         return new DefaultTreeCellRenderer();
     }
 
+    /**
+     *
+     * @param node
+     * @param x
+     * @param y
+     */
     protected void showPopup(DefaultMutableTreeNode node, int x, int y) {
     }
 
+    /**
+     *
+     * @return
+     */
     public TestCreator getMainframe() {
         return mainframe;
     }
@@ -99,14 +124,26 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         return (DefaultTreeModel) super.getModel();
     }
 
+    /**
+     *
+     * @param node
+     */
     public void removeNode(DefaultMutableTreeNode node) {
         if ((node != null) && (node.getParent() != null)) {
             getModel().removeNodeFromParent(node);
         }
     }
 
+    /**
+     *
+     * @return
+     */
     protected abstract DefaultTreeModel getTreeModel();
 
+    /**
+     *
+     * @return
+     */
     public DefaultMutableTreeNode getRootNode() {
         return (DefaultMutableTreeNode) getModel().getRoot();
     }
@@ -127,6 +164,11 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         return retval;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     protected String getTooltip(DefaultMutableTreeNode node) {
         return null;
     }
@@ -151,18 +193,39 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         handleTreeStuctureChanged(e);
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleTreeNodesChanged(TreeModelEvent e) {
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleTreeNodesInserted(TreeModelEvent e) {
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleTreeNodesRemoved(TreeModelEvent e) {
     }
 
+    /**
+     *
+     * @param e
+     */
     protected void handleTreeStuctureChanged(TreeModelEvent e) {
     }
 
+    /**
+     *
+     * @param node
+     * @param childLevels
+     */
     public void expandNode(DefaultMutableTreeNode node, int childLevels) {
         expandNode(node);
 
@@ -185,6 +248,10 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         }
     }
 
+    /**
+     *
+     * @param node
+     */
     public void expandNode(DefaultMutableTreeNode node) {
         List <DefaultMutableTreeNode> pathList = new ArrayList<DefaultMutableTreeNode>();
 

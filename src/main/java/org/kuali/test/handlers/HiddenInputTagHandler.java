@@ -19,8 +19,17 @@ package org.kuali.test.handlers;
 import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class HiddenInputTagHandler extends TextInputTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         return super.getCheckpointProperty(node);

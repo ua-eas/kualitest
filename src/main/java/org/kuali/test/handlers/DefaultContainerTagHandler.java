@@ -18,8 +18,17 @@ package org.kuali.test.handlers;
 
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public boolean isContainer(Element node) {
         return true;

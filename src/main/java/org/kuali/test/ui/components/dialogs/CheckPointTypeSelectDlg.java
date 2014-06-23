@@ -37,6 +37,12 @@ import org.kuali.test.utils.Utils;
 public class CheckPointTypeSelectDlg extends BaseSetupDlg {
     private JComboBox checkPointTypes;
     
+    /**
+     *
+     * @param mainFrame
+     * @param testType
+     * @param platform
+     */
     public CheckPointTypeSelectDlg(TestCreator mainFrame, TestType.Enum testType, Platform platform) {
         super(mainFrame);
         setTitle("Select Check Point Type");
@@ -76,6 +82,10 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -88,6 +98,10 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
         return retval;
     }
     
+    /**
+     *
+     * @return
+     */
     public CheckpointType.Enum getCheckpointType() {
         return CheckpointType.Enum.forString((String)checkPointTypes.getSelectedItem());
     }
@@ -97,12 +111,19 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
         return new Dimension(325, 100);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getSaveText() {
         return Constants.OK_ACTION;
     }
 
-    
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "checkpoint-type";

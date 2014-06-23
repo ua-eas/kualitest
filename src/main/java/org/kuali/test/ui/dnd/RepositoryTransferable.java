@@ -21,11 +21,21 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-
+/**
+ *
+ * @author rbtucker
+ * @param <T1>
+ * @param <T2>
+ */
 public class RepositoryTransferable <T1, T2> implements Transferable {
     private RepositoryTransferData<T1, T2> transferData;
     private DataFlavor dataFlavor;
     
+    /**
+     *
+     * @param transferData
+     * @param dataFlavor
+     */
     public RepositoryTransferable(RepositoryTransferData transferData, DataFlavor dataFlavor) {
         this.transferData = transferData;
         this.dataFlavor = dataFlavor;

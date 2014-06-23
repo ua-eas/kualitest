@@ -18,8 +18,17 @@ package org.kuali.test.handlers;
 
 import org.w3c.dom.Element;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class KualiTabTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public boolean isContainer(Element node) {
         if (LOG.isDebugEnabled()) {
@@ -28,6 +37,11 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
         return true;
     }
 
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
     public String getGroupName(Element node) {
         String id = node.getAttribute("id");

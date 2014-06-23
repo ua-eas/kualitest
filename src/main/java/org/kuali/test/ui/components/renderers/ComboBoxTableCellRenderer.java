@@ -21,7 +21,16 @@ import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.table.TableCellRenderer;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class ComboBoxTableCellRenderer extends JComboBox implements TableCellRenderer {
+
+    /**
+     *
+     * @param items
+     */
     public ComboBoxTableCellRenderer(Object[] items) {
         super(items);
         setUI(new BasicComboBoxUI());

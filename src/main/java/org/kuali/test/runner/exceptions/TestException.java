@@ -18,16 +18,31 @@ package org.kuali.test.runner.exceptions;
 
 import org.kuali.test.Operation;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TestException extends Exception {
     private Operation op;
     private String message;
+
+    /**
+     *
+     * @param message
+     * @param op
+     */
     public TestException(String message, Operation op) {
         super(message);
         this.op = op;
         this.message = message;
     }
 
+    /**
+     *
+     * @param message
+     * @param op
+     * @param cause
+     */
     public TestException(String message, Operation op, Throwable cause) {
         super(message, cause);
         this.op = op;

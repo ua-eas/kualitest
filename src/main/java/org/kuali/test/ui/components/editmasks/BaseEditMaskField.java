@@ -19,17 +19,37 @@ package org.kuali.test.ui.components.editmasks;
 import java.awt.event.KeyEvent;
 import javax.swing.JTextField;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class BaseEditMaskField extends JTextField {
     private static final int DEFAULT_NUMERIC_COLUMNS = 10;
+
+    /**
+     *
+     */
     public static final int INTEGER_MASK = 1;
+
+    /**
+     *
+     */
     public static final int FLOAT_MASK = 2;
     private int maskType;
     
+    /**
+     *
+     * @param maskType
+     */
     public BaseEditMaskField(int maskType) {
         initMask(maskType, 0);
     }
 
+    /**
+     *
+     * @param maskType
+     * @param numcols
+     */
     public BaseEditMaskField(int maskType, int numcols) {
         initMask(maskType, numcols);
     }

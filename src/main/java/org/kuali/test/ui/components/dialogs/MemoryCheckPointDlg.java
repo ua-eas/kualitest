@@ -50,6 +50,11 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
     private IntegerTextField maxMemoryPercent;
     private JComboBox maxMemoryFailure;
 
+    /**
+     *
+     * @param mainFrame
+     * @param testHeader
+     */
     public MemoryCheckPointDlg(TestCreator mainFrame, TestHeader testHeader) {
         super(mainFrame);
         this.testHeader = testHeader;
@@ -93,6 +98,10 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean save() {
         boolean retval = false;
@@ -139,6 +148,10 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
         return retval;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public Object getNewRepositoryObject() {
         return checkpoint;
@@ -149,6 +162,10 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
         return new Dimension(500, 200);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected String getDialogName() {
         return "memory-checkpoint-entry";

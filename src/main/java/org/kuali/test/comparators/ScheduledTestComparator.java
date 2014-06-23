@@ -19,7 +19,10 @@ package org.kuali.test.comparators;
 import java.util.Comparator;
 import org.kuali.test.ScheduledTest;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class ScheduledTestComparator implements Comparator <ScheduledTest> {
     @Override
     public int compare(ScheduledTest o1, ScheduledTest o2) {

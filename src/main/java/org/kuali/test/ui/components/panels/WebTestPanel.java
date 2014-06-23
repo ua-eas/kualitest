@@ -69,6 +69,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private String lastProxyHtmlResponse;
     private ToolbarButton executionAttribute;
     
+    /**
+     *
+     * @param mainframe
+     * @param platform
+     * @param testHeader
+     */
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
 
@@ -84,6 +90,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         initComponents();
     }
 
+    /**
+     *
+     */
     @Override
     protected void initComponents() {
         super.initComponents();
@@ -95,6 +104,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         add(tabbedPane, BorderLayout.CENTER);
     }
 
+    /**
+     *
+     * @param initial
+     * @return
+     */
     public WebBrowserPanel addNewBrowserPanel(boolean initial) {
         WebBrowserPanel retval = new WebBrowserPanel(createWebBrowser(initial)); 
 
@@ -148,6 +162,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleCreateCheckpoint() {
         if (LOG.isDebugEnabled()) {
@@ -320,7 +337,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
      }
 
-    
+    /**
+     *
+     */
     @Override
     protected void handleCancelTest() {
         testProxyServer.getTestOperations().clear();
@@ -332,6 +351,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         closeProxyServer();
     }
 
+    /**
+     *
+     */
     @Override
     protected void handleStartTest() {
         getMainframe().getCreateTestButton().setEnabled(false);
@@ -350,6 +372,11 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         return retval;
     }
+
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean handleSaveTest() {
         boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
@@ -387,6 +414,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
+    /**
+     *
+     */
     public void browserRemoved() {
         try {
             if (NativeInterface.isOpen()) {
@@ -442,15 +472,27 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval.toString();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected boolean isStartTestRequired() {
         return true;
     }
 
+    /**
+     *
+     * @param lastProxyHtmlResponse
+     */
     public void setLastProxyHtmlResponse(String lastProxyHtmlResponse) {
         this.lastProxyHtmlResponse = lastProxyHtmlResponse;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     protected List<ToolbarButton> getCustomButtons() {
         List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
@@ -460,6 +502,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
+    /**
+     *
+     * @param e
+     */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (Constants.EXECUTION_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
@@ -479,7 +525,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
     
-   public Element getHtmlRootNode(List <Element> labelNodes) {
+    /**
+     *
+     * @param labelNodes
+     * @return
+     */
+    public Element getHtmlRootNode(List <Element> labelNodes) {
         nodeId = 1;
         JWebBrowser wb = getCurrentBrowser();
         return getRootNodeFromHtml(wb, labelNodes, getCurrentHtmlResponse(wb));
@@ -505,6 +556,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public TestProxyServer getTestProxyServer() {
         return testProxyServer;
     }

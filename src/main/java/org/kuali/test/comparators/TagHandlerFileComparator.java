@@ -19,7 +19,10 @@ package org.kuali.test.comparators;
 import java.io.File;
 import java.util.Comparator;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class TagHandlerFileComparator implements Comparator <File> {
     @Override
     public int compare(File o1, File o2) {

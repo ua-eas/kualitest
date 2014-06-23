@@ -34,6 +34,10 @@ import org.apache.log4j.Logger;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.utils.Constants;
 
+/**
+ *
+ * @author rbtucker
+ */
 public class SqlDisplayPanel extends BaseSqlPanel {
     private static final Logger LOG = Logger.getLogger(SqlDisplayPanel.class);
     private static final String CHECK_GENERATED_SQL_ACTION = "Check Generated SQL";
@@ -42,6 +46,11 @@ public class SqlDisplayPanel extends BaseSqlPanel {
     private JButton checkSql;
     private JPopupMenu popupMenu;
 
+    /**
+     *
+     * @param mainframe
+     * @param dbPanel
+     */
     public SqlDisplayPanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, null);
         initComponents();
@@ -80,6 +89,9 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         });
     }
 
+    /**
+     *
+     */
     @Override
     protected void handlePanelShown() {
         String sql = buildHtml();
@@ -91,6 +103,10 @@ public class SqlDisplayPanel extends BaseSqlPanel {
        return getDbPanel().getSqlQueryString(DatabasePanel.SQL_FORMAT_DISPLAY);
     }
 
+    /**
+     *
+     * @param e
+     */
     @Override
     protected void handleUnprocessedActions(ActionEvent e) {
         if (CHECK_GENERATED_SQL_ACTION.equals(e.getActionCommand())) {

@@ -16,16 +16,31 @@
 
 package org.kuali.test.ui.components.editmasks;
 
-
+/**
+ *
+ * @author rbtucker
+ */
 public class IntegerTextField extends BaseEditMaskField {
+
+    /**
+     *
+     */
     public IntegerTextField() {
         super(BaseEditMaskField.INTEGER_MASK);
     }
 
+    /**
+     *
+     * @param in
+     */
     public void setInt(int in) {
         setText("" + in);
     }
     
+    /**
+     *
+     * @return
+     */
     public int getInt() {
         int retval = 0;
         try {
