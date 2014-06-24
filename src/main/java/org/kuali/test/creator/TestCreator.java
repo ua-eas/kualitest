@@ -67,8 +67,10 @@ import org.kuali.test.ui.components.dialogs.AddTestsDlg;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
+import org.kuali.test.ui.components.dialogs.EncryptionRequiredParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
+import org.kuali.test.ui.components.dialogs.RemoveParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
@@ -186,45 +188,32 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     private void createMenuBar() {
         JMenuBar mainMenu = new JMenuBar();
-        JMenu fileMenu = new JMenu();
-        JMenuItem loadConfiguationMenuItem = new JMenuItem();
-        JMenuItem setup = new JMenu();
-        JMenuItem addPlatformMenuItem = new JMenuItem();
-        JMenuItem addDatabaseConnectionMenuItem = new JMenuItem();
-        JMenuItem addWebServiceMenuItem = new JMenuItem();
-        JMenuItem addJmxConnectionMenuItem = new JMenuItem();
-        JMenuItem emailSetupMenuItem = new JMenuItem();
-        JMenuItem testExecutionParameterNamesMenuItem = new JMenuItem();
-        JMenuItem scheduleTestsMenuItem = new JMenuItem();
-        JMenuItem exitMenuItem = new JMenuItem();
-        JMenuItem helpMenu = new JMenu();
-        JMenuItem contentMenuItem = new JMenuItem();
-        JMenuItem aboutMenuItem = new JMenuItem();
 
-        fileMenu.setMnemonic('f');
-        fileMenu.setText("File");
+        JMenuItem menu = new JMenu();
+        menu.setMnemonic('f');
+        menu.setText("File");
 
-        loadConfiguationMenuItem.setText("Load Configuration...");
-        loadConfiguationMenuItem.addActionListener(new ActionListener() {
+        JMenuItem m = new JMenuItem("Load Configuration...");
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleLoadConfiguation(evt);
             }
         });
 
-        fileMenu.add(loadConfiguationMenuItem);
+        menu.add(m);
 
-        scheduleTestsMenuItem.setText("Schedule Tests...");
-        scheduleTestsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        m = new JMenuItem("Schedule Tests...");
+        m.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 handleScheduleTests(evt);
             }
         });
 
-        fileMenu.add(scheduleTestsMenuItem);
+        menu.add(m);
 
-        fileMenu.add(new JSeparator());
+        menu.add(new JSeparator());
         
         saveConfigurationMenuItem = new JMenuItem("Save Repository Configuration");
         saveConfigurationMenuItem.setEnabled(false);
@@ -239,7 +228,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         
-        fileMenu.add(saveConfigurationMenuItem);
+        menu.add(saveConfigurationMenuItem);
         
         createTestMenuItem = new JMenuItem("Create Test");
         createTestMenuItem.setEnabled(false);
@@ -251,101 +240,127 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         
-        fileMenu.add(createTestMenuItem);
+        menu.add(createTestMenuItem);
         
-        fileMenu.add(new JSeparator());
+        menu.add(new JSeparator());
         
-        setup.setText("Setup");
+        
+        JMenuItem setup = new JMenu("Setup");
 
-        addPlatformMenuItem.setText("Add Platform");
-        addPlatformMenuItem.addActionListener(new ActionListener() {
+        m = new JMenuItem("Add Platform");
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddPlatform(evt);
             }
         });
-        setup.add(addPlatformMenuItem);
+        setup.add(m);
 
-        addDatabaseConnectionMenuItem.setText("Add Database Connection");
-        addDatabaseConnectionMenuItem.addActionListener(new ActionListener() {
+        m = new JMenuItem("Add Database Connection");
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddDatabaseConnection(evt);
             }
         });
-        setup.add(addDatabaseConnectionMenuItem);
+        setup.add(m);
 
-        addWebServiceMenuItem.setText("Add Web Service");
+        m = new JMenuItem("Add Web Service");
 
-        addWebServiceMenuItem.addActionListener(new ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddWebService(evt);
             }
         });
 
-        setup.add(addWebServiceMenuItem);
+        setup.add(m);
         
-        addJmxConnectionMenuItem.setText("Add JMX Connection");
+        m = new JMenuItem("Add JMX Connection");
 
-        addJmxConnectionMenuItem.addActionListener(new ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleAddJmxConnection(evt);
             }
         });
 
-        setup.add(addJmxConnectionMenuItem);
+        setup.add(m);
         
-        testExecutionParameterNamesMenuItem.setText("Test Execution Parameter Names");
-        testExecutionParameterNamesMenuItem.addActionListener(new ActionListener() {
+        setup.add(new JSeparator());
+        
+        m = new JMenuItem("Test Execution Parameter Names");
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleTestExecutionParameterNamesSetup();
             }
         });
         
-        setup.add(testExecutionParameterNamesMenuItem);
+        setup.add(m);
 
+        m = new JMenuItem("Parameters requiring encryption");
+        m.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleParametersRequiringEncryptionSetup();
+            }
+        });
+        
+        setup.add(m);
+
+        m = new JMenuItem("Parameters to remove");
+        m.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleRemoveParameterSetup();
+            }
+        });
+        
+        setup.add(m);
+
+        
         setup.add(new JSeparator());
         
-        emailSetupMenuItem.setText("Email Setup");
-        emailSetupMenuItem.addActionListener(new ActionListener() {
+        m = new JMenuItem("Email Setup");
+        m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleEmailSetup(evt);
             }
         });
-        setup.add(emailSetupMenuItem);
+        
+        setup.add(m);
 
-        fileMenu.add(setup);
+        menu.add(setup);
 
-        fileMenu.add(new JSeparator());
+        menu.add(new JSeparator());
 
-        exitMenuItem.setMnemonic('x');
-        exitMenuItem.setText("Exit");
-        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        m = new JMenuItem("Exit");
+        m.setMnemonic('x');
+        m.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 exitApplication.doClick();
             }
         });
-        fileMenu.add(exitMenuItem);
+        
+        menu.add(m);
 
-        mainMenu.add(fileMenu);
+        mainMenu.add(menu);
 
-        helpMenu.setMnemonic('h');
-        helpMenu.setText("Help");
+        menu = new JMenu("Help");
+        menu.setMnemonic('h');
 
-        contentMenuItem.setMnemonic('c');
-        contentMenuItem.setText("Contents");
-        helpMenu.add(contentMenuItem);
+        m = new JMenuItem("Contents");
+        m.setMnemonic('c');
+        menu.add(m);
 
-        aboutMenuItem.setMnemonic('a');
-        aboutMenuItem.setText("About");
-        helpMenu.add(aboutMenuItem);
+        m = new JMenuItem("About");
+        m.setMnemonic('a');
+        menu.add(m);
 
-        mainMenu.add(helpMenu);
+        mainMenu.add(menu);
 
         setJMenuBar(mainMenu);
     }
@@ -790,11 +805,26 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         new ScheduleTestsDlg(this);
     }
 
-    /**
-     *
-     */
     public void handleTestExecutionParameterNamesSetup() {
         TestExecutionParameterNamesDlg dlg = new TestExecutionParameterNamesDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
+        }
+    }
+
+    public void handleParametersRequiringEncryptionSetup() {
+        EncryptionRequiredParameterNamesDlg dlg = new EncryptionRequiredParameterNamesDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
+        }
+    }
+
+    public void handleRemoveParameterSetup() {
+        RemoveParameterNamesDlg dlg = new RemoveParameterNamesDlg(this);
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);

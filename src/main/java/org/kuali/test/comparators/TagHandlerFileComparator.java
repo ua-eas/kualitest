@@ -27,7 +27,9 @@ public class TagHandlerFileComparator implements Comparator <File> {
     @Override
     public int compare(File o1, File o2) {
         int retval = 0;
-        if (o1.getName().startsWith("general-")) {
+        if (o1.getName().startsWith("custom-")) {
+            retval = -1;
+        } else if (o1.getName().startsWith("general-")) {
             retval = 1;
         } else if (o1.getName().startsWith("kfs-") || o1.getName().startsWith("kc-")) {
             retval = -1;
