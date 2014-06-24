@@ -58,6 +58,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.servlet.http.HttpServletResponse;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -2807,11 +2808,8 @@ public class Utils {
             tidy.setMakeClean(true);
             tidy.setXHTML(true);
             tidy.setShowWarnings(false);
-            tidy.setMakeBare(true);
             tidy.setHideComments(true);
-            tidy.setDropEmptyParas(true);
-            tidy.setDropFontTags(true);
-            tidy.setForceOutput(true);
+            tidy.setQuiet(true);
         }
         
         return tidy;
@@ -3105,4 +3103,11 @@ public class Utils {
         
         return retval;
     }
-}        
+    
+    
+    public static boolean isRedirectResponse(int status) {
+        return ((status == HttpServletResponse.SC_MOVED_TEMPORARILY)
+            || (status == HttpServletResponse.SC_MOVED_PERMANENTLY)
+            || (status == HttpServletResponse.SC_SEE_OTHER));
+            
+    }}        

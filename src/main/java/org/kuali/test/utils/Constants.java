@@ -178,6 +178,7 @@ public class Constants {
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE_US = "en-US,en;q=0.8";
     public static final String HTTP_HEADER_USER_AGENT = "User-Agent";
+    public static final String HTTP_HEADER_LOCATION = "Location";
     public static final String HTTP_HEADER_USER_AGENT_MOZILLA = "Mozilla";
     public static final int DEFAULT_HTTP_REQUEST_READ_TIMEOUT = 5000;
     public static final String JSESSIONID_PARAMETER_NAME = "jsessionid";

@@ -154,6 +154,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             int status = conn.getResponseCode();
+System.out.println("------------------------->status=" + status);
             
             if (status == HttpURLConnection.HTTP_OK) {
                 Map <String, List<String>> headers = conn.getHeaderFields();
