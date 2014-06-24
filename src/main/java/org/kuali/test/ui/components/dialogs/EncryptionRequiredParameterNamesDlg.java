@@ -118,6 +118,10 @@ public class EncryptionRequiredParameterNamesDlg extends BaseSetupDlg {
         List <String> names = tp.getTable().getTableData();
         Collections.sort(names);
         
+        if (getConfiguration().getParametersRequiringEncryption() == null) {
+            getConfiguration().addNewParametersRequiringEncryption();
+        }
+        
         getConfiguration().getParametersRequiringEncryption().setNameArray(names.toArray(new String[names.size()]));
         
         setSaved(true);

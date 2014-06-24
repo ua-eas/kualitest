@@ -34,10 +34,11 @@
                 <xs:element name="modified" type="xs:boolean"/>
                 <xs:element name="email-setup" type="email-setup"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
-                <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names"/>
-                <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption"/>
-                <xs:element name="parameters-to-remove" type="parameters-to-remove"/>
-                <xs:element name="encryption-password-file" type="xs:string"/>
+                <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names" minOccurs="0"/>
+                <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption" minOccurs="0"/>
+                <xs:element name="parameters-to-remove" type="parameters-to-remove" minOccurs="0"/>
+                <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
+                <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -56,6 +57,34 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="auto-replace-parameters">
+        <xs:sequence>
+            <xs:element name="auto-replace-parameter" type="auto-replace-parameter" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="auto-replace-parameter">
+        <xs:sequence>
+            <xs:element name="parameter-name" type="xs:string"/>
+            <xs:element name="tag-name" type="xs:string"/>
+            <xs:element name="tag-attributes" type="tag-attributes"/>
+            <xs:element name="retain" type="xs:boolean" default="false"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="tag-attributes">
+        <xs:sequence>
+            <xs:element name="attribute" type="tag-attribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="tag-attribute">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="parameters-requiring-encryption">
         <xs:sequence>

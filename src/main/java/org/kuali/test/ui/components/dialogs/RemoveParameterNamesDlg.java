@@ -118,6 +118,10 @@ public class RemoveParameterNamesDlg extends BaseSetupDlg {
         List <String> names = tp.getTable().getTableData();
         Collections.sort(names);
         
+        if (getConfiguration().getParametersToRemove() == null) {
+            getConfiguration().addNewParametersToRemove();
+        }
+
         getConfiguration().getParametersToRemove().setNameArray(names.toArray(new String[names.size()]));
         
         setSaved(true);

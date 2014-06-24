@@ -64,6 +64,7 @@ import org.kuali.test.WebService;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
 import org.kuali.test.ui.components.dialogs.AddTestsDlg;
+import org.kuali.test.ui.components.dialogs.AutoReplaceParametersDlg;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
@@ -115,7 +116,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private WebServiceTree webServiceTree;
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
-    private String encryptionPassword;
 
     /**
      *
@@ -314,6 +314,16 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleRemoveParameterSetup();
+            }
+        });
+        
+        setup.add(m);
+
+        m = new JMenuItem("Auto replace parameters");
+        m.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                handleAutoReplaceParameterSetup();
             }
         });
         
@@ -825,6 +835,15 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void handleRemoveParameterSetup() {
         RemoveParameterNamesDlg dlg = new RemoveParameterNamesDlg(this);
+
+        if (dlg.isSaved()) {
+            saveConfigurationButton.setEnabled(true);
+            saveConfigurationMenuItem.setEnabled(true);
+        }
+    }
+
+    public void handleAutoReplaceParameterSetup() {
+        AutoReplaceParametersDlg dlg = new AutoReplaceParametersDlg(this);
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);

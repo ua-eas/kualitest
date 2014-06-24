@@ -134,6 +134,8 @@ public class Constants {
     public static final String START_TEST_ACTION = "Start";
     public static final String CANCEL_TEST_ACTION = "Cancel";
     public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
+    public static final String ADD_ACTION = "Add";
+    public static final String DELETE_ACTION = "Delete";
     public static final String SAVE_TEST_ACTION = "Save";
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";

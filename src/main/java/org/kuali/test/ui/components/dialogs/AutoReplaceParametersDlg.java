@@ -20,14 +20,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.JLabel;
-import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
-import org.kuali.test.ui.base.SimpleInputDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -37,23 +35,23 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
+public class AutoReplaceParametersDlg extends BaseSetupDlg {
     private TablePanel tp;
     
     /**
-     * Creates new form TestSuiteDlg
+     * Creates new form RemoveParameterNamesDlg
      * @param mainFrame
      */
-    public TestExecutionParameterNamesDlg(TestCreator mainFrame) {
+    public AutoReplaceParametersDlg(TestCreator mainFrame) {
         super(mainFrame);
-        setTitle("Test execution parameter names");
+        setTitle("Auto replace parameters");
         initComponents();
     }
 
     private void initComponents() {
         tp = new TablePanel(buildNameTable());
-        tp.addAddButton(this, Constants.ADD_NAME_ACTION, "add test execution parameter name");
-        tp.addDeleteButton(this, Constants.REMOVE_NAME_ACTION, "remove selected test execution parameter name");
+        tp.addAddButton(this, Constants.ADD_NAME_ACTION, "add auto-replace parameter");
+        tp.addDeleteButton(this, Constants.REMOVE_NAME_ACTION, "remove selected auto-replace parameter");
         
         getContentPane().add(tp, BorderLayout.CENTER);
 
@@ -63,12 +61,12 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
     
     private BaseTable buildNameTable() {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("test-execution-parameter-names");
-        config.setDisplayName("Parameter Names");
+        config.setTableName("auto-replace-parameters");
+        config.setDisplayName("Auto Replace Parameters");
         
-        int[] alignment = new int[2];
+        int[] alignment = new int[4];
         for (int i = 0; i < alignment.length; ++i) {
-            if (i == 0) {
+            if (i == 3) {
                 alignment[i] = JLabel.CENTER;
             } else {
                 alignment[i] = JLabel.LEFT;
@@ -78,31 +76,35 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         config.setColumnAlignment(alignment);
         
         config.setHeaders(new String[] {
-            "Parameter Name"
+            "Parameter Name",
+            "Tag Name",
+            "Retain", 
         });
         
         config.setPropertyNames(new String[] {
-            "name"
+            "parameterName",
+            "tagName",
+            "retain"
         });
             
         config.setColumnTypes(new Class[] {
+            String.class,
+            String.class,
             String.class
         });
         
         config.setColumnWidths(new int[] {
-            30
+            30,
+            20,
+            20
         });
 
-        if (getConfiguration().getTestExecutionParameterNames() != null) {
-            config.setData(new ArrayList<String>(Arrays.asList(getConfiguration().getTestExecutionParameterNames().getNameArray())));
+        if (getConfiguration().getAutoReplaceParameters() != null) {
+            config.setData(new ArrayList<AutoReplaceParameter>(Arrays.asList(getConfiguration().getAutoReplaceParameters().getAutoReplaceParameterArray())));
         }
         
-        BaseTable retval = new BaseTable(config) {
-            @Override
-            public Object getValueAt(int row, int column) {
-                return getModel().getData().get(row);
-            }
-        };
+        BaseTable retval = new BaseTable(config);
+        
         return retval;
     }
     
@@ -115,14 +117,14 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         boolean retval = false;
         getConfiguration().setModified(true);
         
-        List <String> names = tp.getTable().getTableData();
-        Collections.sort(names);
+        List <AutoReplaceParameter> parameters = tp.getTable().getTableData();
+  //      Collections.sort(names);
         
-        if (getConfiguration().getTestExecutionParameterNames() == null) {
-            getConfiguration().addNewTestExecutionParameterNames();
+        if (getConfiguration().getAutoReplaceParameters() == null) {
+            getConfiguration().addNewAutoReplaceParameters();
         }
-        
-        getConfiguration().getTestExecutionParameterNames().setNameArray(names.toArray(new String[names.size()]));
+
+        getConfiguration().getAutoReplaceParameters().setAutoReplaceParameterArray(parameters.toArray(new AutoReplaceParameter[parameters.size()]));
         
         setSaved(true);
         dispose();
@@ -131,18 +133,6 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private boolean parameterNameExists(String name) {
-        boolean retval = false;
-        for (String nm : (List <String>)tp.getTable().getTableData()) {
-            if (nm.equalsIgnoreCase(name)) {
-                retval = true;
-                break;
-            }
-        }
-        
-        return retval;
-    }
-
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(400, 400);
@@ -154,7 +144,7 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
      */
     @Override
     protected String getDialogName() {
-        return "test-execution-parameter-names";
+        return "auto-replace-parameters";
     }
 
     /**
@@ -169,33 +159,21 @@ public class TestExecutionParameterNamesDlg extends BaseSetupDlg {
                 int selrow = tp.getTable().getSelectedRow();
                 String param = l.get(selrow);
 
-                if (UIUtils.promptForDelete(TestExecutionParameterNamesDlg.this, 
-                    "Remove Parameter", "Remove parameter name '" + param + "'?")) {
+                if (UIUtils.promptForDelete(AutoReplaceParametersDlg.this, 
+                    "Remove Parameter", "Remove parameter '" + param + "'?")) {
                     l.remove(selrow);
                     tp.getTable().getModel().fireTableRowsDeleted(selrow, selrow);
                 }
             }
         } else if (Constants.ADD_NAME_ACTION.equals(actionCommand)) {
-            SimpleInputDlg dlg = new SimpleInputDlg(this, "Parameter Name") {
-
-                @Override
-                protected String getErrorMessage(String inputValue) {
-                    return "Parameter name '" + inputValue + "' already exists";
-                }
-
-                @Override
-                protected boolean isInputError(String inputValue) {
-                    return parameterNameExists(inputValue);
-                }
-            };
+            AutoReplaceParameterDlg dlg = new AutoReplaceParameterDlg(getMainframe(), this);
             
-            String name = dlg.getEnteredValue();
-            
-            if (StringUtils.isNotBlank(name)) {
-                List <String> l = tp.getTable().getTableData();
-                int sz = l.size();
-                l.add(name);
-                tp.getTable().getModel().fireTableRowsInserted(sz, sz);
+            if (dlg.isSaved()) {
+                List <AutoReplaceParameter> l = tp.getTable().getTableData();
+                int newrow = l.size();
+                
+                l.add((AutoReplaceParameter)dlg.getNewRepositoryObject());
+                tp.getTable().getModel().fireTableRowsInserted(newrow, newrow);
             }
         }
     }
