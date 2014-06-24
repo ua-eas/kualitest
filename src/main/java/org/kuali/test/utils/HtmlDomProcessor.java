@@ -127,6 +127,10 @@ public class HtmlDomProcessor {
 
         return retval;
     }
+
+    public Element getDomDocumentElement(String html) {
+        return Utils.tidify(html).getDocumentElement();
+    }
     
     private Element getHtmlRootNode(String html, List <Element> labelNodes, DomInformation domInfo, JWebBrowser webBrowser) {
         Document doc = Utils.tidify(html);

@@ -66,6 +66,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.jasypt.util.text.BasicTextEncryptor;
+import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
@@ -80,6 +81,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
+import org.kuali.test.TagAttribute;
 import org.kuali.test.TagHandler;
 import org.kuali.test.TagHandlersDocument;
 import org.kuali.test.TagMatchAttribute;
@@ -3053,4 +3055,54 @@ public class Utils {
         
         return retval.toString();
     }
-}
+
+    public static boolean isAutoReplaceParameterMatch(AutoReplaceParameter param, Node node) {
+        boolean retval = false;
+        
+        if ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE)) {
+            Element e = (Element)node;
+            if (param.getTagName().equals(e.getTagName())) {
+                if (param.getParameterName().equals(e.getAttribute("name"))) {
+                    retval = true;
+                    if ((param.getTagAttributes() != null) && (param.getTagAttributes().sizeOfAttributeArray() > 0)) {
+                        for (TagAttribute att : param.getTagAttributes().getAttributeArray()) {
+                            if (!att.getValue().equals(e.getAttribute(att.getName()))) {
+                                retval = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String getNodeValue(Node node) {
+        String retval = null;
+        
+        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getNodeName())) {
+            Element e = (Element)node;
+            retval = e.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+        }
+        
+        return retval;
+    }
+    
+    public static String findAutoReplaceParameterInDom(AutoReplaceParameter param, Node node) {
+        String retval = null;
+         
+        if (isAutoReplaceParameterMatch(param, node)) {
+            retval = getNodeValue(node);
+        } else {
+            NodeList children = node.getChildNodes();
+            
+            for (int i = 0; (retval == null) && (i < children.getLength()); ++i) {
+                retval = findAutoReplaceParameterInDom(param, children.item(i));
+            }
+        }
+        
+        return retval;
+    }
+}        

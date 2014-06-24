@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
@@ -45,7 +46,9 @@ import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Element;
 
 /**
  *
@@ -56,6 +59,9 @@ public class TestExecutionContext extends Thread {
     private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
+
+    
+    private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
     private Map<String, List<String>> cookieMap = new HashMap<String, List<String>>();
     
@@ -570,6 +576,19 @@ public class TestExecutionContext extends Thread {
         }
         
         
+        for (String parameterName : getAutoReplaceParameterMap().keySet()) {
+            int[] parameterPosition = Utils.getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
+            
+            if (parameterPosition != null) {
+                String[] parameterData = Utils.getParameterData(retval, parameterPosition);
+                
+                if (parameterData != null) {
+                    parameterData[1] = getAutoReplaceParameterMap().get(parameterName);
+                    retval = Utils.replaceParameterString(retval, parameterPosition, parameterData);
+                }
+            }
+        }
+        
         return retval;
     }
     
@@ -618,6 +637,32 @@ public class TestExecutionContext extends Thread {
         }
         
         return retval;
+    }
+
+    public Map<String, String> getAutoReplaceParameterMap() {
+        return autoReplaceParameterMap;
+    }
+    
+    
+    public void updateAutoReplaceMap() {
+        if (configuration.getAutoReplaceParameters() != null) {
+            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(getLastHttpResponseData().toString());
+            
+            Map <String, AutoReplaceParameter> map = new HashMap<String, AutoReplaceParameter>();
+
+            for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
+                // remove non-retained values
+                if (!param.getRetain()) {
+                    autoReplaceParameterMap.remove(param.getParameterName());
+                }
+                
+                String value = Utils.findAutoReplaceParameterInDom(param, element);
+                
+                if (StringUtils.isNotBlank(value)) {
+                    autoReplaceParameterMap.put(param.getParameterName(), value);
+                }
+            }
+        }
     }
 }
 

@@ -167,6 +167,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
                 
+                tec.updateAutoReplaceMap();
+                
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("********************************* http response ***********************************");
                     LOG.debug(tec.getLastHttpResponseData().toString());
