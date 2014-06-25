@@ -744,11 +744,19 @@ public class Utils {
      * @return
      */
     public static boolean wantHttpRequestHeader(String key) {
-        return false;
+        return (Constants.HTTP_HEADER_ACCEPT.equals(key)
+            || Constants.HTTP_HEADER_ACCEPT_ENCODING.equals(key)
+            || Constants.HTTP_HEADER_CONNECTION.equals(key)
+            || Constants.HTTP_HEADER_ACCEPT_LANGUAGE.equals(key)
+            || Constants.HTTP_HEADER_USER_AGENT.equals(key)
+            || Constants.HTTP_HEADER_HOST.equals(key)
+            || Constants.HTTP_HEADER_REFERER.equals(key)
+            || Constants.HTTP_HEADER_ORIGIN.equals(key));
     }
     
     /**
      *
+     * @param configuration
      * @param request
      * @return
      */
@@ -792,16 +800,11 @@ public class Utils {
         testop.setOperationType(TestOperationType.HTTP_REQUEST);
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
-
         if (request != null) {
             Iterator<Entry<String, String>> it = request.headers().iterator();
 
             while (it.hasNext()) {
                 Entry<String, String> entry = it.next();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(entry.getKey() + "=" + entry.getValue());
-                }
-
                 if (wantHttpRequestHeader(entry.getKey())) {
                     RequestHeader header = op.getRequestHeaders().addNewHeader();
                     header.setName(entry.getKey());
@@ -3110,4 +3113,5 @@ public class Utils {
             || (status == HttpServletResponse.SC_MOVED_PERMANENTLY)
             || (status == HttpServletResponse.SC_SEE_OTHER));
             
-    }}        
+    }
+}        

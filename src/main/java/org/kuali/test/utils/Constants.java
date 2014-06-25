@@ -76,9 +76,6 @@ public class Constants {
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
 
-    /**
-     *
-     */
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;
     public static final int MAINFRAME_DEFAULT_TOP = 100;
@@ -168,9 +165,13 @@ public class Constants {
     public static final String SAVE_QUERY_RESULTS = "save-query-results";
     public static final String ROW_COUNT = "row-count";
     public static final String NO_TEST_SUITE_NAME = "no-test-suite";
+    public static final String HTTP_HEADER_CONNECTION = "Connection";
+    public static final String HTTP_HEADER_ACCEPT = "Accept";
+    public static final String HTTP_HEADER_ACCEPT_ENCODING = "Accept-Encoding";
     public static final String HTTP_HEADER_REFERER = "Referer";
     public static final String HTTP_HEADER_HOST = "Host";
     public static final String HTTP_HEADER_COOKIE = "Cookie";
+    public static final String HTTP_HEADER_ORIGIN = "Origin";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
     public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";

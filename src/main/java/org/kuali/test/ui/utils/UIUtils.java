@@ -25,7 +25,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -64,7 +63,7 @@ public class UIUtils {
             buf.append("<html><div style='");
             buf.append(style);
             buf.append("'>");
-            buf.append(StringEscapeUtils.escapeHtml4(msg));
+            buf.append(msg);
             buf.append("</div></html>");
             retval = buf.toString();
         }

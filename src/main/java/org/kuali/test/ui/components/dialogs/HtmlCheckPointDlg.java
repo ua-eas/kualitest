@@ -145,7 +145,9 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             retval.add(tp, BorderLayout.CENTER);
 
         } else if (pmap.size() == 1) {
-            TablePanel p = new TablePanel(buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            CheckpointTable t;
+            TablePanel p = new TablePanel(t = buildParameterTable(retval.getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            checkpointTables.add(t);
             retval.add(p, BorderLayout.CENTER);
         } else {
             retval.add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);

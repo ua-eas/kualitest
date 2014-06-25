@@ -233,7 +233,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      * @param requiredFields
      */
     protected void displayRequiredFieldsMissingAlert(String type, String requiredFields) {
-        UIUtils.showError(this, type, "Required fields are missing - please check fields:\n" + requiredFields);
+        UIUtils.showError(this, type, "Required fields are missing - please check fields:<br />" + requiredFields);
     }
     
     /**
