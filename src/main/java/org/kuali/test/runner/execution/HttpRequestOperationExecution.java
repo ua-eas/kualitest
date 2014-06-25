@@ -29,6 +29,7 @@ import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
@@ -111,11 +112,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
             
             conn.setReadTimeout(Constants.DEFAULT_HTTP_REQUEST_READ_TIMEOUT);
-            conn.addRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-            conn.addRequestProperty("Accept-Encoding", "gzip,defalte");
-            conn.addRequestProperty("Connection", "keep-alive");
-            conn.addRequestProperty(Constants.HTTP_HEADER_ACCEPT_LANGUAGE, Constants.HTTP_HEADER_ACCEPT_LANGUAGE_US);
-            conn.addRequestProperty(Constants.HTTP_HEADER_USER_AGENT, Constants.HTTP_HEADER_USER_AGENT_MOZILLA);
+            
+            if ( reqop.getRequestHeaders() != null) {
+                for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                    conn.addRequestProperty(hdr.getName(), hdr.getValue());
+                }
+            }
+            
             conn.setDoInput(true);
             conn.setInstanceFollowRedirects(true);
 
@@ -145,16 +148,14 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             // clear last response storage
             tec.clearLastHttpResponse();
-
             // Get the response
             reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
                 tec.getLastHttpResponseData().append(line);
             }
-
+            
             int status = conn.getResponseCode();
-System.out.println("------------------------->status=" + status);
             
             if (status == HttpURLConnection.HTTP_OK) {
                 Map <String, List<String>> headers = conn.getHeaderFields();
