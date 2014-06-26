@@ -19,9 +19,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -35,6 +35,7 @@ import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
@@ -107,50 +108,49 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
                 request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                request = new HttpPost(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
-                List <NameValuePair> nvps = URLEncodedUtils.parse(getContentParameterFromRequestOperation(reqop), Charset.defaultCharset());
-                ((HttpPost)request).setEntity(new UrlEncodedFormEntity(nvps));
+                HttpPost postRequest = new HttpPost(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
+                request = postRequest;
+                String params = getTestExecutionContext().replaceTestExecutionParameters(getContentParameterFromRequestOperation(reqop));
+                List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
+                postRequest.setEntity(new UrlEncodedFormEntity(nvps));
                 request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
             }
             
             if (request != null) {
                 TestExecutionContext tec = getTestExecutionContext();
-                /*
+
                 if (reqop.getRequestHeaders() != null) {
                     for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                         request.addHeader(hdr.getName(), hdr.getValue());
                     }
                 }
-*/
+
                 response = tec.getHttpClient().execute(request);
     
                 // clear last response storage
-                tec.clearLastHttpResponse();
+                tec.setLastHttpResponse("");
 
                 if (response != null) {
+                    BufferedReader reader = null; 
+                    StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+                    try {
+                        reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                         String line = "";
+                         while ((line = reader.readLine()) != null) {
+                             responseBuffer.append(line);
+                         }                        
+                     }
+
+                     finally {
+                         if (reader != null) {
+                             reader.close();
+                         }
+                     }
+
                     if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-                        BufferedReader reader = null; 
-                        
-                        try {
-                            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
- 
-                            String line = "";
-                            while ((line = reader.readLine()) != null) {
-                                tec.getLastHttpResponseData().append(line);
-                            }                        
-                            
-                            
-                            System.out.println("------------------------------------------------------>");
-                            System.out.println(tec.getLastHttpResponseData().toString());
-                        }
-                        
-                        finally {
-                            if (reader != null) {
-                                reader.close();
-                            }
-                        }
-                        
                         tec.updateAutoReplaceMap();
+                        tec.setLastHttpResponse(responseBuffer.toString());
                     }
                 }
             }

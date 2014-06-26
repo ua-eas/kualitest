@@ -75,8 +75,8 @@ public class Constants {
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
-
     public static final int DEFAULT_VERTICAL_DIVIDER_LOCATION = 300;
+    public static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     public static final int MAINFRAME_DEFAULT_LEFT = 100;
     public static final int MAINFRAME_DEFAULT_TOP = 100;
     public static final int MAINFRAME_DEFAULT_WIDTH = 800;

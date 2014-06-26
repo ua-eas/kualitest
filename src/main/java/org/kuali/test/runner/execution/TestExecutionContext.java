@@ -17,14 +17,12 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.net.ssl.SSLContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -32,10 +30,8 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.ProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.utils.HttpClientUtils;
@@ -50,16 +46,15 @@ import org.apache.http.conn.ManagedHttpClientConnection;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.BrowserCompatHostnameVerifier;
+import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.http.impl.conn.DefaultHttpResponseParser;
 import org.apache.http.impl.conn.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.conn.ManagedHttpClientConnectionFactory;
@@ -74,7 +69,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.LineParser;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -106,7 +100,6 @@ import org.w3c.dom.Element;
  */
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
-    private static final int DEFAULT_HTTP_RESPONSE_BUFFER_SIZE = 1024;
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
 
@@ -114,7 +107,7 @@ public class TestExecutionContext extends Thread {
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
     
-    private StringBuilder lastHttpResponseData = new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+    private String lastHttpResponseData;
     
     private Platform platform;
     private TestSuite testSuite;
@@ -183,23 +176,11 @@ public class TestExecutionContext extends Thread {
         HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
                 requestWriterFactory, responseParserFactory);
 
-        // Client HTTP connection objects when fully initialized can be bound to
-        // an arbitrary network socket. The process of network socket initialization,
-        // its connection to a remote address and binding to a local one is controlled
-        // by a connection socket factory.
-
-        // SSL context for secure connections can be created either based on
-        // system or application specific properties.
-        SSLContext sslcontext = SSLContexts.createSystemDefault();
-
-        // Use custom hostname verifier to customize SSL hostname verification.
-        X509HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
-
         // Create a registry of custom connection socket factories for supported
         // protocol schemes.
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
             .register("http", PlainConnectionSocketFactory.INSTANCE)
-            .register("https", new SSLConnectionSocketFactory(sslcontext, hostnameVerifier))
+            .register("https", new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), new AllowAllHostnameVerifier()))
             .build();
 
         // Create a connection manager with custom configuration.
@@ -223,8 +204,6 @@ public class TestExecutionContext extends Thread {
 
         // Create connection configuration
         ConnectionConfig connectionConfig = ConnectionConfig.custom()
-            .setMalformedInputAction(CodingErrorAction.IGNORE)
-            .setUnmappableInputAction(CodingErrorAction.IGNORE)
             .setCharset(Consts.UTF_8)
             .setMessageConstraints(messageConstraints)
             .build();
@@ -251,35 +230,13 @@ public class TestExecutionContext extends Thread {
             .setRedirectsEnabled(true)
             .build();
 
-        
-        RedirectStrategy redirectStrategy = new DefaultRedirectStrategy() {                
-            public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context)  {
-                boolean isRedirect=false;
-                try {
-                    isRedirect = super.isRedirected(request, response, context);
-                } 
-                
-                catch (ProtocolException ex) {
-                    LOG.warn(ex.toString(), ex);
-                }
                     
-                if (!isRedirect) {
-                    int responseCode = response.getStatusLine().getStatusCode();
-                    if (responseCode == 301 || responseCode == 302) {
-                        isRedirect = true;
-                    }
-                }
-                
-                return isRedirect;
-            }
-        };
-        
         httpClient = HttpClients.custom()
             .setConnectionManager(connManager)
             .setDefaultCookieStore(cookieStore)
             .setDefaultCredentialsProvider(credentialsProvider)
             .setDefaultRequestConfig(defaultRequestConfig)
-            .setRedirectStrategy(redirectStrategy)
+            .setRedirectStrategy(new LaxRedirectStrategy())
             .build();
     }
     
@@ -604,22 +561,17 @@ public class TestExecutionContext extends Thread {
     
     /**
      *
+     * @param lastHttpResponseData
      */
-    public void clearLastHttpResponse() {
-        if (lastHttpResponseData != null) {
-            lastHttpResponseData.setLength(0);
-        }
+    public void setLastHttpResponse(String lastHttpResponseData) {
+        this.lastHttpResponseData = lastHttpResponseData;
     }
 
     /**
      *
      * @return
      */
-    public StringBuilder getLastHttpResponseData() {
-        if (lastHttpResponseData == null) {
-            lastHttpResponseData= new StringBuilder(DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-        }
-        
+    public String getLastHttpResponseData() {
         return lastHttpResponseData;
     }
 
@@ -768,7 +720,7 @@ public class TestExecutionContext extends Thread {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
                 parameterString = input.substring(pos+1);
-                retval.append(input.substring(0, pos));
+                retval.append(input.substring(0, pos+1));
             }
         } else {
             parameterString = input;
@@ -776,34 +728,40 @@ public class TestExecutionContext extends Thread {
         
         // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(parameterString)) {
-            List <NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Charset.defaultCharset());
+            List <NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
 
-            // decrypt encrypted parameters
-            for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-                for (int i = 0; i < nvplist.size(); ++i) {
-                    if (parameterName.equals(nvplist.get(i).getName())) {
-                        nvplist.add(i, new BasicNameValuePair(parameterName, Utils.decrypt(Utils.getEncryptionPassword(configuration), nvplist.get(i).getValue())));
+            if ((nvplist != null) && !nvplist.isEmpty()) {
+                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+                
+                // decrypt encrypted parameters
+                for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (parameterName.equals(nvparray[i].getName())) {
+                            nvparray[i] = new BasicNameValuePair(parameterName, Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                        }
                     }
                 }
+
+                for (String parameterName : getAutoReplaceParameterMap().keySet()) {
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (parameterName.equals(nvparray[i].getName())) {
+                            nvparray[i] = new BasicNameValuePair(parameterName, getAutoReplaceParameterMap().get(parameterName));
+                        }
+                    }
+
+                    // remove the parameter if retain is false
+                    AutoReplaceParameter autoReplaceParameter = Utils.findAutoReplaceParameterByName(configuration, parameterName);
+                    if (autoReplaceParameter != null) {
+                        if (!autoReplaceParameter.getRetain()) {
+                            getAutoReplaceParameterMap().remove(parameterName);
+                        }
+                    }
+                }
+
+                retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+            } else {
+                retval.append(input);
             }
-
-            for (String parameterName : getAutoReplaceParameterMap().keySet()) {
-                for (int i = 0; i < nvplist.size(); ++i) {
-                    if (parameterName.equals(nvplist.get(i).getName())) {
-                        nvplist.add(i, new BasicNameValuePair(parameterName, getAutoReplaceParameterMap().get(parameterName)));
-                    }
-                }
-
-                // remove the parameter if retain is false
-                AutoReplaceParameter autoReplaceParameter = Utils.findAutoReplaceParameterByName(configuration, parameterName);
-                if (autoReplaceParameter != null) {
-                    if (!autoReplaceParameter.getRetain()) {
-                        getAutoReplaceParameterMap().remove(parameterName);
-                    }
-                }
-            }
-
-            retval.append(URLEncodedUtils.format(nvplist, Charset.defaultCharset()));
         } else {
             retval.append(input);
         }
@@ -818,13 +776,12 @@ public class TestExecutionContext extends Thread {
     
     public void updateAutoReplaceMap() {
         if (configuration.getAutoReplaceParameters() != null) {
-            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(getLastHttpResponseData().toString());
+            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(getLastHttpResponseData());
             
             Map <String, AutoReplaceParameter> map = new HashMap<String, AutoReplaceParameter>();
 
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
-                
                 if (StringUtils.isNotBlank(value)) {
                     autoReplaceParameterMap.put(param.getParameterName(), value);
                 }
