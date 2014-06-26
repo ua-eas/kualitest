@@ -22,7 +22,6 @@ import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -36,7 +35,6 @@ import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
-import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
@@ -117,15 +115,15 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             if (request != null) {
                 TestExecutionContext tec = getTestExecutionContext();
-                
+                /*
                 if (reqop.getRequestHeaders() != null) {
                     for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                         request.addHeader(hdr.getName(), hdr.getValue());
                     }
                 }
-
+*/
                 response = tec.getHttpClient().execute(request);
-
+    
                 // clear last response storage
                 tec.clearLastHttpResponse();
 
@@ -140,24 +138,19 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                             while ((line = reader.readLine()) != null) {
                                 tec.getLastHttpResponseData().append(line);
                             }                        
+                            
+                            
+                            System.out.println("------------------------------------------------------>");
+                            System.out.println(tec.getLastHttpResponseData().toString());
                         }
                         
                         finally {
-                            reader.close();
+                            if (reader != null) {
+                                reader.close();
+                            }
                         }
                         
-System.out.println("---------------------------------------------------------->");
-System.out.println(tec.getLastHttpResponseData().toString());
-System.out.println("---------------------------------------------------------->");
-                        Header[] headers = response.getAllHeaders();
-
                         tec.updateAutoReplaceMap();
-
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("********************************* http response ***********************************");
-                            LOG.debug(tec.getLastHttpResponseData().toString());
-                            LOG.debug("***********************************************************************************");
-                        }
                     }
                 }
             }
