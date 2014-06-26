@@ -787,7 +787,6 @@ public class Utils {
      * @param configuration
      * @param testop
      * @param request
-     * @param redirectUrl
      */
     public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         TestOperation testop, HttpRequest request) {
@@ -931,16 +930,6 @@ public class Utils {
     public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = input;
         
-        /*
-        // strip specified parameters
-        for (String parameterName : configuration.getParametersToRemove().getNameArray()) {
-            int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
-
-            if (paramPosition != null) {
-                retval = removeParameterString(retval, paramPosition);
-            }
-        }
-*/
         // encrypt specified securty parameters
         Set <String> hs = new HashSet<String>();
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {

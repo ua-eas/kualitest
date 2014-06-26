@@ -17,6 +17,7 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -35,6 +36,7 @@ import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.MessageConstraints;
@@ -49,6 +51,7 @@ import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -120,7 +123,7 @@ public class TestExecutionContext extends Thread {
     private boolean completed = false;
     private CloseableHttpClient httpClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-
+    private CookieStore cookieStore;
     /**
      *
      */
@@ -218,7 +221,7 @@ public class TestExecutionContext extends Thread {
         connManager.setDefaultMaxPerRoute(10);
 
         // Use custom cookie store if necessary.
-        CookieStore cookieStore = new BasicCookieStore();
+        cookieStore = new BasicCookieStore();
 
         // Use custom credentials provider if necessary.
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
@@ -705,6 +708,52 @@ public class TestExecutionContext extends Thread {
         return executionParameterMap.get(parameterName);
     }
     
+    private Cookie findJSessionIdCookie(String host) {
+        Cookie retval = null;
+        
+        for (Cookie c : cookieStore.getCookies()) {
+            if (c.getDomain().equalsIgnoreCase(host) && c.getName().equalsIgnoreCase(Constants.JSESSIONID_PARAMETER_NAME)) {
+                retval = c;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String replaceJsessionId(String input) {
+        StringBuilder retval = new StringBuilder(input.length());
+                
+        int pos = input.toLowerCase().indexOf(Constants.JSESSIONID_PARAMETER_NAME);
+        if (pos > -1) {
+            try {
+                Cookie cookie = findJSessionIdCookie(new URIBuilder(input).getHost());
+                if (cookie != null) {
+                    int pos2 = input.indexOf(Constants.SEPARATOR_QUESTION);
+                    retval.append(input.subSequence(0, pos));
+                    retval.append(cookie.getName());
+                    retval.append("=");
+                    retval.append(cookie.getValue());
+
+                    if (pos2 > -1) {
+                        retval.append(input.substring(pos2));
+                    }
+                } else {
+                    retval.append(input);
+                }
+            } 
+
+            catch (URISyntaxException ex) {
+                LOG.warn(ex.toString(), ex);
+            }
+        } else {
+            retval.append(input);
+        }
+        
+        
+        return retval.toString();
+    }
+    
     /**
      *
      * @param input
@@ -725,7 +774,7 @@ public class TestExecutionContext extends Thread {
         } else {
             parameterString = input;
         }
-        
+
         // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(parameterString)) {
             List <NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
@@ -748,7 +797,7 @@ public class TestExecutionContext extends Thread {
                             nvparray[i] = new BasicNameValuePair(parameterName, getAutoReplaceParameterMap().get(parameterName));
                         }
                     }
-
+/*
                     // remove the parameter if retain is false
                     AutoReplaceParameter autoReplaceParameter = Utils.findAutoReplaceParameterByName(configuration, parameterName);
                     if (autoReplaceParameter != null) {
@@ -756,6 +805,7 @@ public class TestExecutionContext extends Thread {
                             getAutoReplaceParameterMap().remove(parameterName);
                         }
                     }
+    */
                 }
 
                 retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
@@ -766,23 +816,22 @@ public class TestExecutionContext extends Thread {
             retval.append(input);
         }
         
-        return retval.toString();
+        return replaceJsessionId(retval.toString());
     }
     
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
     }
     
-    
     public void updateAutoReplaceMap() {
-        if (configuration.getAutoReplaceParameters() != null) {
+        if (StringUtils.isNotBlank(getLastHttpResponseData()) && (configuration.getAutoReplaceParameters() != null)) {
             Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(getLastHttpResponseData());
             
             Map <String, AutoReplaceParameter> map = new HashMap<String, AutoReplaceParameter>();
 
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
-                if (StringUtils.isNotBlank(value)) {
+                if (!autoReplaceParameterMap.containsKey(param) && StringUtils.isNotBlank(value)) {
                     autoReplaceParameterMap.put(param.getParameterName(), value);
                 }
             }

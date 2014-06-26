@@ -49,7 +49,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        String html = getTestExecutionContext().getLastHttpResponseData().toString();
+        String html = getTestExecutionContext().getLastHttpResponseData();
         if (StringUtils.isNotBlank(html)) {
             HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
             

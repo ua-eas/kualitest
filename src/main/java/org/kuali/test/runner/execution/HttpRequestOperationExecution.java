@@ -39,7 +39,6 @@ import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -55,38 +54,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
      */
     public HttpRequestOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
-    }
-
-    private String handleJsessionId(String url, List <String> cookies) {
-        String retval = url;
-        int[] parameterPos = Utils.getParameterPosition(url, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_QUESTION);
-                
-        if (parameterPos != null) {
-            String[] parameterData = Utils.getParameterData(url, parameterPos);
-
-            // if we have a jsessionid the check the cookies for the latest one
-            if (parameterData != null) {
-                for (int i = cookies.size() - 1; i > -1; --i) {
-                    String cookie = cookies.get(i);
-
-                    // if we find a cookie with jsessionid the grab the jsessionid
-                    if (cookie.toLowerCase().contains(Constants.JSESSIONID_PARAMETER_NAME)) {
-                        int[] parameterPos2 = Utils.getParameterPosition(cookie, Constants.JSESSIONID_PARAMETER_NAME, Constants.SEPARATOR_SEMICOLON);
-
-                        if (parameterPos2 != null) {
-                            String[] parameterData2 = Utils.getParameterData(cookie, parameterPos2);
-                            if (parameterData2 != null) {
-                                parameterData[1] = parameterData2[1];
-                                retval = Utils.replaceParameterString(url, parameterPos, parameterData);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return retval;
     }
     
     /**
@@ -104,7 +71,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             reqop = getOperation().getHtmlRequestOperation();
             
             HttpRequestBase request = null;
-            
+
+
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
                 request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
@@ -117,14 +85,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
             
             if (request != null) {
-                TestExecutionContext tec = getTestExecutionContext();
-
                 if (reqop.getRequestHeaders() != null) {
                     for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                         request.addHeader(hdr.getName(), hdr.getValue());
                     }
                 }
 
+                TestExecutionContext tec = getTestExecutionContext();
                 response = tec.getHttpClient().execute(request);
     
                 // clear last response storage
@@ -149,8 +116,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                      }
 
                     if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-                        tec.updateAutoReplaceMap();
                         tec.setLastHttpResponse(responseBuffer.toString());
+                        tec.updateAutoReplaceMap();
+
+System.out.println("-------------------------------------------------------------------->");
+System.out.println(tec.getLastHttpResponseData());
+System.out.println("-------------------------------------------------------------------->");
+                        
                     }
                 }
             }
