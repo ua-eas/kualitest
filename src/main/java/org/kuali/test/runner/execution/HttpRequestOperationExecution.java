@@ -18,12 +18,19 @@ package org.kuali.test.runner.execution;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -91,90 +98,67 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        OutputStreamWriter writer = null;
-        BufferedReader reader = null;
         HtmlRequestOperation reqop = null;
+        CloseableHttpResponse response = null;
+
         try {
             reqop = getOperation().getHtmlRequestOperation();
             
-            TestExecutionContext tec = getTestExecutionContext();
-            List <String> cookies = tec.getCookies(reqop.getUrl());
-
-            // if we have cookies then lets check the url for a
-            // jsessionid, if it has a jsessionid then we will see if
-            // there is a jsessionid cookie for this call then we will
-            // blow it in
-            if ((cookies != null) && !cookies.isEmpty()) {
-                reqop.setUrl(handleJsessionId(reqop.getUrl(), cookies));
+            HttpRequestBase request = null;
+            
+            if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
+                request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
+            } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
+                request = new HttpPost(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
+                List <NameValuePair> nvps = URLEncodedUtils.parse(getContentParameterFromRequestOperation(reqop), Charset.defaultCharset());
+                ((HttpPost)request).setEntity(new UrlEncodedFormEntity(nvps));
+                request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
             }
             
-            URL url = new URL(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-            
-            conn.setReadTimeout(Constants.DEFAULT_HTTP_REQUEST_READ_TIMEOUT);
-            
-            if ( reqop.getRequestHeaders() != null) {
-                for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                    conn.addRequestProperty(hdr.getName(), hdr.getValue());
-                }
-            }
-            
-            conn.setDoInput(true);
-            conn.setInstanceFollowRedirects(true);
-
-            // add cookies for this path
-            if (cookies != null) {
-                for (String cookie : cookies) {
-                    conn.addRequestProperty(Constants.HTTP_HEADER_COOKIE, cookie);
-                }
-            }
-
-            if (Constants.HTTP_REQUEST_METHOD_POST.equals(reqop.getMethod())) {
-                conn.setDoOutput(true);
-                if (reqop.getRequestParameters()!= null) {
-                    conn.addRequestProperty(Constants. HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
-                    for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
-                        if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
-                            if (StringUtils.isNotBlank(param.getValue())) {
-                                writer = new OutputStreamWriter(conn.getOutputStream());
-                                writer.write(getTestExecutionContext().replaceTestExecutionParameters(param.getValue()));
-                                writer.flush();
-                                break;
-                            }
-                        }
+            if (request != null) {
+                TestExecutionContext tec = getTestExecutionContext();
+                
+                if (reqop.getRequestHeaders() != null) {
+                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                        request.addHeader(hdr.getName(), hdr.getValue());
                     }
                 }
-            }
-            
-            // clear last response storage
-            tec.clearLastHttpResponse();
-            // Get the response
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                tec.getLastHttpResponseData().append(line);
-            }
-            
-            int status = conn.getResponseCode();
-            
-            if (status == HttpURLConnection.HTTP_OK) {
-                Map <String, List<String>> headers = conn.getHeaderFields();
 
-                for (String key : headers.keySet()) {
-                    if (Constants.HTTP_HEADER_SET_COOKIE.equalsIgnoreCase(key)) {
-                        List <String> l = headers.get(key);
-                        for (String s : l) {
-                            tec.addCookie(s);
+                response = tec.getHttpClient().execute(request);
+
+                // clear last response storage
+                tec.clearLastHttpResponse();
+
+                if (response != null) {
+                    if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
+                        BufferedReader reader = null; 
+                        
+                        try {
+                            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+ 
+                            String line = "";
+                            while ((line = reader.readLine()) != null) {
+                                tec.getLastHttpResponseData().append(line);
+                            }                        
+                        }
+                        
+                        finally {
+                            reader.close();
+                        }
+                        
+System.out.println("---------------------------------------------------------->");
+System.out.println(tec.getLastHttpResponseData().toString());
+System.out.println("---------------------------------------------------------->");
+                        Header[] headers = response.getAllHeaders();
+
+                        tec.updateAutoReplaceMap();
+
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("********************************* http response ***********************************");
+                            LOG.debug(tec.getLastHttpResponseData().toString());
+                            LOG.debug("***********************************************************************************");
                         }
                     }
-                }
-                
-                tec.updateAutoReplaceMap();
-                
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("********************************* http response ***********************************");
-                    LOG.debug(tec.getLastHttpResponseData().toString());
-                    LOG.debug("***********************************************************************************");
                 }
             }
         } 
@@ -192,21 +176,22 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
         
         finally {
-            if (writer != null) {
-                try {
-                    writer.close();
+            HttpClientUtils.closeQuietly(response);
+        }
+    }
+    
+    private String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
+        String retval = null;
+        
+        for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
+            if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
+                if (StringUtils.isNotBlank(param.getValue())) {
+                    retval = param.getValue();
+                    break;
                 }
-                
-                catch (IOException ex) {};
-            }
-            
-            if (reader != null) {
-                try {
-                    reader.close();
-                }
-                
-                catch (IOException ex) {};
             }
         }
+        
+        return retval;
     }
 }

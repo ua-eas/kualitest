@@ -71,7 +71,6 @@ import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.EncryptionRequiredParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
-import org.kuali.test.ui.components.dialogs.RemoveParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
@@ -304,16 +303,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             @Override
             public void actionPerformed(ActionEvent evt) {
                 handleParametersRequiringEncryptionSetup();
-            }
-        });
-        
-        setup.add(m);
-
-        m = new JMenuItem("Parameters to remove");
-        m.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                handleRemoveParameterSetup();
             }
         });
         
@@ -826,15 +815,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void handleParametersRequiringEncryptionSetup() {
         EncryptionRequiredParameterNamesDlg dlg = new EncryptionRequiredParameterNamesDlg(this);
-
-        if (dlg.isSaved()) {
-            saveConfigurationButton.setEnabled(true);
-            saveConfigurationMenuItem.setEnabled(true);
-        }
-    }
-
-    public void handleRemoveParameterSetup() {
-        RemoveParameterNamesDlg dlg = new RemoveParameterNamesDlg(this);
 
         if (dlg.isSaved()) {
             saveConfigurationButton.setEnabled(true);

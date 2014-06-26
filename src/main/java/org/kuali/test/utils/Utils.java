@@ -745,6 +745,7 @@ public class Utils {
      */
     public static boolean wantHttpRequestHeader(String key) {
         return (Constants.HTTP_HEADER_ACCEPT.equals(key)
+            || Constants.HTTP_HEADER_CONTENT_TYPE.equals(key)
             || Constants.HTTP_HEADER_ACCEPT_ENCODING.equals(key)
             || Constants.HTTP_HEADER_CONNECTION.equals(key)
             || Constants.HTTP_HEADER_ACCEPT_LANGUAGE.equals(key)
@@ -930,6 +931,7 @@ public class Utils {
     public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
         String retval = input;
         
+        /*
         // strip specified parameters
         for (String parameterName : configuration.getParametersToRemove().getNameArray()) {
             int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
@@ -938,7 +940,7 @@ public class Utils {
                 retval = removeParameterString(retval, paramPosition);
             }
         }
-
+*/
         // encrypt specified securty parameters
         Set <String> hs = new HashSet<String>();
         for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
@@ -3113,5 +3115,20 @@ public class Utils {
             || (status == HttpServletResponse.SC_MOVED_PERMANENTLY)
             || (status == HttpServletResponse.SC_SEE_OTHER));
             
+    }
+    
+    public static AutoReplaceParameter findAutoReplaceParameterByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String name) {
+        AutoReplaceParameter retval = null;
+        
+        if (configuration.getAutoReplaceParameters() != null) {
+            for (AutoReplaceParameter param : configuration.getAutoReplaceParameters() .getAutoReplaceParameterArray()) {
+                if (param.getParameterName().equals(name)) {
+                    retval = param;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
     }
 }        

@@ -174,6 +174,7 @@ public class Constants {
     public static final String HTTP_HEADER_ORIGIN = "Origin";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
+    public static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
     public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String UNKNOWN = "unknown";
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
