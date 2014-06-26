@@ -17,8 +17,6 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
@@ -34,8 +32,10 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
+import org.apache.http.ProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.RedirectStrategy;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.utils.HttpClientUtils;
@@ -45,7 +45,6 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.DnsResolver;
 import org.apache.http.conn.HttpConnectionFactory;
 import org.apache.http.conn.ManagedHttpClientConnection;
 import org.apache.http.conn.routing.HttpRoute;
@@ -59,6 +58,7 @@ import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultHttpResponseParser;
 import org.apache.http.impl.conn.DefaultHttpResponseParserFactory;
@@ -74,6 +74,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.LineParser;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -135,6 +136,10 @@ public class TestExecutionContext extends Thread {
     }
     
     private void init() {
+        initializeHttpClient();
+    }
+    
+    private void initializeHttpClient() {
         // Use custom message parser / writer to customize the way HTTP
         // messages are parsed from and written out to the data stream.
         HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
@@ -186,6 +191,7 @@ public class TestExecutionContext extends Thread {
         // SSL context for secure connections can be created either based on
         // system or application specific properties.
         SSLContext sslcontext = SSLContexts.createSystemDefault();
+
         // Use custom hostname verifier to customize SSL hostname verification.
         X509HostnameVerifier hostnameVerifier = new BrowserCompatHostnameVerifier();
 
@@ -196,23 +202,9 @@ public class TestExecutionContext extends Thread {
             .register("https", new SSLConnectionSocketFactory(sslcontext, hostnameVerifier))
             .build();
 
-        // Use custom DNS resolver to override the system DNS resolution.
-        DnsResolver dnsResolver = new SystemDefaultDnsResolver() {
-
-            @Override
-            public InetAddress[] resolve(final String host) throws UnknownHostException {
-                if (host.equalsIgnoreCase("myhost")) {
-                    return new InetAddress[] { InetAddress.getByAddress(new byte[] {127, 0, 0, 1}) };
-                } else {
-                    return super.resolve(host);
-                }
-            }
-
-        };
-
         // Create a connection manager with custom configuration.
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(
-                socketFactoryRegistry, connFactory, dnsResolver);
+                socketFactoryRegistry, connFactory, new SystemDefaultDnsResolver());
 
         // Create socket configuration
         SocketConfig socketConfig = SocketConfig.custom()
@@ -256,14 +248,38 @@ public class TestExecutionContext extends Thread {
         RequestConfig defaultRequestConfig = RequestConfig.custom()
             .setCookieSpec(CookieSpecs.BEST_MATCH)
             .setExpectContinueEnabled(true)
-            .setStaleConnectionCheckEnabled(true)
+            .setRedirectsEnabled(true)
             .build();
 
+        
+        RedirectStrategy redirectStrategy = new DefaultRedirectStrategy() {                
+            public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context)  {
+                boolean isRedirect=false;
+                try {
+                    isRedirect = super.isRedirected(request, response, context);
+                } 
+                
+                catch (ProtocolException ex) {
+                    LOG.warn(ex.toString(), ex);
+                }
+                    
+                if (!isRedirect) {
+                    int responseCode = response.getStatusLine().getStatusCode();
+                    if (responseCode == 301 || responseCode == 302) {
+                        isRedirect = true;
+                    }
+                }
+                
+                return isRedirect;
+            }
+        };
+        
         httpClient = HttpClients.custom()
             .setConnectionManager(connManager)
             .setDefaultCookieStore(cookieStore)
             .setDefaultCredentialsProvider(credentialsProvider)
             .setDefaultRequestConfig(defaultRequestConfig)
+            .setRedirectStrategy(redirectStrategy)
             .build();
     }
     
