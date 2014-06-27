@@ -297,13 +297,14 @@ public class PoiHelper {
         cell = retval.createCell(5);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
+            String comma = "";
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(cp.getPropertyName());
+                s.append(comma);
+                s.append(cp.getDisplayName());
                 s.append("=");
                 s.append(cp.getPropertyValue());
-                s.append("\n");
+                comma = ",";
             }
-
             cell.setCellValue(s.toString());
         } else {
             cell.setCellValue("");
@@ -315,13 +316,16 @@ public class PoiHelper {
         cell = retval.createCell(6);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
+            String comma = "";
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(cp.getPropertyName());
+                s.append(comma);
+                s.append(cp.getDisplayName());
                 s.append("=");
                 s.append(cp.getActualValue());
-                s.append("\n");
+                comma = ",";
             }
             cell.setCellValue(s.toString());
+
         } else {
             cell.setCellValue("");
         }

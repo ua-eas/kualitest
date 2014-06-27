@@ -16,6 +16,8 @@
 
 package org.kuali.test.runner.execution;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
@@ -49,29 +51,35 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        String html = getTestExecutionContext().getLastHttpResponseData();
-        if (StringUtils.isNotBlank(html)) {
-            HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
-            
-            Checkpoint cp = getOperation().getCheckpointOperation();
-            
-            if (cp != null) {
-                if (cp.getCheckpointProperties() != null) {
-                    for (CheckpointProperty property : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
-                        property.setActualValue(findCurrentValue(dominfo, property));
+        for (String html : getTestExecutionContext().getRecentHttpResponseData()) {
+            if (StringUtils.isNotBlank(html)) {
+                HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
+
+                Checkpoint cp = getOperation().getCheckpointOperation();
+
+                if (cp != null) {
+                    if (cp.getCheckpointProperties() != null) {
+                        List <CheckpointProperty> matchingProperties = findCurrentProperties(cp, dominfo);
+                        if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
+                            CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
+                            for (int i = 0; i < properties.length; ++i) {
+                                properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
+                            }
+                        }
                     }
                 }
             }
         }
     }
     
-    private String findCurrentValue(HtmlDomProcessor.DomInformation dominfo, CheckpointProperty property) {
-        String retval = null;
-        
-        for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
-            if (Utils.isCheckPointPropertyMatch(currentProperty, property)) {
-                retval = currentProperty.getActualValue();
-                break;
+    private List <CheckpointProperty> findCurrentProperties(Checkpoint cp, HtmlDomProcessor.DomInformation dominfo) {
+        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+
+        for (CheckpointProperty originalProperty : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
+            for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
+                if (Utils.isCheckPointPropertyMatch(currentProperty, originalProperty)) {
+                    retval.add(currentProperty);
+                }
             }
         }
         

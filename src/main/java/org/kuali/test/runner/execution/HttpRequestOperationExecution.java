@@ -95,9 +95,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 TestExecutionContext tec = getTestExecutionContext();
                 response = tec.getHttpClient().execute(request);
     
-                // clear last response storage
-                tec.setLastHttpResponse("");
-
                 if (response != null) {
                     BufferedReader reader = null; 
                     StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
@@ -117,7 +114,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                      }
 
                     if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-                        tec.setLastHttpResponse(responseBuffer.toString());
+                        tec.pushHttpResponse(responseBuffer.toString());
                         tec.updateAutoReplaceMap();
                     }
                 }

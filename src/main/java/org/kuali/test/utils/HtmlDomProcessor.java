@@ -143,6 +143,7 @@ public class HtmlDomProcessor {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("child node: " + childNode.getNodeName());
             }
+            
             childNode.setAttribute(Constants.NODE_ID, Constants.NODE_ID + domInfo.getNextNodeId());
             
             // if this tag is an iframe we will load by javascript call

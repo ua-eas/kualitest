@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -110,7 +111,7 @@ public class TestExecutionContext extends Thread {
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
     
-    private String lastHttpResponseData;
+    private Stack <String> httpResponseStack;
     
     private Platform platform;
     private TestSuite testSuite;
@@ -133,6 +134,7 @@ public class TestExecutionContext extends Thread {
     
     private void init() {
         initializeHttpClient();
+        httpResponseStack = new Stack<String>();
     }
     
     private void initializeHttpClient() {
@@ -566,16 +568,24 @@ public class TestExecutionContext extends Thread {
      *
      * @param lastHttpResponseData
      */
-    public void setLastHttpResponse(String lastHttpResponseData) {
-        this.lastHttpResponseData = lastHttpResponseData;
+    public void pushHttpResponse(String html) {
+        httpResponseStack.push(html);
+        if (httpResponseStack.size() > Constants.LAST_RESPONSE_STACK_SIZE) {
+            httpResponseStack.remove(0);
+        }
     }
 
     /**
      *
      * @return
      */
-    public String getLastHttpResponseData() {
-        return lastHttpResponseData;
+    public List <String> getRecentHttpResponseData() {
+        List <String> retval = new ArrayList<String>();
+        while (!httpResponseStack.empty()) {
+            retval.add(httpResponseStack.pop());
+        }
+        
+        return retval;
     }
 
     /**
@@ -824,14 +834,14 @@ public class TestExecutionContext extends Thread {
     }
     
     public void updateAutoReplaceMap() {
-        if (StringUtils.isNotBlank(getLastHttpResponseData()) && (configuration.getAutoReplaceParameters() != null)) {
-            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(getLastHttpResponseData());
+        if ((configuration.getAutoReplaceParameters() != null) && !httpResponseStack.empty()) {
+            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(httpResponseStack.peek());
             
             Map <String, AutoReplaceParameter> map = new HashMap<String, AutoReplaceParameter>();
 
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
-                if (!autoReplaceParameterMap.containsKey(param) && StringUtils.isNotBlank(value)) {
+                if (!autoReplaceParameterMap.containsKey(param.getParameterName()) && StringUtils.isNotBlank(value)) {
                     autoReplaceParameterMap.put(param.getParameterName(), value);
                 }
             }

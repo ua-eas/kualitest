@@ -187,6 +187,7 @@ public class Constants {
     public static final String HTTP_PROTOCOL = "http://";
     public static final String HTTPS_PROTOCOL = "https://";
     public static final String FORWARD_SLASH = "/";
+    public static final String TAG_MATCH_REGEX_PATTERN = "\\<[^>]*>";
     
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
@@ -209,7 +210,8 @@ public class Constants {
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_QUESTION = "?";
     public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
-
+    public static final int LAST_RESPONSE_STACK_SIZE = 5;
+    
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;

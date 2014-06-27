@@ -2961,6 +2961,7 @@ public class Utils {
 
     public static boolean isCheckPointPropertyMatch(CheckpointProperty cp1, CheckpointProperty cp2) {
         boolean retval = false;
+
         if ((cp1 != null) && (cp2 != null)) {
             String key1 = buildCheckpointPropertyKey(cp1);
             String key2 = buildCheckpointPropertyKey(cp2);
@@ -2973,13 +2974,31 @@ public class Utils {
     public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
         StringBuilder retval = new StringBuilder(128);
         
-        retval.append(cp.getPropertyGroup());
+        String group = cp.getPropertyGroup();
+        String section = cp.getPropertySection();
+        String name = cp.getDisplayName();
+        
+        if (StringUtils.isNotBlank(group)) {
+            retval.append(group.toLowerCase().trim().replace(" ", "_"));
+        } else {
+            retval.append("nogroup");
+        }
         retval.append(".");
-        retval.append(cp.getPropertySection());
+
+        if (StringUtils.isNotBlank(section)) {
+            // need to get rid of html tags on the section
+            retval.append(section.replaceAll(Constants.TAG_MATCH_REGEX_PATTERN,"").toLowerCase().trim().replace(" ", "_"));
+        } else {
+            retval.append("nosection");
+        }
+        
         retval.append(".");
-        retval.append(cp.getPropertySubSection());
-        retval.append(".");
-        retval.append(cp.getPropertyName());
+
+        if (StringUtils.isNotBlank(name)) {
+            retval.append(name.toLowerCase().trim().replace(" ", "_"));
+        } else {
+            retval.append("noname");
+        }
         
         return retval.toString();
     }
