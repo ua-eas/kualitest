@@ -21,6 +21,8 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,32 +108,16 @@ public class TestProxyServer {
                                 if (response.getStatus().code() == HttpServletResponse.SC_OK) {
                                     currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
                                 } 
-                                /*
-                                else if (Utils.isRedirectResponse(response.getStatus().code())) {
-                                    String location =  response.headers().get(Constants.HTTP_HEADER_LOCATION);
-                                    if (StringUtils.isNotBlank(location)) {
-                                        webTestPanel.setLastProxyHtmlResponse(location);
-                                        currentHtmlResponse = null;
-                                    }
-                                }*/
-                                
                             }
                         } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
-                            HttpContent c = (HttpContent)httpObject;
-                            c.retain();
-                            ByteBuffer buf = ByteBuffer.allocate(c.content().capacity());
-                            c.content().duplicate().readBytes(buf).release();
+                            HttpContent content = (HttpContent)httpObject;
+                            content.retain();
+                            ByteBuffer buf = ByteBuffer.allocate(content.content().capacity());
+                            content.content().duplicate().readBytes(buf).release();
                             currentHtmlResponse.append(buf.asCharBuffer());
                             if (httpObject instanceof LastHttpContent) {
-                                if (currentHtmlResponse != null) {
-                                    if (LOG.isDebugEnabled()) {
-                                        LOG.debug("************************ html response **************************");
-                                        LOG.debug(currentHtmlResponse.toString());
-                                        LOG.debug("*****************************************************************");
-                                    }
-                                    webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
-                                    currentHtmlResponse = null;
-                                }
+                                webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
+                                currentHtmlResponse = null;
                             }
                         }
                         
@@ -231,10 +217,6 @@ public class TestProxyServer {
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
         
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(Utils.getHttpRequestDetails(request));
-        }
-        
         String method = request.getMethod().toString();
         
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
@@ -244,13 +226,20 @@ public class TestProxyServer {
         }
         
         if (retval) {
-           if (LOG.isDebugEnabled()) {
-                LOG.debug(Utils.getHttpRequestDetails(request));
-           }
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("isValidTestRequest: " + retval);
+            // do not want to  run request that was an auto-redirect
+            // for this check we are looking at refererer not the same as host
+            String host = request.headers().get(Constants.HTTP_HEADER_HOST);
+            String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
+
+            if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(referer)) {
+                try {
+                    URL url = new URL(referer);
+                    retval = (StringUtils.isBlank(url.getHost()) || host.equals(url.getHost()));
+                } 
+                catch (MalformedURLException ex) {
+                    LOG.warn(ex.toString(), ex);
+                }
+            }
         }
         
         return retval;

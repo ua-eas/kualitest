@@ -118,9 +118,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                     if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
                         tec.setLastHttpResponse(responseBuffer.toString());
-System.out.println("---------------------------------------------------------->");
-System.out.println(tec.getLastHttpResponseData());
-
                         tec.updateAutoReplaceMap();
                     }
                 }
