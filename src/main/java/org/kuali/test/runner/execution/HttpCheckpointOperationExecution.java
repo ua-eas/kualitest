@@ -62,9 +62,20 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         List <CheckpointProperty> matchingProperties = findCurrentProperties(cp, dominfo);
                         if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
                             CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
+                            boolean success = true;
                             for (int i = 0; i < properties.length; ++i) {
                                 properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
+                                
+                                if (!evaluateCheckpointProperty(properties[i])) {
+                                    success = false;
+                                }
                             }
+
+                            if (!success) {
+                                throw new TestException("Current web document values do not match test criteria", getOperation());
+                            }
+                            
+                            break;
                         }
                     }
                 }

@@ -110,6 +110,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
      */
     protected Object getValueForType(String inputValue, ValueType.Enum type) throws ParseException {
         Object retval = null;
+        
+        // default to string
+        if (type == null) {
+            type = ValueType.STRING;
+        }
+        
         switch (type.intValue()) {
             case ValueType.INT_STRING:
                 retval = inputValue;
@@ -202,6 +208,11 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                 throw new TestException("input value is null, comparison value = " + comparisonValue, op);
             } else {
                 ValueType.Enum type = cp.getValueType();
+                
+                if (type == null) {
+                    type = ValueType.STRING;
+                }
+                
                 ValueType.Enum inputType = getInputValueType(value);
 
                 if (type.equals(inputType)) {
@@ -255,7 +266,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     }
     
     private ValueType.Enum getInputValueType(Object value) {
-        ValueType.Enum retval = null;
+        ValueType.Enum retval = ValueType.STRING;
         
         if (value != null) {
             if (value instanceof String) {

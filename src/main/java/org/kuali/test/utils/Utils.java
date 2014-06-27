@@ -75,6 +75,7 @@ import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
+import org.kuali.test.ComparisonOperator;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.JmxConnection;
@@ -3071,6 +3072,51 @@ public class Utils {
                     break;
                 }
             }
+        }
+        
+        return retval;
+    }
+    
+    public static String getOperatorFromEnumName(ComparisonOperator.Enum op) {
+        String retval = "";
+        
+        switch (op.intValue()) {
+            case ComparisonOperator.INT_EQUAL_TO:
+                retval = "=";
+                break;
+            case ComparisonOperator.INT_NOT_EQUAL_TO:
+                retval = "!=";
+                break;
+            case ComparisonOperator.INT_LESS_THAN:
+                retval = "<";
+                break;
+            case ComparisonOperator.INT_LESS_THAN_OR_EQUAL:
+                retval = "<=";
+                break;
+            case ComparisonOperator.INT_GREATER_THAN:
+                retval = ">";
+                break;
+            case ComparisonOperator.INT_GREATER_THAN_OR_EQUAL:
+                retval = ">=";
+                break;
+            case ComparisonOperator.INT_IN:
+                retval = "in";
+                break;
+            case ComparisonOperator.INT_NOT_IN:
+                retval = "not in";
+                break;
+            case ComparisonOperator.INT_BETWEEN:
+                retval = "between";
+                break;
+            case ComparisonOperator.INT_LIKE:
+                retval = "like";
+                break;
+            case ComparisonOperator.INT_NULL:
+                retval = "null";
+                break;
+            case ComparisonOperator.INT_NOT_NULL:
+                retval = "not null";
+                break;
         }
         
         return retval;

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Cell;
@@ -48,6 +49,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -61,6 +63,8 @@ public class PoiHelper {
     private static final String[] HEADER_NAMES = {
         "Checkpoint Name",
         "Checkpoint Type",
+        "Group",
+        "Section",
         "Start Time",
         "End Time",
         "Run Time (sec)",
@@ -119,6 +123,7 @@ public class PoiHelper {
         font.setFontHeightInPoints((short) 12);
         cellStyleNormal = workbook.createCellStyle();
         cellStyleNormal.setFont(font);
+        cellStyleNormal.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create test header cell style
         font = workbook.createFont();
@@ -136,6 +141,7 @@ public class PoiHelper {
         cellStyleTimestamp = workbook.createCellStyle();
         cellStyleTimestamp.setFont(font);
         cellStyleTimestamp.setDataFormat(workbook.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
+        cellStyleTimestamp.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create success cell style
         font = workbook.createFont();
@@ -144,6 +150,7 @@ public class PoiHelper {
         font.setFontHeightInPoints((short) 12);
         cellStyleSuccess = workbook.createCellStyle();
         cellStyleSuccess.setFont(font);
+        cellStyleSuccess.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create ignore cell style
         font = workbook.createFont();
@@ -152,6 +159,7 @@ public class PoiHelper {
         font.setFontHeightInPoints((short) 12);
         cellStyleIgnore = workbook.createCellStyle();
         cellStyleIgnore.setFont(font);
+        cellStyleIgnore.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create warning cell style
         font = workbook.createFont();
@@ -160,6 +168,7 @@ public class PoiHelper {
         font.setFontHeightInPoints((short) 12);
         cellStyleWarning = workbook.createCellStyle();
         cellStyleWarning.setFont(font);
+        cellStyleWarning.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create error cell style
         font = workbook.createFont();
@@ -168,6 +177,7 @@ public class PoiHelper {
         font.setFontHeightInPoints((short) 12);
         cellStyleError = workbook.createCellStyle();
         cellStyleError.setFont(font);
+        cellStyleError.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create header cell style
         font = workbook.createFont();
@@ -276,61 +286,93 @@ public class PoiHelper {
         cell.setCellValue(getOperationTypeForOutput(op));
         cell.setCellStyle(cellStyleNormal);
 
-        // start time
+        // group
         cell = retval.createCell(2);
+        cell.setCellStyle(cellStyleNormal);
+        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
+            int lines = op.getOperation().getCheckpointOperation().getCheckpointProperties().sizeOfCheckpointPropertyArray();
+            if (lines > 1) {
+                retval.setHeight((short)(lines * retval.getHeight()));
+            }
+            
+            StringBuilder s = new StringBuilder(128);
+            for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                s.append(cp.getPropertyGroup());
+                s.append("\n");
+            }
+            cell.setCellValue(s.toString());
+        } else {
+            cell.setCellValue("");
+        }
+
+        // section
+        cell = retval.createCell(3);
+        cell.setCellStyle(cellStyleNormal);
+        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
+            StringBuilder s = new StringBuilder(128);
+            for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
+                if (StringUtils.isNotBlank(cp.getPropertySection())) {
+                    s.append(cp.getPropertySection().replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, "").trim());
+                }
+                s.append("\n");
+            }
+            cell.setCellValue(s.toString());
+        } else {
+            cell.setCellValue("");
+        }
+
+        // start time
+        cell = retval.createCell(4);
         cell.setCellValue(startTime);
         cell.setCellStyle(cellStyleTimestamp);
 
         // endTime time
         long endts = System.currentTimeMillis();
 
-        cell = retval.createCell(3);
+        cell = retval.createCell(5);
         cell.setCellValue(new Date(endts));
         cell.setCellStyle(cellStyleTimestamp);
 
         // run time
-        cell = retval.createCell(4);
+        cell = retval.createCell(6);
         cell.setCellValue((endts - startTime.getTime()) / 1000);
         cell.setCellStyle(cellStyleNormal);
 
         // expected values
-        cell = retval.createCell(5);
+        cell = retval.createCell(7);
+        cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
-            String comma = "";
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(comma);
                 s.append(cp.getDisplayName());
-                s.append("=");
+                s.append(" ");
+                s.append(Utils.getOperatorFromEnumName(cp.getOperator()));
+                s.append(" ");
                 s.append(cp.getPropertyValue());
-                comma = ",";
+                s.append("\n");
             }
             cell.setCellValue(s.toString());
         } else {
             cell.setCellValue("");
         }
         
-        cell.setCellStyle(cellStyleNormal);
 
         // actual values
-        cell = retval.createCell(6);
+        cell = retval.createCell(8);
+        cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
-            String comma = "";
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(comma);
                 s.append(cp.getDisplayName());
-                s.append("=");
+                s.append(" = ");
                 s.append(cp.getActualValue());
-                comma = ",";
+                s.append("\n");
             }
             cell.setCellValue(s.toString());
 
         } else {
             cell.setCellValue("");
         }
-
-        cell.setCellStyle(cellStyleNormal);
 
         return retval;
     }
@@ -344,7 +386,7 @@ public class PoiHelper {
         Row row = writeBaseEntryInformation(op, startTime);
 
         // status
-        Cell cell = row.createCell(7);
+        Cell cell = row.createCell(9);
         cell.setCellValue("success");
         cell.setCellStyle(cellStyleSuccess);
 
@@ -362,7 +404,7 @@ public class PoiHelper {
         Row row = writeBaseEntryInformation(op, startTime);
 
         // status
-        Cell cell = row.createCell(7);
+        Cell cell = row.createCell(9);
 
         FailureAction.Enum failureAction = findMaxFailureAction(op, ex);
 
@@ -382,7 +424,7 @@ public class PoiHelper {
 
         cell.setCellValue(failureAction.toString());
 
-        cell = row.createCell(8);
+        cell = row.createCell(10);
         cell.setCellStyle(cellStyleNormal);
         
         if (ex != null) {
@@ -399,9 +441,9 @@ public class PoiHelper {
                 for (CheckpointProperty prop : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
                     FailureAction.Enum fa = prop.getOnFailure();
 
-                    if (retval == null) {
+                    if ((retval == null) && (fa != null)) {
                         retval = fa;
-                    } else {
+                    } else if ((fa != null) && (retval != null)) {
                         if (fa.intValue() > retval.intValue()) {
                             retval = fa;
                         }
