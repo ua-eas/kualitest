@@ -184,6 +184,10 @@ public class Constants {
     public static final String HTTP_HEADER_USER_AGENT_MOZILLA = "Mozilla";
     public static final int DEFAULT_HTTP_REQUEST_READ_TIMEOUT = 5000;
     public static final String JSESSIONID_PARAMETER_NAME = "jsessionid";
+    public static final String HTTP_PROTOCOL = "http://";
+    public static final String HTTPS_PROTOCOL = "https://";
+    public static final String FORWARD_SLASH = "/";
+    
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";

@@ -76,7 +76,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
                 request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                HttpPost postRequest = new HttpPost(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
+                String url = getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl());
+                HttpPost postRequest = new HttpPost(url);
                 request = postRequest;
                 String params = getTestExecutionContext().replaceTestExecutionParameters(getContentParameterFromRequestOperation(reqop));
                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
@@ -117,12 +118,10 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                     if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
                         tec.setLastHttpResponse(responseBuffer.toString());
-                        tec.updateAutoReplaceMap();
-
-System.out.println("-------------------------------------------------------------------->");
+System.out.println("---------------------------------------------------------->");
 System.out.println(tec.getLastHttpResponseData());
-System.out.println("-------------------------------------------------------------------->");
-                        
+
+                        tec.updateAutoReplaceMap();
                     }
                 }
             }

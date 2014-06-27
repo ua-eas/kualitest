@@ -765,12 +765,12 @@ public class TestExecutionContext extends Thread {
         String parameterString = null;
 
         // if this is a GET request then find the parameter string
-        if (input.startsWith("http://") || input.startsWith("https://")) {
+        if (input.startsWith(Constants.HTTP_PROTOCOL) || input.startsWith(Constants.HTTPS_PROTOCOL)) {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
                 parameterString = input.substring(pos+1);
                 retval.append(input.substring(0, pos+1));
-            }
+            } 
         } else {
             parameterString = input;
         }

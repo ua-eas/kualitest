@@ -63,6 +63,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Consts;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
@@ -749,7 +753,6 @@ public class Utils {
             || Constants.HTTP_HEADER_ACCEPT_ENCODING.equals(key)
             || Constants.HTTP_HEADER_CONNECTION.equals(key)
             || Constants.HTTP_HEADER_ACCEPT_LANGUAGE.equals(key)
-            || Constants.HTTP_HEADER_USER_AGENT.equals(key)
             || Constants.HTTP_HEADER_HOST.equals(key)
             || Constants.HTTP_HEADER_REFERER.equals(key)
             || Constants.HTTP_HEADER_ORIGIN.equals(key));
@@ -763,18 +766,18 @@ public class Utils {
      */
     public static String buildUrlFromRequest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, HttpRequest request) {
         StringBuilder retval = new StringBuilder(128);
-        
+
         String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
         
-        String s = "https://";
+        String protocol = Constants.HTTPS_PROTOCOL;
         if (referer != null) {
             int pos = referer.indexOf(":");
             if (pos > -1) {
-                s = referer.substring(0, pos+3);
+                protocol = referer.substring(0, pos+3);
             }
         }
         
-        retval.append(s);
+        retval.append(protocol);
         retval.append(request.headers().get(Constants.HTTP_HEADER_HOST));
         retval.append(processRequestData(configuration, request.getUri()));
         
@@ -826,7 +829,7 @@ public class Utils {
                         if (data != null) {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
-                            param.setValue(processRequestData(configuration,new String(data)));
+                            param.setValue(processRequestData(configuration, new String(data)));
                         }
                     }
                 }
@@ -836,120 +839,53 @@ public class Utils {
 
     /**
      *
-     * @param input
-     * @param parameterName
-     * @param separator
-     * @return
-     */
-    public static int[] getParameterPosition(String input, String parameterName, String separator) {
-        int[] retval = null;
-        
-        if (StringUtils.isNotBlank(input) && StringUtils.isNotBlank(parameterName)) {
-            int pos1 = input.toLowerCase().indexOf(parameterName.toLowerCase() + "=");
-            
-            if (pos1 > -1) {
-                int pos2 = input.indexOf(separator, pos1);
-                
-                if (pos2 < 0) {
-                    pos2 = input.length();
-                }
-                
-                if (pos2 > pos1) {
-                    retval = new int[] {pos1, pos2};
-                }
-            }
-        }
-        
-        return retval;
-    }
-
-    /**
-     *
-     * @param input
-     * @param pos
-     * @return
-     */
-    public static String[] getParameterData(String input, int[] pos) {
-        String[] retval = null;
-        
-        if (StringUtils.isNotBlank(input) && (pos != null)) {
-            String s = input.substring(pos[0], pos[1]);
-
-            int pos1 = s.indexOf("=");
-
-            if (pos1 > -1) {
-                retval = new String[] {s.substring(0, pos1).trim(), s.substring(pos1+1).trim()};
-            }
-        }
-        
-        return retval;
-    }
-
-    /**
-     *
-     * @param input
-     * @param parameterPosition
-     * @param parameterData
-     * @return
-     */
-    public static String replaceParameterString(String input, int[] parameterPosition, String[] parameterData) {
-        StringBuilder retval = new StringBuilder(input.length());
-
-        retval.append(input.substring(0, parameterPosition[0]));
-        retval.append(parameterData[0]);
-        retval.append("=");
-        retval.append(parameterData[1]);
-        retval.append(input.substring(parameterPosition[1]));
-
-        return retval.toString();
-    }
-    
-    
-    public static String removeParameterString(String input, int[] paramPosition) {
-        String retval = input;
-        
-        if (StringUtils.isNotBlank(input)) {
-            // start 1 back to get seperator
-            StringBuilder buf= new StringBuilder(input.length());
-            buf.append(input.substring(0, paramPosition[0] - 1));
-            if (paramPosition[1] < (input.length() - 1)) {
-                buf.append(paramPosition[1] + 1);
-            }
-            
-            retval = buf.toString();
-        }
-        return retval;
-    }
-    
-    /**
-     *
      * @param configuration
      * @param input
      * @return
      */
     public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
-        String retval = input;
+        StringBuilder retval = new StringBuilder(input.length());
+
+        String parameterString = null;
+
         
-        // encrypt specified securty parameters
-        Set <String> hs = new HashSet<String>();
-        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-            if (!hs.contains(parameterName)) {
-                hs.add(parameterName);
+        if (input.startsWith(Constants.FORWARD_SLASH) 
+            ||input.startsWith(Constants.HTTP_PROTOCOL) 
+            || input.startsWith(Constants.HTTPS_PROTOCOL)) {
+            int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
+            if (pos > -1) {
+                parameterString = input.substring(pos+1);
+                retval.append(input.substring(0, pos+1));
+            } 
+        } else {
+            parameterString = input;
+        }
+
+        // if we have a parameter string then convert to NameValuePair list and 
+        // process parameters requiring encryption
+        if (StringUtils.isNotBlank(parameterString)) {
+            List <NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
+
+            if ((nvplist != null) && !nvplist.isEmpty()) {
+                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
                 
-                int[] paramPosition = getParameterPosition(retval, parameterName, Constants.SEPARATOR_AMPERSTAND);
-
-                if (paramPosition != null) {
-                    String[] parameterData = getParameterData(retval, paramPosition);
-
-                    if (parameterData != null) {
-                        parameterData[1] = encrypt(getEncryptionPassword(configuration), parameterData[1]);
-                        retval = replaceParameterString(retval, paramPosition, parameterData);
+                for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (parameterName.equals(nvparray[i].getName())) {
+                            nvparray[i] = new BasicNameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                        }
                     }
                 }
+
+                retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+            } else {
+                retval.append(input);
             }
+        } else {
+            retval.append(input);
         }
-        
-        return retval;
+
+        return retval.toString();
     }
     
     /**
