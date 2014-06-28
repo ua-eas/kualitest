@@ -93,6 +93,7 @@ import org.kuali.test.TagHandlersDocument;
 import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -2972,12 +2973,18 @@ public class Utils {
         return retval;
     }
     
+    public static String buildCheckpointPropertyKey(TestExecutionParameter tep) {
+        return buildCheckpointPropertyKey(tep.getGroup(), tep.getSection(), tep.getDisplayName());
+    }
+    
+
     public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
+        return buildCheckpointPropertyKey(cp.getPropertyGroup(), cp.getPropertySection(), cp.getDisplayName());
+    }
+    
+    public static String buildCheckpointPropertyKey(String group, String section, String name) {
+
         StringBuilder retval = new StringBuilder(128);
-        
-        String group = cp.getPropertyGroup();
-        String section = cp.getPropertySection();
-        String name = cp.getDisplayName();
         
         if (StringUtils.isNotBlank(group)) {
             retval.append(group.toLowerCase().trim().replace(" ", "_"));

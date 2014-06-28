@@ -52,14 +52,7 @@ public class OperationExecutionFactory {
         OperationExecution retval = null;
 
         if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op.getOperationType())) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("executing operation: type=execution parameter[" 
-                    + op.getOperation().getTestExecutionParameter().getName() 
-                    + "=" + op.getOperation().getTestExecutionParameter().getValue() + "]");
-            }
-
             testContext.processTestExecutionParameter(op.getOperation().getTestExecutionParameter());
-            
         } else if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "], name=" + op.getOperation().getCheckpointOperation().getName());

@@ -689,8 +689,31 @@ public class TestExecutionContext extends Thread {
         return executionParameterMap;
     }
     
-    private String findTestExecutionParameterValue(TestExecutionParameter ep) {
-        return null;
+    private String findTestExecutionParameterValue(TestExecutionParameter tep) {
+        String retval = null;
+        
+        String key = Utils.buildCheckpointPropertyKey(tep);
+        
+        for (String html : getRecentHttpResponseData()) {
+            if (StringUtils.isNotBlank(html)) {
+                HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
+
+                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+                    if (key.equals(Utils.buildCheckpointPropertyKey(cp))) {
+                        retval = cp.getPropertyValue();
+                        break;
+                    }
+                }
+            }
+            
+            if (StringUtils.isNotBlank(retval)) {
+                break;
+            }
+        }
+        
+        
+        return retval;
+
     }
     
     /**
@@ -801,6 +824,12 @@ public class TestExecutionContext extends Thread {
                     }
                 }
 
+                for (int i = 0; i < nvparray.length; ++i) {
+                    if (executionParameterMap.containsKey(nvparray[i].getName())) {
+                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), executionParameterMap.get(nvparray[i].getName()));
+                    }
+                }
+                
                 for (String parameterName : getAutoReplaceParameterMap().keySet()) {
                     for (int i = 0; i < nvparray.length; ++i) {
                         if (parameterName.equals(nvparray[i].getName())) {
