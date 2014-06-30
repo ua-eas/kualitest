@@ -82,6 +82,7 @@ public class PoiHelper {
     private CellStyle cellStyleWarning = null;
     private CellStyle cellStyleError = null;
     private CellStyle cellStyleTimestamp = null;
+    private CellStyle cellStyleTime = null;
     private CellStyle cellStyleHeader = null;
     private Workbook wb;
 
@@ -142,6 +143,14 @@ public class PoiHelper {
         cellStyleTimestamp.setFont(font);
         cellStyleTimestamp.setDataFormat(workbook.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
         cellStyleTimestamp.setVerticalAlignment(CellStyle.VERTICAL_TOP);
+
+        // create timestamp cell style
+        font = workbook.createFont();
+        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setFontHeightInPoints((short) 12);
+        cellStyleTime = workbook.createCellStyle();
+        cellStyleTime.setFont(font);
+        cellStyleTime.setDataFormat(workbook.createDataFormat().getFormat("hh:mm:ss"));
 
         // create success cell style
         font = workbook.createFont();
@@ -324,14 +333,14 @@ public class PoiHelper {
         // start time
         cell = retval.createCell(4);
         cell.setCellValue(startTime);
-        cell.setCellStyle(cellStyleTimestamp);
+        cell.setCellStyle(cellStyleTime);
 
         // endTime time
         long endts = System.currentTimeMillis();
 
         cell = retval.createCell(5);
         cell.setCellValue(new Date(endts));
-        cell.setCellStyle(cellStyleTimestamp);
+        cell.setCellStyle(cellStyleTime);
 
         // run time
         cell = retval.createCell(6);

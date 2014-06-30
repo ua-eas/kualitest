@@ -1213,30 +1213,7 @@ public class Utils {
                             break;
                         }
                     } else if (att.getValue().contains("*")) {
-                        String nodeData = node.getAttribute(att.getName());
-                        String attData = att.getValue();
-
-                        int pos = attData.indexOf("*");
-                        if (StringUtils.isBlank(nodeData)) {
-                            retval = false;
-                        } else {
-                            if (pos == 0) {
-                                if (!nodeData.endsWith(attData.substring(1))) {
-                                    retval = false;
-                                }
-                            } else if (pos == (attData.length() - 1)) {
-                                if (!nodeData.startsWith(attData.substring(0, pos))) {
-                                    retval = false;
-                                }
-                            } else {
-                                String s1 = attData.substring(0, pos);
-                                String s2 = attData.substring(pos + 1);
-
-                                if (!nodeData.startsWith(s1) || !nodeData.endsWith(s2)) {
-                                    retval = false;
-                                }
-                            }
-                        }
+                        retval = isStringMatch(att.getValue(), node.getAttribute(att.getName()));
 
                         if (!retval) {
                             break;
@@ -1861,6 +1838,11 @@ public class Utils {
                         if (getMatchingTagNode(tm, node) == null) {
                             match = false;
                             break;
+                        } else if (StringUtils.isNotBlank(tm.getSectionName())) {
+                            if (!isStringMatch(tm.getSectionName(), hth.getSectionName(node))) {
+                                match = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -3126,6 +3108,41 @@ public class Utils {
                 break;
         }
         
+        return retval;
+    }
+    
+    
+    /**
+     * this string compare handles wildcards
+     * @param patternString
+     * @param checkString
+     * @return 
+     */
+    public static boolean isStringMatch(String patternString, String checkString) {
+        boolean retval = false;
+
+        if (StringUtils.isNotBlank(patternString)) {
+            int pos = patternString.indexOf("*");
+
+            if (pos > -1) {
+                if (StringUtils.isNotBlank(checkString)) {
+                    if (pos == 0) {
+                        retval = checkString.toLowerCase().endsWith(patternString.substring(1).toLowerCase());
+                    } else if (pos == (patternString.length() - 1)) {
+                        retval = checkString.toLowerCase().startsWith(patternString.toLowerCase().substring(0, pos));
+                    } else {
+                        String s1 = patternString.substring(0, pos).toLowerCase();
+                        String s2 = patternString.substring(pos + 1).toLowerCase();
+                        retval = (checkString.toLowerCase().startsWith(s1) && checkString.toLowerCase().endsWith(s2));
+                    }
+                }
+            } else {
+                retval = patternString.equalsIgnoreCase(checkString);
+            }
+        } else {
+            retval = false;
+        }
+
         return retval;
     }
 }        

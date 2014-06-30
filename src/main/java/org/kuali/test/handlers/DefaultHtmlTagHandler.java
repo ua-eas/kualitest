@@ -24,11 +24,13 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.dom4j.Node;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TagHandler;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -245,6 +247,67 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         }
         
         return retval;
+    }
+    
+    protected boolean hasChildNodeWithNodeName(Element parent, String nodeName) {
+        return (getFirstChildNodeByNodeName(parent, nodeName) != null);         
+    }
+
+    protected boolean hasChildNodeWithNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+        return (getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, attributeName, attributeValue) != null);         
+    }
+
+    protected Element getFirstChildNodeByNodeName(Element parent, String nodeName) {
+        return getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, null, null);
+    }
+    
+    protected Element getFirstChildNodeByNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+        Element retval = null;
+        
+        if (parent.hasChildNodes()) {
+            NodeList nl = parent.getChildNodes();
+            
+            for (int i = 0; i < nl.getLength(); ++ i) {
+                if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    Element curElement = (Element) nl.item(i);
+                    if (curElement.getNodeName().equalsIgnoreCase(nodeName)) {
+                        if (StringUtils.isBlank(attributeName) && StringUtils.isBlank(attributeValue)) {
+                            retval = curElement;
+                            break;
+                        } else if (attributeValue.equalsIgnoreCase(curElement.getAttribute(attributeName))) {
+                            retval = curElement;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return retval;
+    }
+
+    protected boolean isSelectWrapper(Element node) {
+        if (hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SELECT)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    protected boolean isRadioWrapper(Element node) {
+        if (hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+        
+    protected boolean isCheckboxWrapper(Element node) {
+        if (hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

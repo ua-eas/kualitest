@@ -37,13 +37,24 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
         
         if (isSelectWrapper(node)) {
-            retval.setPropertyValue(getSelectedOption((Element)node.getFirstChild()));
+            Element c = getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
+            
+            if (c != null) {
+               retval.setPropertyValue(getSelectedOption(c));
+            }
         } else if (isRadioWrapper(node)) {
-            Element c = (Element)node.getFirstChild();
-            retval.setPropertyValue(getSelectedRadioValue((Element)node.getFirstChild(), c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            Element c = getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+                Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
+            
+            if (c != null) {
+                retval.setPropertyValue(getSelectedRadioValue(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            }
         } else if (isCheckboxWrapper(node)) {
-            Element c = (Element)node.getFirstChild();
-            retval.setPropertyValue(getSelectedCheckboxValues(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            Element c = getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+                Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
+            if (c != null) {
+                retval.setPropertyValue(getSelectedCheckboxValues(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            }
         } else {
             retval.setPropertyValue(Utils.cleanDisplayText(node));
         }
@@ -91,35 +102,5 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         }
         
         return retval;
-    }
-    
-    private boolean isSelectWrapper(Element node) {
-        return (node.hasChildNodes() && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getFirstChild().getNodeName()));
-    }
-
-    private boolean isRadioWrapper(Element node) {
-        boolean retval = false;
-        
-        if (isInputWrapper(node)) {
-            Element child = (Element)node.getFirstChild();
-            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE));
-        }
-        
-        return retval;
-    }
-        
-    private boolean isCheckboxWrapper(Element node) {
-        boolean retval = false;
-        
-        if (isInputWrapper(node)) {
-            Element child = (Element)node.getFirstChild();
-            retval = Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE));
-        }
-        
-        return retval;
-    }
-
-    private boolean isInputWrapper(Element node) {
-        return (node.hasChildNodes()  && Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getFirstChild().getNodeName()));
     }
 }

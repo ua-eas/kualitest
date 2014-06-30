@@ -27,7 +27,7 @@ import org.w3c.dom.Element;
  *
  * @author rbtucker
  */
-public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
+public class KualiItemAccountTagHandler extends TdTagHandler {
 
     /**
      *
@@ -42,9 +42,7 @@ public class KualiItemAccountTagHandler extends DefaultHtmlTagHandler {
         
         if (anchor != null) {
             retval.setPropertyValue(Utils.cleanDisplayText(anchor));
-        } else {
-            retval.setPropertyValue(Utils.cleanDisplayText(node));
-        }
+        } 
         
         return retval;
     }

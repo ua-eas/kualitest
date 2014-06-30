@@ -60,6 +60,8 @@ public class CheckpointTable extends BaseTable {
                         tm.setValueAt(null, row, 3);
                         tm.setValueAt(null, row, 4);
                         tm.setValueAt(null, row, 6);
+                    } else {
+                        tm.setValueAt(FailureAction.ERROR_CONTINUE.toString(), row, 6);
                     }
                 }
             }
