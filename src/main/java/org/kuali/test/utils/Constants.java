@@ -285,7 +285,9 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_ID = "id";
     public static final String HTML_TAG_ATTRIBUTE_ROWSPAN = "rowspan";
     public static final String HTML_TAG_ATTRIBUTE_NAME = "name";
+    public static final String HTML_TAG_ATTRIBUTE_SELECTED = "selected";
     public static final String HTML_TAG_ATTRIBUTE_VALUE = "value";
+    public static final String HTML_TAG_ATTRIBUTE_CHECKED = "checked";
     public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
     public static final String HTML_TAG_ATTRIBUTE_TYPE = "type";
     public static final String HTML_TAG_ATTRIBUTE_SUMMARY = "summary";

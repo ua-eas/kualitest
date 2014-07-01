@@ -176,8 +176,8 @@ if (cp.getDisplayName().toLowerCase().contains("total prior to tax")) {
         String src = iframeNode.getAttribute("src");
         
         if (!src.startsWith("http")) {
-            String id = iframeNode.getAttribute("id");
-            String name = iframeNode.getAttribute("name");
+            String id = iframeNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+            String name = iframeNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
             if (StringUtils.isNotBlank(id)) {
                 retval.append("return document.getElementById('");
                 retval.append(id);

@@ -3031,7 +3031,7 @@ public class Utils {
         if ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE)) {
             Element e = (Element)node;
             if (param.getTagName().equals(e.getTagName())) {
-                if (param.getParameterName().equals(e.getAttribute("name"))) {
+                if (param.getParameterName().equals(e.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
                     retval = true;
                     if ((param.getTagAttributes() != null) && (param.getTagAttributes().sizeOfAttributeArray() > 0)) {
                         for (TagAttribute att : param.getTagAttributes().getAttributeArray()) {

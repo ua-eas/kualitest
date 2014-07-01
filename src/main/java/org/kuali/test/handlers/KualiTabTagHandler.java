@@ -16,6 +16,7 @@
 
 package org.kuali.test.handlers;
 
+import org.kuali.test.utils.Constants;
 import org.w3c.dom.Element;
 
 /**
@@ -44,7 +45,7 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
      */
     @Override
     public String getGroupName(Element node) {
-        String id = node.getAttribute("id");
+        String id = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
         String retval = id;
         int pos1 = id.indexOf("-");
         int pos2 = id.lastIndexOf("-");

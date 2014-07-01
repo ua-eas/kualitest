@@ -74,14 +74,14 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
 
-        if (StringUtils.isNotBlank(node.getAttribute("value"))) {
-            retval.setPropertyValue(node.getAttribute("value"));
+        if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE))) {
+            retval.setPropertyValue(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE));
         }
         
-        if (StringUtils.isNotBlank(node.getAttribute("id"))) {
-            retval.setPropertyName(Utils.trimString(node.getAttribute("id")));
-        } else if (StringUtils.isNotBlank(node.getAttribute("name"))) {
-            retval.setPropertyName(Utils.trimString(node.getAttribute("name")));
+        if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID))) {
+            retval.setPropertyName(Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID)));
+        } else if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
+            retval.setPropertyName(Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
         } 
         
         retval.setDisplayName(Utils.trimString(retval.getPropertyName()));
@@ -176,9 +176,9 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         String retval = "";
         
         for (Element sibling : Utils.getSiblingElements(node)) {
-            if (name.equals(sibling.getAttribute("name"))) {
-                if (StringUtils.isNotBlank(sibling.getAttribute("checked"))) {
-                    retval = sibling.getAttribute("value");
+            if (name.equals(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
+                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CHECKED))) {
+                    retval = sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
                     break;
                 }
             }
@@ -197,8 +197,8 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         
         for (Element sibling : Utils.getSiblingElements(node)) {
             if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.getNodeName())) {
-                if (StringUtils.isNotBlank(sibling.getAttribute("selected"))) {
-                    retval = sibling.getAttribute("value");
+                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
+                    retval = sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
                     break;
                 }
             }
@@ -220,9 +220,9 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
 
         
         for (Element sibling : Utils.getSiblingElements(node)) {
-            if (name.equals(sibling.getAttribute("name"))) {
-                if (StringUtils.isNotBlank(sibling.getAttribute("selected"))) {
-                    l.add(sibling.getAttribute("value"));
+            if (name.equals(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
+                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
+                    l.add(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE));
                     break;
                 }
             }
@@ -249,10 +249,12 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     }
 
     protected boolean isRadioWrapper(Element node) {
-        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
+        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
     }
         
     protected boolean isCheckboxWrapper(Element node) {
-        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
+        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
     }
 }
