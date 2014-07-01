@@ -3177,4 +3177,41 @@ public class Utils {
 
         return retval;
     }
+
+    public static boolean hasChildNodeWithNodeName(Element parent, String nodeName) {
+        return (getFirstChildNodeByNodeName(parent, nodeName) != null);         
+    }
+
+     public static boolean hasChildNodeWithNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+        return (getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, attributeName, attributeValue) != null);         
+    }
+
+     public static Element getFirstChildNodeByNodeName(Element parent, String nodeName) {
+        return getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, null, null);
+    }
+    
+     public static  Element getFirstChildNodeByNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+        Element retval = null;
+        
+        if (parent.hasChildNodes()) {
+            NodeList nl = parent.getChildNodes();
+            
+            for (int i = 0; i < nl.getLength(); ++ i) {
+                if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
+                    Element curElement = (Element) nl.item(i);
+                    if (curElement.getNodeName().equalsIgnoreCase(nodeName)) {
+                        if (StringUtils.isBlank(attributeName) && StringUtils.isBlank(attributeValue)) {
+                            retval = curElement;
+                            break;
+                        } else if (attributeValue.equalsIgnoreCase(curElement.getAttribute(attributeName))) {
+                            retval = curElement;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return retval;
+    }
 }        

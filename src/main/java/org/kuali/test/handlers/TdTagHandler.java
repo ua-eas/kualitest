@@ -37,20 +37,20 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
         
         if (isSelectWrapper(node)) {
-            Element c = getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
+            Element c = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
             
             if (c != null) {
                retval.setPropertyValue(getSelectedOption(c));
             }
         } else if (isRadioWrapper(node)) {
-            Element c = getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+            Element c = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
                 Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
             
             if (c != null) {
                 retval.setPropertyValue(getSelectedRadioValue(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
             }
         } else if (isCheckboxWrapper(node)) {
-            Element c = getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+            Element c = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
                 Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
             if (c != null) {
                 retval.setPropertyValue(getSelectedCheckboxValues(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
