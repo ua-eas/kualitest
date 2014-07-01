@@ -31,7 +31,7 @@ public class TagHandlerFileComparator implements Comparator <File> {
             retval = -1;
         } else if (o1.getName().startsWith("general-")) {
             retval = 1;
-        } else if (o1.getName().startsWith("kfs-") || o1.getName().startsWith("kc-")) {
+        } else if (o1.getName().startsWith("kfs-") || o1.getName().startsWith("kc-") || o1.getName().startsWith("kuali-")) {
             retval = -1;
         } else {
             retval = o1.compareTo(o2);

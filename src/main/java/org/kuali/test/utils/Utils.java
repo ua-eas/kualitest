@@ -1843,6 +1843,9 @@ public class Utils {
                                 match = false;
                                 break;
                             }
+                        } else if (tm.getSectionRequired() && StringUtils.isBlank(hth.getSectionName(node))) {
+                            match = false;
+                            break;
                         }
                     }
                 }

@@ -43,7 +43,6 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
      */
     protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
     private TagHandler tagHandler;
-    
     /**
      *
      * @param node
@@ -309,5 +308,4 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
             return false;
         }
     }
-
 }

@@ -433,6 +433,7 @@
         <application>KFS</application>
         <tag-name>td</tag-name>
         <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <sort-index>10</sort-index>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -475,12 +476,9 @@
             <tag-matcher>
                 <match-type>sibling</match-type>
                 <tag-name>th</tag-name>
-                <search-definition>-*</search-definition>
+                <search-definition>-1</search-definition>
                 <match-attributes>
-                    <match-attribute>
-                        <name>scope</name>
-                        <value>row</value>
-                    </match-attribute>
+                    <match-attribute></match-attribute>
                 </match-attributes>
             </tag-matcher>
         </label-matcher>
@@ -515,6 +513,15 @@
                         <value>subhead</value>
                     </match-attribute>
                 </match-attributes>
+                <child-tag-match>
+                    <child-tag-name>span</child-tag-name>
+                    <match-attributes>
+                        <match-attribute>
+                            <name>class</name>
+                            <value>subhead-left</value>
+                        </match-attribute>
+                    </match-attributes>
+                </child-tag-match>
             </tag-matcher>
             <tag-matcher>
                 <match-type>child</match-type>

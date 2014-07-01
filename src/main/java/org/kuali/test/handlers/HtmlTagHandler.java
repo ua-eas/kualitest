@@ -81,10 +81,11 @@ public interface HtmlTagHandler {
      * @return
      */
     public TagHandler getTagHandler();
-
+    
     /**
      *
      * @param tagHandler
      */
     public void setTagHandler(TagHandler tagHandler);
+
 }

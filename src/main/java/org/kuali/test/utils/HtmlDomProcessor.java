@@ -101,6 +101,9 @@ public class HtmlDomProcessor {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName())) {
+if (cp.getDisplayName().toLowerCase().contains("total prior to tax")) {
+    System.out.println("----------------------------->" + th.getTagHandler().getName());
+}                           
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }
