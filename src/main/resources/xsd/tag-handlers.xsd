@@ -33,11 +33,11 @@
             <xs:element name="tag-name" type="xs:string"/>
             <xs:element name="handler-class-name" type="xs:string"/>
             <xs:element name="sort-index" type="xs:int" default="1000"/>
+            <xs:element name="handler-name" type="xs:string" minOccurs="0"/>
             <xs:element name="tag-matchers" type="tag-matchers" minOccurs="0"/>
             <xs:element name="label-matcher" type="tag-matchers" minOccurs="0"/>
             <xs:element name="section-matcher" type="tag-matchers" minOccurs="0"/>
             <xs:element name="sub-section-matcher" type="tag-matchers" minOccurs="0"/>
-            <xs:element name="name" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -65,8 +65,6 @@
             <xs:element name="match-attributes" type="tag-match-attributes"/>
             <xs:element name="child-tag-match" type="child-tag-match" minOccurs="0"/>
             <xs:element name="parent-tag-match" type="parent-tag-match" minOccurs="0"/>
-            <xs:element name="section-name" type="xs:string" minOccurs="0"/>
-            <xs:element name="section-required" type="xs:boolean" minOccurs="0" default="false"/>
         </xs:sequence>
     </xs:complexType>
 

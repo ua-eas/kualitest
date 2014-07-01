@@ -79,6 +79,7 @@ import org.kuali.test.ComparisonOperator;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.JmxConnection;
+import org.kuali.test.KualiApplication;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
@@ -1125,6 +1126,44 @@ public class Utils {
         return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
 
+    public static File[] getHandlerFiles(File handlerDir) {
+        List <File> retval = new ArrayList<File>();
+
+        File[] files = handlerDir.listFiles();
+        
+        Map <String, File> map = new HashMap<String, File>();
+        List <File> others = new ArrayList<File>();
+        for (File f : files) {
+            int pos = f.getName().indexOf("-");
+            
+            if (f.length() > 0) {
+                if (pos > -1) {
+                    map.put(f.getName().substring(0, pos).toLowerCase(), f);
+                } else {
+                    others.add(f);
+                }
+            }
+        }
+        
+        if (map.containsKey("custom")) {
+            retval.add(map.remove("custom"));
+        }
+        
+        for (String app : Utils.getXmlEnumerations(KualiApplication.class)) {
+            if (map.containsKey(app.toLowerCase())) {
+                retval.add(map.remove(app.toLowerCase()));
+            }
+        }
+
+        others.addAll(map.values());
+        
+        Collections.sort(others, new TagHandlerFileComparator());
+        
+        retval.addAll(others);
+        
+        return retval.toArray(new File[retval.size()]);
+    }
+    
     /**
      *
      * @param configuration
@@ -1133,9 +1172,7 @@ public class Utils {
         File handlerDir = new File(configuration.getTagHandlersLocation());
 
         if (handlerDir.exists() && handlerDir.isDirectory()) {
-            File[] files = handlerDir.listFiles(new XMLFileFilter());
-
-            Arrays.sort(files, new TagHandlerFileComparator());
+            File[] files = getHandlerFiles(handlerDir);
 
             for (File f : files) {
                 try {
@@ -1836,14 +1873,6 @@ public class Utils {
                 if (th.getTagMatchers() != null) {
                     for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
                         if (getMatchingTagNode(tm, node) == null) {
-                            match = false;
-                            break;
-                        } else if (StringUtils.isNotBlank(tm.getSectionName())) {
-                            if (!isStringMatch(tm.getSectionName(), hth.getSectionName(node))) {
-                                match = false;
-                                break;
-                            }
-                        } else if (tm.getSectionRequired() && StringUtils.isBlank(hth.getSectionName(node))) {
                             match = false;
                             break;
                         }
