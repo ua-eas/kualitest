@@ -245,26 +245,14 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     
 
     protected boolean isSelectWrapper(Element node) {
-        if (Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SELECT)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
     }
 
     protected boolean isRadioWrapper(Element node) {
-        if (Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
     }
         
     protected boolean isCheckboxWrapper(Element node) {
-        if (Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX)) {
-            return true;
-        } else {
-            return false;
-        }
+        return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
     }
 }
