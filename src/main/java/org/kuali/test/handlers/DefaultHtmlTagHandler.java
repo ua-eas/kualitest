@@ -37,12 +37,9 @@ import org.w3c.dom.NodeList;
  * @author rbtucker
  */
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
-
-    /**
-     *
-     */
     protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
     private TagHandler tagHandler;
+
     /**
      *
      * @param node
