@@ -53,7 +53,7 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </section-matcher>
-        <name>kuali1</name>
+        <handler-name>kuali1</handler-name>
     </handler>
 
     <handler>
@@ -93,7 +93,7 @@
                 </match-attributes>
             </tag-matcher>
         </label-matcher>
-        <name>kuali2</name>
+        <handler-name>kuali2</handler-name>
     </handler>
 
     <handler>
@@ -153,7 +153,7 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </section-matcher>
-        <name>kuali3</name>
+        <handler-name>kuali3</handler-name>
     </handler>
 
     <handler>
@@ -171,7 +171,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
-        <name>kuali4</name>
+        <handler-name>kuali4</handler-name>
     </handler>
 
     <handler>
@@ -197,7 +197,7 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </label-matcher>
-        <name>kuali5</name>
+        <handler-name>kuali5</handler-name>
     </handler>
 
     <handler>
@@ -215,6 +215,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>kuali6</handler-name>
     </handler>
 
     <handler>
@@ -254,6 +255,6 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
-        <name>kuali7</name>
+        <handler-name>kuali7</handler-name>
     </handler>
 </tag-handlers>

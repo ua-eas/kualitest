@@ -195,10 +195,12 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     protected String getSelectedOption(Element node) {
         String retval = "";
         
-        for (Element sibling : Utils.getSiblingElements(node)) {
-            if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(sibling.getNodeName())) {
-                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
-                    retval = sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+        List <Element> children = Utils.getChildElements(node);
+        
+        for (Element child : children) {
+            if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(child.getNodeName())) {
+                if (StringUtils.isNotBlank(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
+                    retval = child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
                     break;
                 }
             }

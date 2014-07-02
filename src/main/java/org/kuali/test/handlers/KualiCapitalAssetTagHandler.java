@@ -27,16 +27,8 @@ import org.w3c.dom.Node;
  *
  * @author rbtucker
  */
-public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
-
-    /**
-     *
-     */
+public class KualiCapitalAssetTagHandler extends TdTagHandler {
     public static final String CAPITAL_ASSET_PROPERTY_GROUP = "CapitalAsset";
-
-    /**
-     *
-     */
     public static final String CAPITAL_ASSET_ITEMS_TABLE_SUMMARY = "Capital Asset Items";
 
     /**
@@ -47,7 +39,6 @@ public class KualiCapitalAssetTagHandler extends DefaultHtmlTagHandler {
     @Override
     public CheckpointProperty getCheckpointProperty(Element node) {
         CheckpointProperty retval = super.getCheckpointProperty(node); 
-        retval.setPropertyValue(Utils.cleanDisplayText(node));
         retval.setPropertyGroup(CAPITAL_ASSET_PROPERTY_GROUP);
         return retval;
     }

@@ -62,8 +62,9 @@ public class HtmlDomProcessor {
     
     private void processNode(DomInformation domInformation) {
         Element node = domInformation.getCurrentNode();
-        HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
         
+        HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
+
         if (th != null) {
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);
@@ -101,9 +102,6 @@ public class HtmlDomProcessor {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName())) {
-if (cp.getDisplayName().toLowerCase().contains("total prior to tax")) {
-    System.out.println("----------------------------->" + th.getTagHandler().getHandlerName());
-}                           
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }

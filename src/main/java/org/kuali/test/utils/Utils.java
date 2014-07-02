@@ -1359,6 +1359,8 @@ public class Utils {
                                 if (!retval) {
                                     break;
                                 }
+                            } else {
+                                break;
                             }
                         } else {
                             break;
@@ -1870,6 +1872,17 @@ public class Utils {
             for (HtmlTagHandler hth : handlerList) {
                 boolean match = true;
                 TagHandler th = hth.getTagHandler();
+if (node.getNodeName().equals("td")
+    && (node.getPreviousSibling() != null)
+    && node.getPreviousSibling().getNodeName().equals("th")) {
+    String s = Utils.cleanDisplayText(node.getPreviousSibling());
+    if (s != null && s.contains("Total Prior to Tax")) {
+        if ("kfs7".equals(th.getHandlerName())) {
+            int i = 0;
+        }
+    }
+}
+
                 if (th.getTagMatchers() != null) {
                     for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
                         if (getMatchingTagNode(tm, node) == null) {
@@ -3186,19 +3199,27 @@ public class Utils {
         return (getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, attributeName, attributeValue) != null);         
     }
 
-     public static Element getFirstChildNodeByNodeName(Element parent, String nodeName) {
+    public static Element getFirstChildNodeByNodeName(Element parent, String nodeName) {
         return getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, null, null);
     }
     
      public static  Element getFirstChildNodeByNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
         Element retval = null;
-        
+        Element firstChildElement = null;
         if (parent.hasChildNodes()) {
             NodeList nl = parent.getChildNodes();
             
             for (int i = 0; i < nl.getLength(); ++ i) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
                     Element curElement = (Element) nl.item(i);
+                    
+                    // if the first child element is a span then we will save it
+                    // if we do not find the desired child we will look in the first child span
+                    if ((firstChildElement == null) 
+                        && Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(curElement.getTagName())) {
+                        firstChildElement = curElement;
+                    }
+
                     if (curElement.getNodeName().equalsIgnoreCase(nodeName)) {
                         if (StringUtils.isBlank(attributeName) && StringUtils.isBlank(attributeValue)) {
                             retval = curElement;
@@ -3212,6 +3233,10 @@ public class Utils {
             }
         }
 
+        if ((retval == null) && (firstChildElement != null)) {
+            retval = getFirstChildNodeByNodeNameAndAttribute(firstChildElement, nodeName, attributeName, attributeValue);
+        }
+        
         return retval;
     }
 }        

@@ -43,31 +43,33 @@ public class KualiItemAccountTagHandler extends TdTagHandler {
         if (anchor != null) {
             retval.setPropertyValue(Utils.cleanDisplayText(anchor));
         } 
-        
+
         return retval;
     }
 
     private Element findAnchor(Element node) {
         Element retval = null;
         
-        Element cnode = null;
-        for (Element child : Utils.getChildElements(node)) {
-            if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(child.getNodeName())
-                || Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(child.getNodeName())) {
-                cnode = child;
-                 break;
+        if (!isSelectWrapper(node)) {
+            Element cnode = null;
+            for (Element child : Utils.getChildElements(node)) {
+                if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(child.getNodeName())
+                    || Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(child.getNodeName())) {
+                    cnode = child;
+                     break;
+                }
             }
-        }
 
-        if (cnode != null) {
-            for (Element child : Utils.getChildElements(cnode)) {
-                if (Constants.HTML_TAG_TYPE_ANCHOR.equalsIgnoreCase(child.getNodeName())) {
-                    retval = child;
-                    break;
+            if (cnode != null) {
+                for (Element child : Utils.getChildElements(cnode)) {
+                    if (Constants.HTML_TAG_TYPE_ANCHOR.equalsIgnoreCase(child.getNodeName())) {
+                        retval = child;
+                        break;
+                    }
                 }
             }
         }
-            
+        
         return retval;
     }
     
