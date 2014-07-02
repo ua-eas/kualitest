@@ -102,6 +102,12 @@ public class HtmlDomProcessor {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
+                  
+                        if (cp.getDisplayName().contains("Total Prior to Tax")) {
+                            System.out.println("---------------------->" + th.getTagHandler().getHandlerName());
+                            System.out.println("------------->section=(" + cp.getPropertySection() + ")");
+                        }
+                                 
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }
@@ -131,7 +137,8 @@ public class HtmlDomProcessor {
             if (StringUtils.isBlank(cp.getPropertySection())) {
                 retval = false;
             } else {
-                retval = Utils.isStringMatch(cp.getPropertySection().replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, ""), th.getTagHandler().getRequiredSectionName());
+                retval = Utils.isStringMatch(cp.getPropertySection().replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, ""), 
+                    th.getTagHandler().getRequiredSectionName());
             }
         }
 
@@ -196,9 +203,9 @@ public class HtmlDomProcessor {
 
     private String getJsIframeDataCall(Element iframeNode) {
         StringBuilder retval = new StringBuilder(512);
-        String src = iframeNode.getAttribute("src");
+        String src = iframeNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SRC);
         
-        if (!src.startsWith("http")) {
+        if (!src.startsWith(Constants.HTTP)) {
             String id = iframeNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
             String name = iframeNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
             if (StringUtils.isNotBlank(id)) {

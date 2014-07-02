@@ -1650,19 +1650,17 @@ public class Utils {
                     Element prev = getPreviousSiblingElement(node);
 
                     while ((prev != null) && (cnt < targetCnt)) {
-                        if (prev.getNodeName().equalsIgnoreCase(tm.getTagName())) {
-                            cnt++;
-                            if (!limited || (cnt == targetCnt)) {
-                                if (isTagMatch(prev, tm)) {
-                                    retval = prev;
-                                }
-                                
-                                if (limited || (retval != null)) {
-                                    break;
-                                }
+                        cnt++;
+                        if (!limited || (cnt == targetCnt)) {
+                            if (prev.getNodeName().equalsIgnoreCase(tm.getTagName()) && isTagMatch(prev, tm)) {
+                                retval = prev;
+                            }
+
+                            if (limited || (retval != null)) {
+                                break;
                             }
                         }
-                            
+                        
                         prev = getPreviousSiblingElement(prev);
                     }
                 }
@@ -1686,17 +1684,15 @@ public class Utils {
                     Element next = getNextSiblingElement(node);
 
                     while ((next != null) && (cnt < targetCnt)) {
-                        if (next.getNodeName().equalsIgnoreCase(tm.getTagName())) {
-                            cnt++;
-                            if (!limited || (cnt == targetCnt)) {
-                                
-                                if (isTagMatch(next, tm)) {
-                                    retval = next;
-                                }
-                                
-                                if (limited || (retval != null)) {
-                                    break;
-                                }
+                        cnt++;
+                        if (!limited || (cnt == targetCnt)) {
+
+                            if (next.getNodeName().equalsIgnoreCase(tm.getTagName()) && isTagMatch(next, tm)) {
+                                retval = next;
+                            }
+
+                            if (limited || (retval != null)) {
+                                break;
                             }
                         }
 
@@ -1718,16 +1714,14 @@ public class Utils {
 
 
                     for (Element child : getChildElements((Element)node.getParentNode())) {
-                        if (child.getNodeName().equalsIgnoreCase(tm.getTagName())) {
-                            cnt++;
-                            if (!limited || (cnt == targetCnt)) {
-                                if (isTagMatch(child, tm)) {
-                                    retval = child;
-                                }
-                                
-                                if (limited || (retval != null)) {
-                                    break;
-                                }
+                        cnt++;
+                        if (!limited || (cnt == targetCnt)) {
+                            if (child.getNodeName().equalsIgnoreCase(tm.getTagName()) && isTagMatch(child, tm)) {
+                                retval = child;
+                            }
+
+                            if (limited || (retval != null)) {
+                                break;
                             }
                         }
                     }
@@ -2992,7 +2986,7 @@ public class Utils {
                     }
                     
                     catch (Exception ex) {
-                        LOG.warn("error occurred trying to read encryption password", ex);
+                        LOG.warn("error occurred trying to read encryption password file - using default", ex);
                     }
                 }
             }
