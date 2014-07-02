@@ -101,7 +101,7 @@ public class HtmlDomProcessor {
                         cp.setOperator(ComparisonOperator.EQUAL_TO);
                     }
 
-                    if (StringUtils.isNotBlank(cp.getDisplayName())) {
+                    if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }
@@ -112,6 +112,31 @@ public class HtmlDomProcessor {
                 processNode(domInformation);
             }
         }
+    }
+    
+    private boolean isValidSectionName(CheckpointProperty cp, HtmlTagHandler th) {
+        boolean retval = true;
+
+        // if section name is required then existence
+        if (th.getTagHandler().getSectionNameRequired()) {
+            if (StringUtils.isBlank(cp.getPropertySection())) {
+                retval = false;
+            } else {
+                retval = StringUtils.isNotBlank(cp.getPropertySection().replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, ""));
+            }
+        }
+
+        // if a specified section name is required then check for match
+        if (retval && StringUtils.isNotBlank(th.getTagHandler().getRequiredSectionName())) {
+            if (StringUtils.isBlank(cp.getPropertySection())) {
+                retval = false;
+            } else {
+                retval = Utils.isStringMatch(cp.getPropertySection().replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, ""), th.getTagHandler().getRequiredSectionName());
+            }
+        }
+
+        
+        return retval;
     }
     
     private Element getIframeBody(JWebBrowser webBrowser, Element iframeNode) {

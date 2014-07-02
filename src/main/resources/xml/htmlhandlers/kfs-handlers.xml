@@ -336,7 +336,7 @@
                         <value>Items Section</value>
                     </match-attribute>
                 </match-attributes>
-            </tag-matcher>
+            </tag-matcher>            
         </tag-matchers>
         <label-matcher>
             <tag-matcher>
@@ -522,6 +522,7 @@
             </tag-matcher>
         </section-matcher>
         <handler-name>kfs7</handler-name>
+        <section-name-required>true</section-name-required>
     </handler>
 
     <!-- items handler for account lines (read only) -->

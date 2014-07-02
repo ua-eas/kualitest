@@ -536,7 +536,9 @@ public class Utils {
                     try {
                         Object e = field.get(null);
                         retval.add(e.toString());
-                    } catch (Exception ex) {
+                    } 
+                    
+                    catch (Exception ex) {
                         LOG.warn(ex.toString());
                     }
                 }
@@ -665,7 +667,9 @@ public class Utils {
                     m.invoke(o, value);
                 }
 
-            } catch (Exception ex) {
+            } 
+            
+            catch (Exception ex) {
                 LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
             }
         }
@@ -683,7 +687,9 @@ public class Utils {
             Method m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
 
             retval = m.getReturnType();
-        } catch (Exception ex) {
+        } 
+        
+        catch (Exception ex) {
             LOG.warn(ex.toString());
         }
 
@@ -1197,7 +1203,9 @@ public class Utils {
                                 HtmlTagHandler hth = (HtmlTagHandler) Class.forName(th.getHandlerClassName()).newInstance();
                                 hth.setTagHandler(th);
                                 thl.add(hth);
-                            } catch (Exception ex) {
+                            } 
+                            
+                            catch (Exception ex) {
                                 LOG.warn(ex.toString(), ex);
                             }
                         }
@@ -1223,43 +1231,46 @@ public class Utils {
      */
     public static boolean isTagMatch(Element node, TagMatcher tm) {
         boolean retval = true;
-        if ((tm.getMatchAttributes() != null) && (tm.getMatchAttributes().sizeOfMatchAttributeArray() > 0)) {
+        if (tm.getMatchAttributes() != null) {
+            int numAttributes = tm.getMatchAttributes().sizeOfMatchAttributeArray();
             for (TagMatchAttribute att : tm.getMatchAttributes().getMatchAttributeArray()) {
-                NamedNodeMap m = node.getAttributes();
+                // this is here to handle case where we have 1 empty <match-attribute> tag
+                if ((numAttributes > 1) || StringUtils.isNotBlank(att.getName())) {
+                    NamedNodeMap m = node.getAttributes();
+                    if (StringUtils.isBlank(node.getAttribute(att.getName()))) {
+                        retval = false;
+                        break;
+                    } else {
+                        if (att.getValue().contains("|")) {
+                            // can use "|" to seperate "or" values for matching
+                            StringTokenizer st = new StringTokenizer(att.getValue(), "|");
 
-                if (StringUtils.isBlank(node.getAttribute(att.getName()))) {
-                    retval = false;
-                    break;
-                } else {
-                    if (att.getValue().contains("|")) {
-                        // can use "|" to seperate "or" values for matching
-                        StringTokenizer st = new StringTokenizer(att.getValue(), "|");
+                            boolean foundit = false;
+                            while (st.hasMoreTokens()) {
+                                String token = st.nextToken();
 
-                        boolean foundit = false;
-                        while (st.hasMoreTokens()) {
-                            String token = st.nextToken();
+                                if (token.equalsIgnoreCase(node.getAttribute(att.getName()))) {
+                                    foundit = true;
+                                    break;
+                                }
+                            }
 
-                            if (token.equalsIgnoreCase(node.getAttribute(att.getName()))) {
-                                foundit = true;
+                            if (!foundit) {
+                                retval = false;
                                 break;
                             }
-                        }
+                        } else if (att.getValue().contains("*")) {
+                            retval = isStringMatch(att.getValue(), node.getAttribute(att.getName()));
 
-                        if (!foundit) {
-                            retval = false;
-                            break;
-                        }
-                    } else if (att.getValue().contains("*")) {
-                        retval = isStringMatch(att.getValue(), node.getAttribute(att.getName()));
-
-                        if (!retval) {
-                            break;
-                        }
-                    } else {
-                        String val = att.getValue();
-                        if (!val.equalsIgnoreCase(node.getAttribute(att.getName()))) {
-                            retval = false;
-                            break;
+                            if (!retval) {
+                                break;
+                            }
+                        } else {
+                            String val = att.getValue();
+                            if (!val.equalsIgnoreCase(node.getAttribute(att.getName()))) {
+                                retval = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -1540,7 +1551,6 @@ public class Utils {
             case '9':
                 retval = Constants.SIBLING_NODE_SEARCH_DIRECTION_ABSOLUTE;
                 break;
-
         }
 
         return retval;
@@ -1642,12 +1652,17 @@ public class Utils {
                     while ((prev != null) && (cnt < targetCnt)) {
                         if (prev.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) && isTagMatch(prev, tm)) {
-                                retval = prev;
-                                break;
+                            if (!limited || (cnt == targetCnt)) {
+                                if (isTagMatch(prev, tm)) {
+                                    retval = prev;
+                                }
+                                
+                                if (limited || (retval != null)) {
+                                    break;
+                                }
                             }
                         }
-
+                            
                         prev = getPreviousSiblingElement(prev);
                     }
                 }
@@ -1673,9 +1688,15 @@ public class Utils {
                     while ((next != null) && (cnt < targetCnt)) {
                         if (next.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt)) && isTagMatch(next, tm)) {
-                                retval = next;
-                                break;
+                            if (!limited || (cnt == targetCnt)) {
+                                
+                                if (isTagMatch(next, tm)) {
+                                    retval = next;
+                                }
+                                
+                                if (limited || (retval != null)) {
+                                    break;
+                                }
                             }
                         }
 
@@ -1699,10 +1720,14 @@ public class Utils {
                     for (Element child : getChildElements((Element)node.getParentNode())) {
                         if (child.getNodeName().equalsIgnoreCase(tm.getTagName())) {
                             cnt++;
-                            if ((!limited || (cnt == targetCnt))
-                                && isTagMatch(child, tm)) {
-                                retval = child;
-                                break;
+                            if (!limited || (cnt == targetCnt)) {
+                                if (isTagMatch(child, tm)) {
+                                    retval = child;
+                                }
+                                
+                                if (limited || (retval != null)) {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -1872,16 +1897,6 @@ public class Utils {
             for (HtmlTagHandler hth : handlerList) {
                 boolean match = true;
                 TagHandler th = hth.getTagHandler();
-if (node.getNodeName().equals("td")
-    && (node.getPreviousSibling() != null)
-    && node.getPreviousSibling().getNodeName().equals("th")) {
-    String s = Utils.cleanDisplayText(node.getPreviousSibling());
-    if (s != null && s.contains("Total Prior to Tax")) {
-        if ("kfs7".equals(th.getHandlerName())) {
-            int i = 0;
-        }
-    }
-}
 
                 if (th.getTagMatchers() != null) {
                     for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
@@ -2977,12 +2992,12 @@ if (node.getNodeName().equals("td")
                     }
                     
                     catch (Exception ex) {
+                        LOG.warn("error occurred trying to read encryption password", ex);
                     }
                 }
             }
             
             encryptionPassword = Base64.encodeBase64String(pass.getBytes());
-            
         }
         
         return encryptionPassword;

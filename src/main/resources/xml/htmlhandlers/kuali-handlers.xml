@@ -48,7 +48,7 @@
             </tag-matcher>
             <tag-matcher>
                 <match-type>sibling</match-type>
-                <tag-name>#text</tag-name>
+                <tag-name>h3|h2</tag-name>
                 <search-definition>-1</search-definition>
                 <match-attributes></match-attributes>
             </tag-matcher>
