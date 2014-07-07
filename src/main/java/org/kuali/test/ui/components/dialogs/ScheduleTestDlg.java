@@ -62,6 +62,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
      */
     public ScheduleTestDlg(TestCreator mainFrame, JDialog parent) {
         super(mainFrame, parent);
+        setTitle("Schedule Test");
         initComponents();
     }
 
