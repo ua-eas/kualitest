@@ -150,6 +150,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg  implements L
                     testExecutionParameter.setName(property.getPropertyName());
                     testExecutionParameter.setSection(property.getPropertySection());
                     testExecutionParameter.setSubSection(property.getPropertySubSection());
+                    testExecutionParameter.setValue(property.getPropertyValue());
                     
                     setSaved(true);
                     dispose();
