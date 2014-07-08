@@ -1125,7 +1125,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             } 
 
             catch (Exception ex) {
-                LOG.warn("error opening help PDF file", ex);
+                LOG.warn("Error ocurred opening help PDF file - " + ex.toString());
             } 
         }
     }
