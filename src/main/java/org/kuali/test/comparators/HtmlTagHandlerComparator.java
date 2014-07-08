@@ -18,7 +18,6 @@ package org.kuali.test.comparators;
 
 import java.util.Comparator;
 import org.kuali.test.TagMatchAttribute;
-import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
 import org.kuali.test.handlers.HtmlTagHandler;
 
@@ -109,19 +108,6 @@ public class HtmlTagHandlerComparator implements Comparator <HtmlTagHandler>{
                     retval = true;
                     break;
                 }
-            }
-        }
-        
-        return retval;
-    }
-    
-    private TagMatcher getCurrentNodeTagMatcher(HtmlTagHandler th) {
-        TagMatcher retval = null;
-        
-        for (TagMatcher tm : th.getTagHandler().getTagMatchers().getTagMatcherArray()) {
-            if (TagMatchType.CURRENT.equals(tm.getMatchType())) {
-                retval = tm;
-                break;
             }
         }
         

@@ -258,8 +258,6 @@ public class BaseSqlPanel <T extends BaseColumnData> extends BasePanel implement
             if (!retval.isEmpty()) {
                 int lastRow = retval.size() - 1;
 
-                T cd = retval.get(retval.size() -1);
-
                 // if last row is not complete remove it
                 if (!isLastRowComplete(retval)) {
                     retval.remove(lastRow);

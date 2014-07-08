@@ -492,14 +492,6 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
     }
     
-    private boolean isPlatform(DefaultMutableTreeNode node) {
-        return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof Platform));
-    }
-    
-    private boolean isTestSuite(DefaultMutableTreeNode node) {
-        return ((node != null) && (node.getUserObject() != null) && (node.getUserObject() instanceof TestSuite));
-    }
-    
     /**
      *
      * @param platformName

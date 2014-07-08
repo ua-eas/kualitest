@@ -119,6 +119,7 @@ public abstract class SimpleInputDlg extends JDialog implements ActionListener {
         return new Dimension(350, 100);
     }
     
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (Constants.OK_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             if (isInputError(value.getText())) {

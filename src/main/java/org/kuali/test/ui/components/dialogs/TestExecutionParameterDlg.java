@@ -304,8 +304,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         if (dlg.isSaved()) {
             List <TestExecutionParameter> l = parameterTable.getTableData();
             
-            int row = l.size();
-            
             testExecutionParameter = (TestExecutionParameter)dlg.getNewRepositoryObject();
             
             if (testExecutionParameter != null) {

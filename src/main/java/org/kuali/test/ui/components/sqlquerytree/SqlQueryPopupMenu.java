@@ -105,7 +105,7 @@ public class SqlQueryPopupMenu extends BaseTreePopupMenu {
                 } else if (rc1 != null) {
                     tree.repaint(rc1);
                 } else if (rc2 != null) {
-                    tree.repaint(rc1);
+                    tree.repaint(rc2);
                 }
             }
             

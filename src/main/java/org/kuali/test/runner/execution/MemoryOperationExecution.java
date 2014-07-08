@@ -81,13 +81,13 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
                     double committed = (double) mbean.getHeapMemoryUsage().getCommitted();
                     Double usedMemoryPercent = new Double((used/committed) * 100.0);
                     cp.setActualValue("" + usedMemoryPercent.intValue());
-                } 
                 
-                if (!evaluateCheckpointProperty(cp)) {
-                    throw new TestException("memory usage of " 
-                        + cp.getActualValue() 
-                        + "% is outside of specified range", getOperation());
-                } 
+                    if (!evaluateCheckpointProperty(cp)) {
+                        throw new TestException("memory usage of " 
+                            + cp.getActualValue() 
+                            + "% is outside of specified range", getOperation());
+                    } 
+                }
             }
         }
         

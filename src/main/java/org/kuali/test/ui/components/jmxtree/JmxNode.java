@@ -27,11 +27,7 @@ import org.kuali.test.KualiTestConfigurationDocument;
  * @author rbtucker
  */
 public class JmxNode extends DefaultMutableTreeNode {
-
-    /**
-     *
-     */
-    protected static Logger LOG = Logger.getLogger(JmxNode.class);
+    protected static final Logger LOG = Logger.getLogger(JmxNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     
     /**

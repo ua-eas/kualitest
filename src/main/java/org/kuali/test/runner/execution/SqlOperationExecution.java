@@ -61,7 +61,6 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         String sqlQuery = getParameter(Constants.SQL_QUERY);
         boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
-        String errorMessage = null;
         
         try {
             Connection conn = null;
@@ -73,7 +72,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                 DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(configuration, platform.getDatabaseConnectionName());
                 
                 if (dbconn == null) {
-                    errorMessage = "cannot find database connection information for platform '" + platform.getName() + "'";
+                    throw new TestException("cannot find database connection information for platform", getOperation());
                 } else {
                     conn = Utils.getDatabaseConnection(Utils.getEncryptionPassword(configuration), dbconn);
                     stmt = conn.createStatement();

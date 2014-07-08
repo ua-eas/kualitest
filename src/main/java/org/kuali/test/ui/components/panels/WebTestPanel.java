@@ -417,18 +417,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             handleAddExecutionParameter();
         }
     }
-
-    private List <TestExecutionParameter> getTestExecutionParameters() {
-        List <TestExecutionParameter> retval = new ArrayList <TestExecutionParameter>();
-        
-        for (TestOperation op : testProxyServer.getTestOperations()) {
-            if (op.getOperationType().equals(TestOperationType.TEST_EXECUTION_PARAMETER)) {
-                retval.add(op.getOperation().getTestExecutionParameter());
-            }
-        }
-        
-        return retval;
-    }
     
     private void handleAddExecutionParameter() {
         TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), this, null);

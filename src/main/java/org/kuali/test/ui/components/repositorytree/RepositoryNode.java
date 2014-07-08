@@ -32,15 +32,9 @@ import org.kuali.test.TestSuite;
  * @author rbtucker
  */
 public class RepositoryNode extends DefaultMutableTreeNode {
-
-    /**
-     *
-     */
-    protected static Logger LOG = Logger.getLogger(RepositoryNode.class);
+    protected static final Logger LOG = Logger.getLogger(RepositoryNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     
-    // if platforms are passed in then this is root - handle a little differently
-
     /**
      *
      * @param configuration

@@ -27,14 +27,8 @@ import org.kuali.test.KualiTestConfigurationDocument;
  * @author rbtucker
  */
 public class DatabaseNode extends DefaultMutableTreeNode {
-
-    /**
-     *
-     */
-    protected static Logger LOG = Logger.getLogger(DatabaseNode.class);
+    protected static final Logger LOG = Logger.getLogger(DatabaseNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-    
-    // if platforms are passed in then this is root - handle a little differently
 
     /**
      *

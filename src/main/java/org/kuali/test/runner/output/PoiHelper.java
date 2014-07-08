@@ -602,7 +602,6 @@ public class PoiHelper {
     }  
   
     private void copyRow(XSSFSheet srcSheet, XSSFSheet destSheet, XSSFRow srcRow, XSSFRow destRow, Map<Integer, XSSFCellStyle> styleMap) {  
-        Map<String, CellRangeAddress> mergedRegions = new HashMap<String, CellRangeAddress>();  
         destRow.setHeight(srcRow.getHeight());  
         for (int j = srcRow.getFirstCellNum(); j <= srcRow.getLastCellNum(); j++) {  
             XSSFCell oldCell = srcRow.getCell(j);  

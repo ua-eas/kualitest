@@ -80,25 +80,10 @@ import org.kuali.test.utils.XMLFileFilter;
 public class DatabasePanel extends BaseCreateTestPanel  {
     private static final Logger LOG = Logger.getLogger(DatabasePanel.class);
     
-    /**
-     *
-     */
-    public static int SQL_FORMAT_DISPLAY = 0;
-
-    /**
-     *
-     */
-    public static int SQL_FORMAT_CLIPBOARD = 1;
-
-    /**
-     *
-     */
-    public static int SQL_FORMAT_VALIDATE = 2;
-
-    /**
-     *
-     */
-    public static int SQL_FORMAT_EXECUTE = 3;
+    public static final int SQL_FORMAT_DISPLAY = 0;
+    public static final int SQL_FORMAT_CLIPBOARD = 1;
+    public static final int SQL_FORMAT_VALIDATE = 2;
+    public static final int SQL_FORMAT_EXECUTE = 3;
     
     private JComboBox tableDropdown;
     private SqlQueryTree sqlQueryTree;

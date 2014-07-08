@@ -26,14 +26,8 @@ import org.kuali.test.Platform;
  * @author rbtucker
  */
 public class SqlQueryNode extends DefaultMutableTreeNode {
-
-    /**
-     *
-     */
-    protected static Logger LOG = Logger.getLogger(SqlQueryNode.class);
+    protected static final Logger LOG = Logger.getLogger(SqlQueryNode.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-    
-    // if platforms are passed in then this is root - handle a little differently
 
     /**
      *

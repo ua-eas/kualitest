@@ -123,11 +123,11 @@ public class Constants {
     public static final String WEBSERVICES = "Web Services";
     public static final String JMX = "JMX Connections";
     
-    public static String SAVE_ACTION = "Save";
-    public static String OK_ACTION = "Ok";
-    public static String CANCEL_ACTION = "Cancel";
-    public static String CLOSE_ACTION = "Close";
-    public static String CONTINUE_ACTION = "Continue";
+    public static final String SAVE_ACTION = "Save";
+    public static final String OK_ACTION = "Ok";
+    public static final String CANCEL_ACTION = "Cancel";
+    public static final String CLOSE_ACTION = "Close";
+    public static final String CONTINUE_ACTION = "Continue";
     public static final String START_TEST_ACTION = "Start";
     public static final String CANCEL_TEST_ACTION = "Cancel";
     public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
@@ -435,7 +435,7 @@ public class Constants {
         FILE_CREATED_YESTERDAY
     };
     
-    public static String[] DEFAULT_UNNECCESSARY_TAGS = {
+    public static final String[] DEFAULT_UNNECCESSARY_TAGS = {
         "script",
         "link",
         "img",

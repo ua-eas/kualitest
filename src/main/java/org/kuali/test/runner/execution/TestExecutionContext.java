@@ -865,9 +865,6 @@ public class TestExecutionContext extends Thread {
     public void updateAutoReplaceMap() {
         if ((configuration.getAutoReplaceParameters() != null) && !httpResponseStack.empty()) {
             Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(httpResponseStack.peek());
-            
-            Map <String, AutoReplaceParameter> map = new HashMap<String, AutoReplaceParameter>();
-
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
                 if (!autoReplaceParameterMap.containsKey(param.getParameterName()) && StringUtils.isNotBlank(value)) {
