@@ -65,6 +65,7 @@ import org.kuali.test.TestType;
 import org.kuali.test.WebService;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.databasestree.DatabaseTree;
+import org.kuali.test.ui.components.dialogs.AboutDlg;
 import org.kuali.test.ui.components.dialogs.AddTestsDlg;
 import org.kuali.test.ui.components.dialogs.AutoReplaceParametersDlg;
 import org.kuali.test.ui.components.dialogs.CreateTestDlg;
@@ -366,6 +367,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m = new JMenuItem("About");
         m.setMnemonic('a');
         menu.add(m);
+
+        m.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleShowHelpAbout();
+            }
+        });
 
         mainMenu.add(menu);
 
@@ -1128,5 +1136,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 LOG.warn("Error ocurred opening help PDF file - " + ex.toString());
             } 
         }
+    }
+
+    private void handleShowHelpAbout() {
+        new AboutDlg(this);
     }
 }
