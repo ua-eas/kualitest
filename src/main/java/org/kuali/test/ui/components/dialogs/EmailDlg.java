@@ -51,6 +51,7 @@ public class EmailDlg extends BaseSetupDlg {
      */
     public EmailDlg(TestCreator mainFrame, EmailSetup emailSetup) {
         super(mainFrame);
+        setTitle("Application Email Setup");
         this.emailSetup = emailSetup;
         initComponents();
     }
