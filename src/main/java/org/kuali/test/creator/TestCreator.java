@@ -360,7 +360,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                handleShowHelp(evt);
+                showHelp(evt);
             }
         });
 
@@ -371,7 +371,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                handleShowHelpAbout();
+                showHelpAbout();
             }
         });
 
@@ -1124,7 +1124,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return Utils.getEncryptionPassword(getConfiguration());
     }
     
-    public void handleShowHelp(ActionEvent e) {
+    public void showHelp(ActionEvent e) {
         if (Desktop.isDesktopSupported()) {
             try {
                 URL url  = this.getClass().getResource("/help/kuali-test.pdf");
@@ -1138,7 +1138,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
-    private void handleShowHelpAbout() {
+    private void showHelpAbout() {
         new AboutDlg(this);
     }
 }
