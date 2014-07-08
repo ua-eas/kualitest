@@ -102,12 +102,6 @@ public class HtmlDomProcessor {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
-                  
-                        if (cp.getDisplayName().contains("Total Prior to Tax")) {
-                            System.out.println("---------------------->" + th.getTagHandler().getHandlerName());
-                            System.out.println("------------->section=(" + cp.getPropertySection() + ")");
-                        }
-                                 
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }
