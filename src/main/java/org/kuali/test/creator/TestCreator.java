@@ -17,6 +17,7 @@ package org.kuali.test.creator;
 
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -30,6 +31,7 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -354,6 +356,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m = new JMenuItem("Contents");
         m.setMnemonic('c');
         menu.add(m);
+        m.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleShowHelp(evt);
+            }
+        });
 
         m = new JMenuItem("About");
         m.setMnemonic('a');
@@ -1106,5 +1114,19 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      */
     public String getEncryptionPassword() {
         return Utils.getEncryptionPassword(getConfiguration());
+    }
+    
+    public void handleShowHelp(ActionEvent e) {
+        if (Desktop.isDesktopSupported()) {
+            try {
+                URL url  = this.getClass().getResource("/help/kuali-test.pdf");
+                File file = new File(url.toURI());
+                Desktop.getDesktop().open(file);
+            } 
+
+            catch (Exception ex) {
+                LOG.warn("error opening help PDF file", ex);
+            } 
+        }
     }
 }
