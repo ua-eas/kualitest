@@ -31,7 +31,6 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
@@ -1128,8 +1127,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public void showHelp(ActionEvent e) {
         if (Desktop.isDesktopSupported()) {
             try {
-                URL resource = Thread.currentThread().getContextClassLoader().getResource("help/kuali-test.pdf");  
-                File file = new File(resource.getFile());
+                File file = new File(getConfiguration().getRepositoryLocation() + "/help/kuali-test.pdf");
                 Desktop.getDesktop().open(file);
             } 
 

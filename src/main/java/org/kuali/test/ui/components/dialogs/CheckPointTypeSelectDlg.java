@@ -108,7 +108,7 @@ public class CheckPointTypeSelectDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(325, 100);
+        return new Dimension(325, 175);
     }
 
     /**
