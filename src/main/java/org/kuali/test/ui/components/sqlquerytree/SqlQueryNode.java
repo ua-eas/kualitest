@@ -34,7 +34,7 @@ public class SqlQueryNode extends DefaultMutableTreeNode {
      * @param configuration
      * @param userObject
      */
-        public SqlQueryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
+    public SqlQueryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;
     }

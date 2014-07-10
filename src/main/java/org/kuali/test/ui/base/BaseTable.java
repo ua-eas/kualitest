@@ -231,6 +231,7 @@ public class BaseTable extends JTable {
         getModel().setData(data);
     }
     
+    @Override
     public int getRowHeight() {
         return Constants.DEFAULT_TABLE_ROW_HEIGHT;
     }

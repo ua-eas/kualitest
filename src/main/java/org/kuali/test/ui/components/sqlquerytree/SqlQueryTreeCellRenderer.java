@@ -16,7 +16,9 @@
 
 package org.kuali.test.ui.components.sqlquerytree;
 
+import java.awt.Component;
 import javax.swing.ImageIcon;
+import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.kuali.test.ui.base.BaseTreeCellRenderer;
 import org.kuali.test.utils.Constants;
@@ -26,10 +28,6 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
-
-    /**
-     *
-     */
     public SqlQueryTreeCellRenderer() {
     }
 
@@ -71,6 +69,24 @@ public class SqlQueryTreeCellRenderer extends BaseTreeCellRenderer {
             }
         }
         
+        return retval;
+    }
+
+    @Override
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, 
+        boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        Component retval = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+        
+        SqlQueryNode node = (SqlQueryNode)value;
+        
+        if (node != null) {
+            if (node.isRoot()) {
+                tree.setRowHeight(Constants.DEFAULT_TREE_ROW_HEIGHT);
+            } else {
+                tree.setRowHeight(23);
+            }
+        }
+    
         return retval;
     }
 }

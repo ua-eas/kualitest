@@ -52,7 +52,7 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
     }
 
     private void initComponents() {
-        getContentPane().add(new TablePanel(buildPropertiesTable()), BorderLayout.NORTH);
+        getContentPane().add(new TablePanel(buildPropertiesTable(), 5), BorderLayout.NORTH);
         getContentPane().add(new TablePanel(buildParametersTable()), BorderLayout.CENTER);
         
         addStandardButtons();

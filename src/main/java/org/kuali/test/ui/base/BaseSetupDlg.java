@@ -247,7 +247,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     
     @Override
     public Insets getInsets() {
-        return new Insets(20, 5, 5, 5);
+        return new Insets(25, 5, 5, 5);
     }
     
     @Override
