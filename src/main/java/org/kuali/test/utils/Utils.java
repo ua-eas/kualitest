@@ -104,6 +104,7 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
+import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -2439,7 +2440,7 @@ public class Utils {
      * @param testResults
      */
     public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        TestSuite testSuite, TestHeader testHeader, List<File> testResults) {
+        TestSuite testSuite, TestHeader testHeader, List<File> testResults, TestExecutionContext tec) {
 
         if (StringUtils.isNotBlank(configuration.getEmailSetup().getFromAddress())
             && StringUtils.isNotBlank(configuration.getEmailSetup().getMailHost())) {
@@ -2471,6 +2472,14 @@ public class Utils {
                         subject.append(testHeader.getTestName());
                     }
 
+                    subject.append(" - [errors=");
+                    subject.append(tec.getErrorCount());
+                    subject.append(", warnings=");
+                    subject.append(tec.getWarningCount());
+                    subject.append(", successes=");
+                    subject.append(tec.getSuccessCount());
+                    subject.append("]");
+                    
                     msg.setSubject(subject.toString());
 
                     StringBuilder msgtxt = new StringBuilder(256);

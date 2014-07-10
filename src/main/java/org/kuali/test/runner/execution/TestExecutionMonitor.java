@@ -77,7 +77,7 @@ public class TestExecutionMonitor extends Thread {
             testHeader = tec.getKualiTest().getTestHeader();
         }
         
-        Utils.sendMail(tec.getConfiguration(), tec.getTestSuite(), testHeader, getTestResultsFileList());
+        Utils.sendMail(tec.getConfiguration(), tec.getTestSuite(), testHeader, getTestResultsFileList(), tec);
     }
     
     private List <File> getTestResultsFileList() {

@@ -205,6 +205,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
             } else if ((value == null) || (comparisonValue == null)) {
+                getTestExecutionContext().updateCounts(cp.getOnFailure());
                 throw new TestException("input value is null, comparison value = " + comparisonValue, op);
             } else {
                 ValueType.Enum type = cp.getValueType();
@@ -253,13 +254,21 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                         }
                     }
                 } else {
+                    getTestExecutionContext().updateCounts(cp.getOnFailure());
                     throw new TestException("input type (" + inputType + ") comparison type (" + type + ") mismatch" + comparisonValue, op);
                 }
             }
         }
         
         catch (ParseException ex) {
+            getTestExecutionContext().updateCounts(cp.getOnFailure());
             throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
+        }
+
+        if(retval) {
+            getTestExecutionContext().incrementSuccessCount();
+        } else {
+            getTestExecutionContext().updateCounts(cp.getOnFailure());
         }
         
         return retval;

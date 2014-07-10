@@ -80,6 +80,7 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -106,7 +107,9 @@ public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
     private List <File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
-
+    private int warningCount = 0;
+    private int successCount = 0;
+    private int errorCount = 0;
     
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Map<String, String> executionParameterMap = new HashMap<String, String>();
@@ -184,8 +187,8 @@ public class TestExecutionContext extends Thread {
         // Create a registry of custom connection socket factories for supported
         // protocol schemes.
         Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-            .register("http", PlainConnectionSocketFactory.INSTANCE)
-            .register("https", new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), new AllowAllHostnameVerifier()))
+            .register(Constants.HTTP, PlainConnectionSocketFactory.INSTANCE)
+            .register(Constants.HTTPS, new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), new AllowAllHostnameVerifier()))
             .build();
 
         // Create a connection manager with custom configuration.
@@ -565,8 +568,8 @@ public class TestExecutionContext extends Thread {
     }
     
     /**
-     *
-     * @param lastHttpResponseData
+     * 
+     * @param html 
      */
     public void pushHttpResponse(String html) {
         httpResponseStack.push(html);
@@ -876,6 +879,42 @@ public class TestExecutionContext extends Thread {
 
     public CloseableHttpClient getHttpClient() {
         return httpClient;
+    }
+    
+    public void incrementErrorCount() {
+        errorCount++;
+    }
+
+    public void incrementWarningCount() {
+        warningCount++;
+    }
+
+    public void incrementSuccessCount() {
+        successCount++;
+    }
+    
+    public void updateCounts(FailureAction.Enum failureAction) {
+        switch(failureAction.intValue()) {
+            case FailureAction.INT_ERROR_CONTINUE:
+            case FailureAction.INT_ERROR_HALT_TEST:
+                incrementErrorCount();
+                break;
+            case FailureAction.INT_WARNING:
+                incrementWarningCount();
+                break;
+        }
+    }
+
+    public int getWarningCount() {
+        return warningCount;
+    }
+
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
     }
 }
 

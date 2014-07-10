@@ -285,6 +285,7 @@ public class Constants {
     public static final String HTML_TAG_TYPE_TEXTAREA = "textarea";
     
     public static final String HTTP = "http";
+    public static final String HTTPS = "https";
     public static final String HTML_TAG_ATTRIBUTE_SRC = "src";
     public static final String HTML_TAG_ATTRIBUTE_FOR = "for";
     public static final String HTML_TAG_ATTRIBUTE_ID = "id";
