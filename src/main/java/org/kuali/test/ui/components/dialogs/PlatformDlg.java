@@ -41,8 +41,8 @@ public class PlatformDlg extends BaseSetupDlg {
     private JComboBox jmxConnection;
     private JTextField emailAddresses;
     private JTextField version;
-    private JComboBox <String> application;
-    private JComboBox <String> dbconnection;
+    private JComboBox application;
+    private JComboBox dbconnection;
     
     /**
      * 
@@ -101,13 +101,13 @@ public class PlatformDlg extends BaseSetupDlg {
         
         emailAddresses = new JTextField(platform.getEmailAddresses(), 30);
 
-        jmxConnection = new JComboBox<String>(getJmxConnectionNames());
+        jmxConnection = new JComboBox(getJmxConnectionNames());
         if (platform.getJmxConnectionName() != null) {
             jmxConnection.setSelectedItem(platform.getJmxConnectionName());
         }
         
         
-        dbconnection = new JComboBox<String>(getDatabaseConnectionNames());
+        dbconnection = new JComboBox(getDatabaseConnectionNames());
         if (platform.getDatabaseConnectionName() != null) {
             dbconnection.setSelectedItem(platform.getDatabaseConnectionName());
         }

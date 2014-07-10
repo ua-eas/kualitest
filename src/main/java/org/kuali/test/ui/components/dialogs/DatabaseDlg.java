@@ -46,7 +46,7 @@ public class DatabaseDlg extends BaseSetupDlg {
     private JTextField driver;
     private JTextField username;
     private JPasswordField password;
-    private JComboBox <String> type;
+    private JComboBox type;
     private JCheckBox configuredTablesOnly;
     
     /**

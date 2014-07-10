@@ -187,7 +187,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      *
      */
     protected void addStandardButtons() {
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER, 2, 10));
         
         p.add(saveButton = new JButton(saveActionCommand = getSaveText()));
         saveButton.addActionListener(this);
