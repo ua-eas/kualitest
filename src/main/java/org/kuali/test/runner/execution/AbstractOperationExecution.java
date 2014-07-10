@@ -233,16 +233,16 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                                 retval = c1.equals(c2);
                                 break;
                             case ComparisonOperator.INT_GREATER_THAN:
-                                retval = (c1.compareTo(c2) > 0);
-                                break;
-                            case ComparisonOperator.INT_GREATER_THAN_OR_EQUAL:
-                                retval = (c1.compareTo(c2) >= 0);
-                                break;
-                            case ComparisonOperator.INT_LESS_THAN:
                                 retval = (c1.compareTo(c2) < 0);
                                 break;
-                            case ComparisonOperator.INT_LESS_THAN_OR_EQUAL:
+                            case ComparisonOperator.INT_GREATER_THAN_OR_EQUAL:
                                 retval = (c1.compareTo(c2) <= 0);
+                                break;
+                            case ComparisonOperator.INT_LESS_THAN:
+                                retval = (c1.compareTo(c2) > 0);
+                                break;
+                            case ComparisonOperator.INT_LESS_THAN_OR_EQUAL:
+                                retval = (c1.compareTo(c2) >= 0);
                                 break;
                             case ComparisonOperator.INT_BETWEEN:
                                 
