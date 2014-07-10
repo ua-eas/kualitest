@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
@@ -150,8 +151,9 @@ public class PlatformTestsPanel extends BasePanel
     
     @Override
     public void dragGestureRecognized(DragGestureEvent event) {
-        List <String> testNames = (List<String>)testList.getSelectedValuesList();
-        if ((testNames != null) && !testNames.isEmpty() && (currentPlatform != null)) {
+        List <String> testNames = this.getSelectedTests();
+        
+        if (!testNames.isEmpty() && (currentPlatform != null)) {
             event.startDrag(DragSource.DefaultLinkNoDrop, 
                 new RepositoryTransferable<Platform, List<String>>(new RepositoryTransferData(currentPlatform, testNames), DndHelper.getTestDataFlavor()),
                 new RepositoryDragSourceAdapter());
@@ -250,6 +252,15 @@ public class PlatformTestsPanel extends BasePanel
      * @return
      */
     public List<String> getSelectedTests() {
-        return (List<String>)testList.getSelectedValuesList();
+        List <String> retval = new ArrayList<String>();
+        
+        int sz = testList.getModel().getSize();
+        
+        for (int i = 0; i < sz; ++i) {
+            if (testList.isSelectedIndex(i)) {
+                retval.add((String)testList.getModel().getElementAt(i));
+            }
+        }
+        return retval;
     }
 }

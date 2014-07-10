@@ -224,6 +224,6 @@ public class PlatformDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 375);
+        return new Dimension(600, 425);
     }
 }

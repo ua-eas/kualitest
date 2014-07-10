@@ -26,7 +26,6 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -36,8 +35,6 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
-import org.littleshoot.proxy.ChainedProxy;
-import org.littleshoot.proxy.ChainedProxyManager;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSource;
@@ -79,9 +76,19 @@ public class TestProxyServer {
                 return new HttpFiltersAdapter(originalRequest) {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("in requestPre()");
+                        }
                         if (httpObject instanceof HttpRequest) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("have HttpRequest - " + httpObject.getClass().getName());
+                            }
+
                             HttpRequest request = (HttpRequest)httpObject;
                             if (isValidTestRequest(request)) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("have valid HttpRequest");
+                                }
                                 testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request));
                             }
                         }
@@ -141,30 +148,26 @@ public class TestProxyServer {
         return (StringUtils.isNotBlank(contentType) && contentType.startsWith(Constants.HTML_MIME_TYPE));
     }
     
-    private ChainedProxyManager getChainProxyManager() {
-        return new ChainedProxyManager() {
-            @Override
-            public void lookupChainedProxies(HttpRequest httpRequest, Queue<ChainedProxy> chainedProxies) {
-            }
-        };
-    }
-
     private void initializeProxyServer() {
         // proxy port and host should be passed in as vm params
         String proxyHost = SystemProperties.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
         String proxyPort = SystemProperties.getProperty("network.proxy_port", Constants.DEFAULT_PROXY_PORT);
         
+        if (StringUtils.isBlank(proxyHost)) {
+            proxyHost = SystemProperties.getProperty("http.proxyHost", Constants.DEFAULT_PROXY_HOST);
+            proxyPort = SystemProperties.getProperty("http.proxyPort", Constants.DEFAULT_PROXY_PORT);
+        }
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("initializing proxy server");
-            LOG.debug("network.proxy_host: " + proxyHost);
-            LOG.debug("network.proxy_port: " + proxyPort);
+            LOG.debug("proxyHost: " + proxyHost);
+            LOG.debug("proxyPort: " + proxyPort);
         }
 
-        DefaultHttpProxyServer
+        proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
             .withPort(Integer.parseInt(proxyPort))
             .withAddress(new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)))
-            .withChainProxyManager(getChainProxyManager())
             .withFiltersSource(getHttpFiltersSource())
             .withManInTheMiddle(new SelfSignedMitmManager())
             .withAllowLocalOnly(true)
@@ -187,7 +190,7 @@ public class TestProxyServer {
         }
         
         catch (Throwable t) {
-            LOG.warn(t.toString());
+            LOG.warn(t.toString(), t);
         }
     }
 

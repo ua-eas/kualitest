@@ -56,6 +56,7 @@ public class BaseTable extends JTable {
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
         setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+
         initializing = false;
     }
     
@@ -228,5 +229,9 @@ public class BaseTable extends JTable {
     public void setTableData(List data) {
         clear();
         getModel().setData(data);
+    }
+    
+    public int getRowHeight() {
+        return Constants.DEFAULT_TABLE_ROW_HEIGHT;
     }
 }

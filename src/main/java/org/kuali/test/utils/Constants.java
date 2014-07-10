@@ -211,6 +211,9 @@ public class Constants {
     public static final String SEPARATOR_QUESTION = "?";
     public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
+    public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
+    public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
+    
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

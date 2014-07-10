@@ -32,13 +32,13 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
 public abstract class BaseTree extends JTree implements TreeModelListener {
-
     private final TestCreator mainframe;
 
     /**
@@ -287,5 +287,10 @@ public abstract class BaseTree extends JTree implements TreeModelListener {
         }
         
         return retval;
+    }
+
+    @Override
+    public int getRowHeight() {
+        return Constants.DEFAULT_TREE_ROW_HEIGHT;
     }
 }

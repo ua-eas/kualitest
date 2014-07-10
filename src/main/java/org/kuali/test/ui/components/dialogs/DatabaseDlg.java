@@ -18,9 +18,12 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -86,7 +89,7 @@ public class DatabaseDlg extends BaseSetupDlg {
             "Schema",
             "User Name",
             "Password",
-            "Configured Tables Only"};
+            ""};
         
         name = new JTextField(dbconnection.getName(), 20);
         name.setEditable(!isEditmode());
@@ -105,11 +108,15 @@ public class DatabaseDlg extends BaseSetupDlg {
         }
     
         password = new JPasswordField(pass, 20);
-        configuredTablesOnly = new JCheckBox();
+        
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        p.add(configuredTablesOnly = new JCheckBox());
+        p.add(new JLabel("Configured Tables Only"));
+        
         
         configuredTablesOnly.setSelected(dbconnection.getConfiguredTablesOnly());
         
-        JComponent[] components = {name, type, url, driver, schema, username, password, configuredTablesOnly};
+        JComponent[] components = {name, type, url, driver, schema, username, password, p};
 
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
@@ -199,7 +206,7 @@ public class DatabaseDlg extends BaseSetupDlg {
         return "database-connection-setup";
     }
 
-        @Override
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(600, 375);
     }

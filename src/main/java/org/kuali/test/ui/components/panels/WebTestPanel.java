@@ -156,6 +156,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             }
         });
 
+        System.out.println("native browser: " + retval.getBrowserType() );
+
         return retval;
     }
 
@@ -345,7 +347,13 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
 
         if (!NativeInterface.isOpen()) {
-            NativeInterface.open();
+            try {
+                NativeInterface.open();
+            }
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+            }
         }
     }
 

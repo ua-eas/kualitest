@@ -49,6 +49,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -893,7 +894,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      */
     public static void main(final String args[]) {
         try {
-            javax.swing.UIManager.setLookAndFeel(javax.swing.UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
         } 
         
         
