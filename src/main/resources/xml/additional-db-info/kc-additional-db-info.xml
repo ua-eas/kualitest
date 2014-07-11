@@ -24192,5 +24192,8 @@
                 </columns>
             </table>
         </tables>
+        <lookups>
+
+        </lookups>
     </application>
 </additional-database-info>

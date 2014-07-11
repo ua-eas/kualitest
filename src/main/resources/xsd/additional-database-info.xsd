@@ -30,12 +30,26 @@
         <xs:sequence>
             <xs:element name="application-name" type="xs:string"/>
             <xs:element name="tables" type="tables"/>
+            <xs:element name="lookups" type="lookups"/>
         </xs:sequence>
     </xs:complexType>
     
     <xs:complexType name="tables">
         <xs:sequence>
             <xs:element name="table" type="table" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="lookups">
+        <xs:sequence>
+            <xs:element name="lookup" type="lookup" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="lookup">
+        <xs:sequence>
+            <xs:element name="column-name" type="xs:string"/>
+            <xs:element name="sql" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

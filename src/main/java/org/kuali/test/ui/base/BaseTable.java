@@ -235,4 +235,20 @@ public class BaseTable extends JTable {
     public int getRowHeight() {
         return Constants.DEFAULT_TABLE_ROW_HEIGHT;
     }
+
+    /**
+     *
+     * @param data
+     */
+    public Object getRowData(int row) {
+        Object retval = null;
+        
+        List l = getTableData();
+        
+        if ((row >= 0) && (row < l.size())) {
+            retval = l.get(row);
+        }
+        
+        return retval;
+    }
 }

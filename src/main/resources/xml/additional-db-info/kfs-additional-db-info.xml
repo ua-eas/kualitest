@@ -38572,5 +38572,11 @@
                    </columns>
                </table>
             </tables>
+            <lookups>
+                <lookup>
+                    <column-name>FIN_COA_CD</column-name>
+                    <sql>select fin_coa_cd, fin_coa_cd from ca_chart_t order by 1</sql>
+                </lookup>
+            </lookups>
     </application>
 </additional-database-info>

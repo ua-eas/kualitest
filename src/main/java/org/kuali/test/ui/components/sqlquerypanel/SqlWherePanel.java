@@ -45,12 +45,12 @@ import org.kuali.test.utils.Utils;
  */
 public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlWherePanel.class);
-    private final DefaultCellEditor intCellEditor = new DefaultCellEditor(new IntegerTextField());
-    private final DefaultCellEditor floatCellEditor = new DefaultCellEditor(new FloatTextField());
-    private final DateChooserCellEditor dateCellEditor = new DateChooserCellEditor();
-    private final DateChooserCellEditor dateCellRenderer = new DateChooserCellEditor();
-    private final DefaultCellEditor defaultCellEditor = new DefaultCellEditor(new JTextField());
-    private final DefaultTableCellRenderer defaultCellRenderer = new DefaultTableCellRenderer();
+    private final TableCellEditor intCellEditor;
+    private final TableCellEditor floatCellEditor;
+    private final DateChooserCellEditor dateCellEditor;
+    private final DateChooserCellEditor dateCellRenderer;
+    private final TableCellEditor defaultCellEditor;
+    private final DefaultTableCellRenderer defaultCellRenderer;
     
     /**
      *
@@ -59,6 +59,13 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
      */
     public SqlWherePanel(TestCreator mainframe, DatabasePanel dbPanel) {
         super(mainframe, dbPanel, WhereColumnData.class);
+        intCellEditor = new WhereValueCellEditor(dbPanel, new IntegerTextField());
+        floatCellEditor = new DefaultCellEditor(new FloatTextField());
+        dateCellEditor = new DateChooserCellEditor();
+        dateCellRenderer = new DateChooserCellEditor();
+        defaultCellEditor = new WhereValueCellEditor(dbPanel, new JTextField());
+        defaultCellRenderer = new DefaultTableCellRenderer();
+
         initComponents();
     }
 

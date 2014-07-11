@@ -53,6 +53,7 @@ import org.kuali.test.CustomForeignKey;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
 import org.kuali.test.ForeignKeyColumnPair;
+import org.kuali.test.Lookup;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
@@ -89,13 +90,15 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private SqlQueryTree sqlQueryTree;
     private SqlSelectPanel sqlSelectPanel;
     private SqlWherePanel sqlWherePanel;
+
     private SqlDisplayPanel sqlDisplayPanel;
     private boolean forCheckpoint = false;
     private JTabbedPane tabbedPane;
     
     private List <TestOperation> testOperations = new ArrayList<TestOperation>();
     
-    private final Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
+    private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
+    private Map <String, String> globalLookups = new HashMap<String, String>();
     
     /**
      *
@@ -253,6 +256,12 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                                 if (app.getTables().sizeOfTableArray() > 0) {
                                     for (Table table : app.getTables().getTableArray()) {
                                         additionalDbInfo.put(table.getTableName(), table);
+                                    }
+                                }
+                                
+                                if (app.getLookups() != null) {
+                                    for (Lookup lookup : app.getLookups().getLookupArray()) {
+                                        globalLookups.put(lookup.getColumnName(), lookup.getSql());
                                     }
                                 }
                             }
@@ -1266,5 +1275,13 @@ public class DatabasePanel extends BaseCreateTestPanel  {
      */
     public void addTab(String title, JPanel panel) {
         tabbedPane.addTab(title, panel);
+    }
+
+    public Map<String, Table> getAdditionalDbInfo() {
+        return additionalDbInfo;
+    }
+    
+    public String getGlobalLookupSql(String columnName) {
+        return globalLookups.get(columnName);
     }
 }
