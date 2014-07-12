@@ -1197,7 +1197,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     @Override
                     protected void processCompleted() {
                         DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-                        getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                        if (getCreateCheckpoint() != null) {
+                            getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                        }
                         sqlQueryTree.getModel().nodeStructureChanged(rootNode);
                         sqlQueryTree.expandNode(rootNode, 1);
                         sqlSelectPanel.clear();

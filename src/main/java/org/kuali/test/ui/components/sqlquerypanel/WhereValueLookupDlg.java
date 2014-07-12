@@ -48,6 +48,15 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
     
     public WhereValueLookupDlg(TestCreator mainframe, Platform platform, String sql) {
         super(mainframe, true);
+        init(mainframe, platform, sql);
+    }
+
+    public WhereValueLookupDlg(TestCreator mainframe, JDialog parent, Platform platform, String sql) {
+        super(parent, true);
+        init(mainframe, platform, sql);
+    }
+    
+    private void init(TestCreator mainframe, Platform platform, String sql) {
         setTitle("Look Up");
         
         this.mainframe = mainframe;

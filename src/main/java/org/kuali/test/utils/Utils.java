@@ -19,6 +19,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -59,6 +60,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -1961,25 +1963,27 @@ public class Utils {
         String[] checkpointTypes = Utils.getXmlEnumerations(CheckpointType.class);
 
         for (String checkpointType : checkpointTypes) {
-            if (checkpointType.equals(CheckpointType.HTTP.toString())) {
-                if (TestType.WEB.equals(testType)) {
-                    retval.add(checkpointType);
-                }
-            } else {
-                if (CheckpointType.SQL.toString().equals(checkpointType)) {
-                    if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
-                        retval.add(checkpointType);
-                    }
-                } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
-                    if (StringUtils.isNotBlank(platform.getWebServiceName())) {
-                        retval.add(checkpointType);
-                    }
-                } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
-                    if (StringUtils.isNotBlank(platform.getJmxConnectionName())) {
+            if (!checkpointType.equals(CheckpointType.RUNTIME.toString())) {
+                if (checkpointType.equals(CheckpointType.HTTP.toString())) {
+                    if (TestType.WEB.equals(testType)) {
                         retval.add(checkpointType);
                     }
                 } else {
-                    retval.add(checkpointType);
+                    if (CheckpointType.SQL.toString().equals(checkpointType)) {
+                        if (StringUtils.isNotBlank(platform.getDatabaseConnectionName())) {
+                            retval.add(checkpointType);
+                        }
+                    } else if (CheckpointType.WEB_SERVICE.toString().equals(checkpointType)) {
+                        if (StringUtils.isNotBlank(platform.getWebServiceName())) {
+                            retval.add(checkpointType);
+                        }
+                    } else if (CheckpointType.MEMORY.toString().equals(checkpointType)) {
+                        if (StringUtils.isNotBlank(platform.getJmxConnectionName())) {
+                            retval.add(checkpointType);
+                        }
+                    } else {
+                        retval.add(checkpointType);
+                    }
                 }
             }
         }
@@ -3253,6 +3257,23 @@ public class Utils {
 
         if ((retval == null) && (firstChildElement != null)) {
             retval = getFirstChildNodeByNodeNameAndAttribute(firstChildElement, nodeName, attributeName, attributeValue);
+        }
+        
+        return retval;
+    }
+     
+    public static JDialog getParentDialog(Component c) {
+        JDialog retval = null;
+        
+        Component p = c.getParent();
+        
+        while (p != null) {
+            if (p instanceof JDialog) {
+                retval = (JDialog)p;
+                break;
+            }
+            
+            p = p.getParent();
         }
         
         return retval;

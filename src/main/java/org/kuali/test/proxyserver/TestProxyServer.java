@@ -118,11 +118,13 @@ public class TestProxyServer {
                             HttpContent content = (HttpContent)httpObject;
                             content.retain();
                             ByteBuffer buf = ByteBuffer.allocate(content.content().capacity());
-                            content.content().duplicate().readBytes(buf).release();
-                            currentHtmlResponse.append(buf.asCharBuffer());
-                            if (httpObject instanceof LastHttpContent) {
-                                webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
-                                currentHtmlResponse = null;
+                            if (buf != null) {
+                                content.content().duplicate().readBytes(buf).release();
+                                currentHtmlResponse.append(buf.asCharBuffer());
+                                if (httpObject instanceof LastHttpContent) {
+                                    webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
+                                    currentHtmlResponse = null;
+                                }
                             }
                         }
                         

@@ -18,13 +18,13 @@ package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.EventObject;
-import java.util.HashMap;
-import java.util.Map;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
@@ -35,6 +35,8 @@ import org.kuali.test.Column;
 import org.kuali.test.Table;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.components.buttons.SearchButton;
+import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 
 public class WhereValueCellEditor extends JPanel implements TableCellEditor, ActionListener {
@@ -42,9 +44,9 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
     
     private DefaultCellEditor cellEditor;
     private SearchButton lookup;
+    private SearchButton executionParameter;
     private DatabasePanel dbPanel;
     private WhereColumnData currentRowData;
-    private Map <String, String> globalLookups = new HashMap<String, String>();
     private BaseTable table;
     
     public WhereValueCellEditor(DatabasePanel dbPanel, JTextField tf) {
@@ -52,7 +54,19 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
         this.dbPanel = dbPanel;
         cellEditor = new DefaultCellEditor(tf);
         add(cellEditor.getComponent(), BorderLayout.CENTER);
-        add(lookup = new SearchButton(), BorderLayout.EAST);
+        
+        JPanel  p = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        
+        p.add(lookup = new SearchButton());
+        p.add(new JSeparator(JSeparator.VERTICAL));
+        
+        if (dbPanel.isForCheckpoint()) {
+            p.add(executionParameter = new SearchButton(Constants.EXECUTION_PARAMETER_ICON));
+            executionParameter.addActionListener(this);
+        }
+        
+        add(p, BorderLayout.EAST);
+        
         lookup.setEnabled(false);
         lookup.addActionListener(this);
     }
@@ -136,23 +150,32 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
     }
 
     @Override
-    public void actionPerformed(ActionEvent ae) {
+    public void actionPerformed(ActionEvent e) {
         if (currentRowData != null) {
-            Column col = findColumn(currentRowData);
-            String sql = col.getLookupSqlSelect();
-            
-            if (StringUtils.isBlank(sql)) {
-                sql = dbPanel.getGlobalLookupSql(col.getColumnName());
-            }
-            
-            if (StringUtils.isNotBlank(sql)) {
-                WhereValueLookupDlg dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), dbPanel.getPlatform(), sql);
+            if (e.getSource() == lookup) {
+                Column col = findColumn(currentRowData);
+                String sql = col.getLookupSqlSelect();
 
-                LookupValue value = dlg.getLookupValue();
-                if (value != null) {
-                    JTextField tf = (JTextField)cellEditor.getComponent();
-                    tf.setText(value.getName());
+                if (StringUtils.isBlank(sql)) {
+                    sql = dbPanel.getGlobalLookupSql(col.getColumnName());
                 }
+
+                if (StringUtils.isNotBlank(sql)) {
+                    WhereValueLookupDlg dlg = null;
+                    if (dbPanel.isForCheckpoint()) {
+                        dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), Utils.getParentDialog(this), dbPanel.getPlatform(), sql);
+                    } else {
+                        dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), dbPanel.getPlatform(), sql);
+                    }
+
+                    LookupValue value = dlg.getLookupValue();
+                    if (value != null) {
+                        JTextField tf = (JTextField)cellEditor.getComponent();
+                        tf.setText(value.getName());
+                    }
+                }
+            } else if (e.getSource() == executionParameter) {
+                
             }
 
             currentRowData = null;
