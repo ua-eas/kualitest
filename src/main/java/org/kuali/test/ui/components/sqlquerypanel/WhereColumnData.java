@@ -26,6 +26,8 @@ public class WhereColumnData extends BaseColumnData {
     private String andOr;
     private String value;
     private String operator;
+    private int row;
+    private int column;
 
     /**
      *
@@ -106,4 +108,22 @@ public class WhereColumnData extends BaseColumnData {
     public void setOperator(String operator) {
         this.operator = operator;
     }
+
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public void setColumn(int column) {
+        this.column = column;
+    }
+    
+    
 }

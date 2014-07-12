@@ -36,6 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.event.CellEditorListener;
 import javax.swing.table.TableCellEditor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.Column;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.Platform;
@@ -47,11 +48,14 @@ import org.kuali.test.utils.Utils;
 
 
 public class WhereValueCellEditor extends JPanel implements TableCellEditor, ActionListener {
+    private static final Logger LOG = Logger.getLogger(WhereValueCellEditor.class);
+    
     private DefaultCellEditor cellEditor;
     private SearchButton lookup;
     private DatabasePanel dbPanel;
     private WhereColumnData currentRowData;
     private Map <String, String> globalLookups = new HashMap<String, String>();
+    private BaseTable table;
     
     public WhereValueCellEditor(DatabasePanel dbPanel, JTextField tf) {
         super(new BorderLayout());
@@ -64,17 +68,24 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
     }
     
     @Override
-    public Component getTableCellEditorComponent(JTable table, java.lang.Object value, boolean isSelected, int rowIndex, int columnIndex) {
+    public Component getTableCellEditorComponent(JTable jtable, java.lang.Object value, boolean isSelected, int rowIndex, int columnIndex) {
         cellEditor.getTableCellEditorComponent(table, value, isSelected, rowIndex, columnIndex);
 
         currentRowData = null;
 
-        BaseTable t = (BaseTable)table;
-        WhereColumnData wcd = (WhereColumnData)t.getRowData(rowIndex);
+        table = (BaseTable)jtable;
+        WhereColumnData wcd = (WhereColumnData)table.getRowData(rowIndex);
+        
         Column col = findColumn(wcd);
         
         lookup.setEnabled((col != null) && (StringUtils.isNotBlank(dbPanel.getGlobalLookupSql(col.getColumnName())) 
             || StringUtils.isNotBlank(col.getLookupSqlSelect())));
+        
+        if (lookup.isEnabled()) {
+            currentRowData = wcd;
+            wcd.setRow(rowIndex);
+            wcd.setColumn(columnIndex);
+        }
         
         return this;
     }
@@ -149,10 +160,15 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
                 
                 if (!lookupValues.isEmpty()) {
                     WhereValueLookupDlg dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), lookupValues);
-                } else {
-                    JOptionPane.showMessageDialog(this, "No lookup values found");
+                    
+                    LookupValue value = dlg.getLookupValue();
+                    if (value != null) {
+                        JTextField tf = (JTextField)cellEditor.getComponent();
+                        tf.setText(value.getName());
+                    }
                 }
             }
+            currentRowData = null;
         }
     }
     
@@ -167,8 +183,7 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
             DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(dbPanel.getMainframe().getConfiguration(), platform.getDatabaseConnectionName());
             
             if (dbconn != null) {
-                String pass = Utils.decrypt(dbPanel.getMainframe().getEncryptionPassword(), dbconn.getPassword());
-                conn = Utils.getDatabaseConnection(pass, dbconn);
+                conn = Utils.getDatabaseConnection(dbPanel.getMainframe().getEncryptionPassword(), dbconn);
                 stmt = conn.createStatement();
                 res = stmt.executeQuery(sql);
                 
@@ -181,10 +196,15 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
                 }
             }
             
+            if (retval.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No lookup values found");
+            }
         }
         
         catch (Exception ex) {
-            UIUtils.showError(dbPanel.getMainframe(), "Lookup Error", "Error occurred while attempting to load lookup data from database");
+            LOG.error(ex.toString(), ex);
+            UIUtils.showError(dbPanel.getMainframe(), 
+                "Lookup Error", "Error occurred while attempting to load lookup data from database - " + ex.toString());
         }
         
         finally {

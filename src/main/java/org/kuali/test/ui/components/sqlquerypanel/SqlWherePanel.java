@@ -248,6 +248,7 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
      * @param wcd
      * @return
      */
+    @Override
     protected boolean validateRequiredFields(WhereColumnData wcd) {
         return (StringUtils.isNotBlank(wcd.getOperator())  && StringUtils.isNotBlank(wcd.getValue()));
     }
@@ -336,6 +337,7 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
      *
      * @param cd
      */
+    @Override
     protected void initializeColumnData(WhereColumnData cd) {
         if (!getTable().getTableData().isEmpty()) {
             cd.setAndOr(Constants.AND);

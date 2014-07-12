@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
@@ -32,21 +33,28 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
     
     public WhereValueLookupDlg(TestCreator mainframe, List <LookupValue> lookupValues) {
         super(mainframe, true);
+        setTitle("Look Up");
         getContentPane().setLayout(new BorderLayout());
         DefaultListModel model = new DefaultListModel();
         JList list = new JList(model);
+        list.addListSelectionListener(this);
         
         for (LookupValue val : lookupValues) {
             model.addElement(val);
         }
         
-        getContentPane().add(new JScrollPane(new JList()));
+        getContentPane().add(new JScrollPane(list));
         pack();
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);       
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);       
         setVisible(true);
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(250, 400);
+    }
+    
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         JList list = (JList)lse.getSource();
@@ -57,4 +65,6 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
     public LookupValue getLookupValue() {
         return lookupValue;
     }
+    
+    
 }
