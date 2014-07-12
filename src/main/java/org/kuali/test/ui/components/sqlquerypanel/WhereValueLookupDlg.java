@@ -18,32 +18,50 @@ package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.JDialog;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.apache.log4j.Logger;
+import org.kuali.test.DatabaseConnection;
+import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Utils;
 
 
 public class WhereValueLookupDlg extends JDialog implements ListSelectionListener {
+    private static final Logger LOG = Logger.getLogger(WhereValueLookupDlg.class);
     private LookupValue lookupValue;
+    private JList list;
+    private TestCreator mainframe;
+    private Platform platform;
+    private String sql;
     
-    public WhereValueLookupDlg(TestCreator mainframe, List <LookupValue> lookupValues) {
+    public WhereValueLookupDlg(TestCreator mainframe, Platform platform, String sql) {
         super(mainframe, true);
         setTitle("Look Up");
+        
+        this.mainframe = mainframe;
+        this.platform = platform;
+        this.sql = sql;
+        
         getContentPane().setLayout(new BorderLayout());
         DefaultListModel model = new DefaultListModel();
-        JList list = new JList(model);
+        list = new JList(model);
         list.addListSelectionListener(this);
         
-        for (LookupValue val : lookupValues) {
-            model.addElement(val);
-        }
+        loadLookup();
         
-        getContentPane().add(new JScrollPane(list));
+        getContentPane().add(new JScrollPane(list), BorderLayout.CENTER);
         pack();
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);       
@@ -66,5 +84,49 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
         return lookupValue;
     }
     
-    
+    private void loadLookup() {
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet res = null;
+
+        try {
+            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(mainframe.getConfiguration(), platform.getDatabaseConnectionName());
+
+            if (dbconn != null) {
+                List <LookupValue> values = new ArrayList <LookupValue>();
+                conn = Utils.getDatabaseConnection(mainframe.getEncryptionPassword(), dbconn);
+                stmt = conn.createStatement();
+                res = stmt.executeQuery(sql);
+
+                while (res.next()) {
+                    LookupValue val = new LookupValue();
+                    val.setName(res.getString(1));
+                    val.setValue(res.getString(2));
+
+                    values.add(val);
+                }
+            
+                if (values.isEmpty()) {
+                    JOptionPane.showMessageDialog(mainframe, "No lookup values found");
+                    dispose();
+                } else {
+                    DefaultListModel model = (DefaultListModel)list.getModel();
+                        
+                    for (LookupValue lookup : values) {
+                        model.addElement(lookup);
+                    }
+                }
+            }
+        }
+
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+            UIUtils.showError(mainframe, 
+                "Lookup Error", "Error occurred while attempting to load lookup data from database - " + ex.toString());
+        }
+
+        finally {
+            Utils.closeDatabaseResources(conn, stmt, res);
+        }
+    }
 }

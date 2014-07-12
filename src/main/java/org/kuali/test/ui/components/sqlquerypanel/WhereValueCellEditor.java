@@ -20,16 +20,10 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -38,13 +32,9 @@ import javax.swing.table.TableCellEditor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Column;
-import org.kuali.test.DatabaseConnection;
-import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.components.buttons.SearchButton;
-import org.kuali.test.ui.utils.UIUtils;
-import org.kuali.test.utils.Utils;
 
 
 public class WhereValueCellEditor extends JPanel implements TableCellEditor, ActionListener {
@@ -156,61 +146,17 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
             }
             
             if (StringUtils.isNotBlank(sql)) {
-                List <LookupValue> lookupValues = getLookupValues(sql);
-                
-                if (!lookupValues.isEmpty()) {
-                    WhereValueLookupDlg dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), lookupValues);
-                    
-                    LookupValue value = dlg.getLookupValue();
-                    if (value != null) {
-                        JTextField tf = (JTextField)cellEditor.getComponent();
-                        tf.setText(value.getName());
-                    }
+                WhereValueLookupDlg dlg = new WhereValueLookupDlg(dbPanel.getMainframe(), dbPanel.getPlatform(), sql);
+
+                LookupValue value = dlg.getLookupValue();
+                if (value != null) {
+                    JTextField tf = (JTextField)cellEditor.getComponent();
+                    tf.setText(value.getName());
                 }
             }
+
             currentRowData = null;
         }
     }
     
-    private List <LookupValue> getLookupValues(String sql) {
-        List <LookupValue> retval = new ArrayList <LookupValue>();
-        Connection conn = null;
-        Statement stmt = null;
-        ResultSet res = null;
-        
-        try {
-            Platform platform = dbPanel.getPlatform();
-            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(dbPanel.getMainframe().getConfiguration(), platform.getDatabaseConnectionName());
-            
-            if (dbconn != null) {
-                conn = Utils.getDatabaseConnection(dbPanel.getMainframe().getEncryptionPassword(), dbconn);
-                stmt = conn.createStatement();
-                res = stmt.executeQuery(sql);
-                
-                while (res.next()) {
-                    LookupValue val = new LookupValue();
-                    val.setName(res.getString(1));
-                    val.setValue(res.getString(2));
-                    
-                    retval.add(val);
-                }
-            }
-            
-            if (retval.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No lookup values found");
-            }
-        }
-        
-        catch (Exception ex) {
-            LOG.error(ex.toString(), ex);
-            UIUtils.showError(dbPanel.getMainframe(), 
-                "Lookup Error", "Error occurred while attempting to load lookup data from database - " + ex.toString());
-        }
-        
-        finally {
-            Utils.closeDatabaseResources(conn, stmt, res);
-        }
-        
-        return retval;
-    }
 }

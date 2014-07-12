@@ -71,12 +71,12 @@ public class SplashDisplay {
         this.title = title;
         this.message = message;
         this.progressMaxLimit = progressMaxLimit;
-        
+
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if ((getParentWindow() == null) || (getParentWindow() instanceof JFrame)) {
+                if ((getParentWindow() == null) || (getParentWindow() instanceof JFrame)) {
                         dlg = new JDialog((JFrame)getParentWindow(), getTitle(), true);
                     } else {
                         dlg = new JDialog((JDialog)getParentWindow(), getTitle(), true);
@@ -110,7 +110,7 @@ public class SplashDisplay {
                 }
             }
         });
-        
+
         new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
