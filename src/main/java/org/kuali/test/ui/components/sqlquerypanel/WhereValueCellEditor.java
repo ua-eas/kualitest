@@ -55,7 +55,7 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
         cellEditor = new DefaultCellEditor(tf);
         add(cellEditor.getComponent(), BorderLayout.CENTER);
         
-        JPanel  p = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JPanel  p = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 2));
         
         p.add(lookup = new SearchButton());
         p.add(new JSeparator(JSeparator.VERTICAL));
