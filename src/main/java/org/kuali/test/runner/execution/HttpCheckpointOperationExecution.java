@@ -51,7 +51,9 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        for (String html : getTestExecutionContext().getRecentHttpResponseData()) {
+        TestExecutionContext tec = getTestExecutionContext();
+
+        for (String html : tec.getRecentHttpResponseData()) {
             if (StringUtils.isNotBlank(html)) {
                 HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
 
@@ -76,10 +78,13 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                             }
                             
                             break;
+                        } else {
+                            tec.incrementErrorCount();
+                            throw new TestException("Expected checkpoint property count mismatch", getOperation());
                         }
                     }
                 }
-            }
+            } 
         }
     }
     

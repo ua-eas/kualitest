@@ -894,14 +894,18 @@ public class TestExecutionContext extends Thread {
     }
     
     public void updateCounts(FailureAction.Enum failureAction) {
-        switch(failureAction.intValue()) {
-            case FailureAction.INT_ERROR_CONTINUE:
-            case FailureAction.INT_ERROR_HALT_TEST:
-                incrementErrorCount();
-                break;
-            case FailureAction.INT_WARNING:
-                incrementWarningCount();
-                break;
+        if (failureAction != null) {
+            switch(failureAction.intValue()) {
+                case FailureAction.INT_ERROR_CONTINUE:
+                case FailureAction.INT_ERROR_HALT_TEST:
+                    incrementErrorCount();
+                    break;
+                case FailureAction.INT_WARNING:
+                    incrementWarningCount();
+                    break;
+            }
+        } else {
+            incrementSuccessCount();
         }
     }
 

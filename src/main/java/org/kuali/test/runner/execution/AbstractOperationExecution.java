@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Operation;
@@ -118,7 +119,11 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         
         switch (type.intValue()) {
             case ValueType.INT_STRING:
-                retval = inputValue;
+                if (StringUtils.isBlank(inputValue)) {
+                    retval = null;
+                } else {
+                    retval = inputValue;
+                }
                 break;
             case ValueType.INT_INT:
                 retval = Integer.parseInt(inputValue);
@@ -215,7 +220,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                 }
                 
                 ValueType.Enum inputType = getInputValueType(value);
-
                 if (type.equals(inputType)) {
                     if (ComparisonOperator.IN.equals(cp.getOperator()) && (comparisonValue instanceof List)) {
                         Iterator <Comparable> it = ((List)comparisonValue).iterator();
@@ -252,6 +256,10 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                                 retval = true;
                                 break;
                         }
+                    }
+                    
+                    if (retval) {
+                        getTestExecutionContext().updateCounts(cp.getOnFailure());
                     }
                 } else {
                     getTestExecutionContext().updateCounts(cp.getOnFailure());
