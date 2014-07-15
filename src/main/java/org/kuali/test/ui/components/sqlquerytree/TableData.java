@@ -237,5 +237,11 @@ public class TableData extends DBObjectData {
         
         return retval.toString();
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        TableData retval = new TableData();
+        return retval;
+    }
 }
 

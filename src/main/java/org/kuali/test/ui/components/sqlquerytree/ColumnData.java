@@ -177,4 +177,17 @@ public class ColumnData extends DBObjectData {
     public int hashCode() {
         return getName().hashCode();
     }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        ColumnData retval = new ColumnData(getSchema(), getName(), getDisplayName());
+        
+        retval.setDataType(dataType);
+        retval.setDecimalDigits(decimalDigits);
+        retval.setPrimaryKeyIndex(primaryKeyIndex);
+        retval.setSelected(false);
+        retval.setWidth(width);
+
+        return retval;
+    }
 }
