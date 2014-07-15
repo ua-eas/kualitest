@@ -99,6 +99,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     
     private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     private Map <String, String> globalLookups = new HashMap<String, String>();
+    private Map <String, List<ColumnData>> tableColumnData = new HashMap<String, List<ColumnData>>();
+    private Map <String, List<ImportedTableData>> importedTableData = new HashMap<String, List<ImportedTableData>>();
     
     /**
      *
@@ -308,40 +310,66 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         try {
             td.setTreeNode(parentNode);
-            res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
-            currentDepth++;
+            String itkey = (td.getSchema() + "." +  td.getName());
+            List <ImportedTableData> itlist = importedTableData.get(itkey);
             
-            Map <String, TableData> map = new HashMap<String, TableData>();
-            
-            while (res.next()) {
-                String schema = res.getString(2);
-                String tname = res.getString(3);
+            if (itlist == null) {
+                itlist = new ArrayList<ImportedTableData>();
                 
-                String pkcname = res.getString(4);
-                String fkcname = res.getString(8);
-                String fkname = res.getString(12);
+                res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
+                currentDepth++;
 
-                String key = fkname;
-                
-                if (StringUtils.isBlank(key)) {
-                    key = (td.getName() + "-" + tname);
-                }
+                Map <String, ImportedTableData> map = new HashMap<String, ImportedTableData>();
 
-                TableData tdata = map.get(key);
+                while (res.next()) {
+                    String schema = res.getString(2);
+                    String tname = res.getString(3);
 
-                if (tdata == null) {
-                    Table t = additionalDbInfo.get(tname);
+                    String pkcname = res.getString(4);
+                    String fkcname = res.getString(8);
+                    String fkname = res.getString(12);
 
-                    if (t != null) {
-                        map.put(key, tdata = new TableData(schema, tname, t.getDisplayName()));
-                    } else {
-                        map.put(key, tdata = new TableData(schema, tname, tname));
+                    String key = fkname;
+
+                    if (StringUtils.isBlank(key)) {
+                        key = (td.getName() + "-" + tname);
                     }
-
-                    tdata.setForeignKeyName(fkname);
+                    
+                    ImportedTableData itdata = map.get(key);
+                    
+                    if (itdata == null) {
+                        itdata = new ImportedTableData();
+                        itdata.setSchema(schema);
+                        itdata.setForeignKeyName(key);
+                        itdata.setForeignTableName(td.getDbTableName());
+                        itdata.setPrimaryTableName(tname);
+                        itlist.add(itdata);
+                        
+                    }
+                    
+                    itdata.addColumnPair(new String[] { fkcname, pkcname});
                 }
 
-                tdata.getLinkColumns().add(new String[] {fkcname, pkcname});
+                importedTableData.put(itkey, itlist);
+            }
+
+            List <TableData> tdatalist = new ArrayList<TableData>();
+
+            for (ImportedTableData itdata : itlist) {
+                TableData tdata = null;
+
+                Table t = additionalDbInfo.get(itdata.getPrimaryTableName());
+                if (t != null) {
+                    tdata = new TableData(itdata.getSchema(), itdata.getPrimaryTableName(), t.getDisplayName());
+                } else {
+                   tdata = new TableData(itdata.getSchema(), itdata.getPrimaryTableName(), itdata.getPrimaryTableName());
+                }
+
+                for (String[] columnPair : itdata.getColumns()) {
+                    tdata.getLinkColumns().add(columnPair);
+                }
+            
+                tdatalist.add(tdata);
             }
 
             CustomForeignKey[] customForeignKeys = getCustomForeignKeys(td);
@@ -351,22 +379,20 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     TableData tdata = new TableData(td.getSchema(), cfk.getPrimaryTableName(), getTableDisplayName(cfk.getPrimaryTableName()));
                     tdata.setForeignKeyName(cfk.getName());
                     
-                    map.put(cfk.getPrimaryTableName() + "-" + cfk.getName(), tdata);
-
                     td.getRelatedTables().add(tdata);
                     if (cfk.getForeignKeyColumnPairArray() != null) {
                         for (ForeignKeyColumnPair fk : cfk.getForeignKeyColumnPairArray()) {
                             tdata.getLinkColumns().add(new String[] {fk.getForeignColumn(), fk.getPrimaryColumn()});
                         }
                     }
+                    
+                    tdatalist.add(tdata);
                 }
             }
             
-            List <TableData> l = new ArrayList(map.values());
+            Collections.sort(tdatalist);
             
-            Collections.sort(l);
-            
-            for (TableData tdata : l) {
+            for (TableData tdata : tdatalist) {
                 td.getRelatedTables().add(tdata);
                 SqlQueryNode curnode = new SqlQueryNode(getMainframe().getConfiguration(), tdata);
 
@@ -446,53 +472,66 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         try {
             TableData td = (TableData)node.getUserObject();
-            res = dmd.getColumns(null, td.getSchema(), td.getName(), null);
             
-            while (res.next()) {
-                String cname = res.getString(4);
-                int dataType = res.getInt(5);
-                int width = res.getInt(7);
-                int decimalDigits = res.getInt(9);
-
-                String displayName = getColumnDisplayName(td.getName(), cname, dbconn.getConfiguredTablesOnly());
-                
-                if (StringUtils.isNotBlank(displayName)) {
-                    ColumnData cd = new ColumnData(td.getSchema(), cname, displayName);
-                    cd.setDataType(dataType);
-                    cd.setDecimalDigits(decimalDigits);
-                    cd.setWidth(width);
-                    td.getColumns().add(cd);
+            String colkey = (td.getSchema() + "." + td.getName());
+            
+            List <ColumnData> cols = tableColumnData.get(colkey);
+            
+            if (cols != null) {
+                for (ColumnData cd : cols) {
+                    node.add(new SqlQueryNode(getMainframe().getConfiguration(), cd.clone()));
                 }
-            }
-            
-            HashMap <String, ColumnData> map = new HashMap<String, ColumnData>();
-            for (ColumnData cd : td.getColumns()) {
-                map.put(cd.getName(), cd);
-            }
-            
-            res.close();
-            try {
-                res = dmd.getPrimaryKeys(null, td.getSchema(), td.getName());
+            } else {
+                res = dmd.getColumns(null, td.getSchema(), td.getName(), null);
+
                 while (res.next()) {
                     String cname = res.getString(4);
-                    int seq = res.getInt(5);
+                    int dataType = res.getInt(5);
+                    int width = res.getInt(7);
+                    int decimalDigits = res.getInt(9);
 
-                    ColumnData cd = map.get(cname);
-                    
-                    if (cd!= null) {
-                        cd.setPrimaryKeyIndex(seq);
+                    String displayName = getColumnDisplayName(td.getName(), cname, dbconn.getConfiguredTablesOnly());
+
+                    if (StringUtils.isNotBlank(displayName)) {
+                        ColumnData cd = new ColumnData(td.getSchema(), cname, displayName);
+                        cd.setDataType(dataType);
+                        cd.setDecimalDigits(decimalDigits);
+                        cd.setWidth(width);
+                        td.getColumns().add(cd);
                     }
                 }
-            }
-            
-            catch (SQLException ex) {
-                LOG.warn("error obtaining primary keys for table " + td.getName());
-            }
-            
-            Collections.sort(td.getColumns());
-            
-            for (ColumnData cd : td.getColumns()) {
-                node.add(new SqlQueryNode(getMainframe().getConfiguration(), cd));
+
+                HashMap <String, ColumnData> map = new HashMap<String, ColumnData>();
+                for (ColumnData cd : td.getColumns()) {
+                    map.put(cd.getName(), cd);
+                }
+
+                res.close();
+                try {
+                    res = dmd.getPrimaryKeys(null, td.getSchema(), td.getName());
+                    while (res.next()) {
+                        String cname = res.getString(4);
+                        int seq = res.getInt(5);
+
+                        ColumnData cd = map.get(cname);
+
+                        if (cd!= null) {
+                            cd.setPrimaryKeyIndex(seq);
+                        }
+                    }
+                }
+
+                catch (SQLException ex) {
+                    LOG.warn("error obtaining primary keys for table " + td.getName());
+                }
+
+                Collections.sort(td.getColumns());
+
+                for (ColumnData cd : td.getColumns()) {
+                    node.add(new SqlQueryNode(getMainframe().getConfiguration(), cd));
+                } 
+
+                tableColumnData.put(colkey, td.getColumns());
             }
         }
         
