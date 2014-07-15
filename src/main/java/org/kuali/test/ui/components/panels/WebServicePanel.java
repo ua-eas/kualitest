@@ -25,7 +25,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -50,6 +52,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
+import org.kuali.test.ValueType;
 import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
@@ -57,6 +60,7 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -72,6 +76,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
     private JLabel returnType;
     private JTextField expectedResult;
     private JComboBox failureAction;
+    private JCheckBox poll;
     private boolean forCheckpoint;
     
     /**
@@ -174,26 +179,42 @@ public class WebServicePanel extends BaseCreateTestPanel {
 
             TablePanel tp = new TablePanel(inputParameters = createInputParametersTable());
             
-            JPanel p = new JPanel(new BorderLayout());
-            JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            p2.add(new JLabel("Web Service Operations: "));
-            p2.add(operations = new JComboBox());
+            String[] labels = {
+                "Web Service Operations",
+                "Return Type",
+                "Expected Result",
+                "On Failure",
+                ""
+            };
+
+            returnType = new JLabel("           ");
+            expectedResult = new JTextField(20);
+            expectedResult.setEnabled(false);
+            failureAction = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
+            failureAction.setEnabled(false);
+
+            JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+            poll = new JCheckBox();
+            p.add(poll);
+            p.add(new JLabel("Poll web service"));
+            
+            JComponent[] components = {
+                operations = new JComboBox(),
+                returnType,
+                expectedResult,
+                failureAction,
+                p
+            };
+            
             operations.addActionListener(this);
+
+            p = new JPanel(new BorderLayout());
+            JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+            p2.add(UIUtils.buildEntryPanel(labels, components));
             p.add(p2, BorderLayout.NORTH);
-            p.add(new JSeparator(), BorderLayout.CENTER);
+            p.add(new JSeparator(), BorderLayout.SOUTH);
             tp.add(p, BorderLayout.NORTH);
             add(tp, BorderLayout.CENTER);
-            
-            p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            p.add(new JLabel("Return Type: "));
-            p.add(returnType = new JLabel("           "));
-            p.add(new JLabel("    Expected Result: "));
-            p.add(expectedResult = new JTextField(20));
-            expectedResult.setEnabled(false);
-            p.add(new JLabel("    On Failure: "));
-            p.add(failureAction = new JComboBox(Utils.getXmlEnumerations(FailureAction.class)));
-            failureAction.setEnabled(false);
-            tp.add(p, BorderLayout.SOUTH);
             
             new SplashDisplay(getMainframe(), "Loading WSDL", "Loading web service definition...") {
                 @Override
@@ -237,6 +258,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
                     }
 
                     catch (Exception ex) {
+                        UIUtils.showError(getMainframe(), "Web Service Error", "Error coccurred while attempting to connect to web service - " + ex.toString());
                         LOG.error(ex.toString(), ex);
                     }
                 }
@@ -287,11 +309,12 @@ public class WebServicePanel extends BaseCreateTestPanel {
         
         return retval;
     }
+    
     private void addCheckpoint(Checkpoint checkpoint) {
         TestOperation testOp = TestOperation.Factory.newInstance();
         testOp.setOperationType(TestOperationType.CHECKPOINT);
         Operation op = testOp.addNewOperation();
-        op.addNewCheckpointOperation();
+        Checkpoint cp = op.addNewCheckpointOperation();
         op.setCheckpointOperation(checkpoint);
         testOperations.add(testOp);
     }
@@ -302,6 +325,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
      */
     @Override
     protected boolean handleSaveTest() {
+        getTestHeader().setAdditionalParameters("" + poll.isSelected());
+
         boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
             getTestHeader(), testOperations);
 
@@ -394,9 +419,16 @@ public class WebServicePanel extends BaseCreateTestPanel {
                         
                         if (obj instanceof XmlSchemaElement) {
                             XmlSchemaElement element = (XmlSchemaElement)obj;
-                            WebServiceInputParameter param = new WebServiceInputParameter();
+                            WebServiceInputParameter param = new WebServiceInputParameter();                            
                             param.setParameterName(element.getName());
-                            param.setParameterType(element.getSchemaType().getName());
+                            Class clazz = Constants.XML_SCHEMA_TYPE_TO_JAVA_CLASS.get(element.getSchemaType().getName());
+                            
+                            if (clazz != null) {
+                                param.setParameterType(clazz.getName());
+                            } else {
+                                param.setParameterType(element.getSchemaType().getName());
+                            }
+                            
                             parameters.add(param);
                         }
                     }
@@ -519,6 +551,22 @@ public class WebServicePanel extends BaseCreateTestPanel {
      *
      * @return
      */
+    public String getWebServiceName() {
+        String retval = null;
+        
+        OperationWrapper ow = (OperationWrapper)operations.getSelectedItem();
+        
+        if (ow.getOperation() != null) {
+            retval = ow.getOperation().getAxisService().getName();
+        }
+        
+        return retval;
+    }
+
+    /**
+     *
+     * @return
+     */
     public List <WebServiceInputParameter> getInputParameters() {
         return inputParameters.getTableData();
     }
@@ -529,6 +577,14 @@ public class WebServicePanel extends BaseCreateTestPanel {
      */
     public String getExpectedResult() {
         return expectedResult.getText();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public ValueType.Enum getExpectedResultType() {
+        return Utils.getValueTypeForTypeName(returnType.getText());
     }
 
     /**

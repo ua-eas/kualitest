@@ -102,6 +102,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
+import org.kuali.test.ValueType;
 import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
@@ -248,6 +249,29 @@ public class Utils {
             }
         }
 
+        return retval;
+    }
+
+    /**
+     * 
+     * @param configuration
+     * @param webServiceName
+     * @return 
+     */
+    public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String webServiceName) {
+        WebService retval = null;
+
+        if (StringUtils.isNotBlank(webServiceName)) {
+            if (configuration.getWebServices() != null) {
+                for (WebService ws : configuration.getWebServices().getWebServiceArray()) {
+                    if (StringUtils.equalsIgnoreCase(webServiceName, ws.getName())) {
+                        retval = ws;
+                        break;
+                    }
+                }
+            }
+        }
+        
         return retval;
     }
 
@@ -2062,29 +2086,6 @@ public class Utils {
         return retval;
     }
 
-    /**
-     *
-     * @param configuration
-     * @param wsname
-     * @return
-     */
-    public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String wsname) {
-        WebService retval = null;
-
-        if ((configuration != null) && StringUtils.isNotBlank(wsname)) {
-            if ((configuration.getWebServices() != null)
-                && (configuration.getWebServices().sizeOfWebServiceArray() > 0)) {
-                for (WebService ws : configuration.getWebServices().getWebServiceArray()) {
-                    if (wsname.equalsIgnoreCase(ws.getName())) {
-                        retval = ws;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return retval;
-    }
 
     /**
      *
@@ -3136,6 +3137,10 @@ public class Utils {
     public static String getOperatorFromEnumName(ComparisonOperator.Enum op) {
         String retval = "";
         
+        if (op == null) {
+            op = ComparisonOperator.EQUAL_TO;
+        }
+        
         switch (op.intValue()) {
             case ComparisonOperator.INT_EQUAL_TO:
                 retval = "=";
@@ -3274,6 +3279,46 @@ public class Utils {
             }
             
             p = p.getParent();
+        }
+        
+        return retval;
+    }
+    
+    public static String[] getWebServiceOperationParts(String operationString) {
+        String[] retval = null;
+        
+        if (StringUtils.isNotBlank(operationString)) {
+            String s = operationString.trim();
+            
+            int pos = operationString.indexOf("}");
+            
+            if (pos > -1) {
+                retval = new String[] {s.substring(1, pos), s.substring(pos+1)};
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static ValueType.Enum getValueTypeForTypeName(String typeName) {
+        ValueType.Enum retval = ValueType.STRING;
+        
+        if (StringUtils.isNotBlank(typeName)) {
+            if ("string".equalsIgnoreCase(typeName)) {
+                retval = ValueType.STRING;
+            } else if ("boolean".equalsIgnoreCase(typeName)) {
+                retval = ValueType.BOOLEAN;
+            } else if ("double".equalsIgnoreCase(typeName)) {
+                retval = ValueType.DOUBLE;
+            } else if ("integer".equalsIgnoreCase(typeName)) {
+                retval = ValueType.LONG;
+            } else if ("int".equalsIgnoreCase(typeName)) {
+                retval = ValueType.INT;
+            } else if ("dateTime".equalsIgnoreCase(typeName)) {
+                retval = ValueType.TIMESTAMP;
+            } else if ("date".equalsIgnoreCase(typeName)) {
+                retval = ValueType.DATE;
+            }
         }
         
         return retval;

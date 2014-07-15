@@ -458,9 +458,20 @@ public class TestExecutionContext extends Thread {
         try {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(this, op);
             if (opExec != null) {
-                opExec.execute(configuration, platform);
-                if (op.getOperation().getCheckpointOperation() != null) {
-                    poiHelper.writeSuccessEntry(op, opStartTime);
+                try {
+                    opExec.execute(configuration, platform);
+                    if (op.getOperation().getCheckpointOperation() != null) {
+                        incrementSuccessCount();
+                        poiHelper.writeSuccessEntry(op, opStartTime);
+                    }
+                }
+                
+                catch (TestException ex) {
+                    throw ex;
+                }
+
+                catch (Exception ex) {
+                    throw new TestException(ex.toString(), op.getOperation(), ex);
                 }
             }
         } 

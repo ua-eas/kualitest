@@ -306,8 +306,10 @@ public class PoiHelper {
             
             StringBuilder s = new StringBuilder(128);
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(cp.getPropertyGroup());
-                s.append("\n");
+                if (StringUtils.isNotBlank(cp.getPropertyGroup())) {
+                    s.append(cp.getPropertyGroup());
+                    s.append("\n");
+                }
             }
             cell.setCellValue(s.toString());
         } else {
@@ -353,18 +355,19 @@ public class PoiHelper {
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(cp.getDisplayName());
-                s.append(" ");
-                s.append(Utils.getOperatorFromEnumName(cp.getOperator()));
-                s.append(" ");
-                s.append(cp.getPropertyValue());
-                s.append("\n");
+                if (StringUtils.isNotBlank(cp.getDisplayName())) {
+                    s.append(cp.getDisplayName());
+                    s.append(" ");
+                    s.append(Utils.getOperatorFromEnumName(cp.getOperator()));
+                    s.append(" ");
+                    s.append(cp.getPropertyValue());
+                    s.append("\n");
+                }
             }
             cell.setCellValue(s.toString());
         } else {
             cell.setCellValue("");
         }
-        
 
         // actual values
         cell = retval.createCell(8);
@@ -372,10 +375,12 @@ public class PoiHelper {
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
             for (CheckpointProperty cp : op.getOperation().getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                s.append(cp.getDisplayName());
-                s.append(" = ");
-                s.append(cp.getActualValue());
-                s.append("\n");
+                if (StringUtils.isNotBlank(cp.getDisplayName())) {
+                    s.append(cp.getDisplayName());
+                    s.append(" = ");
+                    s.append(cp.getActualValue());
+                    s.append("\n");
+                }
             }
             cell.setCellValue(s.toString());
 

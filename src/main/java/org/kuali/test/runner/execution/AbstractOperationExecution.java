@@ -18,6 +18,7 @@ package org.kuali.test.runner.execution;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -273,9 +274,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
         }
 
-        if(retval) {
-            getTestExecutionContext().incrementSuccessCount();
-        } else {
+        if(!retval) {
             getTestExecutionContext().updateCounts(cp.getOnFailure());
         }
         
@@ -296,6 +295,28 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                 retval = ValueType.DATE;
             } else if (value instanceof Boolean) {
                 retval = ValueType.BOOLEAN;
+            }
+        }
+        
+        return retval;
+    }
+
+    protected Class getClassForValueType(ValueType.Enum e) {
+        Class retval = String.class;
+        
+        if (e != null) {
+            if (e.equals(ValueType.STRING)) {
+                retval = String.class;
+            } else if (e.equals(ValueType.INT)) {
+                retval = Integer.class;
+            } else if (e.equals(ValueType.DOUBLE)) {
+                retval = Double.class;
+            } else if (e.equals(ValueType.DATE) || e.equals(ValueType.TIMESTAMP)) {
+                retval = Calendar.class;
+            } else if (e.equals(ValueType.BOOLEAN)) {
+                retval = Boolean.class;
+            } else if (e.equals(ValueType.LONG)) {
+                retval = Long.class;
             }
         }
         

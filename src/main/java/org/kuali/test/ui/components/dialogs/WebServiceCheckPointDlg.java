@@ -144,11 +144,10 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
             }
 
             checkpoint.setName(name.getText());
-            checkpoint.addNewInputParameters();
-            checkpoint.setType(CheckpointType.HTTP);
+            checkpoint.setType(CheckpointType.WEB_SERVICE);
 
-            Parameter param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("web-service-operation");
+            Parameter param = checkpoint.addNewInputParameters().addNewParameter();
+            param.setName(Constants.WEB_SERVICE_OPERATION);
             param.setValue(wsPanel.getWebServiceOperation());
 
             List <WebServicePanel.WebServiceInputParameter> params = wsPanel.getInputParameters();
@@ -157,32 +156,31 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
                 param = checkpoint.getInputParameters().addNewParameter();
                 param.setName(inputParam.getParameterName());
                 param.setValue(inputParam.getValue());
-            
-                param = checkpoint.getInputParameters().addNewParameter();
-                param.setName(inputParam.getParameterName() + ".type");
-                param.setValue(inputParam.getParameterType());
+                param.setJavaType(inputParam.getParameterType()); 
             }
             
             CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
             cp.setValueType(ValueType.STRING);
             cp.setPropertyGroup(Constants.WEB_SERVICE_PROPERTY_GROUP);
-            cp.setOnFailure(FailureAction.Enum.forString(wsPanel.getFailureAction()));
-            
             cp.setDisplayName("Expected Result");
-            cp.setPropertyName("expected-result");
-            cp.setPropertyName(wsPanel.getExpectedResult());
+            cp.setPropertyValue(wsPanel.getExpectedResult());
+            cp.setPropertyName(Constants.EXPECTED_RESULT);
+            cp.setValueType(wsPanel.getExpectedResultType());
+            cp.setOnFailure(FailureAction.Enum.forString(wsPanel.getFailureAction()));
             
             cp = checkpoint.getCheckpointProperties().addNewCheckpointProperty();
             
-            cp.setValueType(ValueType.INT);
-            cp.setPropertyGroup(Constants.WEB_SERVICE_PROPERTY_GROUP);
-            cp.setOnFailure(FailureAction.Enum.forString(wsFailure.getSelectedItem().toString()));
+            if (maxRunTime.getInt() > 0) {
+                cp.setValueType(ValueType.INT);
+                cp.setPropertyGroup(Constants.WEB_SERVICE_PROPERTY_GROUP);
+                cp.setOnFailure(FailureAction.Enum.forString(wsFailure.getSelectedItem().toString()));
+                cp = checkpoint.getCheckpointProperties().addNewCheckpointProperty();
+                cp.setDisplayName("Max Run Time (sec)");
+                cp.setPropertyName(Constants.MAX_RUNTIME_PROPERTY_NAME);
+                cp.setOperator(ComparisonOperator.LESS_THAN_OR_EQUAL);
+                cp.setPropertyValue("" + maxRunTime.getInt());
+            }
             
-            cp.setDisplayName("Max Run Time (sec)");
-            cp.setPropertyName("max-run-time");
-            cp.setOperator(ComparisonOperator.LESS_THAN_OR_EQUAL);
-            cp.setPropertyValue("" + maxRunTime.getInt());
-
             getConfiguration().setModified(true);
             setSaved(true);
             dispose();

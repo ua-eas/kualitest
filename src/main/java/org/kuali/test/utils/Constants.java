@@ -17,7 +17,9 @@
 package org.kuali.test.utils;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
 import org.kuali.test.creator.TestCreator;
@@ -110,6 +112,7 @@ public class Constants {
     public static final String PREFS_DLG_WIDTH = "-dlg-width";
     public static final String PREFS_DLG_HEIGHT = "-dlg-height";
     
+    
     public static final String TEST_TRANSFER_MIME_TYPE = "test-transfer";
     public static final String PREFS_LAST_FILE_TEST_DIR = "last-file-test-dir";
     
@@ -188,7 +191,8 @@ public class Constants {
     public static final String HTTPS_PROTOCOL = "https://";
     public static final String FORWARD_SLASH = "/";
     public static final String TAG_MATCH_REGEX_PATTERN = "\\<[^>]*>";
-    
+    public static final String WEB_SERVICE_OPERATION = "web-service-operation";
+    public static final String EXPECTED_RESULT = "expected-result";
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -213,6 +217,9 @@ public class Constants {
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
     public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
     public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
+    public static final int MILLIS_PER_MINUTE = 1000 * 60 * 60;
+    public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
+    public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 30;
     
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
@@ -449,4 +456,18 @@ public class Constants {
         "input.type=hidden,value=OPEN"
     };
     
+    public static final Map <String, Class> XML_SCHEMA_TYPE_TO_JAVA_CLASS = new HashMap<String, Class>();
+    
+    static {
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("string", java.lang.String.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("integer", java.math.BigInteger.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("int", java.lang.Integer.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("long", java.lang.Long.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("short", java.lang.Short.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("decimal", java.math.BigDecimal.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("float", java.lang.Float.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("double", java.lang.Double.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("boolean", java.lang.Boolean.class);
+        XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("dateTime", java.util.Calendar.class);
+    }
 }
