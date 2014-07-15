@@ -105,7 +105,7 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
             Object[] result = null;
             String poll = getTestExecutionContext().getKualiTest().getTestHeader().getAdditionalParameters();
             
-            // special handling for UA batch calls
+            // special handling for UA batch calls - poll the schedulerService
             if (StringUtils.equalsIgnoreCase(poll, "true")) {
                 while ((System.currentTimeMillis() - start) <= maxRuntime) {
                     result = serviceClient.invokeBlocking(wsMethod, wsArgs.toArray(), new Class[] { getClassForValueType(resultProperty.getValueType()) });
@@ -113,7 +113,7 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
                     if ((result.length > 0) && (result[0] != null)) {
                         if ((result.length > 0) && StringUtils.equalsIgnoreCase(result[0].toString(), "false")) {
                             if (LOG.isDebugEnabled()) {
-                                LOG.debug("sleeping - elapsed time: " + (System.currentTimeMillis() - start)/1000 + " seconds" );
+                                LOG.debug("sleeping betwwen poll - elapsed time: " + (System.currentTimeMillis() - start)/1000 + " seconds" );
                             }
                             try {
                                 Thread.sleep(Constants.WEB_SERVICE_SLEEP_TIME);

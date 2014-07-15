@@ -219,7 +219,7 @@ public class Constants {
     public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
     public static final int MILLIS_PER_MINUTE = 1000 * 60 * 60;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
-    public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 30;
+    public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 15;
     
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
