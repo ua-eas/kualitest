@@ -152,7 +152,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     if (NativeInterface.isOpen()) {
                         NativeInterface.close();
                     }
-                } catch (Exception ex) {
+                } 
+                
+                catch (Exception ex) {
                     LOG.warn(ex);
                 }
             }
