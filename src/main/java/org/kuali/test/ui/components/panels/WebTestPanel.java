@@ -64,6 +64,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
     private ToolbarButton executionAttribute;
+    private ToolbarButton refresh;
     
     /**
      *
@@ -284,6 +285,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
         executionAttribute.setEnabled(false);
+        refresh.setEnabled(false);
 
         closeProxyServer();
     }
@@ -294,6 +296,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         getCurrentBrowser().navigate(getPlatform().getWebUrl());
         executionAttribute.setEnabled(true);
+        refresh.setEnabled(true);
     }
 
     public JWebBrowser getCurrentBrowser() {
@@ -409,6 +412,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_PARAMETER_ACTION, Constants.EXECUTION_PARAMETER_ICON));
         executionAttribute.setToolTipText("add test execution parameter");
         executionAttribute.setEnabled(false);
+        retval.add(refresh = new ToolbarButton(Constants.REFRESH_BROWSER_ACTION, Constants.REFRESH_BROWSER_ICON));
+        refresh.setToolTipText("refresh browser");
+        refresh.setEnabled(false);
+
         return retval;
     }
 
@@ -420,6 +427,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (Constants.EXECUTION_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             handleAddExecutionParameter();
+        } else if (Constants.REFRESH_BROWSER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getCurrentBrowser().reloadPage();
         }
     }
     

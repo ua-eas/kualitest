@@ -74,6 +74,7 @@ public class Constants {
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
     public static final ImageIcon SCHEDULE_TEST_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/schedule-test-toolbar.png"));
     public static final ImageIcon EXECUTION_PARAMETER_ICON = new ImageIcon(TestCreator.class.getResource("/images/execution-parameter.png"));
+    public static final ImageIcon REFRESH_BROWSER_ICON = new ImageIcon(TestCreator.class.getResource("/images/refresh-browser.png"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
@@ -136,6 +137,7 @@ public class Constants {
     public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
     public static final String ADD_ACTION = "Add";
     public static final String DELETE_ACTION = "Delete";
+    public static final String REFRESH_BROWSER_ACTION = "Refresh";
     public static final String SAVE_TEST_ACTION = "Save";
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
