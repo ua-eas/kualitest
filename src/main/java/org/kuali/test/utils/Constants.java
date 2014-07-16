@@ -250,26 +250,6 @@ public class Constants {
     public static final Set <String> VALID_HTTP_REQUEST_METHOD_SET = new HashSet<String>();
     public static final Set <String> DEFAULT_HTML_CONTAINER_TAGS = new HashSet<String>();
     
-    static {
-        DEFAULT_HTML_CONTAINER_TAGS.add("body");
-        DEFAULT_HTML_CONTAINER_TAGS.add("table");
-        DEFAULT_HTML_CONTAINER_TAGS.add("tr");
-        DEFAULT_HTML_CONTAINER_TAGS.add("iframe");
-        DEFAULT_HTML_CONTAINER_TAGS.add("div");
-        DEFAULT_HTML_CONTAINER_TAGS.add("tbody");
-        
-        
-        IMAGE_SUFFIX_SET.add("gif");
-        IMAGE_SUFFIX_SET.add("ico");
-        IMAGE_SUFFIX_SET.add("jpg");
-        IMAGE_SUFFIX_SET.add("jpeg");
-        IMAGE_SUFFIX_SET.add("png");
-
-        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
-        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
-    }
-    
-
     public static final String HTML_TAG_TYPE_HTML = "html";
     public static final String HTML_TAG_TYPE_OPTION = "option";
     public static final String HTML_TAG_TYPE_LABEL = "label";
@@ -290,7 +270,26 @@ public class Constants {
     public static final String HTML_TAG_TYPE_SELECT = "select";
     public static final String HTML_TAG_TYPE_BODY = "body";
     public static final String HTML_TAG_TYPE_TEXTAREA = "textarea";
+
+    static {
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_TABLE);
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_TR);
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_IFRAME);
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_DIV);
+        DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_FORM);
+        
+        IMAGE_SUFFIX_SET.add("gif");
+        IMAGE_SUFFIX_SET.add("ico");
+        IMAGE_SUFFIX_SET.add("jpg");
+        IMAGE_SUFFIX_SET.add("jpeg");
+        IMAGE_SUFFIX_SET.add("png");
+
+        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_GET);
+        VALID_HTTP_REQUEST_METHOD_SET.add(HTTP_REQUEST_METHOD_POST);
+    }
     
+
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
     public static final String HTML_TAG_ATTRIBUTE_SRC = "src";
@@ -306,6 +305,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_SUMMARY = "summary";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_RADIO = "radio";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX = "checkbox";
+    public static final String HTML_INPUT_ATTRIBUTE_TYPE_TEXT = "text";
     public static final String HTML_TAG_ATTRIBUTE_CLASS_DATATABLE = "datatable";
     
     public static final String SQL_ORDER_BY_DESC = "DESC";
@@ -329,33 +329,6 @@ public class Constants {
     
     public static final int DEFAULT_TEST_RUNNER_CONFIGURATION_UPDATE_INTERVAL = 15;
     public static final int DEFAULT_TEST_RUNNER_TEST_INQUIRY_INTERVAL = 10;
-    public static final String[] DEFAULT_HTML_WHITELIST_TAGS = {
-        HTML_TAG_TYPE_HTML,
-        HTML_TAG_TYPE_FORM, 
-        HTML_TAG_TYPE_INPUT, 
-        HTML_TAG_TYPE_DIV, 
-        HTML_TAG_TYPE_LABEL, 
-        HTML_TAG_TYPE_SPAN, 
-        HTML_TAG_TYPE_TR, 
-        HTML_TAG_TYPE_TH, 
-        HTML_TAG_TYPE_TD, 
-        HTML_TAG_TYPE_SELECT, 
-        HTML_TAG_TYPE_OPTION, 
-        HTML_TAG_TYPE_IFRAME, 
-        HTML_TAG_TYPE_BODY,
-        HTML_TAG_TYPE_H2,
-        HTML_TAG_TYPE_TABLE,
-        HTML_TAG_TYPE_TBODY,
-        HTML_TAG_TYPE_TEXTAREA,
-        HTML_TAG_TYPE_ANCHOR
-    };
-    
-    public static final String[] DEFAULT_HTML_WHITELIST_TAG_ATTRIBUTES = {
-        HTML_TAG_ATTRIBUTE_ID, 
-        HTML_TAG_ATTRIBUTE_NAME, 
-        HTML_TAG_ATTRIBUTE_CLASS, 
-        NODE_ID
-    };
     
     public static final String[] AGGREGATE_FUNCTIONS = {
         "",

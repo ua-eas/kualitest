@@ -2842,6 +2842,9 @@ public class Utils {
                                 canRemove = false;
                                 break;
                             }
+                        } else {
+                            canRemove = false;
+                            break;
                         }
                         
                         if (canRemove) {
@@ -2872,12 +2875,6 @@ public class Utils {
         
         // remove tags we do not want
         removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
-
-        if (LOG.isDebugEnabled()) {
-            System.out.println("====================================================================");
-            getTidy().pprint(retval, System.out);
-            System.out.println("====================================================================");
-        }
         
         return retval;
     }
@@ -3240,10 +3237,11 @@ public class Utils {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
                     Element curElement = (Element) nl.item(i);
                     
-                    // if the first child element is a span then we will save it
+                    // if the first child element is a span or div then we will save it
                     // if we do not find the desired child we will look in the first child span
                     if ((firstChildElement == null) 
-                        && Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(curElement.getTagName())) {
+                        && (Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(curElement.getTagName())
+                            || Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(curElement.getTagName()))) {
                         firstChildElement = curElement;
                     }
 
@@ -3322,5 +3320,9 @@ public class Utils {
         }
         
         return retval;
+    }
+    
+    public static void printDom(Document doc) {
+        tidy.pprint(doc, System.out);
     }
 }        

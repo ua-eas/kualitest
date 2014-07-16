@@ -131,7 +131,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
 
         retval.addWebBrowserListener(new WebBrowserAdapter() {
-            
             @Override
             public void windowWillOpen(WebBrowserWindowWillOpenEvent e) {
                 e.setNewWebBrowser(addNewBrowserPanel(false).getWebBrowser());
@@ -155,8 +154,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 }
             }
         });
-
-        System.out.println("native browser: " + retval.getBrowserType() );
 
         return retval;
     }

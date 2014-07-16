@@ -259,4 +259,31 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
             Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
     }
+
+    protected boolean isTextInputWrapper(Element node) {
+        boolean retval = Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+        
+        if (!retval) {
+            if (Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SPAN)) {
+                Element e = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_SPAN);
+                
+                if (e != null) {
+                     retval = Utils.hasChildNodeWithNodeNameAndAttribute(e, Constants.HTML_TAG_TYPE_INPUT, 
+                         Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+
+                    if (!retval) {
+                        e = Utils.getFirstChildNodeByNodeName(e, Constants.HTML_TAG_TYPE_DIV);
+
+                        if (e != null) {
+                             retval = Utils.hasChildNodeWithNodeNameAndAttribute(e, Constants.HTML_TAG_TYPE_INPUT, 
+                                 Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
 }

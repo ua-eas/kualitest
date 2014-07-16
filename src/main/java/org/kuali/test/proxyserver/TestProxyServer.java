@@ -132,16 +132,6 @@ public class TestProxyServer {
                     }
                 };
             }
-
-            @Override
-            public int getMaximumRequestBufferSizeInBytes() {
-                return Constants.MAX_REQUEST_BUFFER_SIZE;
-            }
-
-            @Override
-            public int getMaximumResponseBufferSizeInBytes() {
-                return Constants.MAX_RESPONSE_BUFFER_SIZE;
-            }
         };
     }
 

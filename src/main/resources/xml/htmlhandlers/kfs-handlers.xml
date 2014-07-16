@@ -751,8 +751,11 @@
                     </match-attribute>
                 </match-attributes>
                 <child-tag-match>
-                    <child-tag-name>input|textarea|select</child-tag-name>
-                    <match-attributes></match-attributes>
+                    <child-tag-name>span</child-tag-name>
+                    <match-attributes>
+                        <name>class</name>
+                        <value>nowrap</value>
+                    </match-attributes>
                 </child-tag-match>
             </tag-matcher>
             <tag-matcher>
