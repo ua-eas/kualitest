@@ -100,6 +100,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private Map <String, Table> additionalDbInfo = new HashMap<String, Table>();
     private Map <String, String> globalLookups = new HashMap<String, String>();
     private Map <String, List<ColumnData>> tableColumnData = new HashMap<String, List<ColumnData>>();
+    private Map <String, List<ImportedKeyData>> importedKeysData = new HashMap<String, List<ImportedKeyData>>();
     
     /**
      *
@@ -309,18 +310,32 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         try {
             td.setTreeNode(parentNode);
-            res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
+            String ikdkey = (td.getSchema() + "." +  td.getName());
+            
+            List <ImportedKeyData> ikdlist = importedKeysData.get(ikdkey);
+            
+            if (ikdlist == null) {
+                ikdlist = new ArrayList<ImportedKeyData>();
+                res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
+                
+                while(res.next()) {
+                    ikdlist.add(new ImportedKeyData(res));
+                }
+                
+                importedKeysData.put(ikdkey, ikdlist);
+            }
+            
             currentDepth++;
             
             Map <String, TableData> map = new HashMap<String, TableData>();
-            
-            while (res.next()) {
-                String schema = res.getString(2);
-                String tname = res.getString(3);
+
+            for(ImportedKeyData ikd : ikdlist) {
+                String schema = ikd.getPkSchema();
+                String tname = ikd.getPkTable();
                 
-                String pkcname = res.getString(4);
-                String fkcname = res.getString(8);
-                String fkname = res.getString(12);
+                String pkcname = ikd.getPkColumn();
+                String fkcname = ikd.getFkColumn();
+                String fkname = ikd.getFkName();
 
                 String key = fkname;
                 
