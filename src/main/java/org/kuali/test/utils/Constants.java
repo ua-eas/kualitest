@@ -155,6 +155,8 @@ public class Constants {
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
     public static final String HEADER_INFO_PANEL_NAME = "Header Info";
+    public static final String HEADER_AREA = "Header Area";
+    public static final String DOCUMENT_NAME = "Document Name";
     public static final String DEFAULT_HTML_PROPERTY_GROUP = "main";
     public static final String DEFAULT_HTML_PROPERTY_SECTION = "none";
     public static final String ROUTELOG_HTML_PROPERTY_GROUP = "RouteLog";
@@ -261,6 +263,7 @@ public class Constants {
     public static final String HTML_TAG_TYPE_TABLE = "table";
     public static final String HTML_TAG_TYPE_TR = "tr";
     public static final String HTML_TAG_TYPE_TH = "th";
+    public static final String HTML_TAG_TYPE_H1 = "h1";
     public static final String HTML_TAG_TYPE_H2 = "h2";
     public static final String HTML_TAG_TYPE_H3 = "h3";
     public static final String HTML_TAG_TYPE_TD = "td";

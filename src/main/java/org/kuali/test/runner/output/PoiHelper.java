@@ -259,7 +259,7 @@ public class PoiHelper {
                 retval = op.getOperation().getHtmlRequestOperation().getUrl();
                 break;
             case TestOperationType.INT_TEST_EXECUTION_PARAMETER:
-                retval = op.getOperation().getTestExecutionParameter().getDisplayName();
+                retval = op.getOperation().getTestExecutionParameter().getName();
                 break;
         }
         

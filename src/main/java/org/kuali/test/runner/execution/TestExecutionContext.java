@@ -22,8 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -705,16 +707,35 @@ public class TestExecutionContext extends Thread {
     
     private String findTestExecutionParameterValue(TestExecutionParameter tep) {
         String retval = null;
+
+        Set <String> keys = new HashSet<String>();
         
-        String key = Utils.buildCheckpointPropertyKey(tep);
+        if (tep.getMatchProperties() != null) {
+            for (CheckpointProperty cp : tep.getMatchProperties().getCheckpointPropertyArray()) {
+                keys.add(Utils.buildCheckpointPropertyKey(cp));
+            }
+        }
+        
+        String valueKey = Utils.buildCheckpointPropertyKey(tep.getValueProperty());
         
         for (String html : getRecentHttpResponseData()) {
             if (StringUtils.isNotBlank(html)) {
                 HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
 
+                String value = null;
                 for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                    if (key.equals(Utils.buildCheckpointPropertyKey(cp))) {
-                        retval = cp.getPropertyValue();
+                    String key = Utils.buildCheckpointPropertyKey(cp);
+                    
+                    if (keys.contains(key)) {
+                        keys.remove(key);
+                    }
+                    
+                    if (StringUtils.isBlank(value) && key.equals(valueKey)) {
+                        value = cp.getPropertyValue();
+                    }
+                    
+                    if (StringUtils.isNotBlank(value) && keys.isEmpty()) {
+                        retval = value;
                         break;
                     }
                 }

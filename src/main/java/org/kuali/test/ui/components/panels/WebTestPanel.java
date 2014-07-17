@@ -48,7 +48,7 @@ import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
-import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParamValueSelectDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
@@ -295,7 +295,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         getCurrentBrowser().navigate(getPlatform().getWebUrl());
-        executionAttribute.setEnabled(true);
+        executionAttribute.setEnabled((getMainframe().getConfiguration().getTestExecutionParameterNames() != null) 
+            && (getMainframe().getConfiguration().getTestExecutionParameterNames().sizeOfNameArray() > 0));
         refresh.setEnabled(true);
     }
 
@@ -433,11 +434,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private void handleAddExecutionParameter() {
-        TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), this, null);
+        TestExecutionParamValueSelectDlg dlg = new TestExecutionParamValueSelectDlg(getMainframe(), 
+            getCurrentBrowser(), getTestHeader(), getCurrentHtmlResponse(getCurrentBrowser()));
         
         if (dlg.isSaved()) {
-            if (dlg.getRemovedParameters() != null) {
-                for (TestExecutionParameter curatt : dlg.getRemovedParameters()) {
+            if (dlg.getRemovedExecutionParameters() != null) {
+                for (TestExecutionParameter curatt : dlg.getRemovedExecutionParameters()) {
                     TestExecutionParameter rematt = (TestExecutionParameter)curatt.copy();
                     rematt.setRemove(true);
                     addTestExecutionParameter(rematt);

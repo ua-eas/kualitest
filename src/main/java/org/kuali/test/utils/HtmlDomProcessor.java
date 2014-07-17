@@ -67,9 +67,17 @@ public class HtmlDomProcessor {
 
     private void processNode(DomInformation domInformation) {
         Element node = domInformation.getCurrentNode();
+        if (node.getNodeName().equals("h1")) {
+            String s = Utils.cleanDisplayText(node);
+            
+            if (s.contains("Requisition")) {
+                int i = 0;
+            }
+        }
 
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
 
+        
         if (th != null) {
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);

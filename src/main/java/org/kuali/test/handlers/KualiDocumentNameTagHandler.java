@@ -16,43 +16,26 @@
 
 package org.kuali.test.handlers;
 
-import javax.swing.JComponent;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiHeaderBoxTagHandler extends DefaultHtmlTagHandler {
+public class KualiDocumentNameTagHandler extends TdTagHandler {
 
-    /**
-     *
-     * @param node
-     * @return
-     */
     @Override
-    public JComponent getContainerComponent(Element node) {
-        return getNewPanel(node);
+    public CheckpointProperty getCheckpointProperty(Element node) {
+        CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
+        
+        retval.setPropertyValue(Utils.cleanDisplayText(node));
+        retval.setPropertyName(Constants.DOCUMENT_NAME);
+        retval.setDisplayName(Constants.DOCUMENT_NAME);
+        
+        return retval;
     }
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public boolean isContainer(Element node) {
-        return true;
-    }
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public String getGroupName(Element node) {
-        return Constants.HEADER_INFO_PANEL_NAME;
-    }
+   
 }
