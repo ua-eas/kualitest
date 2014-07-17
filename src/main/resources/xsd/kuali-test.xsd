@@ -111,11 +111,9 @@
     <xs:complexType name="test-execution-parameter">
         <xs:sequence>
             <xs:element name="name" type="xs:string"/>
-            <xs:element name="http-parameter-name" type="xs:string"/>
             <xs:element name="value" type="xs:string"/>
             <xs:element name="remove" type="xs:boolean"/>
             <xs:element name="value-property" type="checkpoint-property"/>
-            <xs:element name="match-properties" type="checkpoint-properties"/>
         </xs:sequence>
     </xs:complexType>
 

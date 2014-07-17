@@ -438,19 +438,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             getCurrentBrowser(), getTestHeader(), getCurrentHtmlResponse(getCurrentBrowser()));
         
         if (dlg.isSaved()) {
-            if (dlg.getRemovedExecutionParameters() != null) {
-                for (TestExecutionParameter curatt : dlg.getRemovedExecutionParameters()) {
-                    TestExecutionParameter rematt = (TestExecutionParameter)curatt.copy();
-                    rematt.setRemove(true);
-                    addTestExecutionParameter(rematt);
-                }
-            }
-            
-            TestExecutionParameter tec = dlg.getTestExecutionParameter();
-            
-            if (StringUtils.isNotBlank(tec.getName()) && StringUtils.isNotBlank(tec.getValue())) {
-                addTestExecutionParameter(dlg.getTestExecutionParameter());
-            }
+            addTestExecutionParameter(dlg.getTestExecutionParameter());
         }
     }
 

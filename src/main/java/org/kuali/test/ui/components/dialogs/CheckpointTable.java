@@ -20,6 +20,7 @@ import java.awt.Component;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
@@ -39,71 +40,90 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public class CheckpointTable extends BaseTable {
-
+    private boolean singleSelectMode = false;
+    
     /**
-     *
+     * 
      * @param config
+     * @param singleSelectMode 
      */
-    public CheckpointTable(TableConfiguration config) {
+    public CheckpointTable(TableConfiguration config, boolean singleSelectMode) {
         super(config);
+        this.singleSelectMode = singleSelectMode;
         
-        getColumnModel().getColumn(0).setCellEditor(new CheckboxTableCellEditor() {
-            @Override
-            protected void handleEditingStopped() {
-                int row = getSelectedRow();
-                if (row > -1) {
-                    BaseTableModel tm = (BaseTableModel)getModel();
-                    
-                    // if checkbox unchecked then clear selections
-                    Boolean b = (Boolean)tm.getValueAt(row, 0);
-                    if (!b) {
-                        tm.setValueAt(null, row, 3);
-                        tm.setValueAt(null, row, 4);
-                        tm.setValueAt(null, row, 6);
-                    } else {
-                        tm.setValueAt(FailureAction.ERROR_CONTINUE.toString(), row, 6);
+        if (!singleSelectMode) {
+            getColumnModel().getColumn(0).setCellEditor(new CheckboxTableCellEditor() {
+                @Override
+                protected void handleEditingStopped() {
+                    int row = getSelectedRow();
+                    if (row > -1) {
+                        BaseTableModel tm = (BaseTableModel)getModel();
+
+                        // if checkbox unchecked then clear selections
+                        Boolean b = (Boolean)tm.getValueAt(row, 0);
+                        if (!b) {
+                            tm.setValueAt(null, row, 3);
+                            tm.setValueAt(null, row, 4);
+                            tm.setValueAt(null, row, 6);
+                        } else {
+                            tm.setValueAt(FailureAction.ERROR_CONTINUE.toString(), row, 6);
+                        }
                     }
                 }
-            }
-        });
-        
-        getColumnModel().getColumn(0).setCellRenderer(new CheckboxTableCellRenderer());
-        getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+            });
 
-            @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-                JLabel retval = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (Constants.DEFAULT_HTML_PROPERTY_SECTION.equals(value)) {
-                    retval.setText("");
+            getColumnModel().getColumn(0).setCellRenderer(new CheckboxTableCellRenderer());
+        
+            getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    JLabel retval = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    if (Constants.DEFAULT_HTML_PROPERTY_SECTION.equals(value)) {
+                        retval.setText("");
+                    }
+
+                    return retval;
                 }
-                
-                return retval;
-            }
-        });
+            });
 
-        String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
-        JComboBox cb = new JComboBox(valueTypes);
-        getColumnModel().getColumn(3).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(3).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
+            String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
+            JComboBox cb = new JComboBox(valueTypes);
+            getColumnModel().getColumn(3).setCellEditor(new ComboBoxCellEditor(cb));
+            getColumnModel().getColumn(3).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
 
-        String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
-        cb = new JComboBox(comparisonOperators);
-        getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
-        
-        String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
-        cb = new JComboBox(failureActions);
-        getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(cb));
-        getColumnModel().getColumn(6).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
+            String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
+            cb = new JComboBox(comparisonOperators);
+            getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(cb));
+            getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
 
+            String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
+            cb = new JComboBox(failureActions);
+            getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(cb));
+            getColumnModel().getColumn(6).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
+        } else {
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            setRowSelectionAllowed(true);
+            setColumnSelectionAllowed(false);
+            getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    JLabel retval = (JLabel)super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    if (Constants.DEFAULT_HTML_PROPERTY_SECTION.equals(value)) {
+                        retval.setText("");
+                    }
+
+                    return retval;
+                }
+            });
+        }
     }
 
     @Override
     public boolean isCellEditable(int row, int column) {
-        return ((column == 0) || ((column > 1) && isRowEditable(row)));
+        return (!singleSelectMode && ((column == 0) || ((column > 1) && isRowEditable(row))));
     }
     
     private boolean isRowEditable(int row) {
-        return (Boolean)getValueAt(row, 0);
+        return (!singleSelectMode && (Boolean)getValueAt(row, 0));
     }
 }

@@ -25,6 +25,9 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestHeader;
@@ -39,14 +42,24 @@ import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
 
 
-public class HtmlCheckpointPanel extends BasePanel {
+public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListener {
     private static Logger LOG = Logger.getLogger(HtmlCheckpointPanel.class);
     private List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
     private boolean empty = false;
-    
-    public HtmlCheckpointPanel (TestCreator mainframe, JWebBrowser webBrowser, TestHeader testHeader, String html) {
+    boolean singleSelectMode;
+    private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
+
+    public HtmlCheckpointPanel (TestCreator mainframe, JWebBrowser webBrowser, 
+        TestHeader testHeader, String html, boolean singleSelectMode) {
         super(mainframe);
+        this.singleSelectMode = singleSelectMode;
         initComponents(webBrowser, testHeader, html);
+
+    }
+
+    public HtmlCheckpointPanel (TestCreator mainframe, JWebBrowser webBrowser, 
+        TestHeader testHeader, String html) {
+        this(mainframe, webBrowser, testHeader, html, false);
     }
     
     private void initComponents(JWebBrowser webBrowser, TestHeader testHeader, String html) {
@@ -75,8 +88,14 @@ public class HtmlCheckpointPanel extends BasePanel {
                     List<CheckpointProperty> props = pmap.get(s);
 
                     if ((props != null) && !props.isEmpty()) {
-                        CheckpointTable t = buildParameterTable(s, props, true);
+                        CheckpointTable t = null ;
+                        if (singleSelectMode) {
+                            t = buildParameterTableForSingleSelect(s, props);
+                        } else {
+                            t = buildParameterTable(s, props);
+                        }
                         checkpointTables.add(t);
+                        t.getSelectionModel().addListSelectionListener(this);
                         tp.addTab(s, new TablePanel(t));
                     }
                 }
@@ -86,9 +105,15 @@ public class HtmlCheckpointPanel extends BasePanel {
 
         } else if (pmap.size() == 1) {
             CheckpointTable t;
-            TablePanel p = new TablePanel(t = buildParameterTable(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP), false));
+            if (singleSelectMode) {
+                t = buildParameterTableForSingleSelect(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+            } else {
+                t = buildParameterTable(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+            }
+            TablePanel p = new TablePanel(t);
             checkpointTables.add(t);
             add(p, BorderLayout.CENTER);
+            t.getSelectionModel().addListSelectionListener(this);
         } else {
             add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
             empty = true;
@@ -104,11 +129,15 @@ public class HtmlCheckpointPanel extends BasePanel {
             if (l == null) {
                 retval.put(cp.getPropertyGroup(), l = new ArrayList<CheckpointProperty>());
             }
-
-            l.add(cp);
+            
+            if (!singleSelectMode || StringUtils.isNotBlank(cp.getPropertyValue())) {
+                l.add(cp);
+            }
         }
 
         CheckpointPropertyComparator c = new CheckpointPropertyComparator();
+        
+        // if singleSelectMode load only properties with values
         for (List<CheckpointProperty> cpl : retval.values()) {
             Collections.sort(cpl, c);
         }
@@ -116,13 +145,53 @@ public class HtmlCheckpointPanel extends BasePanel {
         return retval;
     }
 
-    private CheckpointTable buildParameterTable(String groupName, List<CheckpointProperty> checkpointProperties, boolean forTab) {
+    private CheckpointTable buildParameterTableForSingleSelect(String groupName, List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("html-checkpoint-properties");
-        if (!forTab) {
-            config.setDisplayName("Checkpoint Properties - " + groupName);
+        config.setTableName("html-checkpoint-properties2");
+        config.setDisplayName("Available Properties - " + groupName);
+
+        
+        int[] alignment = new int[3];
+        for (int i = 0; i < alignment.length; ++i) {
+            alignment[i] = JLabel.LEFT;
         }
 
+        config.setColumnAlignment(alignment);
+
+        config.setHeaders(new String[]{
+            "Section",
+            "Property Name",
+            "Value",
+        });
+
+        config.setPropertyNames(new String[]{
+            "propertySection",
+            "displayName",
+            "propertyValue",
+        });
+
+        config.setColumnTypes(new Class[]{
+            String.class,
+            String.class,
+            String.class
+        });
+
+        config.setColumnWidths(new int[]{
+            70,
+            100,
+            50,
+        });
+
+        config.setData(checkpointProperties);
+        return new CheckpointTable(config, singleSelectMode);
+    }
+
+    private CheckpointTable buildParameterTable(String groupName, List<CheckpointProperty> checkpointProperties) {
+        TableConfiguration config = new TableConfiguration();
+        config.setTableName("html-checkpoint-properties");
+        config.setDisplayName("Checkpoint Properties - " + groupName);
+
+        
         int[] alignment = new int[7];
         for (int i = 0; i < alignment.length; ++i) {
             if (i == 0) {
@@ -175,8 +244,9 @@ public class HtmlCheckpointPanel extends BasePanel {
         });
 
         config.setData(checkpointProperties);
-        return new CheckpointTable(config);
+        return new CheckpointTable(config, singleSelectMode);
     }
+
 
     public boolean isEmpty() {
         return empty;
@@ -184,15 +254,42 @@ public class HtmlCheckpointPanel extends BasePanel {
 
     public List <CheckpointProperty> getSelectedProperties() {
         List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
-    
+
         for (CheckpointTable t : checkpointTables) {
-            for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
-                if (p.getSelected()) {
-                    retval.add(p);
+            if (singleSelectMode) {
+                if (t.getSelectedRow() > -1) {
+                    retval.add((CheckpointProperty)t.getRowData(t.getSelectedRow()));
+                    break;
+                }
+
+            } else {
+                for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
+                    if (p.getSelected()) {
+                        retval.add(p);
+                    }
                 }
             }
         }
-
+    
         return retval;
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent lse) {
+        if (singleSelectMode) {
+            for (CheckpointTable t : checkpointTables) {
+                if (t.getSelectionModel() != lse.getSource()) {
+                    t.clearSelection();
+                }
+            }
+        }
+        
+        for (ListSelectionListener l : listeners) {
+            l.valueChanged(lse);
+        }
+    }
+    
+    public void addListSelectionListener(ListSelectionListener l) {
+        listeners.add(l);
     }
 }

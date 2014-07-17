@@ -20,22 +20,20 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
-import org.kuali.test.ui.base.BaseTable;
-import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -44,14 +42,11 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
-    private TestHeader testHeader;
+public class TestExecutionParamValueSelectDlg extends BaseSetupDlg 
+    implements ListSelectionListener, DocumentListener {
     private HtmlCheckpointPanel valuesPanel;
-    private HtmlCheckpointPanel matchPanel;
     private JTextField name;
-    private JComboBox parameter;
     private TestExecutionParameter testExecutionParameter;
-    private List<TestExecutionParameter> removedExecutionParameters;
 
     /**
      * 
@@ -63,24 +58,19 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
     public TestExecutionParamValueSelectDlg(TestCreator mainframe, JWebBrowser wb, TestHeader testHeader, String html) {
         super(mainframe);
         setTitle("Test Execution Parameter Select");
-        this.testHeader = testHeader;
-        
         initComponents(wb, testHeader, html);
     }
 
     private void initComponents(JWebBrowser wb, TestHeader testHeader, String html) {
         String[] labels = new String[]{
             "Name",
-            "Parameter"
         };
 
         name = new JTextField(30);
-        
-        parameter = new JComboBox(getMainframe().getConfiguration().getTestExecutionParameterNames().getNameArray());
+        name.getDocument().addDocumentListener(this);
 
         JComponent[] components = new JComponent[]{
             name,
-            parameter
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -90,17 +80,9 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
         
         getContentPane().add(p, BorderLayout.NORTH);
         
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.addTab("Match Values", matchPanel = new HtmlCheckpointPanel(getMainframe(), wb, testHeader, html));
-        tabbedPane.addTab("Replace Value", valuesPanel = new HtmlCheckpointPanel(getMainframe(), wb, testHeader, html));
-        tabbedPane.addTab("Current Parameters", new JPanel());
-
-        matchPanel.setBorder(BorderFactory.createLoweredBevelBorder());
-        valuesPanel.setBorder(BorderFactory.createLoweredBevelBorder());
+        getContentPane().add(valuesPanel = new HtmlCheckpointPanel(getMainframe(), wb, testHeader, html, true), BorderLayout.CENTER);
+        valuesPanel.addListSelectionListener(this);
         
-        
-        getContentPane().add(tabbedPane, BorderLayout.CENTER);
-
         addStandardButtons();
         getSaveButton().setEnabled(false);
         setDefaultBehavior();
@@ -112,7 +94,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
      */
     @Override
     protected String getSaveText() {
-        return Constants.OK_ACTION;
+        return Constants.SELECT_ACTION;
     }
 
     /**
@@ -130,7 +112,11 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
      */
     @Override
     protected boolean save() {
-        return (testExecutionParameter != null);
+        testExecutionParameter = TestExecutionParameter.Factory.newInstance();
+        testExecutionParameter.setName(name.getText());
+        testExecutionParameter.setValueProperty(valuesPanel.getSelectedProperties().get(0));
+        this.setSaved(true);
+       return true;
     }
 
     @Override
@@ -152,58 +138,30 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg {
         return new Dimension(800, 400);
     }
 
-    private BaseTable buildCurrentParametersTable(String groupName, List<CheckpointProperty> properties) {
-        TableConfiguration config = new TableConfiguration();
-        config.setTableName("test-execution-select-parameter-value");
-
-        int[] alignment = new int[3];
-        for (int i = 0; i < alignment.length; ++i) {
-            alignment[i] = JLabel.LEFT;
-        }
-
-        config.setColumnAlignment(alignment);
-
-        config.setHeaders(new String[]{
-            "Section",
-            "Name",
-            "Current Value"
-        });
-
-        config.setPropertyNames(new String[]{
-            "propertySection",
-            "displayName",
-            "propertyValue"
-        });
-
-        config.setColumnTypes(new Class[]{
-            String.class,
-            String.class,
-            String.class
-        });
-
-        config.setColumnWidths(new int[]{
-            60,
-            100,
-            40
-        });
-
-        config.setData(properties);
-        
-        BaseTable retval = new BaseTable(config);
-        
-        retval.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        retval.setRowSelectionAllowed(true);
-        retval.setColumnSelectionAllowed(false);
-   //     retval.getSelectionModel().addListSelectionListener(this);
-
-        return retval;
-    }
-
     public TestExecutionParameter getTestExecutionParameter() {
         return testExecutionParameter;
     }
 
-    public List<TestExecutionParameter> getRemovedExecutionParameters() {
-        return removedExecutionParameters;
+    @Override
+    public void valueChanged(ListSelectionEvent lse) {
+        getSaveButton().setEnabled(canSave());
+    }
+    
+    private boolean canSave() {
+        List <CheckpointProperty> l = valuesPanel.getSelectedProperties();
+        return ((l != null) && !l.isEmpty() && StringUtils.isNotBlank(name.getText()));
+    }
+
+    @Override
+    public void insertUpdate(DocumentEvent de) {
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent de) {
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent de) {
+        getSaveButton().setEnabled(canSave());
     }
 }
