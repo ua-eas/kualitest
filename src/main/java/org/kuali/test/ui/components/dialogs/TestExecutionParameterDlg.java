@@ -42,7 +42,7 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class TestExecutionParamValueSelectDlg extends BaseSetupDlg 
+public class TestExecutionParameterDlg extends BaseSetupDlg 
     implements ListSelectionListener, DocumentListener {
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
@@ -55,7 +55,7 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg
      * @param testHeader
      * @param html 
      */
-    public TestExecutionParamValueSelectDlg(TestCreator mainframe, JWebBrowser wb, TestHeader testHeader, String html) {
+    public TestExecutionParameterDlg(TestCreator mainframe, JWebBrowser wb, TestHeader testHeader, String html) {
         super(mainframe);
         setTitle("Test Execution Parameter Select");
         initComponents(wb, testHeader, html);
@@ -115,8 +115,9 @@ public class TestExecutionParamValueSelectDlg extends BaseSetupDlg
         testExecutionParameter = TestExecutionParameter.Factory.newInstance();
         testExecutionParameter.setName(name.getText());
         testExecutionParameter.setValueProperty(valuesPanel.getSelectedProperties().get(0));
-        this.setSaved(true);
-       return true;
+        setSaved(true);
+        dispose();
+        return true;
     }
 
     @Override

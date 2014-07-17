@@ -48,7 +48,7 @@ import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
-import org.kuali.test.ui.components.dialogs.TestExecutionParamValueSelectDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
@@ -434,7 +434,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private void handleAddExecutionParameter() {
-        TestExecutionParamValueSelectDlg dlg = new TestExecutionParamValueSelectDlg(getMainframe(), 
+        TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
             getCurrentBrowser(), getTestHeader(), getCurrentHtmlResponse(getCurrentBrowser()));
         
         if (dlg.isSaved()) {

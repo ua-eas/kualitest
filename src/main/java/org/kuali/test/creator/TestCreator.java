@@ -75,7 +75,6 @@ import org.kuali.test.ui.components.dialogs.EncryptionRequiredParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
-import org.kuali.test.ui.components.dialogs.TestExecutionParameterNamesDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
@@ -293,16 +292,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         setup.add(new JSeparator());
         
-        m = new JMenuItem("Test Execution Parameter Names");
-        m.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                handleTestExecutionParameterNamesSetup();
-            }
-        });
-        
-        setup.add(m);
-
         m = new JMenuItem("Parameters requiring encryption");
         m.addActionListener(new ActionListener() {
             @Override
@@ -820,15 +809,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     private void handleScheduleTests(ActionEvent evt) {
         new ScheduleTestsDlg(this);
-    }
-
-    public void handleTestExecutionParameterNamesSetup() {
-        TestExecutionParameterNamesDlg dlg = new TestExecutionParameterNamesDlg(this);
-
-        if (dlg.isSaved()) {
-            saveConfigurationButton.setEnabled(true);
-            saveConfigurationMenuItem.setEnabled(true);
-        }
     }
 
     public void handleParametersRequiringEncryptionSetup() {
