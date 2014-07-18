@@ -162,9 +162,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
-    /**
-     *
-     */
     @Override
     protected void handleCreateCheckpoint() {
         if (LOG.isDebugEnabled()) {
@@ -299,6 +296,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 getCurrentBrowser().navigate(getPlatform().getWebUrl());
             }
