@@ -85,6 +85,7 @@ import org.kuali.test.KualiApplication;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.ParameterReplacement;
 import org.kuali.test.ParentTagMatch;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
@@ -3318,5 +3319,60 @@ public class Utils {
     
     public static void printDom(Document doc) {
         tidy.pprint(doc, System.out);
+    }
+
+    public static String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
+        String retval = null;
+        
+        for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
+            if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
+                if (StringUtils.isNotBlank(param.getValue())) {
+                    retval = param.getValue();
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static List <TestOperation> findMostRecentHttpRequestsWithParameters(List <TestOperation> testOperations) {
+        List <TestOperation> retval = new ArrayList<TestOperation>();
+        
+        int sz = testOperations.size();
+        for (int i = (sz-1); i >= 0; --i) {
+            TestOperation testop = testOperations.get(i);
+            
+            if (testop.getOperation().getHtmlRequestOperation() != null) {
+                HtmlRequestOperation op = testop.getOperation().getHtmlRequestOperation();
+                
+                String requestParameterString = Utils.getContentParameterFromRequestOperation(op);
+                int pos = op.getUrl().indexOf("?");
+                
+                
+                if (StringUtils.isNotBlank(requestParameterString) || op.getUrl().contains("?")) {
+                    retval.add(testop);
+                    
+                    if (retval.size() > Constants.HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE) {
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static ParameterReplacement findParameterReplacement(String name, ParameterReplacement[] parameterReplacements) {
+        ParameterReplacement retval = null;
+        
+        for (ParameterReplacement pr : parameterReplacements) {
+            if (name.equalsIgnoreCase(pr.getReplaceParameterName())) {
+                retval = pr;
+                break;
+            }
+        }
+        
+        return retval;
     }
 }        

@@ -28,7 +28,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +39,7 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
 import org.kuali.test.ParameterReplacement;
+import org.kuali.test.ParameterReplacements;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -56,6 +59,7 @@ import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  * 
@@ -463,13 +467,34 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         if (dlg.isSaved()) {
             ParameterReplacement parameterReplacement = (ParameterReplacement)dlg.getNewRepositoryObject();
+            List <TestOperation> testops = Utils.findMostRecentHttpRequestsWithParameters(testProxyServer.getTestOperations());
+            if ((testops != null) && !testops.isEmpty()) {
+                Set <String> hs = new HashSet<String>();
+                
+                for (TestOperation testop : testops) {
+                    if (!hs.contains(parameterReplacement.getTestExecutionParameterName())) {
+                        hs.add(parameterReplacement.getTestExecutionParameterName());
+                        ParameterReplacements parameterReplacements = testop.getOperation().getHtmlRequestOperation().getParameterReplacements();
+
+                        if (parameterReplacements == null) {
+                            parameterReplacements = testop.getOperation().getHtmlRequestOperation().addNewParameterReplacements();
+                        }
+
+                        ParameterReplacement rparam = Utils.findParameterReplacement(parameterReplacement.getTestExecutionParameterName(), parameterReplacements.getParameterReplacementArray());
+
+                        if (rparam != null) {
+                            rparam.setReplaceParameterName(rparam.getReplaceParameterName());
+                        } else {
+                            rparam = parameterReplacements.addNewParameterReplacement();
+                            rparam.setReplaceParameterName(parameterReplacement.getReplaceParameterName());
+                            rparam.setTestExecutionParameterName(parameterReplacement.getTestExecutionParameterName());
+                        }
+                    }
+                }
+            }
         }
     }
     
-   /**
-     *
-     * @return
-     */
     public TestProxyServer getTestProxyServer() {
         return testProxyServer;
     }

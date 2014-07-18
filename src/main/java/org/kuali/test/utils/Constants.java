@@ -201,6 +201,7 @@ public class Constants {
     public static final String TAG_MATCH_REGEX_PATTERN = "\\<[^>]*>";
     public static final String WEB_SERVICE_OPERATION = "web-service-operation";
     public static final String EXPECTED_RESULT = "expected-result";
+    public static final int HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE = 3;
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";

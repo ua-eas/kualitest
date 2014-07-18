@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -36,9 +35,9 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
-import org.kuali.test.RequestParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -79,7 +78,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 String url = getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl());
                 HttpPost postRequest = new HttpPost(url);
                 request = postRequest;
-                String params = getTestExecutionContext().replaceTestExecutionParameters(getContentParameterFromRequestOperation(reqop));
+                String params = getTestExecutionContext().replaceTestExecutionParameters(Utils.getContentParameterFromRequestOperation(reqop));
                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
                 postRequest.setEntity(new UrlEncodedFormEntity(nvps));
                 request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
@@ -136,20 +135,5 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         finally {
             HttpClientUtils.closeQuietly(response);
         }
-    }
-    
-    private String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
-        String retval = null;
-        
-        for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
-            if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    retval = param.getValue();
-                    break;
-                }
-            }
-        }
-        
-        return retval;
     }
 }

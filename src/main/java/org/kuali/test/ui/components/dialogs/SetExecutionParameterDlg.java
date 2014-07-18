@@ -20,14 +20,23 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Consts;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.ParameterReplacement;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -86,16 +95,60 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
 
     private String[] getAvailableRequestParameters() {
         List <String> retval = new ArrayList<String>();
+
+        List<TestOperation> testops = Utils.findMostRecentHttpRequestsWithParameters(testOperations);
+            
+        Set <String> hs = new HashSet<String>();
+        for (TestOperation testop : testops) {
+            if (testop.getOperation().getHtmlRequestOperation() != null) {
+                HtmlRequestOperation op = testop.getOperation().getHtmlRequestOperation();
+
+                String requestParameterString = Utils.getContentParameterFromRequestOperation(op);
+                int pos = op.getUrl().indexOf("?");
+
+                if (StringUtils.isNotBlank(requestParameterString) || (pos > -1)) {
+                    if (StringUtils.isNotBlank(requestParameterString)) {
+                        List <NameValuePair> nvps = URLEncodedUtils.parse(requestParameterString, Consts.UTF_8);
+
+                        if (nvps != null) {
+                            for (NameValuePair nvp : nvps) {
+                                hs.add(nvp.getName());
+                            }
+                        }
+                    }
+
+                    if (pos > -1) {
+                        List <NameValuePair> nvps = URLEncodedUtils.parse(op.getUrl().substring(pos+1), Consts.UTF_8);
+
+                        if (nvps != null) {
+                            for (NameValuePair nvp : nvps) {
+                                hs.add(nvp.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (!hs.isEmpty()) {
+            retval.addAll(hs);
+            Collections.sort(retval);
+        }
         
-        for (TestOperation op : testOperations) {
-            if (op.getOperation().getTestExecutionParameter() != null) {
-                retval.add(op.getOperation().getTestExecutionParameter().getName());
+        return retval.toArray(new String[retval.size()]);
+    }
+        
+    private RequestParameter findRequestParameter(String name, RequestParameter[] parameters) {
+        RequestParameter retval = null;
+        
+        for (RequestParameter p : parameters) {
+            if (p.getName().equals(name)) {
+                retval = p;
+                break;
             }
         }
         
-        Collections.sort(retval);
-        
-        return retval.toArray(new String[retval.size()]);
+        return retval;
     }
 
     /**
