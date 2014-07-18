@@ -81,9 +81,12 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
+import org.kuali.test.ParameterReplacement;
+import org.kuali.test.ParameterReplacements;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestExecutionParameter;
@@ -738,7 +741,6 @@ public class TestExecutionContext extends Thread {
     public void processTestExecutionParameter(TestExecutionParameter ep) {
         if (!ep.getRemove()) {
             String value = findTestExecutionParameterValue(ep);
-
             if (StringUtils.isNotBlank(value)) {
                executionParameterMap.put(ep.getName(), value);
             }
@@ -803,14 +805,23 @@ public class TestExecutionContext extends Thread {
     }
     
     /**
-     *
+     * 
+     * @param reqop
      * @param input
-     * @return
+     * @return 
      */
-    public String replaceTestExecutionParameters(String input) {
+    public String replaceTestExecutionParameters(HtmlRequestOperation reqop, String input) {
         StringBuilder retval = new StringBuilder(input.length());
 
+        ParameterReplacements parameterReplacements = reqop.getParameterReplacements();
+        
         String parameterString = null;
+
+        Map<String, String> paramMap = new HashMap<String, String>();
+
+        for (ParameterReplacement pr : parameterReplacements.getParameterReplacementArray()) {
+            paramMap.put(pr.getReplaceParameterName(), executionParameterMap.get(pr.getTestExecutionParameterName()));
+        }
 
         // if this is a GET request then find the parameter string
         if (input.startsWith(Constants.HTTP_PROTOCOL) || input.startsWith(Constants.HTTPS_PROTOCOL)) {
@@ -829,7 +840,7 @@ public class TestExecutionContext extends Thread {
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-                
+
                 // decrypt encrypted parameters
                 for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
                     for (int i = 0; i < nvparray.length; ++i) {
@@ -840,11 +851,11 @@ public class TestExecutionContext extends Thread {
                 }
 
                 for (int i = 0; i < nvparray.length; ++i) {
-                    if (executionParameterMap.containsKey(nvparray[i].getName())) {
-                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), executionParameterMap.get(nvparray[i].getName()));
+                    if (paramMap.containsKey(nvparray[i].getName())) {
+                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), paramMap.get(nvparray[i].getName()));
                     }
                 }
-                
+
                 for (String parameterName : getAutoReplaceParameterMap().keySet()) {
                     for (int i = 0; i < nvparray.length; ++i) {
                         if (parameterName.equals(nvparray[i].getName())) {

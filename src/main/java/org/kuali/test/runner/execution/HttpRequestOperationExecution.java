@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -69,16 +70,29 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         try {
             reqop = getOperation().getHtmlRequestOperation();
             
-            HttpRequestBase request = null;
-
+            HttpRequestBase request = new HttpGet(reqop.getUrl());
 
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl()));
+                if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
+                    request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl()));
+                }
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                String url = getTestExecutionContext().replaceTestExecutionParameters(reqop.getUrl());
+                String url = reqop.getUrl();
+                if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
+                    url = getTestExecutionContext().replaceTestExecutionParameters(reqop, url);
+                }
+                
                 HttpPost postRequest = new HttpPost(url);
                 request = postRequest;
-                String params = getTestExecutionContext().replaceTestExecutionParameters(Utils.getContentParameterFromRequestOperation(reqop));
+                
+                String params = Utils.getContentParameterFromRequestOperation(reqop);
+                
+                if (StringUtils.isNotBlank(params)) {
+                    if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
+                        params = getTestExecutionContext().replaceTestExecutionParameters(reqop, params);
+                    }
+                }
+                
                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
                 postRequest.setEntity(new UrlEncodedFormEntity(nvps));
                 request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);

@@ -262,7 +262,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
     
     private void createSqlCheckpoint() {
-        SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), null);
+        SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), null, testProxyServer);
 
         if (dlg.isSaved()) {
             addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());

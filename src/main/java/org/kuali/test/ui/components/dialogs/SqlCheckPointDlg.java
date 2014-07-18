@@ -33,6 +33,7 @@ import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
@@ -56,6 +57,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     private JCheckBox saveQueryResults;
     private IntegerTextField maxRunTime;
     private DatabasePanel dbPanel;
+    private TestProxyServer testProxyServer;
 
     /**
      *
@@ -63,10 +65,12 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
      * @param testHeader
      * @param dbPanel
      */
-    public SqlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, DatabasePanel dbPanel) {
+    public SqlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, 
+        DatabasePanel dbPanel, TestProxyServer testProxyServer) {
         super(mainFrame);
         this.testHeader = testHeader;
         this.dbPanel = dbPanel;
+        this.testProxyServer = testProxyServer;
 
         if (checkpoint != null) {
             setTitle("Edit checkpoint " + checkpoint.getName());
@@ -85,7 +89,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     private void initComponents() {
         if (dbPanel == null) {
             dbPanel = new DatabasePanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
-                testHeader.getPlatformName()), testHeader, true);
+                testHeader.getPlatformName()), testHeader, true, testProxyServer);
             dbPanel.addTab("Checkpoint Configuration", getCheckpointPanel());
             getContentPane().add(dbPanel, BorderLayout.CENTER);
         } else {

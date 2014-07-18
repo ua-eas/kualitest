@@ -21,7 +21,10 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EventObject;
+import java.util.List;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -33,7 +36,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Column;
 import org.kuali.test.Table;
+import org.kuali.test.TestOperation;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.ItemSelectDlg;
 import org.kuali.test.ui.components.buttons.SearchButton;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -85,7 +90,12 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
         lookup.setEnabled((col != null) && (StringUtils.isNotBlank(dbPanel.getGlobalLookupSql(col.getColumnName())) 
             || StringUtils.isNotBlank(col.getLookupSqlSelect())));
         
-        if (lookup.isEnabled()) {
+        if (dbPanel.isForCheckpoint()) {
+            List <String> l = this.getAvailableTestExecutionParameters();
+            executionParameter.setEnabled(!l.isEmpty());
+        }
+        
+        if (lookup.isEnabled() || ((executionParameter != null) && executionParameter.isEnabled())) {
             currentRowData = wcd;
             wcd.setRow(rowIndex);
             wcd.setColumn(columnIndex);
@@ -175,11 +185,36 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
                     }
                 }
             } else if (e.getSource() == executionParameter) {
-                
+                handleTestExecutionParameterSelect();
             }
 
             currentRowData = null;
         }
     }
-    
+
+    private List<String> getAvailableTestExecutionParameters() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op : dbPanel.getTestProxyServer().getTestOperations()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                retval.add(op.getOperation().getTestExecutionParameter().getName());
+            }
+        }
+        
+        Collections.sort(retval);
+        
+        return retval;
+    }
+
+    private void handleTestExecutionParameterSelect() {
+        ItemSelectDlg dlg = new ItemSelectDlg(dbPanel.getMainframe(), 
+            "Available Parameters", this.getAvailableTestExecutionParameters());
+
+        String param = dlg.getSelectedValue();
+        
+        if (StringUtils.isNotBlank(param)) {
+            JTextField tf = (JTextField)cellEditor.getComponent();
+            tf.setText("${" + param + "}");
+        }
+    }
 }

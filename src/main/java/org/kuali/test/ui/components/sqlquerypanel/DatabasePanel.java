@@ -62,6 +62,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
 import org.kuali.test.ui.components.splash.SplashDisplay;
@@ -94,6 +95,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private SqlDisplayPanel sqlDisplayPanel;
     private boolean forCheckpoint = false;
     private JTabbedPane tabbedPane;
+    private TestProxyServer testProxyServer;
     
     private List <TestOperation> testOperations = new ArrayList<TestOperation>();
     
@@ -103,15 +105,19 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private Map <String, List<ImportedKeyData>> importedKeysData = new HashMap<String, List<ImportedKeyData>>();
     
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
      * @param forCheckpoint
+     * @param testProxyServer 
      */
-    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, 
+        boolean forCheckpoint, TestProxyServer testProxyServer) {
         super(mainframe, platform, testHeader);
         this.forCheckpoint = forCheckpoint;
+        this.testProxyServer = testProxyServer;
+        
         initComponents();
     }
 
@@ -122,7 +128,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
      * @param testHeader
      */
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
-        this(mainframe, platform, testHeader, false);
+        this(mainframe, platform, testHeader, false, null);
     }
     
     /**
@@ -586,7 +592,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidSqlQuery()) {
-            SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), this);
+            SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), this, null);
 
             if (dlg.isSaved()) {
                 addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
@@ -1315,5 +1321,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     
     public String getGlobalLookupSql(String columnName) {
         return globalLookups.get(columnName);
+    }
+
+    public TestProxyServer getTestProxyServer() {
+        return testProxyServer;
     }
 }
