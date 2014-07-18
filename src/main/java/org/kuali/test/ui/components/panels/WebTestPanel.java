@@ -15,6 +15,7 @@
  */
 package org.kuali.test.ui.components.panels;
 
+import chrriis.dj.nativeswing.NSComponentOptions;
 import chrriis.dj.nativeswing.NativeSwing;
 import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
@@ -29,6 +30,7 @@ import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -122,7 +124,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private JWebBrowser createWebBrowser(boolean initial) {
-        JWebBrowser retval = new JWebBrowser();
+        JWebBrowser retval = new JWebBrowser(NSComponentOptions.destroyOnFinalization());
 
         if (initial) {
             retval.setButtonBarVisible(false);
@@ -134,8 +136,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         retval.addWebBrowserListener(new WebBrowserAdapter() {
             @Override
             public void windowWillOpen(WebBrowserWindowWillOpenEvent e) {
+                e.getNewWebBrowser().disposeNativePeer();
                 e.setNewWebBrowser(addNewBrowserPanel(false).getWebBrowser());
-            }
+             }
 
             @Override
             public void windowOpening(WebBrowserWindowOpeningEvent e) {
@@ -294,7 +297,13 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     protected void handleStartTest() {
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
-        getCurrentBrowser().navigate(getPlatform().getWebUrl());
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                getCurrentBrowser().navigate(getPlatform().getWebUrl());
+            }
+        });
+         
         executionAttribute.setEnabled((getMainframe().getConfiguration().getTestExecutionParameterNames() != null) 
             && (getMainframe().getConfiguration().getTestExecutionParameterNames().sizeOfNameArray() > 0));
         refresh.setEnabled(true);
@@ -358,9 +367,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
-    /**
-     *
-     */
     public void browserRemoved() {
         try {
             if (NativeInterface.isOpen()) {

@@ -155,10 +155,12 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
 
     @Override
     public void insertUpdate(DocumentEvent de) {
+        getSaveButton().setEnabled(canSave());
     }
 
     @Override
     public void removeUpdate(DocumentEvent de) {
+        getSaveButton().setEnabled(canSave());
     }
 
     @Override
