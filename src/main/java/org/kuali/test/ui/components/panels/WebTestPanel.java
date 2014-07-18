@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -43,6 +44,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
+import org.kuali.test.ui.base.ItemSelectDlg;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
@@ -65,7 +67,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
-    private ToolbarButton executionAttribute;
+    private ToolbarButton addParam;
+    private ToolbarButton setParam;
     private ToolbarButton refresh;
     
     /**
@@ -284,7 +287,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
-        executionAttribute.setEnabled(false);
+        addParam.setEnabled(false);
+        setParam.setEnabled(false);
         refresh.setEnabled(false);
 
         closeProxyServer();
@@ -302,8 +306,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             }
         });
          
-        executionAttribute.setEnabled((getMainframe().getConfiguration().getTestExecutionParameterNames() != null) 
-            && (getMainframe().getConfiguration().getTestExecutionParameterNames().sizeOfNameArray() > 0));
+        addParam.setEnabled(true);
         refresh.setEnabled(true);
     }
 
@@ -414,9 +417,15 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected List<ToolbarButton> getCustomButtons() {
         List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
-        retval.add(executionAttribute = new ToolbarButton(Constants.EXECUTION_PARAMETER_ACTION, Constants.EXECUTION_PARAMETER_ICON));
-        executionAttribute.setToolTipText("add test execution parameter");
-        executionAttribute.setEnabled(false);
+        retval.add(addParam = new ToolbarButton(Constants.ADD_PARAM_ACTION, Constants.ADD_PARAM_ICON));
+        addParam.setToolTipText("add test execution parameter");
+        addParam.setEnabled(false);
+
+        retval.add(setParam = new ToolbarButton(Constants.SET_PARAM_ACTION, Constants.SET_PARAM_ICON));
+        setParam.setToolTipText("set test execution parameter");
+        setParam.setEnabled(false);
+
+        
         retval.add(refresh = new ToolbarButton(Constants.REFRESH_BROWSER_ACTION, Constants.REFRESH_BROWSER_ICON));
         refresh.setToolTipText("refresh browser");
         refresh.setEnabled(false);
@@ -430,8 +439,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
-        if (Constants.EXECUTION_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+        if (Constants.ADD_PARAM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             handleAddExecutionParameter();
+        } else if (Constants.SET_PARAM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            handleSetExecutionParameter();
         } else if (Constants.REFRESH_BROWSER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getCurrentBrowser().reloadPage();
         }
@@ -443,9 +454,34 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         if (dlg.isSaved()) {
             addTestExecutionParameter(dlg.getTestExecutionParameter());
+            setParam.setEnabled(true);
         }
     }
 
+    private void handleSetExecutionParameter() {
+        ItemSelectDlg dlg = new ItemSelectDlg(getMainframe(), "Select Execution Param", getAvailableExecutionParameters());
+        
+        String parameterName = dlg.getSelectedValue();
+        
+        if (StringUtils.isNotBlank(parameterName)) {
+            
+        }
+    }
+    
+    private List <String> getAvailableExecutionParameters() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op : testProxyServer.getTestOperations()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                retval.add(op.getOperation().getTestExecutionParameter().getName());
+            }
+        }
+        
+        Collections.sort(retval);
+        
+        return retval;
+    }
+    
     /**
      *
      * @return

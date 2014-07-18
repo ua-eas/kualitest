@@ -73,7 +73,8 @@ public class Constants {
     public static final ImageIcon JMX_CONNECTION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-toolbar.png"));
     public static final ImageIcon JMX_CONNECTION_SETTING_ICON = new ImageIcon(TestCreator.class.getResource("/images/jmxconnection-setting.png"));
     public static final ImageIcon SCHEDULE_TEST_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/schedule-test-toolbar.png"));
-    public static final ImageIcon EXECUTION_PARAMETER_ICON = new ImageIcon(TestCreator.class.getResource("/images/execution-parameter.png"));
+    public static final ImageIcon ADD_PARAM_ICON = new ImageIcon(TestCreator.class.getResource("/images/add-param.png"));
+    public static final ImageIcon SET_PARAM_ICON = new ImageIcon(TestCreator.class.getResource("/images/set-param.png"));
     public static final ImageIcon REFRESH_BROWSER_ICON = new ImageIcon(TestCreator.class.getResource("/images/refresh-browser.png"));
 
     
@@ -145,6 +146,8 @@ public class Constants {
     public static final String REMOVE_TEST_ACTION = "Remove Test";
     public static final String REMOVE_PARAMETER_ACTION = "Remove Parameter";
     public static final String EXECUTION_PARAMETER_ACTION = "Parameter";
+    public static final String ADD_PARAM_ACTION = "Add Param";
+    public static final String SET_PARAM_ACTION = "Set Param";
     public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";

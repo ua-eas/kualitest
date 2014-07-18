@@ -61,7 +61,7 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
         p.add(new JSeparator(JSeparator.VERTICAL));
         
         if (dbPanel.isForCheckpoint()) {
-            p.add(executionParameter = new SearchButton(Constants.EXECUTION_PARAMETER_ICON));
+            p.add(executionParameter = new SearchButton(Constants.ADD_PARAM_ICON));
             executionParameter.addActionListener(this);
         }
         

@@ -34,7 +34,6 @@
                 <xs:element name="modified" type="xs:boolean"/>
                 <xs:element name="email-setup" type="email-setup"/>
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
-                <xs:element name="test-execution-parameter-names" type="test-execution-parameter-names" minOccurs="0"/>
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption" minOccurs="0"/>
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
