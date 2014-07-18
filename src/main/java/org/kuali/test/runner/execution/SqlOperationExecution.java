@@ -59,10 +59,10 @@ public class SqlOperationExecution extends AbstractOperationExecution {
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-        String sqlQuery = getParameter(Constants.SQL_QUERY);
-        boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
-        
         try {
+            String sqlQuery = getTestExecutionContext().replaceTestExecutionParameters(getParameter(Constants.SQL_QUERY));
+            boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
+        
             Connection conn = null;
             Statement stmt = null;
             ResultSet res = null;
@@ -108,8 +108,9 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     } 
                 }
             }
+            
             catch (FileNotFoundException ex) {
-                throw new TestException("error occurred while attempting query results file - "  + ex.toString(), getOperation(), ex);
+                throw new TestException("error occurred while attempting to load query results file - "  + ex.toString(), getOperation(), ex);
             }
             
             finally {
@@ -121,6 +122,10 @@ public class SqlOperationExecution extends AbstractOperationExecution {
             }
         }
         
+        catch (TestException ex) {
+            throw ex;
+        }
+        
         catch (SQLException ex) {
             throw new TestException("sql exception occured while executing query on database '" 
                 + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
@@ -129,6 +134,10 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         catch (ClassNotFoundException ex) {
             throw new TestException("exception occured while connecting to database '" 
                 + platform.getDatabaseConnectionName() + "' - " + ex.toString(), getOperation(), ex);
+        }
+
+        catch (Exception ex) {
+            throw new TestException("error occurred while attempting execute sql query - "  + ex.toString(), getOperation(), ex);
         }
     }
     

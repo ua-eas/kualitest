@@ -99,6 +99,7 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
+import org.kuali.test.utils.HtmlDomProcessor.DomInformation;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
@@ -813,16 +814,16 @@ public class TestExecutionContext extends Thread {
     public String replaceTestExecutionParameters(HtmlRequestOperation reqop, String input) {
         StringBuilder retval = new StringBuilder(input.length());
 
-        ParameterReplacements parameterReplacements = reqop.getParameterReplacements();
-        
         String parameterString = null;
-
         Map<String, String> paramMap = new HashMap<String, String>();
 
-        for (ParameterReplacement pr : parameterReplacements.getParameterReplacementArray()) {
-            paramMap.put(pr.getReplaceParameterName(), executionParameterMap.get(pr.getTestExecutionParameterName()));
+        ParameterReplacements parameterReplacements = reqop.getParameterReplacements();
+        if (parameterReplacements != null) {
+            for (ParameterReplacement pr : parameterReplacements.getParameterReplacementArray()) {
+                paramMap.put(pr.getReplaceParameterName(), executionParameterMap.get(pr.getTestExecutionParameterName()));
+            }
         }
-
+        
         // if this is a GET request then find the parameter string
         if (input.startsWith(Constants.HTTP_PROTOCOL) || input.startsWith(Constants.HTTPS_PROTOCOL)) {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
@@ -883,6 +884,80 @@ public class TestExecutionContext extends Thread {
         
         return replaceJsessionId(retval.toString());
     }
+
+    /**
+     * 
+     * @param sql
+     * @return 
+     */
+    public String replaceTestExecutionParameters(String sql) throws Exception {
+        StringBuilder retval = new StringBuilder(sql.length());
+
+        Map <String, String> map = new HashMap<String, String>();
+        
+        for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                TestExecutionParameter tparam = op.getOperation().getTestExecutionParameter();
+                
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(tparam.getName() + "=" + tparam.getValueProperty().getActualValue());
+                }
+                
+                if (StringUtils.isNotBlank(tparam.getValueProperty().getActualValue())) {
+                    map.put(tparam.getName(), tparam.getValueProperty().getActualValue());
+                }
+            }
+        }
+        
+        int lastPos = 0;
+        int pos1 = 0;
+
+        do {
+            pos1 = sql.indexOf("${", lastPos);
+            if (pos1 > -1) {
+                int pos2 = sql.indexOf("}", pos1);
+
+                if (pos2 > pos1) {
+                    int startPos = pos1+3;
+                    boolean quoted = false;
+
+                    if (sql.charAt(startPos) == '\'') {
+                        startPos++;
+                        quoted = true;
+                    }
+
+                    int endPos = pos2;
+
+                    if (sql.charAt(endPos-1) == '\'') {
+                        endPos--;
+                    }
+
+                    String key = sql.substring(startPos, endPos);
+
+                    retval.append(sql.substring(lastPos, pos1));
+                    if (quoted) {
+                        retval.append("'");
+                    }
+
+                    retval.append(map.get(key));
+
+                    if (quoted) {
+                        retval.append("'");
+                    }
+
+                    lastPos = pos2+1;
+                }
+            }
+        } while (pos1 > -1);
+        
+        retval.append(sql.substring(lastPos, sql.length()));
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(retval.toString());
+        }
+        
+        return retval.toString();
+    }
     
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
@@ -896,6 +971,29 @@ public class TestExecutionContext extends Thread {
                 if (!autoReplaceParameterMap.containsKey(param.getParameterName()) && StringUtils.isNotBlank(value)) {
                     autoReplaceParameterMap.put(param.getParameterName(), value);
                 }
+            }
+        }
+    }
+
+    public void updateTestExecutionParameters(String html) {
+        Map <String, CheckpointProperty> map = new HashMap<String, CheckpointProperty>();
+        
+        for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                CheckpointProperty cp = op.getOperation().getTestExecutionParameter().getValueProperty();
+                String key = Utils.buildCheckpointPropertyKey(cp);
+                map.put(key, cp);
+            }
+        }
+        
+        DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
+        
+        for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+            String key = Utils.buildCheckpointPropertyKey(cp);
+            CheckpointProperty tepcp = map.get(key);
+            
+            if (tepcp != null) {
+                tepcp.setActualValue(cp.getActualValue());
             }
         }
     }

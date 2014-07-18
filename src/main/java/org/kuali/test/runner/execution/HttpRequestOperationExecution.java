@@ -73,24 +73,16 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             HttpRequestBase request = new HttpGet(reqop.getUrl());
 
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
-                    request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl()));
-                }
+                request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl()));
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                String url = reqop.getUrl();
-                if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
-                    url = getTestExecutionContext().replaceTestExecutionParameters(reqop, url);
-                }
-                
+                String url = getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl());
                 HttpPost postRequest = new HttpPost(url);
                 request = postRequest;
                 
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
                 
                 if (StringUtils.isNotBlank(params)) {
-                    if ((reqop.getParameterReplacements() != null) && (reqop.getParameterReplacements().sizeOfParameterReplacementArray() > 0)) {
-                        params = getTestExecutionContext().replaceTestExecutionParameters(reqop, params);
-                    }
+                    params = getTestExecutionContext().replaceTestExecutionParameters(reqop, params);
                 }
                 
                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
@@ -98,38 +90,43 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
             }
             
-            if (request != null) {
-                if (reqop.getRequestHeaders() != null) {
-                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                        request.addHeader(hdr.getName(), hdr.getValue());
-                    }
+            if (reqop.getRequestHeaders() != null) {
+                for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                    request.addHeader(hdr.getName(), hdr.getValue());
+                }
+            }
+
+            TestExecutionContext tec = getTestExecutionContext();
+            response = tec.getHttpClient().execute(request);
+
+            if (response != null) {
+                BufferedReader reader = null; 
+                StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+                try {
+                    reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                     String line = "";
+                     while ((line = reader.readLine()) != null) {
+                         responseBuffer.append(line);
+                     }                        
+                 }
+
+                 finally {
+                     if (reader != null) {
+                         reader.close();
+                     }
                 }
 
-                TestExecutionContext tec = getTestExecutionContext();
-                response = tec.getHttpClient().execute(request);
-    
-                if (response != null) {
-                    BufferedReader reader = null; 
-                    StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-                    try {
-                        reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("===================================================================");
+                    LOG.debug(responseBuffer.toString());
+                    LOG.debug("===================================================================");
+                }
 
-                         String line = "";
-                         while ((line = reader.readLine()) != null) {
-                             responseBuffer.append(line);
-                         }                        
-                     }
-
-                     finally {
-                         if (reader != null) {
-                             reader.close();
-                         }
-                     }
-
-                    if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
-                        tec.pushHttpResponse(responseBuffer.toString());
-                        tec.updateAutoReplaceMap();
-                    }
+                if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
+                    tec.pushHttpResponse(responseBuffer.toString());
+                    tec.updateAutoReplaceMap();
+                    tec.updateTestExecutionParameters(responseBuffer.toString());
                 }
             }
         } 

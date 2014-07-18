@@ -68,7 +68,6 @@ public class HtmlDomProcessor {
     private void processNode(DomInformation domInformation) {
         Element node = domInformation.getCurrentNode();
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
-
         
         if (th != null) {
             if (th.isContainer(node)) {
