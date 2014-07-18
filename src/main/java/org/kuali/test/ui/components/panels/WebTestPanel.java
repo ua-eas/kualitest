@@ -28,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -37,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
+import org.kuali.test.ParameterReplacement;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -44,13 +44,13 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
-import org.kuali.test.ui.base.ItemSelectDlg;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
+import org.kuali.test.ui.components.dialogs.SetExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
@@ -459,30 +459,14 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void handleSetExecutionParameter() {
-        ItemSelectDlg dlg = new ItemSelectDlg(getMainframe(), "Select Execution Param", getAvailableExecutionParameters());
-        
-        String parameterName = dlg.getSelectedValue();
-        
-        if (StringUtils.isNotBlank(parameterName)) {
-            
+        SetExecutionParameterDlg dlg = new SetExecutionParameterDlg(getMainframe(), testProxyServer.getTestOperations());
+
+        if (dlg.isSaved()) {
+            ParameterReplacement parameterReplacement = (ParameterReplacement)dlg.getNewRepositoryObject();
         }
     }
     
-    private List <String> getAvailableExecutionParameters() {
-        List <String> retval = new ArrayList<String>();
-        
-        for (TestOperation op : testProxyServer.getTestOperations()) {
-            if (op.getOperation().getTestExecutionParameter() != null) {
-                retval.add(op.getOperation().getTestExecutionParameter().getName());
-            }
-        }
-        
-        Collections.sort(retval);
-        
-        return retval;
-    }
-    
-    /**
+   /**
      *
      * @return
      */
