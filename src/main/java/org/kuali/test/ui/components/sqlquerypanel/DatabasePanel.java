@@ -1281,7 +1281,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     LOG.error(sql);
                 }
                 
-                res = stmt.executeQuery(sql);
+                res = stmt.executeQuery(Utils.replaceStringParameters(new HashMap<String, String>(), sql, "1"));
                 
                 retval = true;
             }

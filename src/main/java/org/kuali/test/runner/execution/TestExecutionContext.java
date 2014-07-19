@@ -805,6 +805,26 @@ public class TestExecutionContext extends Thread {
         return retval.toString();
     }
     
+    public String replaceTestExecutionParameters(String sql) {
+        Map <String, String> map = new HashMap<String, String>();
+        
+        for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                TestExecutionParameter tparam = op.getOperation().getTestExecutionParameter();
+                
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(tparam.getName() + "=" + tparam.getValueProperty().getActualValue());
+                }
+                
+                if (StringUtils.isNotBlank(tparam.getValueProperty().getActualValue())) {
+                    map.put(tparam.getName(), tparam.getValueProperty().getActualValue());
+                }
+            }
+        }
+
+        return Utils.replaceStringParameters(map, sql);
+    }
+    
     /**
      * 
      * @param reqop
@@ -885,80 +905,7 @@ public class TestExecutionContext extends Thread {
         return replaceJsessionId(retval.toString());
     }
 
-    /**
-     * 
-     * @param sql
-     * @return 
-     */
-    public String replaceTestExecutionParameters(String sql) throws Exception {
-        StringBuilder retval = new StringBuilder(sql.length());
-
-        Map <String, String> map = new HashMap<String, String>();
-        
-        for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
-            if (op.getOperation().getTestExecutionParameter() != null) {
-                TestExecutionParameter tparam = op.getOperation().getTestExecutionParameter();
-                
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(tparam.getName() + "=" + tparam.getValueProperty().getActualValue());
-                }
-                
-                if (StringUtils.isNotBlank(tparam.getValueProperty().getActualValue())) {
-                    map.put(tparam.getName(), tparam.getValueProperty().getActualValue());
-                }
-            }
-        }
-        
-        int lastPos = 0;
-        int pos1 = 0;
-
-        do {
-            pos1 = sql.indexOf("${", lastPos);
-            if (pos1 > -1) {
-                int pos2 = sql.indexOf("}", pos1);
-
-                if (pos2 > pos1) {
-                    int startPos = pos1+3;
-                    boolean quoted = false;
-
-                    if (sql.charAt(startPos) == '\'') {
-                        startPos++;
-                        quoted = true;
-                    }
-
-                    int endPos = pos2;
-
-                    if (sql.charAt(endPos-1) == '\'') {
-                        endPos--;
-                    }
-
-                    String key = sql.substring(startPos, endPos);
-
-                    retval.append(sql.substring(lastPos, pos1));
-                    if (quoted) {
-                        retval.append("'");
-                    }
-
-                    retval.append(map.get(key));
-
-                    if (quoted) {
-                        retval.append("'");
-                    }
-
-                    lastPos = pos2+1;
-                }
-            }
-        } while (pos1 > -1);
-        
-        retval.append(sql.substring(lastPos, sql.length()));
-
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(retval.toString());
-        }
-        
-        return retval.toString();
-    }
-    
+   
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
     }
@@ -991,9 +938,10 @@ public class TestExecutionContext extends Thread {
         for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
             String key = Utils.buildCheckpointPropertyKey(cp);
             CheckpointProperty tepcp = map.get(key);
-            
             if (tepcp != null) {
-                tepcp.setActualValue(cp.getActualValue());
+                if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                    tepcp.setActualValue(cp.getPropertyValue().trim());
+                }
             }
         }
     }

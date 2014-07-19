@@ -3375,4 +3375,58 @@ public class Utils {
         
         return retval;
     }
+    
+    /**
+     * 
+     * @param parameterMap
+     * @param input
+     * @return 
+     */
+    public static String replaceStringParameters(Map<String, String> parameterMap, String input) {
+        return replaceStringParameters(parameterMap, input, null);
+    }
+    
+    /**
+     * 
+     * @param parameterMap
+     * @param input
+     * @param defaultInput
+     * @return 
+     */
+    public static String replaceStringParameters(Map<String, String> parameterMap, String input, String defaultInput) {
+        StringBuilder retval = new StringBuilder(input.length());
+
+        int lastPos = 0;
+        int pos1 = 0;
+
+        do {
+            pos1 = input.indexOf("${", lastPos);
+            if (pos1 > -1) {
+                int pos2 = input.indexOf("}", pos1);
+
+                if (pos2 > pos1) {
+                    int startPos = pos1+2;
+
+                    int endPos = pos2;
+
+                    String key = input.substring(startPos, endPos);
+                    retval.append(input.substring(lastPos, pos1));
+                    
+                    String value = parameterMap.get(key);
+                    
+                    if (StringUtils.isNotBlank(value)) {
+                        retval.append(value);
+                    } else if (StringUtils.isNotBlank(defaultInput)) {
+                        retval.append(defaultInput);
+                    }
+                    lastPos = pos2+1;
+                }
+            }
+        } while (pos1 > -1);
+        
+        retval.append(input.substring(lastPos, input.length()));
+
+        return retval.toString();
+    }
+    
 }        
