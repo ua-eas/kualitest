@@ -60,10 +60,11 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     private TestProxyServer testProxyServer;
 
     /**
-     *
+     * 
      * @param mainFrame
      * @param testHeader
      * @param dbPanel
+     * @param testProxyServer 
      */
     public SqlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, 
         DatabasePanel dbPanel, TestProxyServer testProxyServer) {
@@ -78,7 +79,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
         } else {
             setTitle("Add new checkpoint");
             this.checkpoint = Checkpoint.Factory.newInstance();
-            this.checkpoint.setName("new checkpoint");
+            this.checkpoint.setName("sql checkpoint");
             this.checkpoint.setTestName(testHeader.getTestName());
             this.checkpoint.setType(CheckpointType.SQL);
         }
@@ -139,7 +140,10 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
     protected boolean save() {
         boolean retval = false;
         boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText())) {
+        if (StringUtils.isNotBlank(name.getText())
+            && !dbPanel.getSelectedDbObjects().isEmpty()
+            && dbPanel.getSqlSelectPanel().haveEntries()
+            && dbPanel.getSqlWherePanel().haveEntries()) {
             if (!isEditmode()) {
                 if (checkpointNameExists()) {
                     oktosave = false;
@@ -147,7 +151,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
                 }
             }
         } else {
-            displayRequiredFieldsMissingAlert("Checkpoint", "name");
+            displayRequiredFieldsMissingAlert("SQL Checkpoint", "chackpoint name, sql select columns, sql where columns");
             oktosave = false;
         }
 
