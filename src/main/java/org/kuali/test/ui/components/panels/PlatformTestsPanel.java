@@ -45,7 +45,6 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.TestRunner;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
@@ -230,12 +229,7 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            new SplashDisplay(getMainframe(), "RunningT Test", "Running test " + currentTestHeader.getTestName()) {
-                @Override
-                protected void runProcess() {
-                    new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
-                }
-            };
+            new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
         }
     }
     

@@ -259,7 +259,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                         }
                     }
                     
-                    if (retval) {
+                    if (!retval) {
                         getTestExecutionContext().updateCounts(cp.getOnFailure());
                     }
                 } else {

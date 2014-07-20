@@ -18,20 +18,27 @@ package org.kuali.test.ui.components.dialogs;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.InputParameters;
+import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -44,6 +51,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private Checkpoint checkpoint;
     private JTextField name;
     private HtmlCheckpointPanel checkpointPanel;
+    private JCheckBox saveScreen;
     /**
      * 
      * @param mainFrame
@@ -71,16 +79,21 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
     private void initComponents(JWebBrowser webBrowser, String html) {
         String[] labels = new String[]{
-            "Checkpoint Name"
+            "Checkpoint Name",
+            ""
         };
 
         name = new JTextField(checkpoint.getName(), 30);
         name.setEditable(!isEditmode());
 
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        p.add(saveScreen = new JCheckBox());
+        p.add(new JLabel("Save screen with checkpoint"));
+        
         JComponent[] components = new JComponent[]{
-            name,};
+            name, p};
 
-        BasePanel p = new BasePanel(getMainframe());
+        p = new BasePanel(getMainframe());
 
         addStandardButtons();
 
@@ -124,6 +137,10 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
             if (!isEditmode()) {
             }
             checkpoint.setName(name.getText());
+            InputParameters params = checkpoint.addNewInputParameters();
+            Parameter param= params.addNewParameter();
+            param.setName(Constants.SAVE_SCREEN);
+            param.setValue("" + saveScreen.isSelected());
             
             checkpoint.addNewCheckpointProperties().setCheckpointPropertyArray(selectedProperties.toArray(new CheckpointProperty[selectedProperties.size()]));
             
