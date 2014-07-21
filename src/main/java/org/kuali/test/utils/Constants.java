@@ -149,6 +149,7 @@ public class Constants {
     public static final String ADD_PARAM_ACTION = "Add Param";
     public static final String SET_PARAM_ACTION = "Set Param";
     public static final String PLATFORM_SELECTED_ACTION = "platform-selected";
+    public static final String SAVE_AND_RUN_ACTION = "Save and Run";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);

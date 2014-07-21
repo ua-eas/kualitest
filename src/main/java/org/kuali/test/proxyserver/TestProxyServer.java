@@ -69,6 +69,14 @@ public class TestProxyServer {
         }
     }
 
+    private StringBuilder getCurrentResponseBuffer() {
+        if (currentHtmlResponse == null) {
+            currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
+        }
+        
+        return currentHtmlResponse;
+    }
+    
     private HttpFiltersSource getHttpFiltersSource() {
           return new HttpFiltersSourceAdapter() {
             @Override
@@ -111,7 +119,7 @@ public class TestProxyServer {
                             HttpResponse response = (HttpResponse)httpObject;
                             if (isHtmlResponse(response)) {
                                 if (response.getStatus().code() == HttpServletResponse.SC_OK) {
-                                    currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
+                                    currentHtmlResponse = getCurrentResponseBuffer();
                                 } 
                             }
                         } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {

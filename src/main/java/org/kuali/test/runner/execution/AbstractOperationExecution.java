@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Operation;
@@ -45,6 +46,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     private Map<String, CheckpointProperty> propertyMap = new HashMap<String, CheckpointProperty>();
     private TestExecutionContext context;
     
+    public AbstractOperationExecution(Checkpoint cp) {
+        if (cp != null) {
+            mapCheckpointParametersAndProperties(cp);
+        }
+    }
+
     /**
      *
      * @param context
@@ -53,18 +60,35 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     public AbstractOperationExecution (TestExecutionContext context, Operation op) {
         this.op = op;
         this.context = context;
-        
-        if (op.getCheckpointOperation() != null) {
-            if (op.getCheckpointOperation().getInputParameters() != null) {
-                for (Parameter param : op.getCheckpointOperation().getInputParameters().getParameterArray()) {
-                    parameterMap.put(param.getName(), param.getValue());
-                }
-            }
 
-            if (op.getCheckpointOperation().getCheckpointProperties() != null) {
-                for (CheckpointProperty property : op.getCheckpointOperation().getCheckpointProperties().getCheckpointPropertyArray()) {
-                    propertyMap.put(property.getPropertyName(), property);
-                }
+        if (op.getCheckpointOperation() != null) {
+            mapCheckpointParametersAndProperties(op.getCheckpointOperation());
+        }
+    }
+
+    public AbstractOperationExecution () {
+        if (op.getCheckpointOperation() != null) {
+            mapCheckpointParametersAndProperties(op.getCheckpointOperation());
+        }
+    }
+
+    private void mapCheckpointParametersAndProperties(Checkpoint cp) {
+        loadCheckpointParameters(cp);
+        loadCheckpointProperties(cp);
+    }
+    
+    private void loadCheckpointParameters(Checkpoint cp) {
+        if (cp.getInputParameters() != null) {
+            for (Parameter param : cp.getInputParameters().getParameterArray()) {
+                parameterMap.put(param.getName(), param.getValue());
+            }
+        }
+    }
+    
+    private void loadCheckpointProperties(Checkpoint cp) {
+        if (cp.getCheckpointProperties() != null) {
+            for (CheckpointProperty property : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
+                propertyMap.put(property.getPropertyName(), property);
             }
         }
     }

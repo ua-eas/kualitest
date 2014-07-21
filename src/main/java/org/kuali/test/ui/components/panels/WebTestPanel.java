@@ -38,6 +38,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
+import org.kuali.test.Parameter;
 import org.kuali.test.ParameterReplacement;
 import org.kuali.test.ParameterReplacements;
 import org.kuali.test.Platform;
@@ -47,6 +48,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
+import org.kuali.test.runner.execution.WebServiceOperationExecution;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
@@ -58,6 +60,7 @@ import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -281,7 +284,42 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         WebServiceCheckPointDlg dlg = new WebServiceCheckPointDlg(getMainframe(), getTestHeader(), null);
 
         if (dlg.isSaved()) {
-            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+            final Checkpoint cp = (Checkpoint)dlg.getNewRepositoryObject();
+            addCheckpoint(cp);
+            if (dlg.isRunWebService()) {
+                String opname = "unknown";
+                final boolean poll = dlg.isPoll();
+                getTestHeader().setAdditionalParameters("" + poll);
+                if (cp.getInputParameters() != null) {
+                    for (Parameter param : cp.getInputParameters().getParameterArray()) {
+                        if (Constants.WEB_SERVICE_OPERATION.equalsIgnoreCase(param.getName())) {
+                            opname = param.getValue();
+                            break;
+                        }
+                    }
+                }
+                
+                String[] wsparts = Utils.getWebServiceOperationParts(opname);
+
+                new SplashDisplay(getMainframe(), "Run Web Service", "Running web service '" + wsparts[1] + "'") {
+                    @Override
+                    protected void processCompleted() {
+                    }
+
+                    @Override
+                    protected void runProcess() {
+                        WebServiceOperationExecution wsop = new WebServiceOperationExecution(cp);
+                        try {
+                            wsop.executeWebServiceCall(getMainframe().getConfiguration(), getPlatform(), cp, poll);
+                        }
+                        
+                        catch (Exception ex) {
+                            LOG.error(ex.toString(), ex);
+                            UIUtils.showError(getDlg(), "Error", ex.toString());
+                        }
+                    }
+                };
+            }
         }
     }
 

@@ -196,6 +196,8 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         p.add(cancelButton = new JButton(cancelActionCommand = getCancelText()));
         cancelButton.addActionListener(this);
 
+        addAdditionalButtons(p);
+        
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(new JSeparator(), BorderLayout.NORTH);
         p2.add(p, BorderLayout.CENTER);
@@ -377,4 +379,6 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected String getCancelText() {
         return Constants.CANCEL_ACTION;
     }
+    
+    protected void addAdditionalButtons(JPanel p) {};
 }

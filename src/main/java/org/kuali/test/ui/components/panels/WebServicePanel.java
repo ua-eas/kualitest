@@ -602,4 +602,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
     public boolean isForCheckpoint() {
         return forCheckpoint;
     }
+
+    public boolean isPoll() {
+        return poll.isSelected();
+    }
 }

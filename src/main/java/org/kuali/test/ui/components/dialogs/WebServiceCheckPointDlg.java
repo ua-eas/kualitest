@@ -17,7 +17,10 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -54,6 +57,8 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
     private JComboBox wsFailure;
     private IntegerTextField maxRunTime;
     private WebServicePanel wsPanel;
+    private JButton saveAndRun;
+    private boolean runWebService = false;
 
     /**
      *
@@ -127,7 +132,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
     protected boolean save() {
         boolean retval = false;
         boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText())) {
+        if (StringUtils.isNotBlank(name.getText()) && StringUtils.isNotBlank(wsPanel.getExpectedResult())) {
             if (!isEditmode()) {
                 if (checkpointNameExists()) {
                     oktosave = false;
@@ -135,7 +140,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
                 }
             }
         } else {
-            displayRequiredFieldsMissingAlert("Checkpoint", "name");
+            displayRequiredFieldsMissingAlert("Checkpoint", "name, result type (void for none)");
             oktosave = false;
         }
 
@@ -230,5 +235,26 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
     @Override
     public boolean isResizable() {
         return wsPanel.isForCheckpoint();
+    }
+
+    @Override
+    protected void addAdditionalButtons(JPanel p) {
+        p.add(saveAndRun = new JButton(Constants.SAVE_AND_RUN_ACTION));
+        
+        saveAndRun.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                runWebService = true;
+                save();
+            }
+        });
+    }
+
+    public boolean isRunWebService() {
+        return runWebService;
+    }
+
+    public boolean isPoll() {
+        return wsPanel.isPoll();
     }
 }
