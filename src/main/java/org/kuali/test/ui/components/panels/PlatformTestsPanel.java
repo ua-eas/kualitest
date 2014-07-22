@@ -246,7 +246,7 @@ public class PlatformTestsPanel extends BasePanel
                             catch (InterruptedException ex) {};
                         }
                     } else {
-                        UIUtils.showError(getMainframe(), "Error", "Error ossurred while attempting to run test " + currentTestHeader.getTestName());
+                        UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
                     }
                 }
             };
