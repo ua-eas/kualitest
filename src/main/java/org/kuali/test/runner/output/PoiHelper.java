@@ -114,14 +114,14 @@ public class PoiHelper {
         // create bold cell style
         Font font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleBold = workbook.createCellStyle();
         cellStyleBold.setFont(font);
 
         // create standard cell style
         font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleNormal = workbook.createCellStyle();
         cellStyleNormal.setFont(font);
         cellStyleNormal.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -129,7 +129,7 @@ public class PoiHelper {
         // create test header cell style
         font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleTestHeader = workbook.createCellStyle();
         cellStyleTestHeader.setFont(font);
         cellStyleTestHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
@@ -138,7 +138,7 @@ public class PoiHelper {
         // create timestamp cell style
         font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleTimestamp = workbook.createCellStyle();
         cellStyleTimestamp.setFont(font);
         cellStyleTimestamp.setDataFormat(workbook.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
@@ -147,16 +147,17 @@ public class PoiHelper {
         // create timestamp cell style
         font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleTime = workbook.createCellStyle();
         cellStyleTime.setFont(font);
         cellStyleTime.setDataFormat(workbook.createDataFormat().getFormat("hh:mm:ss"));
+        cellStyleTime.setVerticalAlignment(CellStyle.VERTICAL_TOP);
 
         // create success cell style
         font = workbook.createFont();
         font.setColor(IndexedColors.DARK_GREEN.index);
         font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleSuccess = workbook.createCellStyle();
         cellStyleSuccess.setFont(font);
         cellStyleSuccess.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -165,7 +166,7 @@ public class PoiHelper {
         font = workbook.createFont();
         font.setColor(IndexedColors.BROWN.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleIgnore = workbook.createCellStyle();
         cellStyleIgnore.setFont(font);
         cellStyleIgnore.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -174,7 +175,7 @@ public class PoiHelper {
         font = workbook.createFont();
         font.setColor(IndexedColors.DARK_YELLOW.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleWarning = workbook.createCellStyle();
         cellStyleWarning.setFont(font);
         cellStyleWarning.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -183,7 +184,7 @@ public class PoiHelper {
         font = workbook.createFont();
         font.setColor(IndexedColors.DARK_RED.index);
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleError = workbook.createCellStyle();
         cellStyleError.setFont(font);
         cellStyleError.setVerticalAlignment(CellStyle.VERTICAL_TOP);
@@ -191,7 +192,7 @@ public class PoiHelper {
         // create header cell style
         font = workbook.createFont();
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
-        font.setFontHeightInPoints((short) 12);
+        font.setFontHeightInPoints((short)10);
         cellStyleHeader = (XSSFCellStyle) workbook.createCellStyle();
         cellStyleHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
         cellStyleHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
@@ -213,7 +214,7 @@ public class PoiHelper {
 
         StringBuilder headerString = new StringBuilder(128);
 
-        headerString.append("\n  Platform: ");
+        headerString.append("Platform: ");
 
         if (testSuite != null) {
             headerString.append(testSuite.getPlatformName());
