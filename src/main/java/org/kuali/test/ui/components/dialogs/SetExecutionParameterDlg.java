@@ -31,7 +31,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.ParameterReplacement;
-import org.kuali.test.RequestParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
@@ -137,19 +136,6 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
         
         return retval.toArray(new String[retval.size()]);
     }
-        
-    private RequestParameter findRequestParameter(String name, RequestParameter[] parameters) {
-        RequestParameter retval = null;
-        
-        for (RequestParameter p : parameters) {
-            if (p.getName().equals(name)) {
-                retval = p;
-                break;
-            }
-        }
-        
-        return retval;
-    }
 
     /**
      *
@@ -161,7 +147,7 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
         boolean oktosave = true;
         if ((availableExecutionParameters.getSelectedIndex() == -1) 
             && (this.availableRequestParameters.getSelectedIndex() == -1)) {
-            displayRequiredFieldsMissingAlert("JSet Execution Parameter", "execution parameter, request parameter"); 
+            displayRequiredFieldsMissingAlert("Set Execution Parameter", "execution parameter, request parameter"); 
             oktosave = false;
         }
         

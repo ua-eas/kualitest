@@ -256,8 +256,22 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                             }
                         }
                     } else {
+                        if (ValueType.STRING.equals(type)) {
+                            String s1 = (String)comparisonValue;
+                            String s2 = (String)value;
+                            if (StringUtils.isNotBlank(s1)) {
+                                comparisonValue = s1.trim();
+                            }
+                        
+                            if (StringUtils.isNotBlank(s2)) {
+                                value = s2.trim();
+                            }
+                        }
+
                         Comparable c1 = (Comparable)comparisonValue;
                         Comparable c2 = (Comparable)value;
+                        
+                        
                         switch (comparisonOperator.intValue()) {
                             case ComparisonOperator.INT_EQUAL_TO:
                                 retval = c1.equals(c2);

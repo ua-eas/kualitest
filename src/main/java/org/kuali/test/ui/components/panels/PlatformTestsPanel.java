@@ -44,11 +44,14 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.TestRunner;
+import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -229,7 +232,24 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
+            new SplashDisplay(getMainframe(), "Running Test", "Running test '" + currentTestHeader.getTestName() + "'...") {
+                @Override
+                protected void runProcess() {
+                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
+
+                    if (monitor != null) {
+                        while (!monitor.testsCompleted()) {
+                            try {
+                                Thread.sleep(2000);
+                            } 
+
+                            catch (InterruptedException ex) {};
+                        }
+                    } else {
+                        UIUtils.showError(getMainframe(), "Error", "Error ossurred while attempting to run test " + currentTestHeader.getTestName());
+                    }
+                }
+            };
         }
     }
     

@@ -26,6 +26,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -115,6 +116,17 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("responsePost() headers");
+                            if (httpObject instanceof HttpResponse) {
+                                HttpResponse r = (HttpResponse)httpObject;
+                                
+                                for (Entry entry : r.headers()) {
+                                    LOG.debug(entry);
+                                }
+                            }
+                        }
+                        
                         if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
                             if (isHtmlResponse(response)) {

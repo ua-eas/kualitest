@@ -279,20 +279,24 @@ public class TestRunner {
     }
 
     /**
-     *
+     * 
      * @param platformName
      * @param testName
+     * @return 
      */
-    public void runTest(String platformName, String testName) {
+    public TestExecutionMonitor runTest(String platformName, String testName) {
+        TestExecutionMonitor retval = null;
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
             testExecutions.add(new TestExecutionContext(configuration, test));
-            new TestExecutionMonitor(testExecutions);
+            retval = new TestExecutionMonitor(testExecutions);
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
+        
+        return retval;
     }
 
     /**

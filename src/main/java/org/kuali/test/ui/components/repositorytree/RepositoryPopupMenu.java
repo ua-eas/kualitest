@@ -29,6 +29,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.utils.Constants;
 
 /**
@@ -96,7 +97,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
      * @param e
      */
     @Override
-    protected void handleAction(DefaultMutableTreeNode actionNode, ActionEvent e) {
+    protected void handleAction(final DefaultMutableTreeNode actionNode, ActionEvent e) {
         if (ADD_PLATFORM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleAddPlatform(null);
         } else if (EDIT_PLATFORM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
@@ -105,9 +106,24 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             || EDIT_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleAddEditTestSuite(actionNode);
         } else if (RUN_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
-            testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), (TestSuite)actionNode.getUserObject()));
-            new TestExecutionMonitor(testExecutions);
+            final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
+            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite + "'...") {
+                @Override
+                protected void runProcess() {
+                    List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
+                    testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), testSuite));
+                    TestExecutionMonitor monitor = new TestExecutionMonitor(testExecutions);
+
+                    while (!monitor.testsCompleted()) {
+                        try {
+                            Thread.sleep(2000);
+                        } 
+
+                        catch (InterruptedException ex) {};
+                    }
+                }
+            };
+
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);
         } else if (Constants.CREATE_TEST.equalsIgnoreCase(e.getActionCommand())) {

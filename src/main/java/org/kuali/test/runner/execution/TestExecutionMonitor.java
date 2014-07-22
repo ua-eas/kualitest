@@ -57,7 +57,7 @@ public class TestExecutionMonitor extends Thread {
         outputTestResults();
     }
     
-    private boolean testsCompleted() {
+    public boolean testsCompleted() {
         boolean retval = true;
         for (TestExecutionContext tec : testExecutionList) {
             if (!tec.isCompleted()) {
