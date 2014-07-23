@@ -107,7 +107,9 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleAddEditTestSuite(actionNode);
         } else if (RUN_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
-            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite + "'...") {
+            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite + "'...", true) {
+                long startTime = System.currentTimeMillis();
+                
                 @Override
                 protected void runProcess() {
                     List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
@@ -120,6 +122,12 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                         } 
 
                         catch (InterruptedException ex) {};
+
+                        long seconds = ((System.currentTimeMillis() - startTime) / 1000);
+
+                        if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
+                            updateElapsedTime(seconds);
+                        }
                     }
                 }
             };

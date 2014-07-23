@@ -96,7 +96,10 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 }
             } else {
                 tec.incrementErrorCount();
-                throw new TestException("Expected checkpoint property count mismatch", getOperation());
+                throw new TestException("Expected checkpoint property count mismatch: expected " 
+                    + properties.length 
+                    + " found " 
+                    + matchingProperties.size(), getOperation());
             }
         } else {
             tec.incrementErrorCount();

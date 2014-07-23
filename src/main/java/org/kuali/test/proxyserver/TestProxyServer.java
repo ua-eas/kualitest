@@ -137,13 +137,13 @@ public class TestProxyServer {
                                     currentHtmlResponse = getCurrentResponseBuffer();
                                 } 
                             }
-                        } else if ((currentHtmlResponse != null) && (httpObject instanceof HttpContent)) {
+                        } else if (httpObject instanceof HttpContent) {
                             HttpContent content = (HttpContent)httpObject;
                             content.retain();
                             ByteBuffer buf = ByteBuffer.allocate(content.content().capacity());
                             if (buf != null) {
                                 content.content().duplicate().readBytes(buf).release();
-                                currentHtmlResponse.append(buf.asCharBuffer());
+                                getCurrentResponseBuffer().append(buf.asCharBuffer());
                                 if (httpObject instanceof LastHttpContent) {
                                     webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
                                     currentHtmlResponse = null;
@@ -288,7 +288,7 @@ public class TestProxyServer {
             retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
         }
         
-        return retval;
+        return false; //retval;
     }
 
     private boolean isGetCssRequest(String method, String uri) {

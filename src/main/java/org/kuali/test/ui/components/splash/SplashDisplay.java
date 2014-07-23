@@ -38,6 +38,7 @@ public class SplashDisplay {
     private static final Logger LOG = Logger.getLogger(SplashDisplay.class);
 
     private JLabel label;
+    private JLabel elapsedTime;
     private JProgressBar progressBar;
     private Window parentWindow;
     private String title;
@@ -52,21 +53,26 @@ public class SplashDisplay {
      * @param message
      */
     public SplashDisplay(Window parent, String title, String message) {
-        this(parent, title, message, 0);
+        this(parent, title, message, 0, false);
     }
     
     /**
-     *
+     * 
      * @param parent
      * @param title
      * @param msg
      * @param progressMaxLimit
+     * @param showElapsedTime 
      */
-    public SplashDisplay(Window parent, String title, String msg, int progressMaxLimit) {
-        createDialog(parent, title, msg, progressMaxLimit);
+    public SplashDisplay(Window parent, String title, String msg, int progressMaxLimit, boolean showElapsedTime) {
+        createDialog(parent, title, msg, progressMaxLimit, showElapsedTime);
     }
     
-    private void createDialog(Window parentWindow, String title, String message, int progressMaxLimit) {
+    public SplashDisplay(Window parent, String title, String msg, boolean showElapsedTime) {
+        createDialog(parent, title, msg, 0, showElapsedTime);
+    }
+
+    private void createDialog(Window parentWindow, String title, String message, int progressMaxLimit, final boolean showElapsedTime) {
         this.parentWindow = parentWindow;
         this.title = title;
         this.message = message;
@@ -86,7 +92,12 @@ public class SplashDisplay {
                     dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                     dlg.setResizable(false);
                     JPanel p = new JPanel(new BorderLayout(10, 10));
-                    p.add(label = new JLabel(getMessage(), getIcon(), JLabel.LEFT), BorderLayout.CENTER);
+                    p.add(label = new JLabel(getMessage(), getIcon(), JLabel.LEFT), BorderLayout.NORTH);
+                    
+                    if (showElapsedTime) {
+                        p.add(elapsedTime = new JLabel("  Elapsed Time: "), BorderLayout.CENTER);
+                    }
+                    
                     p.add(progressBar = new JProgressBar(), BorderLayout.SOUTH);
 
                     dlg.getContentPane().add(p);
@@ -212,5 +223,14 @@ public class SplashDisplay {
      */
     public JDialog getDlg() {
         return dlg;
+    }
+
+    public JLabel getElapsedTime() {
+        return elapsedTime;
+    }
+    
+    public void updateElapsedTime(final long timeInSeconds) {
+        elapsedTime.setText(" Elapsed Time: " + timeInSeconds + " (sec)");
+        elapsedTime.validate();
     }
 }

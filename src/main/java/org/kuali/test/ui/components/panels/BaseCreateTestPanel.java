@@ -274,7 +274,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             }
             
             ops.setOperationArray(testOperations.toArray(new TestOperation[testOperations.size()]));
-            
+
             File f = Utils.buildTestFile(repositoryLocation, header);
             
             if (!f.getParentFile().exists()) {

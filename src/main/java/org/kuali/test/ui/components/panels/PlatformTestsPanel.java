@@ -232,7 +232,9 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            new SplashDisplay(getMainframe(), "Running Test", "Running test '" + currentTestHeader.getTestName() + "'...") {
+            new SplashDisplay(getMainframe(), "Running Test", "Running test '" + currentTestHeader.getTestName() + "'...", true) {
+                private long startTime = System.currentTimeMillis();
+                
                 @Override
                 protected void runProcess() {
                     TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
@@ -244,6 +246,12 @@ public class PlatformTestsPanel extends BasePanel
                             } 
 
                             catch (InterruptedException ex) {};
+
+                            long seconds = ((System.currentTimeMillis() - startTime) / 1000);
+
+                            if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
+                                updateElapsedTime(seconds);
+                            }
                         }
                     } else {
                         UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());

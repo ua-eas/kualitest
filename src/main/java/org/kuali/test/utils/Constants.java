@@ -155,7 +155,7 @@ public class Constants {
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);
     public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024);
     public static final int DEFAULT_SPLASH_WIDTH = 300;
-    public static final int DEFAULT_SPLASH_HEIGHT = 75;
+    public static final int DEFAULT_SPLASH_HEIGHT = 100;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
@@ -204,6 +204,7 @@ public class Constants {
     public static final String EXPECTED_RESULT = "expected-result";
     public static final int HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE = 3;
     public static final String SAVE_SCREEN = "save-screen";
+    public static final int ELAPSED_TIME_UPDATE_INTERVAL = 5;
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
