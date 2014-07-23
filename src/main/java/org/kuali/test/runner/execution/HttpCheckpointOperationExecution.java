@@ -77,23 +77,30 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         }
             
         if (matchingProperties != null) {
-            writeHtmlIfRequired(cp, configuration, platform, html);
             CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
-            boolean success = true;
-            for (int i = 0; i < properties.length; ++i) {
-                properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
+            if (matchingProperties.size() == properties.length) {
+                writeHtmlIfRequired(cp, configuration, platform, html);
+                boolean success = true;
+                for (int i = 0; i < properties.length; ++i) {
+                    if (i < matchingProperties.size()) {
+                        properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
 
-                if (!evaluateCheckpointProperty(properties[i])) {
-                    success = false;
+                        if (!evaluateCheckpointProperty(properties[i])) {
+                            success = false;
+                        }
+                    }
                 }
-            }
 
-            if (!success) {
-                throw new TestException("Current web document values do not match test criteria", getOperation());
+                if (!success) {
+                    throw new TestException("Current web document values do not match test criteria", getOperation());
+                }
+            } else {
+                tec.incrementErrorCount();
+                throw new TestException("Expected checkpoint property count mismatch", getOperation());
             }
         } else {
             tec.incrementErrorCount();
-            throw new TestException("Expected checkpoint property count mismatch", getOperation());
+            throw new TestException("No matching properties found", getOperation());
         }
     }
     

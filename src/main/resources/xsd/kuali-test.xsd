@@ -45,6 +45,7 @@
         <xs:sequence>
             <xs:element name="method" type="xs:string"/>
             <xs:element name="url" type="xs:string"/>
+            <xs:element name="delay" type="xs:int" default="5000"/>
             <xs:element name="request-headers" type="request-headers"/>
             <xs:element name="request-parameters" type="request-parameters"/>
             <xs:element name="parameter-replacements" type="parameter-replacements" minOccurs="0"/>

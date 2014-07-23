@@ -55,7 +55,8 @@ public class TestProxyServer {
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
-
+    private long lastRequestTimestamp = System.currentTimeMillis();
+    
     /**
      *
      * @param webTestPanel
@@ -98,7 +99,9 @@ public class TestProxyServer {
                                 if (LOG.isDebugEnabled()) {
                                     LOG.debug("have valid HttpRequest");
                                 }
-                                testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request));
+                                int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
+                                lastRequestTimestamp = System.currentTimeMillis();
+                                testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
                             }
                         }
                         return null;

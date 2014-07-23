@@ -828,7 +828,7 @@ public class Utils {
      * @param request
      */
     public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperation testop, HttpRequest request) {
+        TestOperation testop, HttpRequest request, int delay) {
         if (LOG.isDebugEnabled()) {
             if (request != null) {
                 LOG.debug(getHttpRequestDetails(request));
@@ -837,6 +837,7 @@ public class Utils {
 
         HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
         testop.setOperationType(TestOperationType.HTTP_REQUEST);
+        op.setDelay(delay);
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         if (request != null) {
@@ -932,7 +933,7 @@ public class Utils {
      * @return
      */
     public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperationType.Enum optype, Object inputData) {
+        TestOperationType.Enum optype, Object inputData, int delay) {
         TestOperation retval = TestOperation.Factory.newInstance();
 
         retval.setOperationType(optype);
@@ -940,7 +941,7 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData);
+                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData, delay);
                     break;
             }
         }

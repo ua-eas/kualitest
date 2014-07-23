@@ -271,7 +271,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                         Comparable c1 = (Comparable)comparisonValue;
                         Comparable c2 = (Comparable)value;
                         
-                        
                         switch (comparisonOperator.intValue()) {
                             case ComparisonOperator.INT_EQUAL_TO:
                                 retval = c1.equals(c2);

@@ -70,6 +70,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         try {
             reqop = getOperation().getHtmlRequestOperation();
             
+            try {
+                Thread.sleep(reqop.getDelay());
+            } 
+            
+            catch (InterruptedException ex) {};
+            
             HttpRequestBase request = new HttpGet(reqop.getUrl());
 
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
@@ -86,8 +92,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
                 
                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
-                postRequest.setEntity(new UrlEncodedFormEntity(nvps));
-                request.addHeader(Constants.HTTP_HEADER_CONTENT_TYPE, Constants. CONTENT_TYPE_FORM_URL_ENCODED);
+                postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
             }
             
             if (reqop.getRequestHeaders() != null) {
@@ -97,9 +102,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             TestExecutionContext tec = getTestExecutionContext();
+
             response = tec.getHttpClient().execute(request);
 
             if (response != null) {
+
                 BufferedReader reader = null; 
                 StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
                 try {
@@ -109,18 +116,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                      while ((line = reader.readLine()) != null) {
                          responseBuffer.append(line);
                      }                        
-                 }
+
+                }
 
                  finally {
                      if (reader != null) {
                          reader.close();
                      }
-                }
-
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("===================================================================");
-                    LOG.debug(responseBuffer.toString());
-                    LOG.debug("===================================================================");
                 }
 
                 if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {

@@ -128,11 +128,11 @@ public class PoiHelper {
 
         // create test header cell style
         font = workbook.createFont();
-        font.setBoldweight(Font.BOLDWEIGHT_NORMAL);
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short)10);
         cellStyleTestHeader = workbook.createCellStyle();
         cellStyleTestHeader.setFont(font);
-        cellStyleTestHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+        cellStyleTestHeader.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
         cellStyleTestHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
         // create timestamp cell style
@@ -194,7 +194,7 @@ public class PoiHelper {
         font.setBoldweight(Font.BOLDWEIGHT_BOLD);
         font.setFontHeightInPoints((short)10);
         cellStyleHeader = (XSSFCellStyle) workbook.createCellStyle();
-        cellStyleHeader.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+        cellStyleHeader.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.index);
         cellStyleHeader.setFillPattern(CellStyle.SOLID_FOREGROUND);
         cellStyleHeader.setFont(font);
     }
@@ -207,8 +207,7 @@ public class PoiHelper {
     public void writeReportHeader(TestSuite testSuite, KualiTest kualiTest) {
         Sheet sheet = wb.getSheetAt(0);
         Row row = sheet.createRow(currentReportRow);
-        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow + 3, 0, HEADER_NAMES.length - 1));
-        currentReportRow += 3;
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 0, HEADER_NAMES.length - 1));
 
         Cell cell = row.createCell(0);
 
@@ -218,19 +217,15 @@ public class PoiHelper {
 
         if (testSuite != null) {
             headerString.append(testSuite.getPlatformName());
-            headerString.append("\n");
-            headerString.append("Test Suite: ");
+            headerString.append(", Test Suite: ");
             headerString.append(testSuite.getName());
-            headerString.append("\n");
         } else {
             headerString.append(kualiTest.getTestHeader().getPlatformName());
-            headerString.append("\n");
-            headerString.append("          Test: ");
+            headerString.append(", Test: ");
             headerString.append(kualiTest.getTestHeader().getTestName());
-            headerString.append("\n");
         }
 
-        headerString.append(" Run Date: ");
+        headerString.append(", Run Date: ");
         headerString.append(Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date()));
         cell.setCellValue(headerString.toString());
         cell.setCellStyle(cellStyleHeader);

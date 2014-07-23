@@ -475,6 +475,7 @@ public class TestExecutionContext extends Thread {
                 }
 
                 catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
                     throw new TestException(ex.toString(), op.getOperation(), ex);
                 }
             }
@@ -988,6 +989,14 @@ public class TestExecutionContext extends Thread {
 
     public int getErrorCount() {
         return errorCount;
+    }
+
+    public Stack<String> getHttpResponseStack() {
+        return httpResponseStack;
+    }
+
+    public CookieStore getCookieStore() {
+        return cookieStore;
     }
 }
 
