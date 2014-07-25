@@ -236,8 +236,8 @@ public class Constants {
     public static final int MILLIS_PER_MINUTE = 1000 * 60 * 60;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
     public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 15;
-    
-    
+    public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
+
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
@@ -470,6 +470,6 @@ public class Constants {
         HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_USER_AGENT);
         HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_COOKIE);
         HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_CONTENT_LENGTH);
-   //     HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_TRANSFER_ENCODING);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_TRANSFER_ENCODING);
     }
 }

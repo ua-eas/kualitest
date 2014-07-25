@@ -31,6 +31,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -129,6 +131,7 @@ public class Utils {
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
     private static String encryptionPassword;
+    private static MessageDigest messageDigest;
 
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
@@ -1091,9 +1094,11 @@ public class Utils {
     public static byte[] getHttpPostContent(ByteBuf content) {
         byte[] retval = null;
         if (content.isReadable()) {
+            content.retain();
             ByteBuffer nioBuffer = content.nioBuffer();
             retval = new byte[nioBuffer.remaining()];
             nioBuffer.get(retval);
+            content.release();
         }
 
         return retval;
@@ -3456,4 +3461,19 @@ public class Utils {
         return retval.toString();
     }
 
+    public static String getMessageDigestString(String input) throws NoSuchAlgorithmException {
+        if (messageDigest == null) {
+            messageDigest = MessageDigest.getInstance("SHA");
+        }
+
+        messageDigest.update(input.getBytes());
+        byte[] bytes = messageDigest.digest();
+        
+        StringBuilder retval = new StringBuilder(512);
+    	for (int i=0; i < bytes.length; i++) {
+            retval.append(Integer.toHexString(0xFF & bytes[i]));
+    	}
+        
+        return retval.toString();
+    }
 }

@@ -248,13 +248,25 @@ public class TestExecutionContext extends Thread {
             .setRedirectsEnabled(true)
             .build();
 
-                    
+        /*
+        HttpRequestInterceptor requestInterceptor = new HttpRequestInterceptor() {
+            @Override
+            public void process(HttpRequest hr, HttpContext hc) throws HttpException, IOException {
+                System.out.println("----------------->req=" + hr.getRequestLine().getUri());
+                for (Header h : hr.getAllHeaders()) {
+                    System.out.println("------->" + h.getName() + ": " + h.getValue());
+                }
+            }
+        };
+        */
+        
         httpClient = HttpClients.custom()
             .setConnectionManager(connManager)
             .setDefaultCookieStore(cookieStore)
             .setDefaultCredentialsProvider(credentialsProvider)
             .setDefaultRequestConfig(defaultRequestConfig)
             .setRedirectStrategy(new LaxRedirectStrategy())
+       //     .addInterceptorFirst(requestInterceptor)
             .build();
     }
     

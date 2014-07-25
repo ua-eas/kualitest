@@ -95,6 +95,28 @@ public class CreateTestDlg extends BaseSetupDlg {
             platforms.setEnabled(false);
         }
         
+        platforms.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] testTypes = Utils.getValidTestTypesForPlatform(Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem()));
+                testType.removeAllItems();
+                
+                boolean haveWebTestType = false;
+                for (String s : testTypes) {
+                    testType.addItem(s);
+                    if (TestType.WEB.toString().endsWith(s)) {
+                        haveWebTestType = true;
+                    }
+                }
+
+                useTestEntryTimes.setSelected(false);
+                useTestEntryTimes.setEnabled(haveWebTestType);
+                if (haveWebTestType) {
+                    testType.setSelectedItem(TestType.WEB.toString());
+                }
+            }
+        });
+        
         testName = new JTextField("new test", 20);
         
         Platform currentPlatform = Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem());
@@ -105,7 +127,9 @@ public class CreateTestDlg extends BaseSetupDlg {
             @Override
             public void actionPerformed(ActionEvent e) {
                 useTestEntryTimes.setSelected(false);
-                useTestEntryTimes.setEnabled(TestType.WEB.toString().equals(testType.getSelectedItem().toString()));
+                if (testType.getSelectedIndex() > -1) {
+                    useTestEntryTimes.setEnabled(TestType.WEB.toString().equals(testType.getSelectedItem().toString()));
+                }
             }
         });
         

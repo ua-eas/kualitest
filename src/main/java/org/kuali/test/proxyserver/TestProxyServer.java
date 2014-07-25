@@ -16,6 +16,7 @@
 package org.kuali.test.proxyserver;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -50,14 +52,13 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
  */
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
-    private static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
     private DefaultHttpProxyServer proxyServer;
     private List<TestOperation> testOperations = new ArrayList<TestOperation>();
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
-    
+    private String lastRequestMessageDigest;
     /**
      *
      * @param webTestPanel
@@ -72,9 +73,9 @@ public class TestProxyServer {
         }
     }
 
-    private StringBuilder getCurrentResponseBuffer() {
+    private synchronized StringBuilder getCurrentResponseBuffer() {
         if (currentHtmlResponse == null) {
-            currentHtmlResponse = new StringBuilder(INITIAL_HTML_RESPONSE_BUFFER_SIZE);
+            currentHtmlResponse = new StringBuilder(Constants.INITIAL_HTML_RESPONSE_BUFFER_SIZE);
         }
         
         return currentHtmlResponse;
@@ -94,8 +95,12 @@ public class TestProxyServer {
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
                                 try {
-                                    testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
-                                } catch (IOException ex) {
+                                    // little bit of a hack here - for some reason we are submitting 
+                                    // multiple requests at times
+                                    if (!isDuplicate(request)) {
+                                        testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
+                                    }
+                                } catch (Exception ex) {
                                     LOG.error(ex.toString(), ex);
                                     UIUtils.showError(webTestPanel, "Error", "Error handling http request - " + ex.toString());
                                 }
@@ -117,14 +122,16 @@ public class TestProxyServer {
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
                         if (httpObject instanceof HttpContent) {
-                            ByteBuf content = ((HttpContent)httpObject).content();
+                            ByteBuf content = ((HttpContent)httpObject).content().retain();
                             if (content.isReadable()) {
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
+                                
                                 if (httpObject instanceof LastHttpContent) {
                                     webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
                                     getCurrentResponseBuffer().setLength(0);
                                 }
-                            }     
+                            }   
+                            content.release();
                         }
                         return httpObject;
                     }
@@ -270,6 +277,36 @@ public class TestProxyServer {
         
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
             retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
+        }
+        
+        return retval;
+    }
+    
+    private boolean isDuplicate(HttpRequest request) throws NoSuchAlgorithmException, IOException {
+        boolean retval = false;
+        
+        if (request instanceof FullHttpRequest) {
+            FullHttpRequest frequest = (FullHttpRequest)request;
+            
+            StringBuilder buf = new StringBuilder(512);
+            buf.append(request.getMethod());
+            buf.append(".");
+            buf.append(Utils.buildUrlFromRequest(webTestPanel.getMainframe().getConfiguration(), request));
+            buf.append(".");
+            if (frequest.content() != null) {
+                byte[] b = Utils.getHttpPostContent(frequest.content());
+                if (b != null) {
+                    buf.append(new String(b));
+                }
+            }
+
+            String s  = Utils.getMessageDigestString(buf.toString());
+
+            if (StringUtils.isNotBlank(lastRequestMessageDigest)) {
+                retval = s.equals(lastRequestMessageDigest);
+            }
+            
+            lastRequestMessageDigest = s;
         }
         
         return retval;

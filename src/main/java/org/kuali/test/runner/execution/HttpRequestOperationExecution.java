@@ -16,12 +16,16 @@
 package org.kuali.test.runner.execution;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
+import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -47,7 +51,9 @@ import org.kuali.test.utils.Utils;
  */
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
-static boolean firstOne = true;    
+//----------------------------------->debug
+    private static int debugFileIndex = 1;
+    
     /**
      *
      * @param context
@@ -120,6 +126,28 @@ static boolean firstOne = true;
             response = tec.getHttpClient().execute(request);
 
             if (response != null) {
+/** ----------------------------------->debug */
+if (debugFileIndex == 1) {
+    File dir = new File("/home/rbtucker/tst");
+    
+    if (dir.exists()) {
+        File[] files = dir.listFiles();
+        
+        for (File f : files) {
+            FileUtils.deleteQuietly(f);
+        }
+    } else {
+        dir.mkdirs();
+    }
+}
+
+PrintWriter pw = new PrintWriter("/home/rbtucker/tst/headers_" + debugFileIndex + ".txt");
+for (Header h : request.getAllHeaders()) {
+    pw.println(h.getName() + ": " + h.getValue());
+}
+pw.close();
+
+
                 BufferedReader reader = null; 
                 StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
                 try {
@@ -137,19 +165,17 @@ static boolean firstOne = true;
                      }
                 }
 
+/** ----------------------------------->debug */
+pw = new PrintWriter("/home/rbtucker/tst/req-html_" + (debugFileIndex++) + ".html");
+pw.print(responseBuffer.toString());
+pw.close();
+
                 int status = response.getStatusLine().getStatusCode();
                 if (status == HttpURLConnection.HTTP_OK) {
                     tec.pushHttpResponse(responseBuffer.toString());
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(responseBuffer.toString());
-                } else if ((status >= 400) && (status < 600)) {
-                    LOG.warn("========================================================================");
-                    LOG.warn("http status: " + status);
-                    LOG.warn("        url: " + reqop.getUrl());
-                    LOG.warn("     params: " + Utils.getContentParameterFromRequestOperation(reqop));
-                    LOG.warn("========================================================================");
-                    LOG.warn(responseBuffer.toString());
-                    LOG.warn("------------------------------------------------------------------------");
+                } else if ((status >= 500) && (status < 600)) {
                     throw new TestException("server returned bad status - " + status, getOperation(), FailureAction.ERROR_HALT_TEST);
                 }
             }
