@@ -47,9 +47,7 @@ import org.kuali.test.utils.Utils;
  */
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
-//----------------------------------->debug
-//    private static int debugFileIndex = 1;
-    
+
     /**
      *
      * @param context
@@ -85,129 +83,94 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             catch (InterruptedException ex) {};
             
-            HttpRequestBase request = new HttpGet(reqop.getUrl());
+            HttpRequestBase request = null;
             TestExecutionContext tec = getTestExecutionContext();
 
-            if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                request = new HttpGet(getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl()));
-            } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                String url = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl());
-  
-                HttpPost postRequest = new HttpPost(url);
-                request = postRequest;
-                
-                String params = Utils.getContentParameterFromRequestOperation(reqop);
+            String host = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_HOST);
 
-                
-                if (StringUtils.isNotBlank(params)) {
-                    String contentType = getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
-                    if (StringUtils.isNotBlank(contentType)) {
-                        if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                            params = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, params);
-                            List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
-                            postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
-                        } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                            getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
+            if (StringUtils.isNotBlank(host) && reqop.getUrl().endsWith(host)) {
+                // do nothing - AJAX calll?
+            } else {
+                if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
+                    request = new HttpGet(getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl()));
+                } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
+                    String url = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl());
+
+                    HttpPost postRequest = new HttpPost(url);
+                    request = postRequest;
+
+                    String params = Utils.getContentParameterFromRequestOperation(reqop);
+
+
+                    if (StringUtils.isNotBlank(params)) {
+                        String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
+                        if (StringUtils.isNotBlank(contentType)) {
+                            if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                                params = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, params);
+                                List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
+                                postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
+                            } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                                getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
+                            }
                         }
                     }
                 }
-            }
-            
-            if (reqop.getRequestHeaders() != null) {
-                for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                    request.addHeader(hdr.getName(), hdr.getValue());
+
+                if (reqop.getRequestHeaders() != null) {
+                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                        request.addHeader(hdr.getName(), hdr.getValue());
+                    }
                 }
-            }
 
-            response = tec.getHttpClient().execute(request);
+                if (request != null) {
+                    response = tec.getHttpClient().execute(request);
 
-            if (response != null) {
-/** ----------------------------------->debug 
-if (debugFileIndex == 1) {
-    File dir = new File("/home/rbtucker/tst");
-    
-    if (dir.exists()) {
-        File[] files = dir.listFiles();
-        
-        for (File f : files) {
-            FileUtils.deleteQuietly(f);
+                    if (response != null) {
+                        BufferedReader reader = null; 
+                        StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+                        try {
+                            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                             String line = "";
+                             while ((line = reader.readLine()) != null) {
+                                 responseBuffer.append(line);
+                             }                        
+                        }
+
+                         finally {
+                             if (reader != null) {
+                                 reader.close();
+                             }
+                        }
+
+                        
+                        int status = response.getStatusLine().getStatusCode();
+                        if (status == HttpURLConnection.HTTP_OK) {
+                            tec.pushHttpResponse(responseBuffer.toString());
+                            tec.updateAutoReplaceMap();
+                            tec.updateTestExecutionParameters(responseBuffer.toString());
+                        } else if ((status >= 400) && (status < 600)) {
+                            throw new TestException("server returned bad status - " + status + ", uri=" + request.getURI(), getOperation(), FailureAction.IGNORE);
+                        }
+                    }
+                }
+            } 
         }
-    } else {
-        dir.mkdirs();
-    }
-}
 
-PrintWriter pw = new PrintWriter("/home/rbtucker/tst/headers_" + debugFileIndex + ".txt");
-for (Header h : request.getAllHeaders()) {
-    pw.println(h.getName() + ": " + h.getValue());
-}
-pw.close();
-*/
-
-                BufferedReader reader = null; 
-                StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-                try {
-                    reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-                     String line = "";
-                     while ((line = reader.readLine()) != null) {
-                         responseBuffer.append(line);
-                     }                        
-                }
-
-                 finally {
-                     if (reader != null) {
-                         reader.close();
-                     }
-                }
-
-/** ----------------------------------->debug 
-pw = new PrintWriter("/home/rbtucker/tst/req-html_" + (debugFileIndex++) + ".html");
-pw.print(responseBuffer.toString());
-pw.close();
-*/
-                int status = response.getStatusLine().getStatusCode();
-                if (status == HttpURLConnection.HTTP_OK) {
-                    tec.pushHttpResponse(responseBuffer.toString());
-                    tec.updateAutoReplaceMap();
-                    tec.updateTestExecutionParameters(responseBuffer.toString());
-                } else if ((status >= 500) && (status < 600)) {
-                    throw new TestException("server returned bad status - " + status, getOperation(), FailureAction.ERROR_HALT_TEST);
-                }
-            }
-        } 
-        
         catch (IOException ex) {
             String uri = Constants.UNKNOWN;
             if (reqop != null) {
               uri = reqop.getUrl();
             }
-            
+
             LOG.error(ex.toString(), ex);
-            
+
             throw new TestException("an IOException occured while processing http request: " 
                 + uri + ", error: " +  ex.toString(), getOperation(), ex);
         }
-        
+
         finally {
             HttpClientUtils.closeQuietly(response);
         }
-    }
-    
-    private String getRequestHeader(HtmlRequestOperation op, String name) {
-        String retval = null;
-        
-        if (StringUtils.isNotBlank(name)) {
-            if (op.getRequestHeaders() != null) {
-                for (RequestHeader h : op.getRequestHeaders().getHeaderArray()) {
-                    if (name.equalsIgnoreCase(h.getName())) {
-                        retval = h.getValue();
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return retval;
     }
 }

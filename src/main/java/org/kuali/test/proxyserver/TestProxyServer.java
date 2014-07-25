@@ -30,6 +30,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
@@ -97,7 +98,7 @@ public class TestProxyServer {
                                 try {
                                     // little bit of a hack here - for some reason we are submitting 
                                     // multiple requests at times
-                                    if (!isDuplicate(request)) {
+                                    if (!isIgnoreUrl(request) && !isDuplicate(request)) {
                                         testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
                                     }
                                 } catch (Exception ex) {
@@ -127,7 +128,10 @@ public class TestProxyServer {
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
                                 
                                 if (httpObject instanceof LastHttpContent) {
-                                    webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                    if (Utils.isHtmlDocument(getCurrentResponseBuffer())) {
+                                        webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                    }
+                                    
                                     getCurrentResponseBuffer().setLength(0);
                                 }
                             }   
@@ -150,11 +154,6 @@ public class TestProxyServer {
         };
     }
 
-    private boolean isHtmlResponse(HttpResponse response) {
-        String contentType = response.headers().get(Constants.CONTENT_TYPE_KEY);
-        return (StringUtils.isNotBlank(contentType) && contentType.startsWith(Constants.HTML_MIME_TYPE));
-    }
-    
     private void initializeProxyServer() {
         // proxy port and host should be passed in as vm params
         String proxyHost = SystemProperties.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
@@ -307,6 +306,40 @@ public class TestProxyServer {
             }
             
             lastRequestMessageDigest = s;
+        }
+        
+        return retval;
+    }
+    
+    private boolean isIgnoreUrl(HttpRequest req) {
+        boolean retval = false;
+        
+        String url = req.getUri();
+        if (StringUtils.isNotBlank(url)) { 
+            if ("/".equals(url.trim())) {
+                retval = true;
+            } else {
+                String referer = null;
+                for (Map.Entry<String, String> entry  : req.headers()) {
+                    if (Constants.HTTP_HEADER_REFERER.equalsIgnoreCase(entry.getKey())) {
+                        referer = entry.getValue();
+                        break;
+                    }
+                }
+                if (webTestPanel.getMainframe().getConfiguration().getIgnoreHttpRequestMatchPatterns() != null) {
+                    for (String pattern : webTestPanel.getMainframe().getConfiguration().getIgnoreHttpRequestMatchPatterns().getMatchPatternArray()) {
+                        if (url.contains(pattern)) {
+                            retval = true;
+                            break;
+                        } else if (StringUtils.isNotBlank(referer) && referer.contains(pattern)) {
+                            retval = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            retval = true;
         }
         
         return retval;

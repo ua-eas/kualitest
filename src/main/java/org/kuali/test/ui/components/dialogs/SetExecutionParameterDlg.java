@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +36,7 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -106,16 +108,26 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
                 int pos = op.getUrl().indexOf("?");
 
                 if (StringUtils.isNotBlank(requestParameterString) || (pos > -1)) {
-                    if (StringUtils.isNotBlank(requestParameterString)) {
-                        List <NameValuePair> nvps = URLEncodedUtils.parse(requestParameterString, Consts.UTF_8);
+                    String contentType = Utils.getRequestHeader(op, Constants.HTTP_HEADER_CONTENT_TYPE);
 
-                        if (nvps != null) {
-                            for (NameValuePair nvp : nvps) {
-                                hs.add(nvp.getName());
+                    if (Utils.isMultipart(contentType)) {
+                        StringTokenizer st1 = new StringTokenizer(requestParameterString, Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                        while (st1.hasMoreTokens()) {
+                            StringTokenizer st2 = new StringTokenizer(st1.nextToken());
+                            hs.add(st2.nextToken());
+                        }
+                    } else {
+                        if (StringUtils.isNotBlank(requestParameterString)) {
+                            List <NameValuePair> nvps = URLEncodedUtils.parse(requestParameterString, Consts.UTF_8);
+
+                            if (nvps != null) {
+                                for (NameValuePair nvp : nvps) {
+                                    hs.add(nvp.getName());
+                                }
                             }
                         }
                     }
-
+                    
                     if (pos > -1) {
                         List <NameValuePair> nvps = URLEncodedUtils.parse(op.getUrl().substring(pos+1), Consts.UTF_8);
 
@@ -185,6 +197,6 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
 
         @Override
     public Dimension getPreferredSize() {
-        return new Dimension(500, 200);
+        return new Dimension(650, 200);
     }
 }

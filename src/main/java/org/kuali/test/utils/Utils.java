@@ -3476,4 +3476,39 @@ public class Utils {
         
         return retval.toString();
     }
+    
+    public static String getRequestHeader(HtmlRequestOperation op, String name) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(name)) {
+            if (op.getRequestHeaders() != null) {
+                for (RequestHeader h : op.getRequestHeaders().getHeaderArray()) {
+                    if (name.equalsIgnoreCase(h.getName())) {
+                        retval = h.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public static boolean isMultipart(String contentType) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(contentType)) {
+            retval = contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA);
+        }
+        
+        return retval;
+    }
+
+    public static boolean isHtmlDocument(StringBuilder s) {
+        return ((s != null) && s.indexOf("<html>") > -1);
+    }
+
+    public static boolean isHtmlDocument(String s) {
+        return (StringUtils.isNotBlank(s) && s.contains("<html>"));
+    }
 }

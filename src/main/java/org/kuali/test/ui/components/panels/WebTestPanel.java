@@ -226,22 +226,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
    public String getCurrentHtmlResponse(JWebBrowser wb) {
-        int proxyLength = 0;
         String retval = wb.getHTMLContent();
         
-        // Look at the last response from the proxy if this is bigger than
-        // the WebBrowser content we will use it - this is to handle some
-        // ajax behavior that does not update the web browser content
-        if (StringUtils.isNotBlank(lastProxyHtmlResponse)) {
-            proxyLength = lastProxyHtmlResponse.length();
-        }
-        
-        if (proxyLength > retval.length()) {
+        if (Utils.isHtmlDocument(retval)) {
+            lastProxyHtmlResponse = retval;
+        } else if (StringUtils.isNotBlank(lastProxyHtmlResponse)) {
             retval = lastProxyHtmlResponse;
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(retval);
         }
         
         return retval;
@@ -449,7 +439,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      * @param lastProxyHtmlResponse
      */
     public void setLastProxyHtmlResponse(String lastProxyHtmlResponse) {
-        this.lastProxyHtmlResponse = lastProxyHtmlResponse;
+        if (Utils.isHtmlDocument(lastProxyHtmlResponse)) {
+            this.lastProxyHtmlResponse = lastProxyHtmlResponse;
+        }
     }
 
     /**

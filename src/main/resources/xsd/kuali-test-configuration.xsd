@@ -37,9 +37,12 @@
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption" minOccurs="0"/>
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
+                <xs:element name="ignore-http-request-match-patterns" type="ignore-http-request-match-patterns" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+    
+    
     
     <xs:simpleType name="kuali-application">
         <xs:restriction base="xs:string">
@@ -55,6 +58,12 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="ignore-http-request-match-patterns">
+        <xs:sequence>
+            <xs:element name="match-pattern" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="auto-replace-parameters">
         <xs:sequence>
