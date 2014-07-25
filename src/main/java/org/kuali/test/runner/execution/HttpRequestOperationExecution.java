@@ -16,16 +16,12 @@
 package org.kuali.test.runner.execution;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
-import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -52,7 +48,7 @@ import org.kuali.test.utils.Utils;
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
 //----------------------------------->debug
-    private static int debugFileIndex = 1;
+//    private static int debugFileIndex = 1;
     
     /**
      *
@@ -126,7 +122,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             response = tec.getHttpClient().execute(request);
 
             if (response != null) {
-/** ----------------------------------->debug */
+/** ----------------------------------->debug 
 if (debugFileIndex == 1) {
     File dir = new File("/home/rbtucker/tst");
     
@@ -146,7 +142,7 @@ for (Header h : request.getAllHeaders()) {
     pw.println(h.getName() + ": " + h.getValue());
 }
 pw.close();
-
+*/
 
                 BufferedReader reader = null; 
                 StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
@@ -165,11 +161,11 @@ pw.close();
                      }
                 }
 
-/** ----------------------------------->debug */
+/** ----------------------------------->debug 
 pw = new PrintWriter("/home/rbtucker/tst/req-html_" + (debugFileIndex++) + ".html");
 pw.print(responseBuffer.toString());
 pw.close();
-
+*/
                 int status = response.getStatusLine().getStatusCode();
                 if (status == HttpURLConnection.HTTP_OK) {
                     tec.pushHttpResponse(responseBuffer.toString());
