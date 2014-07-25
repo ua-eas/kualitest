@@ -295,10 +295,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                                 break;
                         }
                     }
-                    
-                    if (!retval) {
-                        getTestExecutionContext().updateCounts(cp.getOnFailure());
-                    }
                 } else {
                     getTestExecutionContext().updateCounts(cp.getOnFailure());
                     throw new TestException("input type (" + inputType + ") comparison type (" + type + ") mismatch" + comparisonValue, op);

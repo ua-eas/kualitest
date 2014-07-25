@@ -17,14 +17,18 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -36,6 +40,7 @@ import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -53,6 +58,7 @@ import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -231,7 +237,7 @@ public class TestExecutionContext extends Thread {
 
         // Use custom cookie store if necessary.
         cookieStore = new BasicCookieStore();
-
+        
         // Use custom credentials provider if necessary.
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         
@@ -806,7 +812,7 @@ public class TestExecutionContext extends Thread {
         return retval.toString();
     }
     
-    public String replaceTestExecutionParameters(String sql) {
+    public String replaceSqlTestExecutionParameters(String sql) {
         Map <String, String> map = new HashMap<String, String>();
         
         for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
@@ -832,7 +838,7 @@ public class TestExecutionContext extends Thread {
      * @param input
      * @return 
      */
-    public String replaceTestExecutionParameters(HtmlRequestOperation reqop, String input) {
+    public String replaceUrlEncodedTestExecutionParameters(HtmlRequestOperation reqop, String input) {
         StringBuilder retval = new StringBuilder(input.length());
 
         String parameterString = null;
@@ -906,7 +912,49 @@ public class TestExecutionContext extends Thread {
         return replaceJsessionId(retval.toString());
     }
 
-   
+    /**
+     * 
+     * @param postRequest
+     * @param reqop
+     * @param input
+     * @throws IOException 
+     */
+    public void addMultiPartParameters(HttpPost postRequest, HtmlRequestOperation reqop, String input) throws IOException {
+        Set <String> hs = new HashSet<String>();
+        hs.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
+
+        Map<String, String> paramMap = new HashMap<String, String>();
+
+        ParameterReplacements parameterReplacements = reqop.getParameterReplacements();
+        if (parameterReplacements != null) {
+            for (ParameterReplacement pr : parameterReplacements.getParameterReplacementArray()) {
+                paramMap.put(pr.getReplaceParameterName(), executionParameterMap.get(pr.getTestExecutionParameterName()));
+            }
+        }
+       
+        StringTokenizer st1 = new StringTokenizer(input, Constants.MULTIPART_PARAMETER_SEPARATOR);
+        MultipartEntityBuilder reqEntity = MultipartEntityBuilder.create();
+        
+        while (st1.hasMoreTokens()) {
+            StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+
+            if (st2.countTokens() == 2) {
+                String name = st2.nextToken();
+                String value = st2.nextToken();
+                
+                if (hs.contains(name)) {
+                    value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
+                } else if (paramMap.containsKey(name)) {
+                    value = paramMap.get(name);
+                }
+                
+                reqEntity.addTextBody(name, value);
+            }
+        }
+        
+        postRequest.setEntity(reqEntity.build());
+    }
+
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
     }

@@ -15,25 +15,26 @@
  */
 package org.kuali.test.proxyserver;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.CharsetUtil;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.ui.components.panels.WebTestPanel;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.littleshoot.proxy.HttpFilters;
@@ -86,22 +87,18 @@ public class TestProxyServer {
                 return new HttpFiltersAdapter(originalRequest) {
                     @Override
                     public HttpResponse requestPre(HttpObject httpObject) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("in requestPre()");
-                        }
                         if (httpObject instanceof HttpRequest) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("have HttpRequest - " + httpObject.getClass().getName());
-                            }
-
                             HttpRequest request = (HttpRequest)httpObject;
+
                             if (isValidTestRequest(request)) {
-                                if (LOG.isDebugEnabled()) {
-                                    LOG.debug("have valid HttpRequest");
-                                }
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
-                                testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
+                                try {
+                                    testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
+                                } catch (IOException ex) {
+                                    LOG.error(ex.toString(), ex);
+                                    UIUtils.showError(webTestPanel, "Error", "Error handling http request - " + ex.toString());
+                                }
                             }
                         }
                         return null;
@@ -119,38 +116,16 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("responsePost() headers");
-                            if (httpObject instanceof HttpResponse) {
-                                HttpResponse r = (HttpResponse)httpObject;
-                                
-                                for (Entry entry : r.headers()) {
-                                    LOG.debug(entry);
-                                }
-                            }
-                        }
-                        
-                        if (httpObject instanceof HttpResponse) {
-                            HttpResponse response = (HttpResponse)httpObject;
-                            if (isHtmlResponse(response)) {
-                                if (response.getStatus().code() == HttpServletResponse.SC_OK) {
-                                    currentHtmlResponse = getCurrentResponseBuffer();
-                                } 
-                            }
-                        } else if (httpObject instanceof HttpContent) {
-                            HttpContent content = (HttpContent)httpObject;
-                            content.retain();
-                            ByteBuffer buf = ByteBuffer.allocate(content.content().capacity());
-                            if (buf != null) {
-                                content.content().duplicate().readBytes(buf).release();
-                                getCurrentResponseBuffer().append(buf.asCharBuffer());
+                        if (httpObject instanceof HttpContent) {
+                            ByteBuf content = ((HttpContent)httpObject).content();
+                            if (content.isReadable()) {
+                                getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
                                 if (httpObject instanceof LastHttpContent) {
-                                    webTestPanel.setLastProxyHtmlResponse(currentHtmlResponse.toString());
-                                    currentHtmlResponse = null;
+                                    webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                    getCurrentResponseBuffer().setLength(0);
                                 }
-                            }
+                            }     
                         }
-                        
                         return httpObject;
                     }
                 };
@@ -244,7 +219,6 @@ public class TestProxyServer {
         boolean retval = false;
         
         String method = request.getMethod().toString();
-        
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
             retval = (!isGetImageRequest(method, request.getUri())
                 && !isGetJavascriptRequest(method, request.getUri())
@@ -288,7 +262,7 @@ public class TestProxyServer {
             retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
         }
         
-        return false; //retval;
+        return retval;
     }
 
     private boolean isGetCssRequest(String method, String uri) {

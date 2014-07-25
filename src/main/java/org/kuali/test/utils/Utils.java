@@ -16,12 +16,14 @@
 package org.kuali.test.utils;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpRequest;
 import java.awt.Component;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -63,6 +65,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
@@ -120,12 +123,13 @@ import org.w3c.tidy.Tidy;
  * @author rbtucker
  */
 public class Utils {
+
     private static final Logger LOG = Logger.getLogger(Utils.class);
 
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
     private static String encryptionPassword;
-    
+
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
 
     /**
@@ -253,10 +257,10 @@ public class Utils {
     }
 
     /**
-     * 
+     *
      * @param configuration
      * @param webServiceName
-     * @return 
+     * @return
      */
     public static WebService findWebServiceByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String webServiceName) {
         WebService retval = null;
@@ -271,7 +275,7 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
 
@@ -563,9 +567,7 @@ public class Utils {
                     try {
                         Object e = field.get(null);
                         retval.add(e.toString());
-                    } 
-                    
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         LOG.warn(ex.toString());
                     }
                 }
@@ -694,9 +696,7 @@ public class Utils {
                     m.invoke(o, value);
                 }
 
-            } 
-            
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 LOG.warn("object: " + o.getClass().getName() + "." + propertyName + ", error: " + ex.toString());
             }
         }
@@ -714,9 +714,7 @@ public class Utils {
             Method m = o.getClass().getMethod(buildGetMethodNameFromPropertyName(propertyName));
 
             retval = m.getReturnType();
-        } 
-        
-        catch (Exception ex) {
+        } catch (Exception ex) {
             LOG.warn(ex.toString());
         }
 
@@ -784,40 +782,34 @@ public class Utils {
      * @return
      */
     public static boolean wantHttpRequestHeader(String key) {
-        return (Constants.HTTP_HEADER_ACCEPT.equals(key)
-            || Constants.HTTP_HEADER_CONTENT_TYPE.equals(key)
-            || Constants.HTTP_HEADER_ACCEPT_ENCODING.equals(key)
-            || Constants.HTTP_HEADER_CONNECTION.equals(key)
-            || Constants.HTTP_HEADER_ACCEPT_LANGUAGE.equals(key)
-            || Constants.HTTP_HEADER_HOST.equals(key)
-            || Constants.HTTP_HEADER_REFERER.equals(key)
-            || Constants.HTTP_HEADER_ORIGIN.equals(key));
+        return !Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(key);
     }
-    
+
     /**
      *
      * @param configuration
      * @param request
      * @return
      */
-    public static String buildUrlFromRequest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, HttpRequest request) {
+    public static String buildUrlFromRequest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        HttpRequest request) throws IOException {
         StringBuilder retval = new StringBuilder(128);
 
         String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
-        
+
         String protocol = Constants.HTTPS_PROTOCOL;
         if (referer != null) {
             int pos = referer.indexOf(":");
             if (pos > -1) {
-                protocol = referer.substring(0, pos+3);
+                protocol = referer.substring(0, pos + 3);
             }
         }
-        
+
         retval.append(protocol);
         retval.append(request.headers().get(Constants.HTTP_HEADER_HOST));
-        retval.append(processRequestData(configuration, request.getUri()));
-        
-        
+        retval.append(processRequestData(configuration,
+            request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), request.getUri()));
+
         return retval.toString();
     }
 
@@ -826,14 +818,10 @@ public class Utils {
      * @param configuration
      * @param testop
      * @param request
+     * @param delay
      */
-    public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperation testop, HttpRequest request, int delay) {
-        if (LOG.isDebugEnabled()) {
-            if (request != null) {
-                LOG.debug(getHttpRequestDetails(request));
-            }
-        }
+    public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        TestOperation testop, HttpRequest request, int delay) throws IOException {
 
         HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
         testop.setOperationType(TestOperationType.HTTP_REQUEST);
@@ -860,13 +848,14 @@ public class Utils {
             if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
                 if (request instanceof FullHttpRequest) {
                     FullHttpRequest fr = (FullHttpRequest) request;
+
                     if (fr.content() != null) {
                         byte[] data = getHttpPostContent(fr.content());
 
                         if (data != null) {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
-                            param.setValue(processRequestData(configuration, new String(data)));
+                            param.setValue(processRequestData(configuration, request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), new String(data)));
                         }
                     }
                 }
@@ -880,32 +869,129 @@ public class Utils {
      * @param input
      * @return
      */
-    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String input) {
+    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String contentType, String input) throws IOException {
         StringBuilder retval = new StringBuilder(input.length());
 
-        String parameterString = null;
-
-        
-        if (input.startsWith(Constants.FORWARD_SLASH) 
-            ||input.startsWith(Constants.HTTP_PROTOCOL) 
+        if (input.startsWith(Constants.FORWARD_SLASH)
+            || input.startsWith(Constants.HTTP_PROTOCOL)
             || input.startsWith(Constants.HTTPS_PROTOCOL)) {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
-                parameterString = input.substring(pos+1);
-                retval.append(input.substring(0, pos+1));
-            } 
+                retval.append(input.substring(0, pos + 1));
+                String s = encryptFormUrlEncodedParameters(configuration, input.substring(pos + 1));
+                if (StringUtils.isNotBlank(s)) {
+                    retval.append(s);
+                }
+            }
         } else {
-            parameterString = input;
+            String parameterString = input;
+
+            if (StringUtils.isNotBlank(contentType)) {
+                if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                    String s = encryptFormUrlEncodedParameters(configuration, input);
+                    if (StringUtils.isNotBlank(s)) {
+                        retval.append(s);
+                    } else {
+                        retval.append(input);
+                    }
+
+                } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                    int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+
+                    if (pos > -1) {
+                        String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
+                        if (StringUtils.isNotBlank(s)) {
+                            retval.append(s);
+                        } else {
+                            retval.append(input);
+                        }
+                    } else {
+                        retval.append(input);
+                    }
+                }
+            }
         }
+
+        return retval.toString();
+    }
+
+    public static String getNameFromNameParam(String param) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(param)) {
+            int pos = param.indexOf("name=");
+            
+            if (pos > -1) {
+                pos = param.indexOf("\"", pos);
+                
+                if (pos > -1) {
+                    int pos2 = param.indexOf("\"", pos+1);
+                    
+                    if (pos2 > pos) {
+                        retval = param.substring(pos+1, pos2);
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String handleMultipartRequestParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        String input, String boundary, Map<String, String> replaceParams) throws IOException {
+        StringBuilder retval = new StringBuilder(512);
+        
+        Set <String> hs = new HashSet<String>();
+        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+            hs.add(parameterName);
+        }
+        
+        MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
+        boolean nextPart = multipartStream.skipPreamble();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
+        
+        while (nextPart) {
+            String header = multipartStream.readHeaders();
+            bos.reset();
+            multipartStream.readBodyData(bos);
+
+            String name = getNameFromNameParam(header);
+
+            if (StringUtils.isNotBlank(name)) {
+                boolean senstiveParameter = false;
+
+                senstiveParameter = hs.contains(name);
+
+                retval.append(name);
+                retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                if (senstiveParameter) {
+                    retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), bos.toString()));
+                } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
+                    retval.append(replaceParams.get(name));
+                } else {
+                    retval.append(bos.toString());
+                }
+            } else {
+                retval.append(bos.toString());
+            }
+            retval.append(Constants.MULTIPART_PARAMETER_SEPARATOR);
+            nextPart = multipartStream.readBoundary();
+        }
+
+        return retval.toString();
+    }
+
+    public static String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String parameterString) {
+        StringBuilder retval = new StringBuilder(512);
 
         // if we have a parameter string then convert to NameValuePair list and 
         // process parameters requiring encryption
         if (StringUtils.isNotBlank(parameterString)) {
-            List <NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
+            List<NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-                
+
                 for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
                     for (int i = 0; i < nvparray.length; ++i) {
                         if (parameterName.equals(nvparray[i].getName())) {
@@ -915,25 +1001,22 @@ public class Utils {
                 }
 
                 retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-            } else {
-                retval.append(input);
             }
-        } else {
-            retval.append(input);
         }
 
         return retval.toString();
     }
-    
+
     /**
      *
      * @param configuration
      * @param optype
      * @param inputData
+     * @param delay
      * @return
      */
-    public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        TestOperationType.Enum optype, Object inputData, int delay) {
+    public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        TestOperationType.Enum optype, Object inputData, int delay) throws IOException {
         TestOperation retval = TestOperation.Factory.newInstance();
 
         retval.setOperationType(optype);
@@ -941,7 +1024,7 @@ public class Utils {
         if (inputData != null) {
             switch (optype.intValue()) {
                 case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(configuration, retval, (HttpRequest)inputData, delay);
+                    populateHttpRequestOperation(configuration, retval, (HttpRequest) inputData, delay);
                     break;
             }
         }
@@ -998,52 +1081,6 @@ public class Utils {
         retval.setSavePrettyPrint();
         retval.setSavePrettyPrintIndent(3);
         return retval;
-    }
-
-    /**
-     *
-     * @param request
-     * @return
-     */
-    public static String getHttpRequestDetails(HttpRequest request) {
-        StringBuilder retval = new StringBuilder(512);
-        retval.append("******************** http request *******************\r\n");
-        retval.append("uri: ");
-        retval.append(request.getUri());
-        retval.append("\r\n");
-        retval.append("method: ");
-        retval.append(request.getMethod().toString());
-        retval.append("\r\n");
-        retval.append("protocol version: ");
-        retval.append(request.getProtocolVersion());
-        retval.append("\r\n");
-        retval.append("------------ headers -----------\r\n");
-        Iterator<Entry<String, String>> it = request.headers().iterator();
-        while (it.hasNext()) {
-            Entry entry = it.next();
-            retval.append(entry.getKey());
-            retval.append("=");
-            retval.append(entry.getValue());
-            retval.append("\r\n");
-        }
-
-        retval.append("--------------------------------\r\n");
-
-        if (request instanceof DefaultFullHttpRequest) {
-            DefaultFullHttpRequest fr = (DefaultFullHttpRequest) request;
-            if (fr.content() != null) {
-                byte[] data = getHttpPostContent(fr.content());
-
-                if (data != null) {
-                    retval.append("------------ content -----------\r\n");
-                    retval.append(new String(getHttpPostContent(fr.content())));
-                    retval.append("--------------------------------\r\n");
-                }
-            }
-        }
-
-        retval.append("******************************************************\r\n");
-        return retval.toString();
     }
 
     /**
@@ -1107,7 +1144,7 @@ public class Utils {
     public static boolean isTextNode(Node node) {
         return ((node != null) && (node.getNodeType() == Node.TEXT_NODE));
     }
-    
+
     /**
      *
      * @param node
@@ -1115,10 +1152,10 @@ public class Utils {
      */
     public static void getCleanedText(Node node, StringBuilder buf) {
         NodeList children = node.getChildNodes();
-        
+
         for (int i = 0; i < children.getLength(); ++i) {
             Node child = children.item(i);
-            
+
             if (isTextNode(child)) {
                 buf.append(child.getNodeValue());
             } else {
@@ -1126,7 +1163,7 @@ public class Utils {
             }
         }
     }
-    
+
     /**
      *
      * @param in
@@ -1139,7 +1176,7 @@ public class Utils {
             return "";
         }
     }
-    
+
     /**
      *
      * @param node
@@ -1161,15 +1198,15 @@ public class Utils {
     }
 
     public static File[] getHandlerFiles(File handlerDir) {
-        List <File> retval = new ArrayList<File>();
+        List<File> retval = new ArrayList<File>();
 
         File[] files = handlerDir.listFiles();
-        
-        Map <String, File> map = new HashMap<String, File>();
-        List <File> others = new ArrayList<File>();
+
+        Map<String, File> map = new HashMap<String, File>();
+        List<File> others = new ArrayList<File>();
         for (File f : files) {
             int pos = f.getName().indexOf("-");
-            
+
             if (f.length() > 0) {
                 if (pos > -1) {
                     map.put(f.getName().substring(0, pos).toLowerCase(), f);
@@ -1178,11 +1215,11 @@ public class Utils {
                 }
             }
         }
-        
+
         if (map.containsKey("custom")) {
             retval.add(map.remove("custom"));
         }
-        
+
         for (String app : Utils.getXmlEnumerations(KualiApplication.class)) {
             if (map.containsKey(app.toLowerCase())) {
                 retval.add(map.remove(app.toLowerCase()));
@@ -1190,14 +1227,14 @@ public class Utils {
         }
 
         others.addAll(map.values());
-        
+
         Collections.sort(others, new TagHandlerFileComparator());
-        
+
         retval.addAll(others);
-        
+
         return retval.toArray(new File[retval.size()]);
     }
-    
+
     /**
      *
      * @param configuration
@@ -1231,9 +1268,7 @@ public class Utils {
                                 HtmlTagHandler hth = (HtmlTagHandler) Class.forName(th.getHandlerClassName()).newInstance();
                                 hth.setTagHandler(th);
                                 thl.add(hth);
-                            } 
-                            
-                            catch (Exception ex) {
+                            } catch (Exception ex) {
                                 LOG.warn(ex.toString(), ex);
                             }
                         }
@@ -1326,22 +1361,22 @@ public class Utils {
      * @param node
      * @return
      */
-    public static List <Element> getChildElements(Element node) {
-        List <Element> retval = new ArrayList<Element>();
-        
+    public static List<Element> getChildElements(Element node) {
+        List<Element> retval = new ArrayList<Element>();
+
         Node child = node.getFirstChild();
-        
+
         while (child != null) {
             if (child instanceof Element) {
-                retval.add((Element)child);
+                retval.add((Element) child);
             }
-            
+
             child = child.getNextSibling();
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param node
@@ -1435,7 +1470,7 @@ public class Utils {
             while (st.hasMoreTokens()) {
                 parentTagNames.add(st.nextToken());
             }
-            
+
             Element validParent = null;
             Node parent = node.getParentNode();
 
@@ -1451,7 +1486,7 @@ public class Utils {
                         if (parentTagMatch.getMatchAttributes().sizeOfMatchAttributeArray() > 0) {
                             boolean ok = true;
                             for (TagMatchAttribute att : parentTagMatch.getMatchAttributes().getMatchAttributeArray()) {
-                                String parentAttr = ((Element)parent).getAttribute(att.getName());
+                                String parentAttr = ((Element) parent).getAttribute(att.getName());
                                 if (StringUtils.isNotBlank(parentAttr)) {
                                     int pos = att.getValue().indexOf('*');
 
@@ -1477,11 +1512,11 @@ public class Utils {
                             }
 
                             if (ok) {
-                                validParent = (Element)parent;
+                                validParent = (Element) parent;
                             }
                         }
                     } else {
-                        validParent = (Element)parent;
+                        validParent = (Element) parent;
                     }
                 }
             }
@@ -1501,7 +1536,7 @@ public class Utils {
     public static Element getMatchingChild(TagMatcher tm, Element node) {
         Element retval = null;
 
-        List <Element> l = getChildElements(node);
+        List<Element> l = getChildElements(node);
         if (!l.isEmpty()) {
             retval = getMatchingSibling(tm, l.get(0));
         }
@@ -1539,8 +1574,8 @@ public class Utils {
                     attrs = tm.getMatchAttributes().getMatchAttributeArray();
                 }
 
-                if ((!limited || (cnt == totalCnt)) && isTagMatch((Element)parent, tm)) {
-                    retval = (Element)parent;
+                if ((!limited || (cnt == totalCnt)) && isTagMatch((Element) parent, tm)) {
+                    retval = (Element) parent;
                     break;
                 }
             }
@@ -1591,20 +1626,20 @@ public class Utils {
      */
     public static Element getPreviousSiblingElement(Node node) {
         Element retval = null;
-        
+
         Node sibling = node.getPreviousSibling();
-        
+
         while ((sibling != null) && !isElement(sibling)) {
             sibling = sibling.getPreviousSibling();
         }
-        
+
         if (isElement(sibling)) {
-            retval = (Element)sibling;
+            retval = (Element) sibling;
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param node
@@ -1612,17 +1647,17 @@ public class Utils {
      */
     public static Element getNextSiblingElement(Node node) {
         Element retval = null;
-        
+
         Node sibling = node.getNextSibling();
-        
+
         while ((sibling != null) && !isElement(sibling)) {
             sibling = sibling.getNextSibling();
         }
-        
+
         if (isElement(sibling)) {
-            retval = (Element)sibling;
+            retval = (Element) sibling;
         }
-        
+
         return retval;
     }
 
@@ -1635,15 +1670,15 @@ public class Utils {
         int retval = 0;
 
         Element curnode = getPreviousSiblingElement(node);
-        
-        while(curnode != null) {
+
+        while (curnode != null) {
             retval++;
             curnode = getPreviousSiblingElement(curnode);
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param tm
@@ -1688,7 +1723,7 @@ public class Utils {
                                 break;
                             }
                         }
-                        
+
                         prev = getPreviousSiblingElement(prev);
                     }
                 }
@@ -1740,8 +1775,7 @@ public class Utils {
                         limited = false;
                     }
 
-
-                    for (Element child : getChildElements((Element)node.getParentNode())) {
+                    for (Element child : getChildElements((Element) node.getParentNode())) {
                         cnt++;
                         if (!limited || (cnt == targetCnt)) {
                             if (child.getNodeName().equalsIgnoreCase(tm.getTagName()) && isTagMatch(child, tm)) {
@@ -1768,20 +1802,20 @@ public class Utils {
     public static int getSiblingIndex(Element node) {
         int retval = -1;
 
-        Element parent = (Element)node.getParentNode();
+        Element parent = (Element) node.getParentNode();
 
-        List <Element> elements = getChildElements(parent);
-        
+        List<Element> elements = getChildElements(parent);
+
         int indx = 0;
         for (Node curnode : getChildElements(parent)) {
             if (node == curnode) {
                 retval = indx;
                 break;
             }
-            
+
             indx++;
         }
-        
+
         return retval;
     }
 
@@ -1793,7 +1827,7 @@ public class Utils {
     public static int getSiblingIndexByTagType(Element node) {
         int retval = 0;
 
-        Element parent = (Element)node.getParentNode();
+        Element parent = (Element) node.getParentNode();
 
         for (Element sibling : getChildElements(parent)) {
             if (getChildNodeIndex(sibling) == getChildNodeIndex(node)) {
@@ -1898,7 +1932,7 @@ public class Utils {
         if (LOG.isDebugEnabled()) {
             LOG.debug("getHtmlTagHandler - " + node.getNodeName());
         }
-        
+
         List<HtmlTagHandler> handlerList = new ArrayList<HtmlTagHandler>();
 
         // add the application specific handlers first
@@ -2086,7 +2120,6 @@ public class Utils {
 
         return retval;
     }
-
 
     /**
      *
@@ -2444,6 +2477,7 @@ public class Utils {
      * @param testSuite
      * @param testHeader
      * @param testResults
+     * @param tec
      */
     public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite, TestHeader testHeader, List<File> testResults, TestExecutionContext tec) {
@@ -2485,7 +2519,7 @@ public class Utils {
                     subject.append(", successes=");
                     subject.append(tec.getSuccessCount());
                     subject.append("]");
-                    
+
                     msg.setSubject(subject.toString());
 
                     StringBuilder msgtxt = new StringBuilder(256);
@@ -2618,14 +2652,14 @@ public class Utils {
      */
     public static Element findFirstChildNode(Element parent, String nodeName) {
         Element retval = null;
-        
+
         for (Element child : getChildElements(parent)) {
             if (nodeName.equalsIgnoreCase(child.getNodeName())) {
                 retval = child;
                 break;
             }
         }
-        
+
         return retval;
     }
 
@@ -2635,18 +2669,18 @@ public class Utils {
      * @param nodeName
      * @return
      */
-    public static List <Element> findChildNodes(Element parent, String nodeName) {
-        List <Element> retval = new ArrayList<Element>();
-        
+    public static List<Element> findChildNodes(Element parent, String nodeName) {
+        List<Element> retval = new ArrayList<Element>();
+
         for (Element child : getChildElements(parent)) {
             if (nodeName.equalsIgnoreCase(child.getNodeName())) {
                 retval.add(child);
             }
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param curnode
@@ -2656,22 +2690,22 @@ public class Utils {
      * @return
      */
     public static Element findChildNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
-       Element retval = null;
-       
-       if (curnode != null) {
-           if (curnode.getNodeName().equals(nodeName) && attributeValue.equals(curnode.getAttribute(attributeName))) {
-               retval = curnode;
-           } else {
-               for (Element child : getChildElements(curnode)) {
-                   retval = findChildNode(child, nodeName, attributeName, attributeValue);
-                   if (retval != null) {
-                       break;
-                   }
-               }
-           }
-       }
-       
-       return retval;
+        Element retval = null;
+
+        if (curnode != null) {
+            if (curnode.getNodeName().equals(nodeName) && attributeValue.equals(curnode.getAttribute(attributeName))) {
+                retval = curnode;
+            } else {
+                for (Element child : getChildElements(curnode)) {
+                    retval = findChildNode(child, nodeName, attributeName, attributeValue);
+                    if (retval != null) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return retval;
     }
 
     /**
@@ -2681,21 +2715,21 @@ public class Utils {
      * @return
      */
     public static Element findFirstParentNode(Element curnode, String nodeName) {
-       Element retval = null;
-       
-       if (curnode != null) {
-           Element parent = (Element)curnode.getParentNode();
-           
-           while (parent != null) {
-               if (parent.getNodeName().equals(nodeName)) {
-                   retval = parent;
-                   break;
-               }
-               parent = (Element)parent.getParentNode();
-           }
-       }
-       
-       return retval;
+        Element retval = null;
+
+        if (curnode != null) {
+            Element parent = (Element) curnode.getParentNode();
+
+            while (parent != null) {
+                if (parent.getNodeName().equals(nodeName)) {
+                    retval = parent;
+                    break;
+                }
+                parent = (Element) parent.getParentNode();
+            }
+        }
+
+        return retval;
     }
 
     /**
@@ -2707,20 +2741,20 @@ public class Utils {
      * @return
      */
     public static Element findFirstParentNode(Element curnode, String nodeName, String attributeName, String attributeValue) {
-        Element retval = null;  
-        Element parent = (Element)curnode.getParentNode();
+        Element retval = null;
+        Element parent = (Element) curnode.getParentNode();
 
         while (parent != null) {
             if (parent.getNodeName().equals(nodeName)) {
-                 if (attributeValue.equalsIgnoreCase(parent.getAttribute(attributeName))) {
-                     retval = parent;
-                     break;
-                 }
+                if (attributeValue.equalsIgnoreCase(parent.getAttribute(attributeName))) {
+                    retval = parent;
+                    break;
+                }
             }
-            parent = (Element)parent.getParentNode();
+            parent = (Element) parent.getParentNode();
         }
-       
-       return retval;
+
+        return retval;
     }
 
     /**
@@ -2730,21 +2764,21 @@ public class Utils {
      * @return
      */
     public static Element findPreviousSiblingNode(Element curnode, String nodeName) {
-       Element retval = null;
-       
-       if (curnode != null) {
-           Element sibling = getPreviousSiblingElement(curnode);
-           
-           while (sibling != null) {
-               if (sibling.getNodeName().equals(nodeName)) {
-                   retval = sibling;
-                   break;
-               }
-               sibling = getPreviousSiblingElement(sibling);
-           }
-       }
-       
-       return retval;
+        Element retval = null;
+
+        if (curnode != null) {
+            Element sibling = getPreviousSiblingElement(curnode);
+
+            while (sibling != null) {
+                if (sibling.getNodeName().equals(nodeName)) {
+                    retval = sibling;
+                    break;
+                }
+                sibling = getPreviousSiblingElement(sibling);
+            }
+        }
+
+        return retval;
     }
 
     /**
@@ -2754,21 +2788,21 @@ public class Utils {
      * @return
      */
     public static Element findNextSiblingNode(Element curnode, String nodeName) {
-       Element retval = null;
-       
-       if (curnode != null) {
-           Element sibling = getNextSiblingElement(curnode);
-           
-           while (sibling != null) {
-               if (sibling.getNodeName().equals(nodeName)) {
-                   retval = sibling;
-                   break;
-               }
-               sibling = getNextSiblingElement(sibling);
-           }
-       }
-       
-       return retval;
+        Element retval = null;
+
+        if (curnode != null) {
+            Element sibling = getNextSiblingElement(curnode);
+
+            while (sibling != null) {
+                if (sibling.getNodeName().equals(nodeName)) {
+                    retval = sibling;
+                    break;
+                }
+                sibling = getNextSiblingElement(sibling);
+            }
+        }
+
+        return retval;
     }
 
     /**
@@ -2794,9 +2828,9 @@ public class Utils {
             tidy.setHideComments(true);
             tidy.setQuiet(true);
         }
-        
+
         return tidy;
-        
+
     }
 
     /**
@@ -2805,31 +2839,31 @@ public class Utils {
      * @param tagnames
      */
     public static void removeTagsFromDocument(Document doc, String[] tagnames) {
-        List <Node> removeList = new ArrayList<Node>();
+        List<Node> removeList = new ArrayList<Node>();
         for (String tag : tagnames) {
             // if this tag has a '.' in the name the attribute(s) are specified
             // in the form '<tagname>.<attname>=<attvalue>,<attname>=<attvalue>...'
             int pos = tag.indexOf(".");
             String tagname = tag;
-            Map <String, String> attmap = null;
+            Map<String, String> attmap = null;
             if (pos > -1) {
                 tagname = tag.substring(0, pos);
                 attmap = new HashMap<String, String>();
-                StringTokenizer st = new StringTokenizer(tag.substring(pos+1), ",");
-                
+                StringTokenizer st = new StringTokenizer(tag.substring(pos + 1), ",");
+
                 while (st.hasMoreTokens()) {
                     String s = st.nextToken();
                     pos = s.indexOf("=");
                     if (pos > -1) {
-                        attmap.put(s.substring(0, pos), s.substring(pos+1));
+                        attmap.put(s.substring(0, pos), s.substring(pos + 1));
                     }
                 }
             }
-            
-            NodeList l= doc.getDocumentElement().getElementsByTagName(tagname);
+
+            NodeList l = doc.getDocumentElement().getElementsByTagName(tagname);
             for (int i = 0; i < l.getLength(); ++i) {
-                Element item = (Element)l.item(i);
-                
+                Element item = (Element) l.item(i);
+
                 // if attribute is specified check the node for matching attribute
                 if (attmap != null) {
                     boolean canRemove = (attmap.size() > 0);
@@ -2837,7 +2871,7 @@ public class Utils {
                     for (String key : attmap.keySet()) {
                         String checkValue = attmap.get(key);
                         String val = item.getAttribute(key);
-                    
+
                         if (StringUtils.isNotBlank(val)) {
                             if (!val.equalsIgnoreCase(checkValue)) {
                                 canRemove = false;
@@ -2847,7 +2881,7 @@ public class Utils {
                             canRemove = false;
                             break;
                         }
-                        
+
                         if (canRemove) {
                             removeList.add(item);
                         }
@@ -2865,7 +2899,7 @@ public class Utils {
             }
         }
     }
-    
+
     /**
      *
      * @param input
@@ -2873,10 +2907,10 @@ public class Utils {
      */
     public static Document tidify(String input) {
         Document retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
-        
+
         // remove tags we do not want
         removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
-        
+
         return retval;
     }
 
@@ -2888,21 +2922,21 @@ public class Utils {
     public static boolean isElement(Node node) {
         return ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE));
     }
-    
+
     /**
      *
      * @param element
      * @return
      */
-    public static List <Element> getSiblingElements(Element element) {
-        List <Element> retval = new ArrayList<Element>();
-        
+    public static List<Element> getSiblingElements(Element element) {
+        List<Element> retval = new ArrayList<Element>();
+
         if (isElement(element.getParentNode())) {
-            retval = getChildElements((Element)element.getParentNode());
-            
+            retval = getChildElements((Element) element.getParentNode());
+
             if (retval != null) {
-                Iterator <Element> it = retval.iterator();
-                
+                Iterator<Element> it = retval.iterator();
+
                 while (it.hasNext()) {
                     if (it.next() == element) {
                         it.remove();
@@ -2911,10 +2945,10 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param password
@@ -2923,23 +2957,21 @@ public class Utils {
      */
     public static String encrypt(String password, String input) {
         String retval = input;
-        
+
         if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
             try {
                 // use StrongTextEncryptor with JCE installed for more secutity
                 BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
                 textEncryptor.setPassword(password);
                 retval = textEncryptor.encrypt(input);
-            }
-
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 LOG.warn(ex.toString(), ex);
             }
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param password
@@ -2948,23 +2980,21 @@ public class Utils {
      */
     public static String decrypt(String password, String input) {
         String retval = input;
-        
+
         if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
             try {
                 // use StrongTextEncryptor with JCE installed for more secutity
                 BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
                 textEncryptor.setPassword(password);
-                retval =  textEncryptor.decrypt(input);
-            }
-
-            catch (Exception ex) {
+                retval = textEncryptor.decrypt(input);
+            } catch (Exception ex) {
                 LOG.warn(ex.toString(), ex);
             }
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @param status
@@ -2975,7 +3005,7 @@ public class Utils {
             || (status == HttpURLConnection.HTTP_MOVED_PERM)
             || (status == HttpURLConnection.HTTP_SEE_OTHER));
     }
-    
+
     /**
      *
      * @param configuration
@@ -2984,28 +3014,26 @@ public class Utils {
     public static String getEncryptionPassword(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         if (encryptionPassword == null) {
             String pass = Constants.DEFAULT_ENCRYPTION_PASSWORD;
-            
+
             if (StringUtils.isNotBlank(configuration.getEncryptionPasswordFile())) {
                 File f = new File(configuration.getEncryptionPasswordFile());
                 if (f.exists() && f.isFile()) {
                     FileInputStream fis = null;
-        
+
                     try {
                         fis = new FileInputStream(f);
-                        byte[] buf = new byte[(int)f.length()];
+                        byte[] buf = new byte[(int) f.length()];
                         fis.read(buf);
                         pass = new String(buf);
-                    }
-                    
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         LOG.warn("error occurred trying to read encryption password file - using default", ex);
                     }
                 }
             }
-            
+
             encryptionPassword = Base64.encodeBase64String(pass.getBytes());
         }
-        
+
         return encryptionPassword;
     }
 
@@ -3017,18 +3045,18 @@ public class Utils {
             String key2 = buildCheckpointPropertyKey(cp2);
             retval = key1.equals(key2);
         }
-        
+
         return retval;
     }
-    
+
     public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
         return buildCheckpointPropertyKey(cp.getPropertyGroup(), cp.getPropertySection(), cp.getDisplayName());
     }
-    
+
     public static String buildCheckpointPropertyKey(String group, String section, String name) {
 
         StringBuilder retval = new StringBuilder(128);
-        
+
         if (StringUtils.isNotBlank(group)) {
             retval.append(group.toLowerCase().trim().replace(" ", "_"));
         } else {
@@ -3038,11 +3066,11 @@ public class Utils {
 
         if (StringUtils.isNotBlank(section)) {
             // need to get rid of html tags on the section
-            retval.append(section.replaceAll(Constants.TAG_MATCH_REGEX_PATTERN,"").toLowerCase().trim().replace(" ", "_"));
+            retval.append(section.replaceAll(Constants.TAG_MATCH_REGEX_PATTERN, "").toLowerCase().trim().replace(" ", "_"));
         } else {
             retval.append("nosection");
         }
-        
+
         retval.append(".");
 
         if (StringUtils.isNotBlank(name)) {
@@ -3050,15 +3078,15 @@ public class Utils {
         } else {
             retval.append("noname");
         }
-        
+
         return retval.toString();
     }
 
     public static boolean isAutoReplaceParameterMatch(AutoReplaceParameter param, Node node) {
         boolean retval = false;
-        
+
         if ((node != null) && (node.getNodeType() == Node.ELEMENT_NODE)) {
-            Element e = (Element)node;
+            Element e = (Element) node;
             if (param.getTagName().equals(e.getTagName())) {
                 if (param.getParameterName().equals(e.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
                     retval = true;
@@ -3073,67 +3101,66 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
-    
+
     public static String getNodeValue(Node node) {
         String retval = null;
-        
+
         if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getNodeName())) {
-            Element e = (Element)node;
+            Element e = (Element) node;
             retval = e.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
         }
-        
+
         return retval;
     }
-    
+
     public static String findAutoReplaceParameterInDom(AutoReplaceParameter param, Node node) {
         String retval = null;
-         
+
         if (isAutoReplaceParameterMatch(param, node)) {
             retval = getNodeValue(node);
         } else {
             NodeList children = node.getChildNodes();
-            
+
             for (int i = 0; (retval == null) && (i < children.getLength()); ++i) {
                 retval = findAutoReplaceParameterInDom(param, children.item(i));
             }
         }
-        
+
         return retval;
     }
-    
-    
+
     public static boolean isRedirectResponse(int status) {
         return ((status == HttpServletResponse.SC_MOVED_TEMPORARILY)
             || (status == HttpServletResponse.SC_MOVED_PERMANENTLY)
             || (status == HttpServletResponse.SC_SEE_OTHER));
-            
+
     }
-    
+
     public static AutoReplaceParameter findAutoReplaceParameterByName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String name) {
         AutoReplaceParameter retval = null;
-        
+
         if (configuration.getAutoReplaceParameters() != null) {
-            for (AutoReplaceParameter param : configuration.getAutoReplaceParameters() .getAutoReplaceParameterArray()) {
+            for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 if (param.getParameterName().equals(name)) {
                     retval = param;
                     break;
                 }
             }
         }
-        
+
         return retval;
     }
-    
+
     public static String getOperatorFromEnumName(ComparisonOperator.Enum op) {
         String retval = "";
-        
+
         if (op == null) {
             op = ComparisonOperator.EQUAL_TO;
         }
-        
+
         switch (op.intValue()) {
             case ComparisonOperator.INT_EQUAL_TO:
                 retval = "=";
@@ -3172,16 +3199,16 @@ public class Utils {
                 retval = "not null";
                 break;
         }
-        
+
         return retval;
     }
-    
-    
+
     /**
      * this string compare handles wildcards
+     *
      * @param patternString
      * @param checkString
-     * @return 
+     * @return
      */
     public static boolean isStringMatch(String patternString, String checkString) {
         boolean retval = false;
@@ -3212,32 +3239,32 @@ public class Utils {
     }
 
     public static boolean hasChildNodeWithNodeName(Element parent, String nodeName) {
-        return (getFirstChildNodeByNodeName(parent, nodeName) != null);         
+        return (getFirstChildNodeByNodeName(parent, nodeName) != null);
     }
 
-     public static boolean hasChildNodeWithNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
-        return (getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, attributeName, attributeValue) != null);         
+    public static boolean hasChildNodeWithNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+        return (getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, attributeName, attributeValue) != null);
     }
 
     public static Element getFirstChildNodeByNodeName(Element parent, String nodeName) {
         return getFirstChildNodeByNodeNameAndAttribute(parent, nodeName, null, null);
     }
-    
-     public static  Element getFirstChildNodeByNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
+
+    public static Element getFirstChildNodeByNodeNameAndAttribute(Element parent, String nodeName, String attributeName, String attributeValue) {
         Element retval = null;
         Element firstChildElement = null;
         if (parent.hasChildNodes()) {
             NodeList nl = parent.getChildNodes();
-            
-            for (int i = 0; i < nl.getLength(); ++ i) {
+
+            for (int i = 0; i < nl.getLength(); ++i) {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
                     Element curElement = (Element) nl.item(i);
-                    
+
                     // if the first child element is a span or div then we will save it
                     // if we do not find the desired child we will look in the first child span
-                    if ((firstChildElement == null) 
+                    if ((firstChildElement == null)
                         && (Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(curElement.getTagName())
-                            || Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(curElement.getTagName()))) {
+                        || Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(curElement.getTagName()))) {
                         firstChildElement = curElement;
                     }
 
@@ -3257,46 +3284,46 @@ public class Utils {
         if ((retval == null) && (firstChildElement != null)) {
             retval = getFirstChildNodeByNodeNameAndAttribute(firstChildElement, nodeName, attributeName, attributeValue);
         }
-        
+
         return retval;
     }
-     
+
     public static JDialog getParentDialog(Component c) {
         JDialog retval = null;
-        
+
         Component p = c.getParent();
-        
+
         while (p != null) {
             if (p instanceof JDialog) {
-                retval = (JDialog)p;
+                retval = (JDialog) p;
                 break;
             }
-            
+
             p = p.getParent();
         }
-        
+
         return retval;
     }
-    
+
     public static String[] getWebServiceOperationParts(String operationString) {
         String[] retval = null;
-        
+
         if (StringUtils.isNotBlank(operationString)) {
             String s = operationString.trim();
-            
+
             int pos = operationString.indexOf("}");
-            
+
             if (pos > -1) {
-                retval = new String[] {s.substring(1, pos), s.substring(pos+1)};
+                retval = new String[]{s.substring(1, pos), s.substring(pos + 1)};
             }
         }
-        
+
         return retval;
     }
-    
+
     public static ValueType.Enum getValueTypeForTypeName(String typeName) {
         ValueType.Enum retval = ValueType.STRING;
-        
+
         if (StringUtils.isNotBlank(typeName)) {
             if ("string".equalsIgnoreCase(typeName)) {
                 retval = ValueType.STRING;
@@ -3314,17 +3341,17 @@ public class Utils {
                 retval = ValueType.DATE;
             }
         }
-        
+
         return retval;
     }
-    
+
     public static void printDom(Document doc) {
         tidy.pprint(doc, System.out);
     }
 
     public static String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
         String retval = null;
-        
+
         for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
             if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
                 if (StringUtils.isNotBlank(param.getValue())) {
@@ -3333,66 +3360,65 @@ public class Utils {
                 }
             }
         }
-        
+
         return retval;
     }
 
-    public static List <TestOperation> findMostRecentHttpRequestsWithParameters(List <TestOperation> testOperations) {
-        List <TestOperation> retval = new ArrayList<TestOperation>();
-        
+    public static List<TestOperation> findMostRecentHttpRequestsWithParameters(List<TestOperation> testOperations) {
+        List<TestOperation> retval = new ArrayList<TestOperation>();
+
         int sz = testOperations.size();
-        for (int i = (sz-1); i >= 0; --i) {
+        for (int i = (sz - 1); i >= 0; --i) {
             TestOperation testop = testOperations.get(i);
-            
+
             if (testop.getOperation().getHtmlRequestOperation() != null) {
                 HtmlRequestOperation op = testop.getOperation().getHtmlRequestOperation();
-                
+
                 String requestParameterString = Utils.getContentParameterFromRequestOperation(op);
                 int pos = op.getUrl().indexOf("?");
-                
-                
+
                 if (StringUtils.isNotBlank(requestParameterString) || op.getUrl().contains("?")) {
                     retval.add(testop);
-                    
+
                     if (retval.size() > Constants.HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE) {
                         break;
                     }
                 }
             }
         }
-        
+
         return retval;
     }
 
     public static ParameterReplacement findParameterReplacement(String name, ParameterReplacement[] parameterReplacements) {
         ParameterReplacement retval = null;
-        
+
         for (ParameterReplacement pr : parameterReplacements) {
             if (name.equalsIgnoreCase(pr.getReplaceParameterName())) {
                 retval = pr;
                 break;
             }
         }
-        
+
         return retval;
     }
-    
+
     /**
-     * 
+     *
      * @param parameterMap
      * @param input
-     * @return 
+     * @return
      */
     public static String replaceStringParameters(Map<String, String> parameterMap, String input) {
         return replaceStringParameters(parameterMap, input, null);
     }
-    
+
     /**
-     * 
+     *
      * @param parameterMap
      * @param input
      * @param defaultInput
-     * @return 
+     * @return
      */
     public static String replaceStringParameters(Map<String, String> parameterMap, String input, String defaultInput) {
         StringBuilder retval = new StringBuilder(input.length());
@@ -3406,28 +3432,28 @@ public class Utils {
                 int pos2 = input.indexOf("}", pos1);
 
                 if (pos2 > pos1) {
-                    int startPos = pos1+2;
+                    int startPos = pos1 + 2;
 
                     int endPos = pos2;
 
                     String key = input.substring(startPos, endPos);
                     retval.append(input.substring(lastPos, pos1));
-                    
+
                     String value = parameterMap.get(key);
-                    
+
                     if (StringUtils.isNotBlank(value)) {
                         retval.append(value);
                     } else if (StringUtils.isNotBlank(defaultInput)) {
                         retval.append(defaultInput);
                     }
-                    lastPos = pos2+1;
+                    lastPos = pos2 + 1;
                 }
             }
         } while (pos1 > -1);
-        
+
         retval.append(input.substring(lastPos, input.length()));
 
         return retval.toString();
     }
-    
-}        
+
+}

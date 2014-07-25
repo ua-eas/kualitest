@@ -60,7 +60,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
         try {
-            String sqlQuery = getTestExecutionContext().replaceTestExecutionParameters(getParameter(Constants.SQL_QUERY));
+            String sqlQuery = getTestExecutionContext().replaceSqlTestExecutionParameters(getParameter(Constants.SQL_QUERY));
             boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
         
             Connection conn = null;

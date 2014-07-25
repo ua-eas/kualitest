@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.exceptions;
 
+import org.kuali.test.FailureAction;
 import org.kuali.test.Operation;
 
 /**
@@ -25,7 +26,8 @@ import org.kuali.test.Operation;
 public class TestException extends Exception {
     private Operation op;
     private String message;
-
+    private FailureAction.Enum failureAction;
+    
     /**
      *
      * @param message
@@ -35,6 +37,19 @@ public class TestException extends Exception {
         super(message);
         this.op = op;
         this.message = message;
+    }
+
+    /**
+     * 
+     * @param message
+     * @param op
+     * @param failureAction 
+     */
+    public TestException(String message, Operation op, FailureAction.Enum failureAction) {
+        super(message);
+        this.op = op;
+        this.message = message;
+        this.failureAction = failureAction;
     }
 
     /**
@@ -58,5 +73,9 @@ public class TestException extends Exception {
     @Override
     public String getMessage() {
         return message;
+    }
+
+    public FailureAction.Enum getFailureAction() {
+        return failureAction;
     }
 }

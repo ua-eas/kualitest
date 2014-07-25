@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.HttpClientUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.log4j.Logger;
+import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
@@ -46,7 +47,7 @@ import org.kuali.test.utils.Utils;
  */
 public class HttpRequestOperationExecution extends AbstractOperationExecution {
     private static final Logger LOG = Logger.getLogger(HttpRequestOperationExecution.class);
-    
+static boolean firstOne = true;    
     /**
      *
      * @param context
@@ -71,28 +72,43 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             reqop = getOperation().getHtmlRequestOperation();
             
             try {
-                Thread.sleep(reqop.getDelay());
+                int delay = configuration.getDefaultTestWaitInterval();
+                
+                if (getTestExecutionContext().getKualiTest().getTestHeader().getUseTestEntryTimes()) {
+                    delay = reqop.getDelay();
+                }
+                
+                Thread.sleep(delay);
             } 
             
             catch (InterruptedException ex) {};
             
             HttpRequestBase request = new HttpGet(reqop.getUrl());
+            TestExecutionContext tec = getTestExecutionContext();
 
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                request = new HttpGet(getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl()));
+                request = new HttpGet(getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl()));
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                String url = getTestExecutionContext().replaceTestExecutionParameters(reqop, reqop.getUrl());
+                String url = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl());
+  
                 HttpPost postRequest = new HttpPost(url);
                 request = postRequest;
                 
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
+
                 
                 if (StringUtils.isNotBlank(params)) {
-                    params = getTestExecutionContext().replaceTestExecutionParameters(reqop, params);
+                    String contentType = getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
+                    if (StringUtils.isNotBlank(contentType)) {
+                        if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                            params = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, params);
+                            List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
+                            postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
+                        } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                            getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
+                        }
+                    }
                 }
-                
-                List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
-                postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
             }
             
             if (reqop.getRequestHeaders() != null) {
@@ -101,12 +117,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
 
-            TestExecutionContext tec = getTestExecutionContext();
-
             response = tec.getHttpClient().execute(request);
 
             if (response != null) {
-
                 BufferedReader reader = null; 
                 StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
                 try {
@@ -116,7 +129,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                      while ((line = reader.readLine()) != null) {
                          responseBuffer.append(line);
                      }                        
-
                 }
 
                  finally {
@@ -125,10 +137,20 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                      }
                 }
 
-                if (response.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) {
+                int status = response.getStatusLine().getStatusCode();
+                if (status == HttpURLConnection.HTTP_OK) {
                     tec.pushHttpResponse(responseBuffer.toString());
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(responseBuffer.toString());
+                } else if ((status >= 400) && (status < 600)) {
+                    LOG.warn("========================================================================");
+                    LOG.warn("http status: " + status);
+                    LOG.warn("        url: " + reqop.getUrl());
+                    LOG.warn("     params: " + Utils.getContentParameterFromRequestOperation(reqop));
+                    LOG.warn("========================================================================");
+                    LOG.warn(responseBuffer.toString());
+                    LOG.warn("------------------------------------------------------------------------");
+                    throw new TestException("server returned bad status - " + status, getOperation(), FailureAction.ERROR_HALT_TEST);
                 }
             }
         } 
@@ -148,5 +170,22 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         finally {
             HttpClientUtils.closeQuietly(response);
         }
+    }
+    
+    private String getRequestHeader(HtmlRequestOperation op, String name) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(name)) {
+            if (op.getRequestHeaders() != null) {
+                for (RequestHeader h : op.getRequestHeaders().getHeaderArray()) {
+                    if (name.equalsIgnoreCase(h.getName())) {
+                        retval = h.getValue();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
     }
 }

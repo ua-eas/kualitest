@@ -416,7 +416,11 @@ public class PoiHelper {
         // status
         Cell cell = row.createCell(9);
 
-        FailureAction.Enum failureAction = findMaxFailureAction(op, ex);
+        FailureAction.Enum failureAction = ex.getFailureAction();
+        
+        if (failureAction == null) {
+            failureAction = findMaxFailureAction(op, ex);
+        }
 
         switch (failureAction.intValue()) {
             case FailureAction.INT_IGNORE:

@@ -17,13 +17,18 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -50,6 +55,7 @@ public class CreateTestDlg extends BaseSetupDlg {
     private JTextField description;
     private IntegerTextField maxRunTime;
     private JComboBox runtimeFailure;
+    private JCheckBox useTestEntryTimes;
     private TestHeader testHeader;
     
     /**
@@ -78,7 +84,8 @@ public class CreateTestDlg extends BaseSetupDlg {
             "Test Type",
             "Description",
             "Max Run Time (sec)",
-            "On Max Time Failure"
+            "On Max Time Failure",
+            ""
         };
         
         platforms = new JComboBox(Utils.loadPlatformNames(getConfiguration()));
@@ -94,9 +101,25 @@ public class CreateTestDlg extends BaseSetupDlg {
         
         String[] testTypes = Utils.getValidTestTypesForPlatform(currentPlatform);
         testType = new JComboBox(testTypes);
+        testType.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                useTestEntryTimes.setSelected(false);
+                useTestEntryTimes.setEnabled(TestType.WEB.toString().equals(testType.getSelectedItem().toString()));
+            }
+        });
         
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        
+        p.add(useTestEntryTimes = new JCheckBox());
+        p.add(new JLabel("Use test entry times during test execution"));
+        
+
         if (testTypes.length > 0) {
             testType.setSelectedItem(TestType.WEB.toString());
+            useTestEntryTimes.setEnabled(true);
+        } else {
+            useTestEntryTimes.setEnabled(false);
         }
         
         description = new JTextField("new test description", 30);
@@ -109,7 +132,8 @@ public class CreateTestDlg extends BaseSetupDlg {
             testType,
             description,
             maxRunTime,
-            runtimeFailure
+            runtimeFailure,
+            p
         };
 
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
@@ -163,6 +187,10 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setPlatformName((String)platforms.getSelectedItem());
                 testHeader.setTestSuiteName(Constants.NO_TEST_SUITE_NAME);
                 testHeader.setCreatedBy("default-user");
+                if (useTestEntryTimes.isEnabled()) {
+                    testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
+                }
+                
                 if (StringUtils.isBlank(maxRunTime.getText())) {
                     testHeader.setMaxRunTime(0);
                 }
@@ -227,6 +255,11 @@ public class CreateTestDlg extends BaseSetupDlg {
      */
     @Override
     protected String getDialogName() {
-        return "new-test-setup";
+        return "create-test";
+    }
+    
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 400);
     }
 }

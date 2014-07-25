@@ -187,6 +187,7 @@ public class Constants {
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
+    public static final String HTTP_HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
     public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String UNKNOWN = "unknown";
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
@@ -205,6 +206,7 @@ public class Constants {
     public static final int HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE = 3;
     public static final String SAVE_SCREEN = "save-screen";
     public static final int ELAPSED_TIME_UPDATE_INTERVAL = 5;
+    public static final String MULTIPART_BOUNDARY_IDENTIFIER = "boundary=";
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -218,7 +220,9 @@ public class Constants {
     public static final String FILE_DIRECTORY = "file-directory";
     public static final String FILE_NAME_PATTERN = "file-name-pattern";
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
+    public static final String MULTIPART_NAME_VALUE_SEPARATOR = IGNORE_TABLE_DATA_INDICATOR;
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
+    public static final String MULTIPART_PARAMETER_SEPARATOR = "|";
     public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
     public static final String PARAMETER_NAME_CONTENT = "content";
     public static final String PARAMETER_NAME_PATH = "path";
@@ -247,6 +251,9 @@ public class Constants {
     public static final String HTTP_REQUEST_METHOD_CONNECT = "CONNECT";
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "Content-Type";
     public static final String MIME_TYPE_HTML = "text/html";
+    public static final String MIME_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
+    public static final String MIME_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
+   
     
     public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
     public static final String TAB_SPACES = "    ";
@@ -455,5 +462,14 @@ public class Constants {
         XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("double", java.lang.Double.class);
         XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("boolean", java.lang.Boolean.class);
         XML_SCHEMA_TYPE_TO_JAVA_CLASS.put("dateTime", java.util.Calendar.class);
+    }
+    
+    public static final Set <String> HTTP_REQUEST_HEADERS_TO_IGNORE = new HashSet<String>();
+    
+    static {
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_USER_AGENT);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_COOKIE);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_CONTENT_LENGTH);
+   //     HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_TRANSFER_ENCODING);
     }
 }
