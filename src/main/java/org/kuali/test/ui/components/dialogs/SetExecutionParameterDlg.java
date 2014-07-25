@@ -64,14 +64,14 @@ public class SetExecutionParameterDlg extends BaseSetupDlg {
     private void initComponents() {
 
         String[] labels = {
-            "Test Execution Parameters",
-            "HTTP Request Parameters", 
+            "Test Parameters",
+            "HTTP Parameters", 
         };
         
         availableExecutionParameters = new JComboBox(getAvailableExecutionParameters());
         availableRequestParameters = new JComboBox(getAvailableRequestParameters());
         
-        JComponent[] components = {availableExecutionParameters, availableRequestParameters};
+        JComponent[] components = {availableRequestParameters, availableExecutionParameters};
 
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);

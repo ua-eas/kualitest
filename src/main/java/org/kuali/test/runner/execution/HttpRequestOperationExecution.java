@@ -116,13 +116,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
 
-                if (reqop.getRequestHeaders() != null) {
-                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                        request.addHeader(hdr.getName(), hdr.getValue());
-                    }
-                }
-
                 if (request != null) {
+                    if (reqop.getRequestHeaders() != null) {
+                        for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                            request.addHeader(hdr.getName(), hdr.getValue());
+                        }
+                    }
+
                     response = tec.getHttpClient().execute(request);
 
                     if (response != null) {
