@@ -46,6 +46,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     implements ListSelectionListener, DocumentListener {
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
+    private JTextField filters;
     private TestExecutionParameter testExecutionParameter;
 
     /**
@@ -64,13 +65,16 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     private void initComponents(JWebBrowser wb, TestHeader testHeader, String html) {
         String[] labels = new String[]{
             "Name",
+            "Filters"
         };
 
         name = new JTextField(30);
         name.getDocument().addDocumentListener(this);
+        filters = new JTextField(30);
 
         JComponent[] components = new JComponent[]{
             name,
+            filters
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -114,7 +118,11 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     protected boolean save() {
         testExecutionParameter = TestExecutionParameter.Factory.newInstance();
         testExecutionParameter.setName(name.getText());
-        testExecutionParameter.setValueProperty(valuesPanel.getSelectedProperties().get(0));
+        CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
+        if (StringUtils.isNotBlank(filters.getText())) {
+            cp.setPropertyGroup(filters.getText());
+        }
+        testExecutionParameter.setValueProperty(cp);
         setSaved(true);
         dispose();
         return true;
