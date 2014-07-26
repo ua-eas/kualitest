@@ -471,7 +471,7 @@ public class TestExecutionContext extends Thread {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(test, this, op);
             if (opExec != null) {
                 try {
-                    opExec.execute(configuration, platform);
+                    opExec.execute(configuration, platform, test);
                     if (op.getOperation().getCheckpointOperation() != null) {
                         incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
@@ -756,21 +756,38 @@ public class TestExecutionContext extends Thread {
                 }
             }
             
-            for (int i = (startpos+1); i < ops.length; ++i) {
-                if (ops[i].getOperation().getHtmlRequestOperation() != null) {
-                    replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
-                    replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
-                } else if (ops[i].getOperation().getCheckpointOperation() != null) {
-                    if (CheckpointType.SQL.equals(ops[i].getOperation().getCheckpointOperation().getType())) {
-                        Checkpoint cp = ops[i].getOperation().getCheckpointOperation();
-                        
-                        Parameter param = Utils.getCheckpointParameter(cp, Constants.SQL_QUERY);
-                        param.setValue(param.getValue().replace("${" + ep.getName() + "}", ep.getValueProperty().getActualValue()));
+            if (startpos > -1) {
+                for (int i = (startpos+1); i < ops.length; ++i) {
+                    if (ops[i].getOperation().getHtmlRequestOperation() != null) {
+                        replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
+                        replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
+                    } else if (ops[i].getOperation().getCheckpointOperation() != null) {
+                        if (CheckpointType.SQL.equals(ops[i].getOperation().getCheckpointOperation().getType())) {
+                            Checkpoint cp = ops[i].getOperation().getCheckpointOperation();
+
+                            Parameter param = Utils.getCheckpointParameter(cp, Constants.SQL_QUERY);
+                            param.setValue(param.getValue().replace("${" + ep.getName() + "}", ep.getValueProperty().getActualValue()));
+                        }
                     }
                 }
             }
         }
     }
+    
+    public void processAutoReplaceParameters(KualiTest test, HtmlRequestOperation reqop) {
+        if (autoReplaceParameterMap.size() > 0) {
+            TestOperation[] ops = kualiTest.getOperations().getOperationArray();
+            for (int i = 0; i < ops.length; ++i) {
+                if (ops[i].getOperation().getHtmlRequestOperation() != null) {
+                    replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
+                    replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
+                } 
+            }
+            
+            autoReplaceParameterMap.clear();
+        }
+    }
+
     
     private void replaceMultiPartParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         if (Utils.isMultipart(op)) {
@@ -833,21 +850,109 @@ public class TestExecutionContext extends Thread {
                     buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
                     op.setUrl(buf.toString());
                 }
-                
-                if (Utils.isUrlFormEncoded(op)) {
-                    RequestParameter param = Utils.getContentParameter(op);
-                    if (param != null) {
-                        nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
-                        nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+            }
+            
+            if (Utils.isUrlFormEncoded(op)) {
+                RequestParameter param = Utils.getContentParameter(op);
+                if (param != null) {
+                    nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
+                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
-                        for (int i = 0; i < nvparray.length; ++i) {
-                            if (nvparray[i].getValue().equals(ep.getValue())) {
-                                nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
-                            }
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (nvparray[i].getValue().equals(ep.getValue())) {
+                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
                         }
-                        
-                        param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
                     }
+
+                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+                }
+            }
+        }
+    }
+    
+    private void replaceMultiPartParams(HtmlRequestOperation op, Map<String, String> paramMap) {
+        if (Utils.isMultipart(op)) {
+            RequestParameter param = Utils.getContentParameter(op);
+            
+            if (param != null) {
+                String params = param.getValue();
+                StringBuilder buf = new StringBuilder(params.length());
+
+                StringTokenizer st1 = new StringTokenizer(params, Constants.MULTIPART_PARAMETER_SEPARATOR);
+
+                String seperator = "";
+
+                while (st1.hasMoreElements()) {
+                    StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                    
+                    if (st2.countTokens() == 2) {
+                        String name = st2.nextToken();
+                        String value = st2.nextToken();
+
+                        String replacement = paramMap.get(name);
+                        
+                        if (StringUtils.isNotBlank(replacement)) {
+                            value = replacement;
+                        }
+
+                        buf.append(seperator);
+                        buf.append(name);
+                        buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                        buf.append(value);
+                        seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
+                    }
+                }
+                
+                param.setValue(buf.toString());
+            }
+        }
+    }
+    
+    private void replaceUrlFormEncodedParams(HtmlRequestOperation op, Map<String, String> paramMap) {
+        String params = Utils.getParamsFromUrl(op.getUrl());
+                        
+                                // if we have a parameter string then convert to NameValuePair list and process
+        if (StringUtils.isNotBlank(params)) {
+            List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
+
+            if ((nvplist != null) && !nvplist.isEmpty()) {
+                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+
+                for (int i = 0; i < nvparray.length; ++i) {
+                    String replacement = paramMap.get(nvparray[i].getName());
+                    
+                    if (StringUtils.isNotBlank(replacement)) {
+System.out.println("---------------------------------------------->" + nvparray[i].getName() + "=" + replacement);
+                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
+                    }
+                }
+            
+                int pos = op.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
+
+                if (pos > -1) {
+                    StringBuilder buf = new StringBuilder(op.getUrl().length());
+                    buf.append(op.getUrl().substring(0, pos));
+                    buf.append(Constants.SEPARATOR_QUESTION);
+                    buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+                    op.setUrl(buf.toString());
+                }
+            }     
+            if (Utils.isUrlFormEncoded(op)) {
+                RequestParameter param = Utils.getContentParameter(op);
+                if (param != null) {
+                    nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
+                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        String replacement = paramMap.get(nvparray[i].getName());
+
+                        if (StringUtils.isNotBlank(replacement)) {
+System.out.println("---------------------------------------------->" + nvparray[i].getName() + "=" + replacement);
+                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
+                        }
+                    }
+
+                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
                 }
             }
         }

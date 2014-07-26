@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
@@ -173,5 +174,9 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
         }
         
         return retval;
+    }
+
+    @Override
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

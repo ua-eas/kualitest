@@ -34,6 +34,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
@@ -58,13 +59,15 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     }
     
     /**
-     *
+     * 
      * @param configuration
      * @param platform
-     * @throws TestException
+     * @param test
+     * @throws TestException 
      */
     @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        Platform platform, KualiTest test) throws TestException {
         HtmlRequestOperation reqop = null;
         CloseableHttpResponse response = null;
 
@@ -91,6 +94,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (StringUtils.isNotBlank(host) && reqop.getUrl().endsWith(host)) {
                 // do nothing - AJAX calll?
             } else {
+                tec.processAutoReplaceParameters(test, reqop);
                 if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
                     request = new HttpGet(reqop.getUrl());
                 } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
@@ -142,9 +146,15 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         
                         int status = response.getStatusLine().getStatusCode();
                         if (status == HttpURLConnection.HTTP_OK) {
-                            tec.pushHttpResponse(responseBuffer.toString());
-                            tec.updateAutoReplaceMap();
-                            tec.updateTestExecutionParameters(responseBuffer.toString());
+                            String html = responseBuffer.toString();
+                       //     if (Utils.isHtmlDocument(html)) {
+                                tec.pushHttpResponse(responseBuffer.toString());
+                                tec.updateAutoReplaceMap();
+                                tec.updateTestExecutionParameters(responseBuffer.toString());
+
+                                System.out.println("---------------------------------------------------------------------->");
+                               System.out.println(responseBuffer.toString());
+                         //   }
                         } else if ((status >= 400) && (status < 600)) {
                             throw new TestException("server returned bad status - " + status + ", uri=" + request.getURI(), getOperation(), FailureAction.IGNORE);
                         }
@@ -168,5 +178,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         finally {
             HttpClientUtils.closeQuietly(response);
         }
+    }
+
+    @Override
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
     }
 }

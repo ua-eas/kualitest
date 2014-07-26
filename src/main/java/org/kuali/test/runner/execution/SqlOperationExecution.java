@@ -30,6 +30,7 @@ import java.util.List;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
@@ -181,5 +182,9 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         }
         
         pw.println(Utils.buildCsvLine(dataList));
+    }
+
+    @Override
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

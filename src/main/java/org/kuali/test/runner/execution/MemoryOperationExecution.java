@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
@@ -94,5 +95,9 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
         catch (IOException ex) {
             throw new TestException("an IOException was throw while attempting to connect via jmx - " + ex.toString(), getOperation(), ex);
         }
+    }
+
+    @Override
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

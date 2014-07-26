@@ -29,6 +29,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
@@ -204,5 +205,9 @@ public class FileOperationExecution extends AbstractOperationExecution {
         
         
         return retval;
+    }
+
+    @Override
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }
