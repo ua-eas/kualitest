@@ -757,10 +757,11 @@ public class TestExecutionContext extends Thread {
             }
             
             if (startpos > -1) {
+                Map <String, String> map = new HashMap<String, String>();
                 for (int i = (startpos+1); i < ops.length; ++i) {
                     if (ops[i].getOperation().getHtmlRequestOperation() != null) {
-                        replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
-                        replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
+                        replaceUrlFormEncodedTestExecutionParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
+                        replaceMultiPartTestExecutionParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
                     } else if (ops[i].getOperation().getCheckpointOperation() != null) {
                         if (CheckpointType.SQL.equals(ops[i].getOperation().getCheckpointOperation().getType())) {
                             Checkpoint cp = ops[i].getOperation().getCheckpointOperation();
@@ -789,7 +790,7 @@ public class TestExecutionContext extends Thread {
     }
 
     
-    private void replaceMultiPartParams(HtmlRequestOperation op, TestExecutionParameter ep) {
+    private void replaceMultiPartTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         if (Utils.isMultipart(op)) {
             RequestParameter param = Utils.getContentParameter(op);
             
@@ -808,7 +809,7 @@ public class TestExecutionContext extends Thread {
                         String name = st2.nextToken();
                         String value = st2.nextToken();
 
-                        if (value.equals(ep.getValue())) {
+                        if (value.equals(ep.getValueProperty().getPropertyValue())) {
                             value = ep.getValueProperty().getActualValue();
                         }
 
@@ -825,7 +826,7 @@ public class TestExecutionContext extends Thread {
         }
     }
     
-    private void replaceUrlFormEncodedParams(HtmlRequestOperation op, TestExecutionParameter ep) {
+    private void replaceUrlFormEncodedTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         String params = Utils.getParamsFromUrl(op.getUrl());
                         
                                 // if we have a parameter string then convert to NameValuePair list and process
@@ -836,7 +837,7 @@ public class TestExecutionContext extends Thread {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
                 for (int i = 0; i < nvparray.length; ++i) {
-                    if (nvparray[i].getValue().equals(ep.getValue())) {
+                    if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
                         nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
                     }
                 }
@@ -859,7 +860,7 @@ public class TestExecutionContext extends Thread {
                     NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
                     for (int i = 0; i < nvparray.length; ++i) {
-                        if (nvparray[i].getValue().equals(ep.getValue())) {
+                        if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
                             nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
                         }
                     }
@@ -922,7 +923,6 @@ public class TestExecutionContext extends Thread {
                     String replacement = paramMap.get(nvparray[i].getName());
                     
                     if (StringUtils.isNotBlank(replacement)) {
-System.out.println("---------------------------------------------->" + nvparray[i].getName() + "=" + replacement);
                         nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                     }
                 }
@@ -947,7 +947,6 @@ System.out.println("---------------------------------------------->" + nvparray[
                         String replacement = paramMap.get(nvparray[i].getName());
 
                         if (StringUtils.isNotBlank(replacement)) {
-System.out.println("---------------------------------------------->" + nvparray[i].getName() + "=" + replacement);
                             nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                         }
                     }
