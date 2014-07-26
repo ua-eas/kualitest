@@ -79,6 +79,7 @@ import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.kuali.test.AutoReplaceParameter;
+import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ChildTagMatch;
@@ -90,7 +91,7 @@ import org.kuali.test.KualiApplication;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
-import org.kuali.test.ParameterReplacement;
+import org.kuali.test.Parameter;
 import org.kuali.test.ParentTagMatch;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
@@ -3356,11 +3357,22 @@ public class Utils {
 
     public static String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
         String retval = null;
+        RequestParameter contentParam = getContentParameter(reqop);
+        
+        if (contentParam != null) {
+            retval = contentParam.getValue();
+        }
+
+        return retval;
+    }
+
+    public static RequestParameter getContentParameter(HtmlRequestOperation reqop) {
+        RequestParameter retval = null;
 
         for (RequestParameter param : reqop.getRequestParameters().getParameterArray()) {
             if (Constants.PARAMETER_NAME_CONTENT.equals(param.getName())) {
                 if (StringUtils.isNotBlank(param.getValue())) {
-                    retval = param.getValue();
+                    retval = param;
                     break;
                 }
             }
@@ -3369,45 +3381,7 @@ public class Utils {
         return retval;
     }
 
-    public static List<TestOperation> findMostRecentHttpRequestsWithParameters(List<TestOperation> testOperations) {
-        List<TestOperation> retval = new ArrayList<TestOperation>();
-
-        int sz = testOperations.size();
-        for (int i = (sz - 1); i >= 0; --i) {
-            TestOperation testop = testOperations.get(i);
-
-            if (testop.getOperation().getHtmlRequestOperation() != null) {
-                HtmlRequestOperation op = testop.getOperation().getHtmlRequestOperation();
-
-                String requestParameterString = Utils.getContentParameterFromRequestOperation(op);
-                int pos = op.getUrl().indexOf("?");
-
-                if (StringUtils.isNotBlank(requestParameterString) || op.getUrl().contains("?")) {
-                    retval.add(testop);
-
-                    if (retval.size() > Constants.HTTP_URL_REQUEST_FOR_PARAMETERS_LIST_MAX_SIZE) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return retval;
-    }
-
-    public static ParameterReplacement findParameterReplacement(String name, ParameterReplacement[] parameterReplacements) {
-        ParameterReplacement retval = null;
-
-        for (ParameterReplacement pr : parameterReplacements) {
-            if (name.equalsIgnoreCase(pr.getReplaceParameterName())) {
-                retval = pr;
-                break;
-            }
-        }
-
-        return retval;
-    }
-
+    
     /**
      *
      * @param parameterMap
@@ -3480,15 +3454,52 @@ public class Utils {
     public static String getRequestHeader(HtmlRequestOperation op, String name) {
         String retval = null;
         
+        RequestHeader h = getRequestHeaderObject(op, name);
+        
+        if (h != null) {
+            retval = h.getValue();
+        }
+        
+        return retval;
+    }
+
+    public static RequestHeader getRequestHeaderObject(HtmlRequestOperation op, String name) {
+        RequestHeader retval = null;
+        
         if (StringUtils.isNotBlank(name)) {
             if (op.getRequestHeaders() != null) {
                 for (RequestHeader h : op.getRequestHeaders().getHeaderArray()) {
                     if (name.equalsIgnoreCase(h.getName())) {
-                        retval = h.getValue();
+                        retval = h;
                         break;
                     }
                 }
             }
+        }
+        
+        return retval;
+    }
+
+    public static boolean isUrlFormEncoded(HtmlRequestOperation op) {
+        boolean retval = false;
+        
+        String contentType = getRequestHeader(op, Constants.HTTP_HEADER_CONTENT_TYPE);
+        
+        if (StringUtils.isNotBlank(contentType)) {
+            retval = Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType);
+        }
+        
+        return retval;
+    }
+
+
+    public static boolean isMultipart(HtmlRequestOperation op) {
+        boolean retval = false;
+        
+        String contentType = getRequestHeader(op, Constants.HTTP_HEADER_CONTENT_TYPE);
+        
+        if (StringUtils.isNotBlank(contentType)) {
+            retval = isMultipart(contentType);
         }
         
         return retval;
@@ -3510,5 +3521,35 @@ public class Utils {
 
     public static boolean isHtmlDocument(String s) {
         return (StringUtils.isNotBlank(s) && s.contains("<html>"));
+    }
+    
+    public static String getParamsFromUrl(String url) {
+        String retval = null;
+        
+        if (StringUtils.isNotBlank(url)) {
+            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);;
+            if (pos > -1) {
+                retval = url.substring(pos+1);
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static Parameter getCheckpointParameter(Checkpoint cp, String name) {
+        Parameter retval = null;
+        
+        if ((cp != null) && StringUtils.isNotBlank(name)) {
+            if (cp.getInputParameters() != null) {
+                for (Parameter param : cp.getInputParameters().getParameterArray()) {
+                    if (param.getName().endsWith(name)) {
+                        retval = param;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
     }
 }

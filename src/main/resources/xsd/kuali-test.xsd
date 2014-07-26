@@ -48,20 +48,6 @@
             <xs:element name="delay" type="xs:int" default="5000"/>
             <xs:element name="request-headers" type="request-headers"/>
             <xs:element name="request-parameters" type="request-parameters"/>
-            <xs:element name="parameter-replacements" type="parameter-replacements" minOccurs="0"/>
-        </xs:sequence>
-    </xs:complexType>
-    
-    <xs:complexType name="parameter-replacements">
-        <xs:sequence>
-            <xs:element name="parameter-replacement" type="parameter-replacement" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="parameter-replacement">
-        <xs:sequence>
-            <xs:element name="test-execution-parameter-name" type="xs:string"/>
-            <xs:element name="replace-parameter-name" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
     

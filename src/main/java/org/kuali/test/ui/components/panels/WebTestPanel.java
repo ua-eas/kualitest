@@ -28,9 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
@@ -39,8 +37,6 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
-import org.kuali.test.ParameterReplacement;
-import org.kuali.test.ParameterReplacements;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -55,7 +51,6 @@ import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
-import org.kuali.test.ui.components.dialogs.SetExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
@@ -75,7 +70,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
     private ToolbarButton addParam;
-    private ToolbarButton setParam;
     private ToolbarButton refresh;
     
     /**
@@ -320,7 +314,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
         addParam.setEnabled(false);
-        setParam.setEnabled(false);
         refresh.setEnabled(false);
 
         closeProxyServer();
@@ -455,11 +448,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         addParam.setToolTipText("add test execution parameter");
         addParam.setEnabled(false);
 
-        retval.add(setParam = new ToolbarButton(Constants.SET_PARAM_ACTION, Constants.SET_PARAM_ICON));
-        setParam.setToolTipText("set test execution parameter");
-        setParam.setEnabled(false);
-
-        
         retval.add(refresh = new ToolbarButton(Constants.REFRESH_BROWSER_ACTION, Constants.REFRESH_BROWSER_ICON));
         refresh.setToolTipText("refresh browser");
         refresh.setEnabled(false);
@@ -475,8 +463,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     protected void handleUnprocessedActionEvent(ActionEvent e) {
         if (Constants.ADD_PARAM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             handleAddExecutionParameter();
-        } else if (Constants.SET_PARAM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            handleSetExecutionParameter();
         } else if (Constants.REFRESH_BROWSER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getCurrentBrowser().reloadPage();
         }
@@ -488,40 +474,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         if (dlg.isSaved()) {
             addTestExecutionParameter(dlg.getTestExecutionParameter());
-            setParam.setEnabled(true);
-        }
-    }
-
-    private void handleSetExecutionParameter() {
-        SetExecutionParameterDlg dlg = new SetExecutionParameterDlg(getMainframe(), testProxyServer.getTestOperations());
-
-        if (dlg.isSaved()) {
-            ParameterReplacement parameterReplacement = (ParameterReplacement)dlg.getNewRepositoryObject();
-            List <TestOperation> testops = Utils.findMostRecentHttpRequestsWithParameters(testProxyServer.getTestOperations());
-            if ((testops != null) && !testops.isEmpty()) {
-                Set <String> hs = new HashSet<String>();
-                
-                for (TestOperation testop : testops) {
-                    if (!hs.contains(parameterReplacement.getTestExecutionParameterName())) {
-                        hs.add(parameterReplacement.getTestExecutionParameterName());
-                        ParameterReplacements parameterReplacements = testop.getOperation().getHtmlRequestOperation().getParameterReplacements();
-
-                        if (parameterReplacements == null) {
-                            parameterReplacements = testop.getOperation().getHtmlRequestOperation().addNewParameterReplacements();
-                        }
-
-                        ParameterReplacement rparam = Utils.findParameterReplacement(parameterReplacement.getTestExecutionParameterName(), parameterReplacements.getParameterReplacementArray());
-
-                        if (rparam != null) {
-                            rparam.setReplaceParameterName(rparam.getReplaceParameterName());
-                        } else {
-                            rparam = parameterReplacements.addNewParameterReplacement();
-                            rparam.setReplaceParameterName(parameterReplacement.getReplaceParameterName());
-                            rparam.setTestExecutionParameterName(parameterReplacement.getTestExecutionParameterName());
-                        }
-                    }
-                }
-            }
         }
     }
     

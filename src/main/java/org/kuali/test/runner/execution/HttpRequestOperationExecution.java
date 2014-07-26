@@ -92,21 +92,17 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 // do nothing - AJAX calll?
             } else {
                 if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                    request = new HttpGet(getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl()));
+                    request = new HttpGet(reqop.getUrl());
                 } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                    String url = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, reqop.getUrl());
-
-                    HttpPost postRequest = new HttpPost(url);
+                    HttpPost postRequest = new HttpPost(reqop.getUrl());
                     request = postRequest;
 
                     String params = Utils.getContentParameterFromRequestOperation(reqop);
-
 
                     if (StringUtils.isNotBlank(params)) {
                         String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
                         if (StringUtils.isNotBlank(contentType)) {
                             if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                                params = getTestExecutionContext().replaceUrlEncodedTestExecutionParameters(reqop, params);
                                 List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
                                 postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
                             } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
