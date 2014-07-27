@@ -26,16 +26,6 @@ import org.kuali.test.runner.exceptions.TestException;
  * @author rbtucker
  */
 public interface OperationExecution {
-
-    /**
-     *
-     * @param configuration
-     * @param platform
-     * @throws TestException
-     */
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform) throws TestException;
-
     /**
      *
      * @param configuration

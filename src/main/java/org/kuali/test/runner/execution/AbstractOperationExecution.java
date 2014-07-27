@@ -267,7 +267,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                                 value = s2.trim();
                             }
                         }
-
                         Comparable c1 = (Comparable)comparisonValue;
                         Comparable c2 = (Comparable)value;
                         

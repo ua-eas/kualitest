@@ -64,7 +64,7 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
      * @throws TestException
      */
     @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
         try {
             String poll = getTestExecutionContext().getKualiTest().getTestHeader().getAdditionalParameters();
             Object[] result = executeWebServiceCall(configuration, platform, getOperation().getCheckpointOperation(), "true".equalsIgnoreCase(poll));
@@ -174,9 +174,5 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
         }
         
         return retval;
-    }
-
-    @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

@@ -37,7 +37,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
-import org.kuali.test.RequestHeader;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -73,7 +72,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
         try {
             reqop = getOperation().getHtmlRequestOperation();
-            
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
                 
@@ -89,79 +87,63 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             HttpRequestBase request = null;
             TestExecutionContext tec = getTestExecutionContext();
 
-            String host = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_HOST);
+            tec.processAutoReplaceParameters(test, reqop);
+            if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
+                request = new HttpGet(reqop.getUrl());
+            } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
+                HttpPost postRequest = new HttpPost(reqop.getUrl());
+                request = postRequest;
 
-            if (StringUtils.isNotBlank(host) && reqop.getUrl().endsWith(host)) {
-                // do nothing - AJAX calll?
-            } else {
-                tec.processAutoReplaceParameters(test, reqop);
-                if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                    request = new HttpGet(reqop.getUrl());
-                } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                    HttpPost postRequest = new HttpPost(reqop.getUrl());
-                    request = postRequest;
+                String params = Utils.getContentParameterFromRequestOperation(reqop);
 
-                    String params = Utils.getContentParameterFromRequestOperation(reqop);
-
-                    if (StringUtils.isNotBlank(params)) {
-                        String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
-                        if (StringUtils.isNotBlank(contentType)) {
-                            if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                                List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
-                                postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
-                            } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                                getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
-                            }
+                if (StringUtils.isNotBlank(params)) {
+                    String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
+                    if (StringUtils.isNotBlank(contentType)) {
+                        if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                            List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
+                            postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
+                        } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                            getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
                         }
                     }
                 }
+            }
 
-                if (request != null) {
-                    if (reqop.getRequestHeaders() != null) {
-                        for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                            request.addHeader(hdr.getName(), hdr.getValue());
-                        }
+            if (request != null) {
+                response = tec.getHttpClient().execute(request);
+                if (response != null) {
+                    BufferedReader reader = null; 
+                    StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+                    try {
+                        reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+                         String line = "";
+                         while ((line = reader.readLine()) != null) {
+                             responseBuffer.append(line);
+                         }                        
                     }
 
-                    response = tec.getHttpClient().execute(request);
+                     finally {
+                         if (reader != null) {
+                             reader.close();
+                         }
+                    }
 
-                    if (response != null) {
-                        BufferedReader reader = null; 
-                        StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-                        try {
-                            reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                    int status = response.getStatusLine().getStatusCode();
 
-                             String line = "";
-                             while ((line = reader.readLine()) != null) {
-                                 responseBuffer.append(line);
-                             }                        
-                        }
+                    if (status == HttpURLConnection.HTTP_OK) {
+                        tec.pushHttpResponse(responseBuffer.toString());
+                        tec.updateAutoReplaceMap();
+                        tec.updateTestExecutionParameters(responseBuffer.toString());
 
-                         finally {
-                             if (reader != null) {
-                                 reader.close();
-                             }
-                        }
-
-                        
-                        int status = response.getStatusLine().getStatusCode();
-                        if (status == HttpURLConnection.HTTP_OK) {
-                            String html = responseBuffer.toString();
-                       //     if (Utils.isHtmlDocument(html)) {
-                                tec.pushHttpResponse(responseBuffer.toString());
-                                tec.updateAutoReplaceMap();
-                                tec.updateTestExecutionParameters(responseBuffer.toString());
-
-                                System.out.println("---------------------------------------------------------------------->");
-                               System.out.println(responseBuffer.toString());
-                         //   }
-                        } else if ((status >= 400) && (status < 600)) {
-                            throw new TestException("server returned bad status - " + status + ", uri=" + request.getURI(), getOperation(), FailureAction.IGNORE);
-                        }
+                    //    System.out.println("---------------------------------------------------------------------->");
+                    //    System.out.println(responseBuffer.toString());
+                    } else if ((status >= 400) && (status < 600)) {
+                        throw new TestException("server returned bad status - " + status + ", uri=" + request.getURI(), getOperation(), FailureAction.IGNORE);
                     }
                 }
-            } 
-        }
+            }
+        } 
 
         catch (IOException ex) {
             String uri = Constants.UNKNOWN;
@@ -180,7 +162,4 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
     }
 
-    @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
-    }
 }

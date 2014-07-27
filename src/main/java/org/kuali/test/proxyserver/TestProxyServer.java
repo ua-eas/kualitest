@@ -27,19 +27,27 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
+import org.kuali.test.HtmlRequestOperation;
+import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.RequestHeader;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import static org.kuali.test.utils.Utils.encryptFormUrlEncodedParameters;
+import static org.kuali.test.utils.Utils.handleMultipartRequestParameters;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSource;
@@ -99,7 +107,7 @@ public class TestProxyServer {
                                     // little bit of a hack here - for some reason we are submitting 
                                     // multiple requests at times
                                     if (!isIgnoreUrl(request) && !isDuplicate(request)) {
-                                        testOperations.add(Utils.buildTestOperation(webTestPanel.getMainframe().getConfiguration(), TestOperationType.HTTP_REQUEST, request, delay));
+                                        testOperations.add(buildHttpRequestOperation(request, delay));
                                     }
                                 } catch (Exception ex) {
                                     LOG.error(ex.toString(), ex);
@@ -112,6 +120,10 @@ public class TestProxyServer {
 
                     @Override
                     public HttpResponse requestPost(HttpObject httpObject) {
+                        if (httpObject instanceof HttpRequest) {
+                            HttpRequest request = (HttpRequest)httpObject;
+                        }
+                        
                         return null;
                     }
 
@@ -290,10 +302,10 @@ public class TestProxyServer {
             StringBuilder buf = new StringBuilder(512);
             buf.append(request.getMethod());
             buf.append(".");
-            buf.append(Utils.buildUrlFromRequest(webTestPanel.getMainframe().getConfiguration(), request));
+            buf.append(buildFullUrl(request));
             buf.append(".");
             if (frequest.content() != null) {
-                byte[] b = Utils.getHttpPostContent(frequest.content());
+                byte[] b = getHttpPostContent(frequest.content());
                 if (b != null) {
                     buf.append(new String(b));
                 }
@@ -310,6 +322,168 @@ public class TestProxyServer {
         
         return retval;
     }
+    
+    /**
+     *
+     * @param content
+     * @return
+     */
+    public static byte[] getHttpPostContent(ByteBuf content) {
+        byte[] retval = null;
+        if (content.isReadable()) {
+            content.retain();
+            ByteBuffer nioBuffer = content.nioBuffer();
+            retval = new byte[nioBuffer.remaining()];
+            nioBuffer.get(retval);
+            content.release();
+        }
+
+        return retval;
+    }
+    
+    
+    /**
+     * 
+     * @param request
+     * @return
+     * @throws IOException 
+     */
+    public String buildFullUrl(HttpRequest request) throws IOException {
+        StringBuilder retval = new StringBuilder(128);
+
+        String platformUrl = webTestPanel.getPlatform().getWebUrl();
+        String host = request.headers().get(Constants.HTTP_HEADER_HOST);
+        String protocol = Constants.HTTPS;
+        String platformHost = null;
+        if (StringUtils.isNotBlank(platformUrl)) {
+            int pos = platformUrl.indexOf("://");
+            if (pos > -1) {
+                protocol = platformUrl.substring(0, pos);
+            } else {
+                int pos2 = platformUrl.indexOf("/", pos+3);
+                platformHost = platformUrl.substring(pos+1, pos2);
+            }
+        }
+        
+        retval.append(protocol);
+        retval.append("://");
+        if (StringUtils.isNotBlank(host)) {
+            retval.append(host);
+        } else {
+            retval.append(platformHost);
+        }
+        
+        retval.append(request.getUri());
+        
+        return retval.toString();
+    }
+
+
+
+
+    /**
+     * 
+     * @param request
+     * @param delay
+     * @return
+     * @throws IOException 
+     */
+    public TestOperation buildHttpRequestOperation(HttpRequest request, int delay) throws IOException {
+        TestOperation retval = TestOperation.Factory.newInstance();
+
+        HtmlRequestOperation op = retval.addNewOperation().addNewHtmlRequestOperation();
+        retval.setOperationType(TestOperationType.HTTP_REQUEST);
+        op.setDelay(delay);
+        op.addNewRequestHeaders();
+        op.addNewRequestParameters();
+        if (request != null) {
+            Iterator<Map.Entry<String, String>> it = request.headers().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> entry = it.next();
+                if (!Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(entry.getKey())) {
+                    RequestHeader header = op.getRequestHeaders().addNewHeader();
+                    header.setName(entry.getKey());
+                    header.setValue(entry.getValue());
+                }
+            }
+
+            String method = request.getMethod().name();
+            op.setMethod(method);
+            
+            op.setUrl(buildFullUrl(request));
+
+            // if this is a post then try to get content
+            if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
+                if (request instanceof FullHttpRequest) {
+                    FullHttpRequest fr = (FullHttpRequest) request;
+
+                    if (fr.content() != null) {
+                        byte[] data = getHttpPostContent(fr.content());
+
+                        if (data != null) {
+                            RequestParameter param = op.getRequestParameters().addNewParameter();
+                            param.setName(Constants.PARAMETER_NAME_CONTENT);
+                            param.setValue(processRequestData(webTestPanel.getMainframe().getConfiguration(), 
+                                request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), new String(data)));
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    /**
+     *
+     * @param configuration
+     * @param input
+     * @return
+     */
+    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String contentType, String input) throws IOException {
+        StringBuilder retval = new StringBuilder(input.length());
+
+        if (input.startsWith(Constants.FORWARD_SLASH)
+            || input.startsWith(Constants.HTTP_PROTOCOL)
+            || input.startsWith(Constants.HTTPS_PROTOCOL)) {
+            int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
+            if (pos > -1) {
+                retval.append(input.substring(0, pos + 1));
+                String s = encryptFormUrlEncodedParameters(configuration, input.substring(pos + 1));
+                if (StringUtils.isNotBlank(s)) {
+                    retval.append(s);
+                }
+            }
+        } else {
+            if (StringUtils.isNotBlank(contentType)) {
+                if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                    String s = encryptFormUrlEncodedParameters(configuration, input);
+                    if (StringUtils.isNotBlank(s)) {
+                        retval.append(s);
+                    } else {
+                        retval.append(input);
+                    }
+
+                } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                    int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+
+                    if (pos > -1) {
+                        String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
+                        if (StringUtils.isNotBlank(s)) {
+                            retval.append(s);
+                        } else {
+                            retval.append(input);
+                        }
+                    } else {
+                        retval.append(input);
+                    }
+                }
+            }
+        }
+
+        return retval.toString();
+    }
+    
     
     private boolean isIgnoreUrl(HttpRequest req) {
         boolean retval = false;

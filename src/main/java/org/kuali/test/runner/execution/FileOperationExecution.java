@@ -58,7 +58,8 @@ public class FileOperationExecution extends AbstractOperationExecution {
      * @throws TestException
      */
     @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        Platform platform, KualiTestDocument.KualiTest test) throws TestException {
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));
         String fileNamePattern = getParameter(Constants.FILE_NAME_PATTERN);
         
@@ -205,9 +206,5 @@ public class FileOperationExecution extends AbstractOperationExecution {
         
         
         return retval;
-    }
-
-    @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

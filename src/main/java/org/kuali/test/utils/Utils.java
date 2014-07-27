@@ -15,9 +15,6 @@
  */
 package org.kuali.test.utils;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpRequest;
 import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -30,7 +27,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -48,7 +44,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -104,8 +99,6 @@ import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
 import org.kuali.test.TestHeader;
-import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.ValueType;
@@ -780,145 +773,6 @@ public class Utils {
         return retval;
     }
 
-    /**
-     *
-     * @param key
-     * @return
-     */
-    public static boolean wantHttpRequestHeader(String key) {
-        return !Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(key);
-    }
-
-    /**
-     *
-     * @param configuration
-     * @param request
-     * @return
-     */
-    public static String buildUrlFromRequest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        HttpRequest request) throws IOException {
-        StringBuilder retval = new StringBuilder(128);
-
-        String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
-
-        String protocol = Constants.HTTPS_PROTOCOL;
-        if (referer != null) {
-            int pos = referer.indexOf(":");
-            if (pos > -1) {
-                protocol = referer.substring(0, pos + 3);
-            }
-        }
-
-        retval.append(protocol);
-        retval.append(request.headers().get(Constants.HTTP_HEADER_HOST));
-        retval.append(processRequestData(configuration,
-            request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), request.getUri()));
-
-        return retval.toString();
-    }
-
-    /**
-     *
-     * @param configuration
-     * @param testop
-     * @param request
-     * @param delay
-     */
-    public static void populateHttpRequestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        TestOperation testop, HttpRequest request, int delay) throws IOException {
-
-        HtmlRequestOperation op = testop.addNewOperation().addNewHtmlRequestOperation();
-        testop.setOperationType(TestOperationType.HTTP_REQUEST);
-        op.setDelay(delay);
-        op.addNewRequestHeaders();
-        op.addNewRequestParameters();
-        if (request != null) {
-            Iterator<Entry<String, String>> it = request.headers().iterator();
-
-            while (it.hasNext()) {
-                Entry<String, String> entry = it.next();
-                if (wantHttpRequestHeader(entry.getKey())) {
-                    RequestHeader header = op.getRequestHeaders().addNewHeader();
-                    header.setName(entry.getKey());
-                    header.setValue(entry.getValue());
-                }
-            }
-
-            String method = request.getMethod().name();
-            op.setMethod(method);
-            op.setUrl(buildUrlFromRequest(configuration, request));
-
-            // if this is a post then try to get content
-            if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
-                if (request instanceof FullHttpRequest) {
-                    FullHttpRequest fr = (FullHttpRequest) request;
-
-                    if (fr.content() != null) {
-                        byte[] data = getHttpPostContent(fr.content());
-
-                        if (data != null) {
-                            RequestParameter param = op.getRequestParameters().addNewParameter();
-                            param.setName(Constants.PARAMETER_NAME_CONTENT);
-                            param.setValue(processRequestData(configuration, request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), new String(data)));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     *
-     * @param configuration
-     * @param input
-     * @return
-     */
-    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String contentType, String input) throws IOException {
-        StringBuilder retval = new StringBuilder(input.length());
-
-        if (input.startsWith(Constants.FORWARD_SLASH)
-            || input.startsWith(Constants.HTTP_PROTOCOL)
-            || input.startsWith(Constants.HTTPS_PROTOCOL)) {
-            int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
-            if (pos > -1) {
-                retval.append(input.substring(0, pos + 1));
-                String s = encryptFormUrlEncodedParameters(configuration, input.substring(pos + 1));
-                if (StringUtils.isNotBlank(s)) {
-                    retval.append(s);
-                }
-            }
-        } else {
-            String parameterString = input;
-
-            if (StringUtils.isNotBlank(contentType)) {
-                if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                    String s = encryptFormUrlEncodedParameters(configuration, input);
-                    if (StringUtils.isNotBlank(s)) {
-                        retval.append(s);
-                    } else {
-                        retval.append(input);
-                    }
-
-                } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                    int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
-
-                    if (pos > -1) {
-                        String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
-                        if (StringUtils.isNotBlank(s)) {
-                            retval.append(s);
-                        } else {
-                            retval.append(input);
-                        }
-                    } else {
-                        retval.append(input);
-                    }
-                }
-            }
-        }
-
-        return retval.toString();
-    }
-
     public static String getNameFromNameParam(String param) {
         String retval = null;
         
@@ -1013,31 +867,6 @@ public class Utils {
 
     /**
      *
-     * @param configuration
-     * @param optype
-     * @param inputData
-     * @param delay
-     * @return
-     */
-    public static TestOperation buildTestOperation(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        TestOperationType.Enum optype, Object inputData, int delay) throws IOException {
-        TestOperation retval = TestOperation.Factory.newInstance();
-
-        retval.setOperationType(optype);
-
-        if (inputData != null) {
-            switch (optype.intValue()) {
-                case TestOperationType.INT_HTTP_REQUEST:
-                    populateHttpRequestOperation(configuration, retval, (HttpRequest) inputData, delay);
-                    break;
-            }
-        }
-
-        return retval;
-    }
-
-    /**
-     *
      * @param input
      * @return
      */
@@ -1084,24 +913,6 @@ public class Utils {
         XmlOptions retval = new XmlOptions();
         retval.setSavePrettyPrint();
         retval.setSavePrettyPrintIndent(3);
-        return retval;
-    }
-
-    /**
-     *
-     * @param content
-     * @return
-     */
-    public static byte[] getHttpPostContent(ByteBuf content) {
-        byte[] retval = null;
-        if (content.isReadable()) {
-            content.retain();
-            ByteBuffer nioBuffer = content.nioBuffer();
-            retval = new byte[nioBuffer.remaining()];
-            nioBuffer.get(retval);
-            content.release();
-        }
-
         return retval;
     }
 

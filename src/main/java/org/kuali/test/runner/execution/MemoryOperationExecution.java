@@ -58,7 +58,7 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
      * @throws TestException
      */
     @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
         try {   
             JmxConnection jmx = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
             
@@ -95,9 +95,5 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
         catch (IOException ex) {
             throw new TestException("an IOException was throw while attempting to connect via jmx - " + ex.toString(), getOperation(), ex);
         }
-    }
-
-    @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

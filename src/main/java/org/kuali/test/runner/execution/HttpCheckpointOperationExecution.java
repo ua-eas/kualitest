@@ -50,14 +50,45 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         super(context, op);
     }
     
-    /**
-     *
-     * @param configuration
-     * @param platform
-     * @throws TestException
-     */
+    
+    private List <CheckpointProperty> findCurrentProperties(Checkpoint cp, HtmlDomProcessor.DomInformation dominfo) {
+        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+
+        for (CheckpointProperty originalProperty : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
+            for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
+                if (Utils.isCheckPointPropertyMatch(currentProperty, originalProperty)) {
+                    retval.add(currentProperty);
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+   private String getSaveScreenFileName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        Platform platform) {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(configuration.getTestResultLocation());
+        retval.append("/");
+        retval.append(platform.getName());
+        retval.append("/screen-captures/");
+        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
+        retval.append("/");
+        retval.append(getOperation().getCheckpointOperation().getTestName());
+        retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
+        retval.append("-");
+        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        retval.append("_");
+        retval.append(getTestExecutionContext().getTestRun());
+        retval.append(".html");
+        
+        return retval.toString();
+    }
+
     @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform) throws TestException {
+    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, 
+        KualiTestDocument.KualiTest test) throws TestException {
         TestExecutionContext tec = getTestExecutionContext();
 
         Checkpoint cp = getOperation().getCheckpointOperation();
@@ -146,44 +177,5 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 catch (Exception ex) {};
             }
         }
-    }
-    
-    private List <CheckpointProperty> findCurrentProperties(Checkpoint cp, HtmlDomProcessor.DomInformation dominfo) {
-        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
-
-        for (CheckpointProperty originalProperty : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
-            for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
-                if (Utils.isCheckPointPropertyMatch(currentProperty, originalProperty)) {
-                    retval.add(currentProperty);
-                }
-            }
-        }
-        
-        return retval;
-    }
-
-   private String getSaveScreenFileName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform) {
-        StringBuilder retval = new StringBuilder(256);
-        
-        retval.append(configuration.getTestResultLocation());
-        retval.append("/");
-        retval.append(platform.getName());
-        retval.append("/screen-captures/");
-        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
-        retval.append("/");
-        retval.append(getOperation().getCheckpointOperation().getTestName());
-        retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
-        retval.append("-");
-        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
-        retval.append("_");
-        retval.append(getTestExecutionContext().getTestRun());
-        retval.append(".html");
-        
-        return retval.toString();
-    }
-
-    @Override
-    public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestDocument.KualiTest test) throws TestException {
     }
 }

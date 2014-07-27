@@ -101,6 +101,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
+import org.kuali.test.TestType;
 import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
@@ -146,8 +147,6 @@ public class TestExecutionContext extends Thread {
     }
     
     private void init() {
-        initializeHttpClient();
-        httpResponseStack = new Stack<String>();
     }
     
     private void initializeHttpClient() {
@@ -409,7 +408,11 @@ public class TestExecutionContext extends Thread {
         
         long start = System.currentTimeMillis();
         
-        decryptHttpParameters(test);
+        // if this is a web test then initialize the client
+        if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
+            getHttpClient();
+            decryptHttpParameters(test);
+        }
         
         for (TestOperation op : test.getOperations().getOperationArray()) {
             // if executeTestOperation returns false we want to halt test
@@ -1166,6 +1169,11 @@ public class TestExecutionContext extends Thread {
     }
 
     public CloseableHttpClient getHttpClient() {
+        if (httpClient == null) {
+            initializeHttpClient();
+            httpResponseStack = new Stack<String>();
+        }
+        
         return httpClient;
     }
     
