@@ -18,6 +18,7 @@ package org.kuali.test.proxyserver;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -28,9 +29,8 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -62,12 +62,11 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
-    private List<TestOperation> testOperations = new ArrayList<TestOperation>();
+    private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>());
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
-    private String lastRequestMessageDigest;
     /**
      *
      * @param webTestPanel
@@ -104,9 +103,7 @@ public class TestProxyServer {
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
                                 try {
-                                    // little bit of a hack here - for some reason we are submitting 
-                                    // multiple requests at times
-                                    if (!isIgnoreUrl(request) && !isDuplicate(request)) {
+                                    if (!isIgnoreUrl(request)) {
                                         testOperations.add(buildHttpRequestOperation(request, delay));
                                     }
                                 } catch (Exception ex) {
@@ -293,36 +290,6 @@ public class TestProxyServer {
         return retval;
     }
     
-    private boolean isDuplicate(HttpRequest request) throws NoSuchAlgorithmException, IOException {
-        boolean retval = false;
-        
-        if (request instanceof FullHttpRequest) {
-            FullHttpRequest frequest = (FullHttpRequest)request;
-            
-            StringBuilder buf = new StringBuilder(512);
-            buf.append(request.getMethod());
-            buf.append(".");
-            buf.append(buildFullUrl(request));
-            buf.append(".");
-            if (frequest.content() != null) {
-                byte[] b = getHttpPostContent(frequest.content());
-                if (b != null) {
-                    buf.append(new String(b));
-                }
-            }
-
-            String s  = Utils.getMessageDigestString(buf.toString());
-
-            if (StringUtils.isNotBlank(lastRequestMessageDigest)) {
-                retval = s.equals(lastRequestMessageDigest);
-            }
-            
-            lastRequestMessageDigest = s;
-        }
-        
-        return retval;
-    }
-    
     /**
      *
      * @param content
@@ -397,13 +364,14 @@ public class TestProxyServer {
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         if (request != null) {
-            Iterator<Map.Entry<String, String>> it = request.headers().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, String> entry = it.next();
-                if (!Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(entry.getKey())) {
-                    RequestHeader header = op.getRequestHeaders().addNewHeader();
-                    header.setName(entry.getKey());
-                    header.setValue(entry.getValue());
+            HttpHeaders headers = request.headers();
+            for (String name : headers.names()) {
+                if (!Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(name)) {
+                    for (String value : headers.getAll(name)) {
+                        RequestHeader header = op.getRequestHeaders().addNewHeader();
+                        header.setName(name);
+                        header.setValue(value);
+                    }
                 }
             }
 
