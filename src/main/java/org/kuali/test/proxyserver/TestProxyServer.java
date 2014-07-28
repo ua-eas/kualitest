@@ -424,7 +424,7 @@ public class TestProxyServer {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
                             param.setValue(processRequestData(webTestPanel.getMainframe().getConfiguration(), 
-                                request.headers().get(Constants.HTTP_HEADER_CONTENT_TYPE), new String(data)));
+                                op, new String(data)));
                         }
                     }
                 }
@@ -435,48 +435,33 @@ public class TestProxyServer {
     }
 
     /**
-     *
+     * 
      * @param configuration
+     * @param reqop
      * @param input
      * @return
+     * @throws IOException 
      */
-    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String contentType, String input) throws IOException {
+    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        HtmlRequestOperation reqop, String input) throws IOException {
         StringBuilder retval = new StringBuilder(input.length());
 
-        if (input.startsWith(Constants.FORWARD_SLASH)
-            || input.startsWith(Constants.HTTP_PROTOCOL)
-            || input.startsWith(Constants.HTTPS_PROTOCOL)) {
-            int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
-            if (pos > -1) {
-                retval.append(input.substring(0, pos + 1));
-                String s = encryptFormUrlEncodedParameters(configuration, input.substring(pos + 1));
+        String contentType = Utils.getContentParameterFromRequestOperation(reqop);
+        if (StringUtils.isNotBlank(contentType)) {
+            if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+                String s = encryptFormUrlEncodedParameters(configuration, input);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
+                } else {
+                    retval.append(input);
                 }
-            }
-        } else {
-            if (StringUtils.isNotBlank(contentType)) {
-                if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                    String s = encryptFormUrlEncodedParameters(configuration, input);
-                    if (StringUtils.isNotBlank(s)) {
-                        retval.append(s);
-                    } else {
-                        retval.append(input);
-                    }
 
-                } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                    int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
-
-                    if (pos > -1) {
-                        String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
-                        if (StringUtils.isNotBlank(s)) {
-                            retval.append(s);
-                        } else {
-                            retval.append(input);
-                        }
-                    } else {
-                        retval.append(input);
-                    }
+            } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                String s = handleMultipartRequestParameters(configuration, input, Utils.getMultipartBoundary(reqop), null);
+                if (StringUtils.isNotBlank(s)) {
+                    retval.append(s);
+                } else {
+                    retval.append(input);
                 }
             }
         }

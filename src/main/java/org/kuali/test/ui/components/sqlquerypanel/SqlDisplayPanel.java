@@ -61,7 +61,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         p.add(checkSql = new JButton(CHECK_GENERATED_SQL_ACTION));
         add(p, BorderLayout.NORTH);
         checkSql.addActionListener(this);
-        add(new JScrollPane(editorPane = new JEditorPane(Constants.HTML_MIME_TYPE,"")), BorderLayout.CENTER);
+        add(new JScrollPane(editorPane = new JEditorPane(Constants.MIME_TYPE_HTML,"")), BorderLayout.CENTER);
 
         popupMenu = new JPopupMenu();
         JMenuItem m =  new JMenuItem(COPY_SQL_ACTION);

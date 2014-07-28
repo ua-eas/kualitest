@@ -103,7 +103,6 @@ public class Constants {
     public static final String COLOR_DARK_RED = "#680000";
     public static final String COLOR_DARK_BLUE = "#000099";
     public static final String COLOR_DARK_GREEN = "#006600";
-    public static final String HTML_MIME_TYPE = "text/html";
     public static final String CONTENT_TYPE_KEY = "Content-Type";
     
     
@@ -251,6 +250,7 @@ public class Constants {
     public static final String HTTP_REQUEST_METHOD_CONNECT = "CONNECT";
     public static final String HTTP_RESPONSE_CONTENT_TYPE = "Content-Type";
     public static final String MIME_TYPE_HTML = "text/html";
+    public static final String MIME_TYPE_TEXT_PLAIN = "text/plain";
     public static final String MIME_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String MIME_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
     

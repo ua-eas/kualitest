@@ -1035,7 +1035,9 @@ public class TestExecutionContext extends Thread {
         Map<String, String> paramMap = new HashMap<String, String>();
 
         StringTokenizer st1 = new StringTokenizer(input, Constants.MULTIPART_PARAMETER_SEPARATOR);
-        MultipartEntityBuilder reqEntity = MultipartEntityBuilder.create();
+        MultipartEntityBuilder reqEntity = MultipartEntityBuilder
+            .create()
+            .setBoundary(Utils.getMultipartBoundary(reqop));
         
         while (st1.hasMoreTokens()) {
             StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
@@ -1050,7 +1052,7 @@ public class TestExecutionContext extends Thread {
                     value = paramMap.get(name);
                 }
                 
-                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.TEXT_PLAIN));
+                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA));
             }
         }
         

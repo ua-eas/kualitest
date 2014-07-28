@@ -3363,4 +3363,21 @@ public class Utils {
         
         return retval;
     }
+
+    public static String getMultipartBoundary(HtmlRequestOperation reqop) {
+        String retval = Long.toHexString(System.currentTimeMillis());
+
+        RequestHeader h = Utils.getRequestHeaderObject(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
+        
+        if (h != null) {
+            if (h.getValue().startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
+                int pos = h.getValue().indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+                if (pos > -1) {
+                    retval = h.getValue().substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()).trim();
+                }
+            }
+        }
+        
+        return retval;
+    }
 }
