@@ -391,7 +391,7 @@ public class TestProxyServer {
                         if (data != null) {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
-                            param.setValue(processRequestData(webTestPanel.getMainframe().getConfiguration(), 
+                            param.setValue(processPostContent(webTestPanel.getMainframe().getConfiguration(), 
                                 op, new String(data)));
                         }
                     }
@@ -410,33 +410,38 @@ public class TestProxyServer {
      * @return
      * @throws IOException 
      */
-    public static String processRequestData(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        HtmlRequestOperation reqop, String input) throws IOException {
+  public static String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+      HtmlRequestOperation reqop, String input) throws IOException {
         StringBuilder retval = new StringBuilder(input.length());
 
-        String contentType = Utils.getContentParameterFromRequestOperation(reqop);
+        String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_RESPONSE_CONTENT_TYPE);
+        
         if (StringUtils.isNotBlank(contentType)) {
-            if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
+            if (contentType.startsWith(Constants.MIME_TYPE_FORM_URL_ENCODED)) {
                 String s = encryptFormUrlEncodedParameters(configuration, input);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
                 } else {
                     retval.append(input);
                 }
-
             } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                String s = handleMultipartRequestParameters(configuration, input, Utils.getMultipartBoundary(reqop), null);
-                if (StringUtils.isNotBlank(s)) {
-                    retval.append(s);
+                int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+
+                if (pos > -1) {
+                    String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
+                    if (StringUtils.isNotBlank(s)) {
+                        retval.append(s);
+                    } else {
+                        retval.append(input);
+                    }
                 } else {
                     retval.append(input);
                 }
             }
         }
-
+        
         return retval.toString();
-    }
-    
+    }    
     
     private boolean isIgnoreUrl(HttpRequest req) {
         boolean retval = false;

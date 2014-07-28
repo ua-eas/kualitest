@@ -159,8 +159,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         tec.pushHttpResponse(responseBuffer.toString());
                         tec.updateAutoReplaceMap();
                         tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), responseBuffer.toString());
-                   //     System.out.println("---------------------------------------------------------------------->[" + status + "]" + reqop.getUrl());
-                     //   System.out.println(responseBuffer.toString());
+                        System.out.println("---------------------------------------------------------------------->[" + status + "]" + reqop.getUrl());
+                        System.out.println(responseBuffer.toString());
                     } else if ((status >= 400) && (status < 600)) {
                         throw new TestException("server returned bad status - " 
                             + status 
