@@ -37,6 +37,7 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestHeader;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -88,6 +89,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             TestExecutionContext tec = getTestExecutionContext();
 
             tec.processAutoReplaceParameters(test, reqop);
+            tec.decryptHttpParameters(reqop);
+            
             if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
                 request = new HttpGet(reqop.getUrl());
             } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
@@ -110,6 +113,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             if (request != null) {
+                if (reqop.getRequestHeaders() != null) {
+                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                        request.addHeader(hdr.getName(), hdr.getValue());
+                    }
+                }
+
                 response = tec.getHttpClient().execute(request);
                 if (response != null) {
                     BufferedReader reader = null; 
@@ -134,12 +143,16 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     if (status == HttpURLConnection.HTTP_OK) {
                         tec.pushHttpResponse(responseBuffer.toString());
                         tec.updateAutoReplaceMap();
-                        tec.updateTestExecutionParameters(responseBuffer.toString());
-
-                    //    System.out.println("---------------------------------------------------------------------->");
-                    //    System.out.println(responseBuffer.toString());
+                        tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), responseBuffer.toString());
+                        System.out.println("---------------------------------------------------------------------->[" + status + "]" + reqop.getUrl());
+                        System.out.println(responseBuffer.toString());
                     } else if ((status >= 400) && (status < 600)) {
-                        throw new TestException("server returned bad status - " + status + ", uri=" + request.getURI(), getOperation(), FailureAction.IGNORE);
+                        throw new TestException("server returned bad status - " 
+                            + status 
+                            + ", content-type="
+                            + Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE)
+                            + ", uri=" 
+                            + request.getURI(), getOperation(), FailureAction.IGNORE);
                     }
                 }
             }

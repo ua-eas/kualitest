@@ -52,10 +52,8 @@ public class OperationExecutionFactory {
      */
     public OperationExecution getOperationExecution(KualiTestDocument.KualiTest test, TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
-
-        if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op.getOperationType())) {
-            testContext.processTestExecutionParameter(test, op.getOperation().getTestExecutionParameter());
-        } else if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
+        
+        if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("executing operation: type=checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "], name=" + op.getOperation().getCheckpointOperation().getName());
             }

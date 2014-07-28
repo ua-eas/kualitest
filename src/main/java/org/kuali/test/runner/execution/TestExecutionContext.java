@@ -59,6 +59,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -124,7 +125,8 @@ public class TestExecutionContext extends Thread {
     private int errorCount = 0;
     
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
-    
+    private Set<String> parametersRequiringDecryption = new HashSet<String>();
+
     private Stack <String> httpResponseStack;
     
     private Platform platform;
@@ -411,7 +413,7 @@ public class TestExecutionContext extends Thread {
         // if this is a web test then initialize the client
         if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
             getHttpClient();
-            decryptHttpParameters(test);
+            parametersRequiringDecryption.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         }
         
         for (TestOperation op : test.getOperations().getOperationArray()) {
@@ -711,73 +713,6 @@ public class TestExecutionContext extends Thread {
         return configuration;
     }
 
-    private String findTestExecutionParameterValue(TestExecutionParameter tep) {
-        String retval = null;
-
-        String valueKey = Utils.buildCheckpointPropertyKey(tep.getValueProperty());
-        
-        for (String html : getRecentHttpResponseData()) {
-            if (StringUtils.isNotBlank(html)) {
-                HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
-                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                    String key = Utils.buildCheckpointPropertyKey(cp);
-                    
-                    if (key.equals(valueKey)) {
-                        retval = cp.getPropertyValue();
-                        break;
-                    }
-                }
-            }
-            
-            if (StringUtils.isNotBlank(retval)) {
-                break;
-            }
-        }
-        
-        
-        return retval;
-
-    }
-    
-    /**
-     * 
-     * @param test
-     * @param ep 
-     */
-    public void processTestExecutionParameter(KualiTest test, TestExecutionParameter ep) {
-        String value = findTestExecutionParameterValue(ep);
-        if (StringUtils.isNotBlank(value)) {
-            TestOperation[] ops = kualiTest.getOperations().getOperationArray();
-            
-            int startpos = -1;
-            for (int i = 0; i < ops.length; ++i) {
-                if (ops[i].getOperation().getTestExecutionParameter() != null) {
-                    if (ep == ops[i].getOperation().getTestExecutionParameter()) {
-                        startpos = i;
-                        break;
-                    }
-                }
-            }
-            
-            if (startpos > -1) {
-                Map <String, String> map = new HashMap<String, String>();
-                for (int i = (startpos+1); i < ops.length; ++i) {
-                    if (ops[i].getOperation().getHtmlRequestOperation() != null) {
-                        replaceUrlFormEncodedTestExecutionParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
-                        replaceMultiPartTestExecutionParams(ops[i].getOperation().getHtmlRequestOperation(), ep);
-                    } else if (ops[i].getOperation().getCheckpointOperation() != null) {
-                        if (CheckpointType.SQL.equals(ops[i].getOperation().getCheckpointOperation().getType())) {
-                            Checkpoint cp = ops[i].getOperation().getCheckpointOperation();
-
-                            Parameter param = Utils.getCheckpointParameter(cp, Constants.SQL_QUERY);
-                            param.setValue(param.getValue().replace("${" + ep.getName() + "}", ep.getValueProperty().getActualValue()));
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     public void processAutoReplaceParameters(KualiTest test, HtmlRequestOperation reqop) {
         if (autoReplaceParameterMap.size() > 0) {
             TestOperation[] ops = kualiTest.getOperations().getOperationArray();
@@ -813,7 +748,7 @@ public class TestExecutionContext extends Thread {
                         String value = st2.nextToken();
 
                         if (value.equals(ep.getValueProperty().getPropertyValue())) {
-                            value = ep.getValueProperty().getActualValue();
+                            value = ep.getValue();
                         }
 
                         buf.append(seperator);
@@ -832,7 +767,7 @@ public class TestExecutionContext extends Thread {
     private void replaceUrlFormEncodedTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         String params = Utils.getParamsFromUrl(op.getUrl());
                         
-                                // if we have a parameter string then convert to NameValuePair list and process
+        // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(params)) {
             List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
@@ -840,8 +775,10 @@ public class TestExecutionContext extends Thread {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
                 for (int i = 0; i < nvparray.length; ++i) {
-                    if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
-                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
+                    if (StringUtils.isNotBlank(nvparray[i].getValue())) {
+                        if (nvparray[i].getValue().trim().equals(ep.getValueProperty().getPropertyValue().trim())) {
+                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValue());
+                        }
                     }
                 }
             
@@ -863,8 +800,10 @@ public class TestExecutionContext extends Thread {
                     NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
                     for (int i = 0; i < nvparray.length; ++i) {
-                        if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
-                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValueProperty().getActualValue());
+                        if (StringUtils.isNotBlank(nvparray[i].getValue())) {
+                            if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
+                                nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValue());
+                            }
                         }
                     }
 
@@ -898,7 +837,7 @@ public class TestExecutionContext extends Thread {
                         if (StringUtils.isNotBlank(replacement)) {
                             value = replacement;
                         }
-
+                        
                         buf.append(seperator);
                         buf.append(name);
                         buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
@@ -924,7 +863,6 @@ public class TestExecutionContext extends Thread {
 
                 for (int i = 0; i < nvparray.length; ++i) {
                     String replacement = paramMap.get(nvparray[i].getName());
-                    
                     if (StringUtils.isNotBlank(replacement)) {
                         nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                     }
@@ -948,7 +886,6 @@ public class TestExecutionContext extends Thread {
 
                     for (int i = 0; i < nvparray.length; ++i) {
                         String replacement = paramMap.get(nvparray[i].getName());
-
                         if (StringUtils.isNotBlank(replacement)) {
                             nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                         }
@@ -1008,85 +945,77 @@ public class TestExecutionContext extends Thread {
     
     /**
      * 
-     * @param test 
+     * @param reqop 
      */
-    public void decryptHttpParameters(KualiTest test) {
-        
+    public void decryptHttpParameters(HtmlRequestOperation reqop) {
         String epass = Utils.getEncryptionPassword(configuration);
-        if (configuration.getParametersRequiringEncryption() != null) {
-            Set<String> hs = new HashSet<String>(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
-            
-            for (TestOperation op : test.getOperations().getOperationArray()) {
-                if (op.getOperation().getHtmlRequestOperation() != null) {
-                    HtmlRequestOperation reqop = op.getOperation().getHtmlRequestOperation();
-                    String params = Utils.getParamsFromUrl(reqop.getUrl());
-                    List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
-                    if ((nvplist != null) && !nvplist.isEmpty()) {
-                        NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+        String params = Utils.getParamsFromUrl(reqop.getUrl());
+        
+        if (StringUtils.isNotBlank(params)) {
+            List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
-                        // decrypt encrypted parameters
-                        for (int i = 0; i < nvparray.length; ++i) {
-                            if (hs.contains(nvparray[i].getName())) {
-                                nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
-                            }
-                        }
-                        
-                        int pos = reqop.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
-                        
-                        StringBuilder buf = new StringBuilder(reqop.getUrl().length());
-                        buf.append(reqop.getUrl().substring(0, pos));
-                        buf.append(Constants.SEPARATOR_QUESTION);
-                        buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+            if ((nvplist != null) && !nvplist.isEmpty()) {
+                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
-                        reqop.setUrl(replaceJsessionId(buf.toString()));
+                // decrypt encrypted parameters
+                for (int i = 0; i < nvparray.length; ++i) {
+                    if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
+                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
                     }
-                    
-                    RequestParameter param = Utils.getContentParameter(reqop);
-                        
-                    if (param != null) {
-                        if (Utils.isMultipart(reqop)) {
-                            String seperator = "";
-                            StringBuilder buf = new StringBuilder(param.getValue().length());
-                            StringTokenizer st1 = new StringTokenizer(param.getValue(), Constants.MULTIPART_PARAMETER_SEPARATOR);
-                            while (st1.hasMoreTokens()) {
-                                StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                            
-                                if (st2.countTokens() == 2) {
-                                    String name = st2.nextToken();
-                                    String value = st2.nextToken();
+                }
 
-                                    if (hs.contains(name)) {
-                                        value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
-                                    }
+                int pos = reqop.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
 
-                                    buf.append(seperator);
-                                    buf.append(name);
-                                    buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                                    buf.append(value);
-                                    seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
-                                }
-                            }
-                            
-                            param.setValue(buf.toString());
-                        } else if (Utils.isUrlFormEncoded(reqop)) {
-                            nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
+                StringBuilder buf = new StringBuilder(reqop.getUrl().length());
+                buf.append(reqop.getUrl().substring(0, pos));
+                buf.append(Constants.SEPARATOR_QUESTION);
+                buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
 
-                            if ((nvplist != null) && !nvplist.isEmpty()) {
-                                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+                reqop.setUrl(replaceJsessionId(buf.toString()));
+            }
+        }
 
-                                // decrypt encrypted parameters
-                                for (int i = 0; i < nvparray.length; ++i) {
-                                    if (hs.contains(nvparray[i].getName())) {
-                                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
-                                    }
-                                }
+        RequestParameter param = Utils.getContentParameter(reqop);
 
-                                int pos = reqop.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
-                                param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-                            }
+        if (param != null) {
+            if (Utils.isMultipart(reqop)) {
+                String seperator = "";
+                StringBuilder buf = new StringBuilder(param.getValue().length());
+                StringTokenizer st1 = new StringTokenizer(param.getValue(), Constants.MULTIPART_PARAMETER_SEPARATOR);
+                while (st1.hasMoreTokens()) {
+                    StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+
+                    if (st2.countTokens() == 2) {
+                        String name = st2.nextToken();
+                        String value = st2.nextToken();
+
+                        if (parametersRequiringDecryption.contains(name)) {
+                            value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
+                        }
+
+                        buf.append(seperator);
+                        buf.append(name);
+                        buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                        buf.append(value);
+                        seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
+                    }
+                }
+
+                param.setValue(buf.toString());
+            } else if (Utils.isUrlFormEncoded(reqop)) {
+                List <NameValuePair>  nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
+                if ((nvplist != null) && !nvplist.isEmpty()) {
+                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+
+                    // decrypt encrypted parameters
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
+                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
                         }
                     }
+
+                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
                 }
             }
         }
@@ -1121,7 +1050,7 @@ public class TestExecutionContext extends Thread {
                     value = paramMap.get(name);
                 }
                 
-                reqEntity.addTextBody(name, value);
+                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.TEXT_PLAIN));
             }
         }
         
@@ -1144,14 +1073,31 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public void updateTestExecutionParameters(String html) {
-        Map <String, CheckpointProperty> map = new HashMap<String, CheckpointProperty>();
+    public synchronized void updateTestExecutionParameters(KualiTest test, HtmlRequestOperation curop, String html) {
+        Map <String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
         
-        for (TestOperation op : kualiTest.getOperations().getOperationArray()) {
+        List <HtmlRequestOperation> hreqops = new ArrayList<HtmlRequestOperation>();
+        List <Checkpoint> sqlops = new ArrayList<Checkpoint>();
+
+        boolean foundit = false;
+        for (TestOperation op : test.getOperations().getOperationArray()) {
+            if ((op.getOperation().getHtmlRequestOperation() != null) 
+                && (curop == op.getOperation().getHtmlRequestOperation())) {
+                foundit = true;
+            }
+            
+            if (foundit) {
+                if (op.getOperation().getHtmlRequestOperation() != null) {
+                    hreqops.add(op.getOperation().getHtmlRequestOperation());
+                } else if (CheckpointType.SQL.equals(op.getOperation().getCheckpointOperation().getType())) {
+                    sqlops.add(op.getOperation().getCheckpointOperation());
+                } 
+            }
+            
             if (op.getOperation().getTestExecutionParameter() != null) {
                 CheckpointProperty cp = op.getOperation().getTestExecutionParameter().getValueProperty();
                 String key = Utils.buildCheckpointPropertyKey(cp);
-                map.put(key, cp);
+                map.put(key, op.getOperation().getTestExecutionParameter());
             }
         }
         
@@ -1159,10 +1105,21 @@ public class TestExecutionContext extends Thread {
         
         for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
             String key = Utils.buildCheckpointPropertyKey(cp);
-            CheckpointProperty tepcp = map.get(key);
-            if (tepcp != null) {
+            TestExecutionParameter tep = map.get(key);
+            if (tep != null) {
+                CheckpointProperty tepcp = tep.getValueProperty();
                 if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                    tepcp.setActualValue(cp.getPropertyValue().trim());
+                    tep.setValue(cp.getPropertyValue().trim());
+                    
+                    for (HtmlRequestOperation op : hreqops) {
+                        replaceUrlFormEncodedTestExecutionParams(op, tep);
+                        replaceMultiPartTestExecutionParams(op, tep);
+                    }
+
+                    for (Checkpoint sqlcp : sqlops) {
+                        Parameter param = Utils.getCheckpointParameter(sqlcp, Constants.SQL_QUERY);
+                        param.setValue(param.getValue().replace("${" + tep.getName() + "}", tep.getValue()));
+                    }
                 }
             }
         }
