@@ -31,11 +31,9 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
-import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
@@ -60,27 +58,19 @@ import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.DefaultHttpResponseParser;
 import org.apache.http.impl.conn.DefaultHttpResponseParserFactory;
 import org.apache.http.impl.conn.ManagedHttpClientConnectionFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
-import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.HttpMessageWriterFactory;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.message.LineParser;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.Checkpoint;
@@ -154,38 +144,7 @@ public class TestExecutionContext extends Thread {
     private void initializeHttpClient() {
         // Use custom message parser / writer to customize the way HTTP
         // messages are parsed from and written out to the data stream.
-        HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory() {
-
-            @Override
-            public HttpMessageParser<HttpResponse> create(
-                SessionInputBuffer buffer, MessageConstraints constraints) {
-                LineParser lineParser = new BasicLineParser() {
-
-                    @Override
-                    public Header parseHeader(final CharArrayBuffer buffer) {
-                        try {
-                            return super.parseHeader(buffer);
-                        } 
-                        
-                        catch (ParseException ex) {
-                            return new BasicHeader(buffer.toString(), null);
-                        }
-                    }
-
-                };
-                return new DefaultHttpResponseParser(
-                    buffer, lineParser, DefaultHttpResponseFactory.INSTANCE, constraints) {
-
-                    @Override
-                    protected boolean reject(final CharArrayBuffer line, int count) {
-                        // try to ignore all garbage preceding a status line infinitely
-                        return false;
-                    }
-
-                };
-            }
-        };
-        
+        HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory();
         HttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
 
         // Use a custom connection factory to customize the process of
@@ -216,10 +175,7 @@ public class TestExecutionContext extends Thread {
         connManager.setDefaultSocketConfig(socketConfig);
 
         // Create message constraints
-        MessageConstraints messageConstraints = MessageConstraints.custom()
-            .setMaxHeaderCount(200)
-            .setMaxLineLength(2000)
-            .build();
+        MessageConstraints messageConstraints = MessageConstraints.custom().build();
 
         // Create connection configuration
         ConnectionConfig connectionConfig = ConnectionConfig.custom()
@@ -245,7 +201,7 @@ public class TestExecutionContext extends Thread {
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
             .setCookieSpec(CookieSpecs.BEST_MATCH)
-            .setExpectContinueEnabled(true)
+            .setExpectContinueEnabled(false)
             .setRedirectsEnabled(true)
             .build();
 
@@ -256,6 +212,7 @@ public class TestExecutionContext extends Thread {
             .setDefaultRequestConfig(defaultRequestConfig)
             .setRedirectStrategy(new LaxRedirectStrategy())
             .build();
+ 
     }
     
     /**
@@ -1029,9 +986,16 @@ public class TestExecutionContext extends Thread {
      * @throws IOException 
      */
     public void addMultiPartParameters(HttpPost postRequest, HtmlRequestOperation reqop, String input) throws IOException {
-        Set <String> hs = new HashSet<String>();
-        hs.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
+        Set <String> hsencrpt = new HashSet<String>();
+        List <String> excludeList = new ArrayList<String>();
+        
+        hsencrpt.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
 
+        if (configuration.getExcludePostParameterMatchPatterns() != null) {
+            excludeList.addAll(Arrays.asList(configuration.getExcludePostParameterMatchPatterns().getMatchPatternArray()));
+        }
+        
+        
         Map<String, String> paramMap = new HashMap<String, String>();
 
         StringTokenizer st1 = new StringTokenizer(input, Constants.MULTIPART_PARAMETER_SEPARATOR);
@@ -1045,14 +1009,14 @@ public class TestExecutionContext extends Thread {
             if (st2.countTokens() == 2) {
                 String name = st2.nextToken();
                 String value = st2.nextToken();
-                
-                if (hs.contains(name)) {
+
+                if (hsencrpt.contains(name)) {
                     value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
                 } else if (paramMap.containsKey(name)) {
                     value = paramMap.get(name);
                 }
-                
-                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA));
+
+                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA.withCharset(Consts.UTF_8)));
             }
         }
         

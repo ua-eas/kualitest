@@ -16,11 +16,8 @@
 package org.kuali.test.utils;
 
 import java.awt.Component;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -35,7 +32,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -62,13 +58,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
@@ -795,76 +786,6 @@ public class Utils {
         return retval;
     }
     
-    public static String handleMultipartRequestParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        String input, String boundary, Map<String, String> replaceParams) throws IOException {
-        StringBuilder retval = new StringBuilder(512);
-        
-        Set <String> hs = new HashSet<String>();
-        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-            hs.add(parameterName);
-        }
-        
-        MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
-        boolean nextPart = multipartStream.skipPreamble();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
-        
-        while (nextPart) {
-            String header = multipartStream.readHeaders();
-            bos.reset();
-            multipartStream.readBodyData(bos);
-
-            String name = getNameFromNameParam(header);
-
-            if (StringUtils.isNotBlank(name)) {
-                boolean senstiveParameter = false;
-
-                senstiveParameter = hs.contains(name);
-
-                retval.append(name);
-                retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                if (senstiveParameter) {
-                    retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), bos.toString()));
-                } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
-                    retval.append(replaceParams.get(name));
-                } else {
-                    retval.append(bos.toString());
-                }
-            } else {
-                retval.append(bos.toString());
-            }
-            retval.append(Constants.MULTIPART_PARAMETER_SEPARATOR);
-            nextPart = multipartStream.readBoundary();
-        }
-
-        return retval.toString();
-    }
-
-    public static String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, String parameterString) {
-        StringBuilder retval = new StringBuilder(512);
-
-        // if we have a parameter string then convert to NameValuePair list and 
-        // process parameters requiring encryption
-        if (StringUtils.isNotBlank(parameterString)) {
-            List<NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
-
-            if ((nvplist != null) && !nvplist.isEmpty()) {
-                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-                    for (int i = 0; i < nvparray.length; ++i) {
-                        if (parameterName.equals(nvparray[i].getName())) {
-                            nvparray[i] = new BasicNameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
-                        }
-                    }
-                }
-
-                retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-            }
-        }
-
-        return retval.toString();
-    }
-
     /**
      *
      * @param input

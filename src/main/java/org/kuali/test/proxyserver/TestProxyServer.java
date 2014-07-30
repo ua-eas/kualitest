@@ -24,16 +24,27 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.util.CharsetUtil;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Consts;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
 import org.kuali.test.HtmlRequestOperation;
@@ -46,8 +57,6 @@ import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
-import static org.kuali.test.utils.Utils.encryptFormUrlEncodedParameters;
-import static org.kuali.test.utils.Utils.handleMultipartRequestParameters;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSource;
@@ -63,6 +72,9 @@ public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>());
+    private List <String> excludeParameterList = new ArrayList<String>();
+    private List <String> excludeUrlList = new ArrayList<String>();
+
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
@@ -73,6 +85,15 @@ public class TestProxyServer {
      */
     public TestProxyServer(WebTestPanel webTestPanel) {
         this.webTestPanel = webTestPanel;
+        
+        if (webTestPanel.getMainframe().getConfiguration().getExcludePostParameterMatchPatterns() != null) {
+            excludeParameterList.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getExcludePostParameterMatchPatterns().getMatchPatternArray()));
+        }
+        
+        if (webTestPanel.getMainframe().getConfiguration().getExcludeHttpRequestMatchPatterns() != null) {
+            excludeUrlList.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getExcludeHttpRequestMatchPatterns().getMatchPatternArray()));
+        }
+
         try {
             Thread.sleep(1000);
             initializeProxyServer();
@@ -103,7 +124,7 @@ public class TestProxyServer {
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
                                 try {
-                                    if (!isIgnoreUrl(request)) {
+                                    if (!isExcludeUrl(request.getUri())) {
                                         testOperations.add(buildHttpRequestOperation(request, delay));
                                     }
                                 } catch (Exception ex) {
@@ -187,7 +208,7 @@ public class TestProxyServer {
             .withManInTheMiddle(new SelfSignedMitmManager())
             .withAllowLocalOnly(true)
             .start();
-
+        
         proxyServerRunning = true;
         
         if (LOG.isDebugEnabled()) {
@@ -410,10 +431,11 @@ public class TestProxyServer {
      * @return
      * @throws IOException 
      */
-  public static String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+  public String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
       HtmlRequestOperation reqop, String input) throws IOException {
         StringBuilder retval = new StringBuilder(input.length());
 
+        
         String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_RESPONSE_CONTENT_TYPE);
         
         if (StringUtils.isNotBlank(contentType)) {
@@ -443,37 +465,119 @@ public class TestProxyServer {
         return retval.toString();
     }    
     
-    private boolean isIgnoreUrl(HttpRequest req) {
+    private boolean isExcludeParameter(String input) {
         boolean retval = false;
         
-        String url = req.getUri();
-        if (StringUtils.isNotBlank(url)) { 
-            if ("/".equals(url.trim())) {
-                retval = true;
-            } else {
-                String referer = null;
-                for (Map.Entry<String, String> entry  : req.headers()) {
-                    if (Constants.HTTP_HEADER_REFERER.equalsIgnoreCase(entry.getKey())) {
-                        referer = entry.getValue();
-                        break;
-                    }
-                }
-                if (webTestPanel.getMainframe().getConfiguration().getIgnoreHttpRequestMatchPatterns() != null) {
-                    for (String pattern : webTestPanel.getMainframe().getConfiguration().getIgnoreHttpRequestMatchPatterns().getMatchPatternArray()) {
-                        if (url.contains(pattern)) {
-                            retval = true;
-                            break;
-                        } else if (StringUtils.isNotBlank(referer) && referer.contains(pattern)) {
-                            retval = true;
-                            break;
-                        }
-                    }
+        if (StringUtils.isNotBlank(input)) {
+            for (String s : this.excludeParameterList) {
+                if (input.contains(s)) {
+                    retval = true;
+                    break;
                 }
             }
-        } else {
-            retval = true;
         }
         
         return retval;
+    }
+
+
+    private boolean isExcludeUrl(String input) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(input)) {
+            for (String s : this.excludeUrlList) {
+                if (input.contains(s)) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    private String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        String parameterString) {
+        StringBuilder retval = new StringBuilder(512);
+
+        // if we have a parameter string then convert to NameValuePair list and 
+        // process parameters requiring encryption
+        if (StringUtils.isNotBlank(parameterString)) {
+            List<NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
+
+            if ((nvplist != null) && !nvplist.isEmpty()) {
+                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
+
+                for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+                    for (int i = 0; i < nvparray.length; ++i) {
+                        if (parameterName.equals(nvparray[i].getName())) {
+                            nvparray[i] = new BasicNameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                        }
+                    }
+                }
+
+                nvplist = new ArrayList(Arrays.asList(nvparray));
+                
+                Iterator <NameValuePair> it = nvplist.iterator();
+                
+                while (it.hasNext()) {
+                    if (this.isExcludeParameter(it.next().getName())) {
+                        it.remove();
+                    }
+                }
+                
+                retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+            }
+        }
+
+        
+        return retval.toString();
+    }
+
+    private String handleMultipartRequestParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        String input, String boundary, Map<String, String> replaceParams) throws IOException {
+        StringBuilder retval = new StringBuilder(512);
+        
+        Set <String> hs = new HashSet<String>();
+        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
+            hs.add(parameterName);
+        }
+        
+        MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
+        boolean nextPart = multipartStream.skipPreamble();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
+        
+        while (nextPart) {
+            String header = multipartStream.readHeaders();
+            bos.reset();
+            multipartStream.readBodyData(bos);
+
+            String name = Utils.getNameFromNameParam(header);
+            String value = bos.toString();
+            
+            if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) {
+                if (!isExcludeParameter(name)) {
+                    boolean senstiveParameter = false;
+
+                    senstiveParameter = hs.contains(name);
+                    retval.append(name);
+                    retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+
+                    if (senstiveParameter) {
+                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
+                    } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
+                        retval.append(replaceParams.get(name));
+                    } else {
+                        retval.append(bos.toString());
+                    }
+                
+                    retval.append(Constants.MULTIPART_PARAMETER_SEPARATOR);
+                }
+            }
+            
+            nextPart = multipartStream.readBoundary();
+        }
+
+        return retval.toString();
     }
 }
