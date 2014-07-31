@@ -137,6 +137,11 @@ public class TestExecutionContext extends Thread {
     }
     
     private void initializeHttpClient() {
+        
+        RequestConfig.Builder requestBuilder = RequestConfig.custom();
+        requestBuilder = requestBuilder.setConnectTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+        requestBuilder = requestBuilder.setConnectionRequestTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT);
+
         // Use a custom connection factory to customize the process of
         // initialization of outgoing HTTP connections. Beside standard connection
         // configuration parameters HTTP connection factory can define message
@@ -173,8 +178,8 @@ public class TestExecutionContext extends Thread {
 
         // Configure total max or per route limits for persistent connections
         // that can be kept in the pool or leased by the connection manager.
-        connManager.setMaxTotal(100);
-        connManager.setDefaultMaxPerRoute(10);
+        connManager.setMaxTotal(500);
+        connManager.setDefaultMaxPerRoute(20);
 
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
@@ -189,6 +194,8 @@ public class TestExecutionContext extends Thread {
             .setDefaultCredentialsProvider(new BasicCredentialsProvider())
             .setDefaultRequestConfig(defaultRequestConfig)
             .setRedirectStrategy(new LaxRedirectStrategy())
+            .setUserAgent(Constants.DEFAULT_USER_AGENT)
+            .setDefaultRequestConfig(requestBuilder.build())
             .build();
  
     }
@@ -310,14 +317,14 @@ public class TestExecutionContext extends Thread {
         StringBuilder retval = new StringBuilder(128);
         
         retval.append(configuration.getTestResultLocation());
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         if (testSuite != null) {
             retval.append(testSuite.getPlatformName());
-            retval.append("/");
+            retval.append(Constants.FORWARD_SLASH);
             retval.append(Utils.formatForFileName(testSuite.getName()));
         } else {
             retval.append(kualiTest.getTestHeader().getPlatformName());
-            retval.append("/");
+            retval.append(Constants.FORWARD_SLASH);
             retval.append(Utils.getTestFileName(kualiTest.getTestHeader()));
         }
 

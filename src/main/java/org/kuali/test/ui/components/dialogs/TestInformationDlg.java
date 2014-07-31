@@ -88,7 +88,7 @@ public class TestInformationDlg extends BaseSetupDlg {
         StringBuilder nm = new StringBuilder(64);
         nm.append("[repository]/");
         nm.append(testHeader.getPlatformName());
-        nm.append("/");
+        nm.append(Constants.FORWARD_SLASH);
         nm.append(f.getName());
         
         String maxTime = "";

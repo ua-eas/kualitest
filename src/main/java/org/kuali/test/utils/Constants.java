@@ -30,6 +30,10 @@ public class Constants {
     public static final String DEFAULT_DATE_FORMAT_STRING = "yyyy-MM-dd";
     public static final String SELECT_DATETIME_FORMAT_STRING = "MM/dd/yyyy HH:mm";
     
+    public static final String DEFAULT_USER_AGENT = "Mozilla/5.0";
+    public static final int MILLIS_PER_SECOND = 1000 * 60;
+    public static final int MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
+    
     public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
     public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT_STRING);
@@ -193,8 +197,6 @@ public class Constants {
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE_US = "en-US,en;q=0.8";
     public static final String HTTP_HEADER_USER_AGENT = "User-Agent";
     public static final String HTTP_HEADER_LOCATION = "Location";
-    public static final String HTTP_HEADER_USER_AGENT_MOZILLA = "Mozilla";
-    public static final int DEFAULT_HTTP_REQUEST_READ_TIMEOUT = 5000;
     public static final String JSESSIONID_PARAMETER_NAME = "jsessionid";
     public static final String HTTP_PROTOCOL = "http://";
     public static final String HTTPS_PROTOCOL = "https://";
@@ -206,6 +208,9 @@ public class Constants {
     public static final String SAVE_SCREEN = "save-screen";
     public static final int ELAPSED_TIME_UPDATE_INTERVAL = 5;
     public static final String MULTIPART_BOUNDARY_IDENTIFIER = "boundary=";
+    public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 30 * MILLIS_PER_SECOND;
+    public static final int DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT = MILLIS_PER_MINUTE;
+
     
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
@@ -232,7 +237,6 @@ public class Constants {
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
     public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
     public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
-    public static final int MILLIS_PER_MINUTE = 1000 * 60 * 60;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
     public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 15;
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
@@ -327,6 +331,8 @@ public class Constants {
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX = "checkbox";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_TEXT = "text";
     public static final String HTML_TAG_ATTRIBUTE_CLASS_DATATABLE = "datatable";
+    public static final String XML_SUFFIX = ".xml";
+    public static final String HTML_SUFFIX = ".html";
     
     public static final String SQL_ORDER_BY_DESC = "DESC";
     public static final String AND = "AND";

@@ -26,6 +26,7 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -104,7 +105,7 @@ public class RepositoryNode extends DefaultMutableTreeNode {
     private String getPlatformFilePath(Platform platform) {
         StringBuilder retval = new StringBuilder(256);
         retval.append(configuration.getRepositoryLocation());
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(platform.getName());
         return retval.toString();
     }
@@ -112,9 +113,9 @@ public class RepositoryNode extends DefaultMutableTreeNode {
     private String getTestSuiteFilePath(TestSuite testSuite) {
         StringBuilder retval = new StringBuilder(256);
         retval.append(configuration.getRepositoryLocation());
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(testSuite.getPlatformName());
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(testSuite.getName());
         return retval.toString();
     }

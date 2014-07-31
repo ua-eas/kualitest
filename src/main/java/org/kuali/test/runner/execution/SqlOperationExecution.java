@@ -149,11 +149,13 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         StringBuilder retval = new StringBuilder(256);
         
         retval.append(configuration.getTestResultLocation());
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(platform.getName());
-        retval.append("/query-results/");
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append("query-results");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
-        retval.append("/");
+        retval.append(Constants.FORWARD_SLASH);
         retval.append(getOperation().getCheckpointOperation().getTestName());
         retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
         retval.append("-");

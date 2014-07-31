@@ -576,7 +576,7 @@ public class Utils {
 
         if (url != null) {
             int pos1 = url.indexOf("//");
-            int pos2 = url.indexOf("/", pos1 + 3);
+            int pos2 = url.indexOf(Constants.FORWARD_SLASH, pos1 + 3);
 
             if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
 
@@ -817,11 +817,13 @@ public class Utils {
     public static File buildTestFile(String repositoryLocation, TestHeader header) {
         StringBuilder nm = new StringBuilder(256);
         nm.append(repositoryLocation);
-        nm.append("/");
+        nm.append(Constants.FORWARD_SLASH);
         nm.append(header.getPlatformName());
-        nm.append("/tests/");
+        nm.append(Constants.FORWARD_SLASH);
+        nm.append("tests");
+        nm.append(Constants.FORWARD_SLASH);
         nm.append(getTestFileName(header));
-        nm.append(".xml");
+        nm.append(Constants.XML_SUFFIX);
 
         return new File(nm.toString());
     }
@@ -932,7 +934,7 @@ public class Utils {
      * @return
      */
     public static File getTestRunnerConfigurationFile(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
-        return new File(configuration.getRepositoryLocation() + "/" + Constants.TEST_RUNNER_CONFIG_FILENAME);
+        return new File(configuration.getRepositoryLocation() + Constants.FORWARD_SLASH + Constants.TEST_RUNNER_CONFIG_FILENAME);
     }
 
     public static File[] getHandlerFiles(File handlerDir) {

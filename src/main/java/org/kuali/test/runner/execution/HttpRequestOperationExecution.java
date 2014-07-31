@@ -125,6 +125,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
                 
                 if (reqop.getRequestHeaders() != null) {
+                    request.addHeader(Constants.HTTP_HEADER_USER_AGENT, Constants.DEFAULT_USER_AGENT);
                     for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                         String value = hdr.getValue();
                         if (StringUtils.isNotBlank(value)) {
@@ -134,7 +135,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
 
                 response = tec.getHttpClient().execute(request);
-
                 if (response != null) {
                     BufferedReader reader = null; 
                     StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
@@ -155,11 +155,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                     int status = response.getStatusLine().getStatusCode();
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("********************************* http status=" + status + " *********************************");
-                        LOG.debug(responseBuffer.toString());
-                        LOG.debug("**********************************************************************************************");
-                    }
+  //                  System.out.println("----------------------------------------------------------->status=" + status);
+    //                System.out.println(responseBuffer.toString());
                     
                     if (status == HttpURLConnection.HTTP_OK) {
                         tec.pushHttpResponse(responseBuffer.toString());

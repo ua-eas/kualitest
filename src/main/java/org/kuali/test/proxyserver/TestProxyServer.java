@@ -349,7 +349,7 @@ public class TestProxyServer {
                 if (pos > -1) {
                     protocol = platformUrl.substring(0, pos);
                 } else {
-                    int pos2 = platformUrl.indexOf("/", pos+3);
+                    int pos2 = platformUrl.indexOf(Constants.FORWARD_SLASH, pos+3);
                     platformHost = platformUrl.substring(pos+1, pos2);
                 }
             }
