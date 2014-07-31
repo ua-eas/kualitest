@@ -69,6 +69,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTest test) throws TestException {
         HtmlRequestOperation reqop = null;
+        HttpRequestBase request = null;
         CloseableHttpResponse response = null;
 
         try {
@@ -85,7 +86,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             catch (InterruptedException ex) {};
             
-            HttpRequestBase request = null;
             TestExecutionContext tec = getTestExecutionContext();
 
             tec.processAutoReplaceParameters(test, reqop);
@@ -155,9 +155,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                     int status = response.getStatusLine().getStatusCode();
 
-  //                  System.out.println("----------------------------------------------------------->status=" + status);
-    //                System.out.println(responseBuffer.toString());
-                    
+                //    System.out.println("---------------------------------------------------->status=" + status);
+                  //  System.out.println(responseBuffer.toString());
+
                     if (status == HttpURLConnection.HTTP_OK) {
                         tec.pushHttpResponse(responseBuffer.toString());
                         tec.updateAutoReplaceMap();
@@ -187,8 +187,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
 
         finally {
+            if (request != null) {
+                request.releaseConnection();
+            }
+            
             HttpClientUtils.closeQuietly(response);
         }
     }
-
 }

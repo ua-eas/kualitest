@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.kuali.test.runner.execution;
 
 import java.io.File;
@@ -102,18 +101,19 @@ import org.w3c.dom.Element;
  * @author rbtucker
  */
 public class TestExecutionContext extends Thread {
+
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
-    private List <File> generatedCheckpointFiles = new ArrayList<File>();
+    private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
     private int warningCount = 0;
     private int successCount = 0;
     private int errorCount = 0;
-    
+
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
 
-    private Stack <String> httpResponseStack;
-    
+    private Stack<String> httpResponseStack;
+
     private Platform platform;
     private TestSuite testSuite;
     private KualiTest kualiTest;
@@ -126,28 +126,33 @@ public class TestExecutionContext extends Thread {
     private CloseableHttpClient httpClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private CookieStore cookieStore;
+
     /**
      *
      */
     public TestExecutionContext() {
         init();
     }
-    
+
     private void init() {
     }
-    
+
     private void initializeHttpClient() {
-        
-        RequestConfig.Builder requestBuilder = RequestConfig.custom();
-        requestBuilder = requestBuilder.setConnectTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
-        requestBuilder = requestBuilder.setConnectionRequestTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT);
+
+        RequestConfig.Builder requestBuilder = RequestConfig.custom()
+        .setConnectTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT)
+        .setConnectionRequestTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT)
+        .setCookieSpec(CookieSpecs.BEST_MATCH)
+        .setExpectContinueEnabled(false)
+        .setRedirectsEnabled(true);
+
 
         // Use a custom connection factory to customize the process of
         // initialization of outgoing HTTP connections. Beside standard connection
         // configuration parameters HTTP connection factory can define message
         // parser / writer routines to be employed by individual connections.
         HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
-                new DefaultHttpRequestWriterFactory(), new DefaultHttpResponseParserFactory());
+            new DefaultHttpRequestWriterFactory(), new DefaultHttpResponseParserFactory());
 
         // Create a registry of custom connection socket factories for supported
         // protocol schemes.
@@ -158,11 +163,13 @@ public class TestExecutionContext extends Thread {
 
         // Create a connection manager with custom configuration.
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(
-                socketFactoryRegistry, connFactory, new SystemDefaultDnsResolver());
+            socketFactoryRegistry, connFactory, new SystemDefaultDnsResolver());
 
         // Create socket configuration
         SocketConfig socketConfig = SocketConfig.custom()
             .setTcpNoDelay(true)
+            .setSoKeepAlive(true)
+            .setSoTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT)
             .build();
 
         // Configure the connection manager to use socket configuration either
@@ -181,25 +188,16 @@ public class TestExecutionContext extends Thread {
         connManager.setMaxTotal(500);
         connManager.setDefaultMaxPerRoute(20);
 
-        // Create global request configuration
-        RequestConfig defaultRequestConfig = RequestConfig.custom()
-            .setCookieSpec(CookieSpecs.BEST_MATCH)
-            .setExpectContinueEnabled(false)
-            .setRedirectsEnabled(true)
-            .build();
-
         httpClient = HttpClients.custom()
             .setConnectionManager(connManager)
             .setDefaultCookieStore(cookieStore = new BasicCookieStore())
             .setDefaultCredentialsProvider(new BasicCredentialsProvider())
-            .setDefaultRequestConfig(defaultRequestConfig)
+            .setDefaultRequestConfig(requestBuilder.build())
             .setRedirectStrategy(new LaxRedirectStrategy())
             .setUserAgent(Constants.DEFAULT_USER_AGENT)
-            .setDefaultRequestConfig(requestBuilder.build())
             .build();
- 
     }
-    
+
     /**
      *
      * @param configuration
@@ -207,7 +205,7 @@ public class TestExecutionContext extends Thread {
      * @param scheduledTime
      * @param testRuns
      */
-    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite, Date scheduledTime, int testRuns) {
         this.testSuite = testSuite;
         this.scheduledTime = scheduledTime;
@@ -222,7 +220,7 @@ public class TestExecutionContext extends Thread {
      * @param configuration
      * @param testSuite
      */
-    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite) {
         this(configuration, testSuite, null, 1);
     }
@@ -234,7 +232,7 @@ public class TestExecutionContext extends Thread {
      * @param scheduledTime
      * @param testRuns
      */
-    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         KualiTest kualiTest, Date scheduledTime, int testRuns) {
         this.kualiTest = kualiTest;
         this.scheduledTime = scheduledTime;
@@ -252,19 +250,19 @@ public class TestExecutionContext extends Thread {
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, KualiTest kualiTest) {
         this(configuration, kualiTest, null, 1);
     }
-    
+
     @Override
     public void run() {
         runTest();
     }
-    
+
     /**
      *
      */
     @SuppressWarnings("SleepWhileInLoop")
     public void runTest() {
         try {
-            startTime= new Date();
+            startTime = new Date();
 
             PoiHelper poiHelper = new PoiHelper();
             poiHelper.writeReportHeader(testSuite, kualiTest);
@@ -282,9 +280,7 @@ public class TestExecutionContext extends Thread {
                         if (defaultTestWaitInterval > 0) {
                             try {
                                 Thread.sleep(defaultTestWaitInterval * 1000);
-                            } 
-
-                            catch (InterruptedException ex) {
+                            } catch (InterruptedException ex) {
                                 LOG.warn(ex.toString(), ex);
                             }
                         }
@@ -297,25 +293,23 @@ public class TestExecutionContext extends Thread {
                 runTest(kualiTest, poiHelper);
             }
 
-            endTime= new Date();
+            endTime = new Date();
             testResultsFile = new File(buildTestReportFileName());
 
             poiHelper.writeFile(testResultsFile);
-        }
-        
-        finally {
+        } finally {
             cleanup();
             completed = true;
         }
     }
-    
+
     private void cleanup() {
         HttpClientUtils.closeQuietly(httpClient);
     }
-    
+
     private String buildTestReportFileName() {
         StringBuilder retval = new StringBuilder(128);
-        
+
         retval.append(configuration.getTestResultLocation());
         retval.append(Constants.FORWARD_SLASH);
         if (testSuite != null) {
@@ -333,16 +327,15 @@ public class TestExecutionContext extends Thread {
         retval.append("_");
         retval.append(testRun);
         retval.append(".xlsx");
-        
+
         return retval.toString();
     }
 
-    
     private void runTest(KualiTest test, PoiHelper poiHelper) {
         if (LOG.isInfoEnabled()) {
             LOG.info("--------------------------- starting test ---------------------------");
             LOG.info("platform: " + test.getTestHeader().getPlatformName());
-            
+
             if (StringUtils.isNotBlank(test.getTestHeader().getTestSuiteName())) {
                 LOG.info("test suite: " + test.getTestHeader().getTestSuiteName());
             }
@@ -350,15 +343,15 @@ public class TestExecutionContext extends Thread {
             LOG.info("test: " + test.getTestHeader().getTestName());
             LOG.info("---------------------------------------------------------------------");
         }
-        
+
         long start = System.currentTimeMillis();
-        
+
         // if this is a web test then initialize the client
         if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
             getHttpClient();
             parametersRequiringDecryption.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         }
-        
+
         for (TestOperation op : test.getOperations().getOperationArray()) {
             // if executeTestOperation returns false we want to halt test
             if (!executeTestOperation(test, op, poiHelper)) {
@@ -403,9 +396,9 @@ public class TestExecutionContext extends Thread {
 
         return retval;
     }
-    
+
     /**
-     * 
+     *
      * @param op
      * @param poiHelper
      * @return true to continue test - false to halt
@@ -413,7 +406,7 @@ public class TestExecutionContext extends Thread {
     private boolean executeTestOperation(KualiTestDocument.KualiTest test, TestOperation op, PoiHelper poiHelper) {
         boolean retval = true;
         OperationExecution opExec = null;
-        
+
         Date opStartTime = new Date();
         try {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(test, this, op);
@@ -424,26 +417,20 @@ public class TestExecutionContext extends Thread {
                         incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
                     }
-                }
-                
-                catch (TestException ex) {
+                } catch (TestException ex) {
                     throw ex;
-                }
-
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     LOG.error(ex.toString(), ex);
                     throw new TestException(ex.toString(), op.getOperation(), ex);
                 }
             }
-        } 
-        
-        catch (TestException ex) {
+        } catch (TestException ex) {
             retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
         }
-        
+
         return retval;
     }
-    
+
     /**
      *
      * @return
@@ -507,7 +494,7 @@ public class TestExecutionContext extends Thread {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
-    
+
     /**
      *
      */
@@ -538,10 +525,10 @@ public class TestExecutionContext extends Thread {
     public boolean isCompleted() {
         return completed;
     }
-    
+
     /**
-     * 
-     * @param html 
+     *
+     * @param html
      */
     public void pushHttpResponse(String html) {
         httpResponseStack.push(html);
@@ -554,12 +541,12 @@ public class TestExecutionContext extends Thread {
      *
      * @return
      */
-    public List <String> getRecentHttpResponseData() {
-        List <String> retval = new ArrayList<String>();
+    public List<String> getRecentHttpResponseData() {
+        List<String> retval = new ArrayList<String>();
         while (!httpResponseStack.empty()) {
             retval.add(httpResponseStack.pop());
         }
-        
+
         return retval;
     }
 
@@ -576,19 +563,19 @@ public class TestExecutionContext extends Thread {
      * @return
      */
     public List<TestExecutionContext> getTestInstances() {
-        List <TestExecutionContext> retval = new ArrayList<TestExecutionContext>();;
+        List<TestExecutionContext> retval = new ArrayList<TestExecutionContext>();;
         retval.add(this);
-        
+
         for (int i = 1; i < testRuns; ++i) {
             TestExecutionContext tec = new TestExecutionContext();
             tec.setStartTime(startTime);
             tec.setPlatform(platform);
             tec.setKualiTest(kualiTest);
-            tec.setTestRun(i+1);
+            tec.setTestRun(i + 1);
             tec.setConfiguration(configuration);
             retval.add(tec);
         }
-        
+
         return retval;
     }
 
@@ -663,18 +650,17 @@ public class TestExecutionContext extends Thread {
                 if (ops[i].getOperation().getHtmlRequestOperation() != null) {
                     replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
                     replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
-                } 
+                }
             }
-            
+
             autoReplaceParameterMap.clear();
         }
     }
 
-    
     private void replaceMultiPartTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         if (Utils.isMultipart(op)) {
             RequestParameter param = Utils.getContentParameter(op);
-            
+
             if (param != null) {
                 String params = param.getValue();
                 StringBuilder buf = new StringBuilder(params.length());
@@ -685,7 +671,7 @@ public class TestExecutionContext extends Thread {
 
                 while (st1.hasMoreElements()) {
                     StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                    
+
                     if (st2.countTokens() == 2) {
                         String name = st2.nextToken();
                         String value = st2.nextToken();
@@ -701,18 +687,18 @@ public class TestExecutionContext extends Thread {
                         seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
                     }
                 }
-                
+
                 param.setValue(buf.toString());
             }
         }
     }
-    
+
     private void replaceUrlFormEncodedTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
         String params = Utils.getParamsFromUrl(op.getUrl());
-                        
+
         // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(params)) {
-            List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
+            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
@@ -724,7 +710,7 @@ public class TestExecutionContext extends Thread {
                         }
                     }
                 }
-            
+
                 int pos = op.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
 
                 if (pos > -1) {
@@ -735,7 +721,7 @@ public class TestExecutionContext extends Thread {
                     op.setUrl(buf.toString());
                 }
             }
-            
+
             if (Utils.isUrlFormEncoded(op)) {
                 RequestParameter param = Utils.getContentParameter(op);
                 if (param != null) {
@@ -755,11 +741,11 @@ public class TestExecutionContext extends Thread {
             }
         }
     }
-    
+
     private void replaceMultiPartParams(HtmlRequestOperation op, Map<String, String> paramMap) {
         if (Utils.isMultipart(op)) {
             RequestParameter param = Utils.getContentParameter(op);
-            
+
             if (param != null) {
                 String params = param.getValue();
                 StringBuilder buf = new StringBuilder(params.length());
@@ -770,17 +756,17 @@ public class TestExecutionContext extends Thread {
 
                 while (st1.hasMoreElements()) {
                     StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                    
+
                     if (st2.countTokens() == 2) {
                         String name = st2.nextToken();
                         String value = st2.nextToken();
 
                         String replacement = paramMap.get(name);
-                        
+
                         if (StringUtils.isNotBlank(replacement)) {
                             value = replacement;
                         }
-                        
+
                         buf.append(seperator);
                         buf.append(name);
                         buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
@@ -788,18 +774,18 @@ public class TestExecutionContext extends Thread {
                         seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
                     }
                 }
-                
+
                 param.setValue(buf.toString());
             }
         }
     }
-    
+
     private void replaceUrlFormEncodedParams(HtmlRequestOperation op, Map<String, String> paramMap) {
         String params = Utils.getParamsFromUrl(op.getUrl());
-                        
+
         // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(params)) {
-            List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
+            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
@@ -810,7 +796,7 @@ public class TestExecutionContext extends Thread {
                         nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                     }
                 }
-            
+
                 int pos = op.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
 
                 if (pos > -1) {
@@ -820,7 +806,7 @@ public class TestExecutionContext extends Thread {
                     buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
                     op.setUrl(buf.toString());
                 }
-            }     
+            }
             if (Utils.isUrlFormEncoded(op)) {
                 RequestParameter param = Utils.getContentParameter(op);
                 if (param != null) {
@@ -839,23 +825,23 @@ public class TestExecutionContext extends Thread {
             }
         }
     }
-    
+
     private Cookie findJSessionIdCookie(String host) {
         Cookie retval = null;
-        
+            
         for (Cookie c : cookieStore.getCookies()) {
             if (c.getDomain().equalsIgnoreCase(host) && c.getName().equalsIgnoreCase(Constants.JSESSIONID_PARAMETER_NAME)) {
                 retval = c;
                 break;
             }
         }
-        
+
         return retval;
     }
-    
+
     private String replaceJsessionId(String input) {
         StringBuilder retval = new StringBuilder(input.length());
-                
+
         int pos = input.toLowerCase().indexOf(Constants.JSESSIONID_PARAMETER_NAME);
         if (pos > -1) {
             try {
@@ -873,30 +859,26 @@ public class TestExecutionContext extends Thread {
                 } else {
                     retval.append(input);
                 }
-            } 
-
-            catch (URISyntaxException ex) {
+            } catch (URISyntaxException ex) {
                 LOG.warn(ex.toString(), ex);
             }
         } else {
             retval.append(input);
         }
-        
-        
+
         return retval.toString();
     }
-    
+
     /**
-     * 
-     * @param reqop 
+     *
+     * @param reqop
      */
     public void decryptHttpParameters(HtmlRequestOperation reqop) {
         String epass = Utils.getEncryptionPassword(configuration);
-
         String params = Utils.getParamsFromUrl(reqop.getUrl());
-        
+
         if (StringUtils.isNotBlank(params)) {
-            List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
+            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
@@ -904,7 +886,7 @@ public class TestExecutionContext extends Thread {
                 // decrypt encrypted parameters
                 for (int i = 0; i < nvparray.length; ++i) {
                     if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
-                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(epass, nvparray[i].getValue()));
                     }
                 }
 
@@ -934,7 +916,7 @@ public class TestExecutionContext extends Thread {
                         String value = st2.nextToken();
 
                         if (parametersRequiringDecryption.contains(name)) {
-                            value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
+                            value = Utils.decrypt(epass, value);
                         }
 
                         buf.append(seperator);
@@ -947,14 +929,14 @@ public class TestExecutionContext extends Thread {
 
                 param.setValue(buf.toString());
             } else if (Utils.isUrlFormEncoded(reqop)) {
-                List <NameValuePair>  nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
+                List<NameValuePair> nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
                 if ((nvplist != null) && !nvplist.isEmpty()) {
                     NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
                     // decrypt encrypted parameters
                     for (int i = 0; i < nvparray.length; ++i) {
                         if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
-                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(epass, nvparray[i].getValue()));
                         }
                     }
 
@@ -965,30 +947,29 @@ public class TestExecutionContext extends Thread {
     }
 
     /**
-     * 
+     *
      * @param postRequest
      * @param reqop
      * @param input
-     * @throws IOException 
+     * @throws IOException
      */
     public void addMultiPartParameters(HttpPost postRequest, HtmlRequestOperation reqop, String input) throws IOException {
-        Set <String> hsencrpt = new HashSet<String>();
-        List <String> excludeList = new ArrayList<String>();
-        
+        Set<String> hsencrpt = new HashSet<String>();
+        List<String> excludeList = new ArrayList<String>();
+
         hsencrpt.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
 
         if (configuration.getExcludePostParameterMatchPatterns() != null) {
             excludeList.addAll(Arrays.asList(configuration.getExcludePostParameterMatchPatterns().getMatchPatternArray()));
         }
-        
-        
+
         Map<String, String> paramMap = new HashMap<String, String>();
 
         StringTokenizer st1 = new StringTokenizer(input, Constants.MULTIPART_PARAMETER_SEPARATOR);
         MultipartEntityBuilder reqEntity = MultipartEntityBuilder
             .create()
             .setBoundary(Utils.getMultipartBoundary(reqop));
-        
+
         while (st1.hasMoreTokens()) {
             StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
 
@@ -1005,14 +986,14 @@ public class TestExecutionContext extends Thread {
                 reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA.withCharset(Consts.UTF_8)));
             }
         }
-        
+
         postRequest.setEntity(reqEntity.build());
     }
 
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
     }
-    
+
     public void updateAutoReplaceMap() {
         if ((configuration.getAutoReplaceParameters() != null) && !httpResponseStack.empty()) {
             Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(httpResponseStack.peek());
@@ -1026,35 +1007,35 @@ public class TestExecutionContext extends Thread {
     }
 
     public synchronized void updateTestExecutionParameters(KualiTest test, HtmlRequestOperation curop, String html) {
-        Map <String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
-        
-        List <HtmlRequestOperation> hreqops = new ArrayList<HtmlRequestOperation>();
-        List <Checkpoint> sqlops = new ArrayList<Checkpoint>();
+        Map<String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
+
+        List<HtmlRequestOperation> hreqops = new ArrayList<HtmlRequestOperation>();
+        List<Checkpoint> sqlops = new ArrayList<Checkpoint>();
 
         boolean foundit = false;
         for (TestOperation op : test.getOperations().getOperationArray()) {
-            if ((op.getOperation().getHtmlRequestOperation() != null) 
+            if ((op.getOperation().getHtmlRequestOperation() != null)
                 && (curop == op.getOperation().getHtmlRequestOperation())) {
                 foundit = true;
             }
-            
+
             if (foundit) {
                 if (op.getOperation().getHtmlRequestOperation() != null) {
                     hreqops.add(op.getOperation().getHtmlRequestOperation());
                 } else if (CheckpointType.SQL.equals(op.getOperation().getCheckpointOperation().getType())) {
                     sqlops.add(op.getOperation().getCheckpointOperation());
-                } 
+                }
             }
-            
+
             if (op.getOperation().getTestExecutionParameter() != null) {
                 CheckpointProperty cp = op.getOperation().getTestExecutionParameter().getValueProperty();
                 String key = Utils.buildCheckpointPropertyKey(cp);
                 map.put(key, op.getOperation().getTestExecutionParameter());
             }
         }
-        
+
         DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
-        
+
         for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
             String key = Utils.buildCheckpointPropertyKey(cp);
             TestExecutionParameter tep = map.get(key);
@@ -1062,7 +1043,7 @@ public class TestExecutionContext extends Thread {
                 CheckpointProperty tepcp = tep.getValueProperty();
                 if (StringUtils.isNotBlank(cp.getPropertyValue())) {
                     tep.setValue(cp.getPropertyValue().trim());
-                    
+
                     for (HtmlRequestOperation op : hreqops) {
                         replaceUrlFormEncodedTestExecutionParams(op, tep);
                         replaceMultiPartTestExecutionParams(op, tep);
@@ -1082,10 +1063,10 @@ public class TestExecutionContext extends Thread {
             initializeHttpClient();
             httpResponseStack = new Stack<String>();
         }
-        
+
         return httpClient;
     }
-    
+
     public void incrementErrorCount() {
         errorCount++;
     }
@@ -1097,10 +1078,10 @@ public class TestExecutionContext extends Thread {
     public void incrementSuccessCount() {
         successCount++;
     }
-    
+
     public void updateCounts(FailureAction.Enum failureAction) {
         if (failureAction != null) {
-            switch(failureAction.intValue()) {
+            switch (failureAction.intValue()) {
                 case FailureAction.INT_ERROR_CONTINUE:
                 case FailureAction.INT_ERROR_HALT_TEST:
                     incrementErrorCount();
@@ -1134,5 +1115,3 @@ public class TestExecutionContext extends Thread {
         return cookieStore;
     }
 }
-
-

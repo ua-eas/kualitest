@@ -102,7 +102,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                         }
                     }
                     
-                    CheckpointProperty cp = getProperty(Constants.ROW_COUNT);
+                    CheckpointProperty cp = getProperty(Constants.ROW_COUNT_PROPERTY);
                     cp.setActualValue("" + rowcount);
                     if (!evaluateCheckpointProperty(cp)) {
                         throw new TestException("row count of " 

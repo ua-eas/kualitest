@@ -1109,7 +1109,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public void showHelp(ActionEvent e) {
         if (Desktop.isDesktopSupported()) {
             try {
-                File file = new File(getConfiguration().getRepositoryLocation() + "/help/kuali-test.pdf");
+                File file = new File(getConfiguration().getRepositoryLocation() + Constants.HELP_FILE_PATH);
                 Desktop.getDesktop().open(file);
             } 
 

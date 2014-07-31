@@ -50,7 +50,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         super(context, op);
     }
     
-    
     private List <CheckpointProperty> findCurrentProperties(Checkpoint cp, HtmlDomProcessor.DomInformation dominfo) {
         List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
 
@@ -73,7 +72,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         retval.append(Constants.FORWARD_SLASH);
         retval.append(platform.getName());
         retval.append(Constants.FORWARD_SLASH);
-        retval.append("screen-captures");
+        retval.append(Constants.SCREEN_CAPTURE_DIR);
         retval.append(Constants.FORWARD_SLASH);
         retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
         retval.append(Constants.FORWARD_SLASH);
@@ -173,7 +172,9 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
 
             finally {
                 try {
-                    pw.close();
+                    if (pw != null) {
+                        pw.close();
+                    }
                 }
 
                 catch (Exception ex) {};

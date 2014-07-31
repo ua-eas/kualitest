@@ -167,7 +167,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
             param.setValue(dbPanel.getSqlQueryString(DatabasePanel.SQL_FORMAT_EXECUTE));
             
             param = checkpoint.getInputParameters().addNewParameter();
-            param.setName("save-query-results");
+            param.setName(Constants.SAVE_QUERY_RESULTS_DIR);
             param.setValue("" + saveQueryResults.isSelected());
 
             CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
@@ -177,7 +177,7 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
             String s = checkpointProperty.getSelectedItem().toString();
             
             cp.setDisplayName("Row Count");
-            cp.setPropertyName("row-count");
+            cp.setPropertyName(Constants.ROW_COUNT_PROPERTY);
             
             if (Constants.SINGLE_ROW_EXISTS.equals(s)) {
                 cp.setOperator(ComparisonOperator.EQUAL_TO);
