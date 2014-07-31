@@ -31,11 +31,8 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Consts;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
@@ -68,8 +65,6 @@ import org.apache.http.impl.conn.ManagedHttpClientConnectionFactory;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.conn.SystemDefaultDnsResolver;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
-import org.apache.http.io.HttpMessageParserFactory;
-import org.apache.http.io.HttpMessageWriterFactory;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -142,17 +137,12 @@ public class TestExecutionContext extends Thread {
     }
     
     private void initializeHttpClient() {
-        // Use custom message parser / writer to customize the way HTTP
-        // messages are parsed from and written out to the data stream.
-        HttpMessageParserFactory<HttpResponse> responseParserFactory = new DefaultHttpResponseParserFactory();
-        HttpMessageWriterFactory<HttpRequest> requestWriterFactory = new DefaultHttpRequestWriterFactory();
-
         // Use a custom connection factory to customize the process of
         // initialization of outgoing HTTP connections. Beside standard connection
         // configuration parameters HTTP connection factory can define message
         // parser / writer routines to be employed by individual connections.
         HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
-                requestWriterFactory, responseParserFactory);
+                new DefaultHttpRequestWriterFactory(), new DefaultHttpResponseParserFactory());
 
         // Create a registry of custom connection socket factories for supported
         // protocol schemes.
@@ -174,30 +164,18 @@ public class TestExecutionContext extends Thread {
         // by default or for a specific host.
         connManager.setDefaultSocketConfig(socketConfig);
 
-        // Create message constraints
-        MessageConstraints messageConstraints = MessageConstraints.custom().build();
-
-        // Create connection configuration
-        ConnectionConfig connectionConfig = ConnectionConfig.custom()
-            .setCharset(Consts.UTF_8)
-            .setMessageConstraints(messageConstraints)
-            .build();
-        
         // Configure the connection manager to use connection configuration either
         // by default or for a specific host.
-        connManager.setDefaultConnectionConfig(connectionConfig);
+        connManager.setDefaultConnectionConfig(ConnectionConfig.custom()
+            .setCharset(Consts.UTF_8)
+            .setMessageConstraints(MessageConstraints.custom().build())
+            .build());
 
         // Configure total max or per route limits for persistent connections
         // that can be kept in the pool or leased by the connection manager.
         connManager.setMaxTotal(100);
         connManager.setDefaultMaxPerRoute(10);
 
-        // Use custom cookie store if necessary.
-        cookieStore = new BasicCookieStore();
-        
-        // Use custom credentials provider if necessary.
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        
         // Create global request configuration
         RequestConfig defaultRequestConfig = RequestConfig.custom()
             .setCookieSpec(CookieSpecs.BEST_MATCH)
@@ -207,8 +185,8 @@ public class TestExecutionContext extends Thread {
 
         httpClient = HttpClients.custom()
             .setConnectionManager(connManager)
-            .setDefaultCookieStore(cookieStore)
-            .setDefaultCredentialsProvider(credentialsProvider)
+            .setDefaultCookieStore(cookieStore = new BasicCookieStore())
+            .setDefaultCredentialsProvider(new BasicCredentialsProvider())
             .setDefaultRequestConfig(defaultRequestConfig)
             .setRedirectStrategy(new LaxRedirectStrategy())
             .build();
@@ -276,6 +254,7 @@ public class TestExecutionContext extends Thread {
     /**
      *
      */
+    @SuppressWarnings("SleepWhileInLoop")
     public void runTest() {
         try {
             startTime= new Date();
@@ -811,7 +790,7 @@ public class TestExecutionContext extends Thread {
     private void replaceUrlFormEncodedParams(HtmlRequestOperation op, Map<String, String> paramMap) {
         String params = Utils.getParamsFromUrl(op.getUrl());
                         
-                                // if we have a parameter string then convert to NameValuePair list and process
+        // if we have a parameter string then convert to NameValuePair list and process
         if (StringUtils.isNotBlank(params)) {
             List <NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
 
@@ -840,9 +819,9 @@ public class TestExecutionContext extends Thread {
                 if (param != null) {
                     nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
                     NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
                     for (int i = 0; i < nvparray.length; ++i) {
                         String replacement = paramMap.get(nvparray[i].getName());
+
                         if (StringUtils.isNotBlank(replacement)) {
                             nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
                         }

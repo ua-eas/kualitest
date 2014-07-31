@@ -339,35 +339,34 @@ public class TestProxyServer {
     public String buildFullUrl(HttpRequest request) throws IOException {
         StringBuilder retval = new StringBuilder(128);
 
-        String platformUrl = webTestPanel.getPlatform().getWebUrl();
-        String host = request.headers().get(Constants.HTTP_HEADER_HOST);
-        String protocol = Constants.HTTPS;
-        String platformHost = null;
-        if (StringUtils.isNotBlank(platformUrl)) {
-            int pos = platformUrl.indexOf("://");
-            if (pos > -1) {
-                protocol = platformUrl.substring(0, pos);
+        if (!request.getUri().startsWith(Constants.HTTP)) {
+            String platformUrl = webTestPanel.getPlatform().getWebUrl();
+            String host = request.headers().get(Constants.HTTP_HEADER_HOST);
+            String protocol = Constants.HTTPS;
+            String platformHost = null;
+            if (StringUtils.isNotBlank(platformUrl)) {
+                int pos = platformUrl.indexOf("://");
+                if (pos > -1) {
+                    protocol = platformUrl.substring(0, pos);
+                } else {
+                    int pos2 = platformUrl.indexOf("/", pos+3);
+                    platformHost = platformUrl.substring(pos+1, pos2);
+                }
+            }
+
+            retval.append(protocol);
+            retval.append("://");
+            if (StringUtils.isNotBlank(host)) {
+              retval.append(host);  
             } else {
-                int pos2 = platformUrl.indexOf("/", pos+3);
-                platformHost = platformUrl.substring(pos+1, pos2);
+              retval.append(platformHost);
             }
         }
-        
-        retval.append(protocol);
-        retval.append("://");
-        if (StringUtils.isNotBlank(host)) {
-            retval.append(host);
-        } else {
-            retval.append(platformHost);
-        }
-        
+
         retval.append(request.getUri());
         
         return retval.toString();
     }
-
-
-
 
     /**
      * 
@@ -396,13 +395,12 @@ public class TestProxyServer {
                 }
             }
 
-            String method = request.getMethod().name();
-            op.setMethod(method);
+            op.setMethod(request.getMethod().name());
             
             op.setUrl(buildFullUrl(request));
 
             // if this is a post then try to get content
-            if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(request.getMethod().name())) {
+            if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(op.getMethod())) {
                 if (request instanceof FullHttpRequest) {
                     FullHttpRequest fr = (FullHttpRequest) request;
 
