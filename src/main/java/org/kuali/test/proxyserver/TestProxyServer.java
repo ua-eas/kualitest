@@ -15,10 +15,10 @@
  */
 package org.kuali.test.proxyserver;
 
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -41,12 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
+import org.eclipse.jetty.http.HttpHeaders;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.RequestHeader;
@@ -124,7 +121,7 @@ public class TestProxyServer {
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
                                 try {
-                                    if (!isExcludeUrl(request.getUri())) {
+                                    if (!isExcludeUrl(request)) {
                                         testOperations.add(buildHttpRequestOperation(request, delay));
                                     }
                                 } catch (Exception ex) {
@@ -138,10 +135,6 @@ public class TestProxyServer {
 
                     @Override
                     public HttpResponse requestPost(HttpObject httpObject) {
-                        if (httpObject instanceof HttpRequest) {
-                            HttpRequest request = (HttpRequest)httpObject;
-                        }
-                        
                         return null;
                     }
 
@@ -165,6 +158,7 @@ public class TestProxyServer {
                                     getCurrentResponseBuffer().setLength(0);
                                 }
                             }   
+                            
                             content.release();
                         }
                         return httpObject;
@@ -264,8 +258,8 @@ public class TestProxyServer {
         if (retval) {
             // do not want to  run request that was an auto-redirect
             // for this check we are looking at refererer not the same as host
-            String host = request.headers().get(Constants.HTTP_HEADER_HOST);
-            String referer = request.headers().get(Constants.HTTP_HEADER_REFERER);
+            String host = request.headers().get(HttpHeaders.HOST);
+            String referer = request.headers().get(HttpHeaders.REFERER);
 
             if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(referer)) {
                 try {
@@ -341,7 +335,7 @@ public class TestProxyServer {
 
         if (!request.getUri().startsWith(Constants.HTTP)) {
             String platformUrl = webTestPanel.getPlatform().getWebUrl();
-            String host = request.headers().get(Constants.HTTP_HEADER_HOST);
+            String host = request.headers().get(HttpHeaders.HOST);
             String protocol = Constants.HTTPS;
             String platformHost = null;
             if (StringUtils.isNotBlank(platformUrl)) {
@@ -384,14 +378,13 @@ public class TestProxyServer {
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
         if (request != null) {
-            HttpHeaders headers = request.headers();
+            io.netty.handler.codec.http.HttpHeaders headers = request.headers();
             for (String name : headers.names()) {
+                String value = request.headers().get(name);
                 if (!Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(name)) {
-                    for (String value : headers.getAll(name)) {
-                        RequestHeader header = op.getRequestHeaders().addNewHeader();
-                        header.setName(name);
-                        header.setValue(value);
-                    }
+                    RequestHeader header = op.getRequestHeaders().addNewHeader();
+                    header.setName(name);
+                    header.setValue(value);
                 }
             }
 
@@ -479,14 +472,23 @@ public class TestProxyServer {
     }
 
 
-    private boolean isExcludeUrl(String input) {
+    private boolean isExcludeUrl(HttpRequest request) {
         boolean retval = false;
+        String uri = request.getUri();
+        String referer = request.headers().get(HttpHeaders.REFERER);
         
-        if (StringUtils.isNotBlank(input)) {
+        if (StringUtils.isNotBlank(uri)) {
             for (String s : this.excludeUrlList) {
-                if (input.contains(s)) {
+                if (uri.contains(s)) {
                     retval = true;
                     break;
+                }
+                
+                if (StringUtils.isNotBlank(referer)) {
+                    if (referer.contains(s)) {
+                        retval = true;
+                        break;
+                    }
                 }
             }
         }
@@ -501,7 +503,7 @@ public class TestProxyServer {
         // if we have a parameter string then convert to NameValuePair list and 
         // process parameters requiring encryption
         if (StringUtils.isNotBlank(parameterString)) {
-            List<NameValuePair> nvplist = URLEncodedUtils.parse(parameterString, Consts.UTF_8);
+            List<NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(parameterString);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
@@ -509,7 +511,7 @@ public class TestProxyServer {
                 for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
                     for (int i = 0; i < nvparray.length; ++i) {
                         if (parameterName.equals(nvparray[i].getName())) {
-                            nvparray[i] = new BasicNameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
+                            nvparray[i] = new NameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
                         }
                     }
                 }
@@ -519,12 +521,12 @@ public class TestProxyServer {
                 Iterator <NameValuePair> it = nvplist.iterator();
                 
                 while (it.hasNext()) {
-                    if (this.isExcludeParameter(it.next().getName())) {
+                    if (isExcludeParameter(it.next().getName())) {
                         it.remove();
                     }
                 }
                 
-                retval.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+                retval.append(Utils.buildUrlEncodedParameterString(nvparray));
             }
         }
 
@@ -545,6 +547,7 @@ public class TestProxyServer {
         boolean nextPart = multipartStream.skipPreamble();
         ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
         
+        String nameValueSeparator = "";
         while (nextPart) {
             String header = multipartStream.readHeaders();
             bos.reset();
@@ -558,6 +561,8 @@ public class TestProxyServer {
                     boolean senstiveParameter = false;
 
                     senstiveParameter = hs.contains(name);
+                    retval.append(nameValueSeparator);
+                    
                     retval.append(name);
                     retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
 
@@ -569,7 +574,7 @@ public class TestProxyServer {
                         retval.append(bos.toString());
                     }
                 
-                    retval.append(Constants.MULTIPART_PARAMETER_SEPARATOR);
+                    nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
                 }
             }
             

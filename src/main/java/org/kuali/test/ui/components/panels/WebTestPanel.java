@@ -94,9 +94,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         initializeNativeBrowser();
     }
 
-    /**
-     *
-     */
     @Override
     protected void initComponents() {
         super.initComponents();

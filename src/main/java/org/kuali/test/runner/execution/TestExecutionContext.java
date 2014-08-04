@@ -15,9 +15,12 @@
  */
 package org.kuali.test.runner.execution;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,44 +30,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import java.util.StringTokenizer;
+import javax.ws.rs.HttpMethod;
+import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.HttpClientUtils;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.MessageConstraints;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.conn.HttpConnectionFactory;
-import org.apache.http.conn.ManagedHttpClientConnection;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContexts;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.client.LaxRedirectStrategy;
-import org.apache.http.impl.conn.DefaultHttpResponseParserFactory;
-import org.apache.http.impl.conn.ManagedHttpClientConnectionFactory;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.impl.conn.SystemDefaultDnsResolver;
-import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.Checkpoint;
@@ -123,13 +91,10 @@ public class TestExecutionContext extends Thread {
     private int testRun = 1;
     private int testRuns = 1;
     private boolean completed = false;
-    private CloseableHttpClient httpClient;
+    
+    private WebClient webClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-    private CookieStore cookieStore;
 
-    /**
-     *
-     */
     public TestExecutionContext() {
         init();
     }
@@ -138,64 +103,12 @@ public class TestExecutionContext extends Thread {
     }
 
     private void initializeHttpClient() {
-
-        RequestConfig.Builder requestBuilder = RequestConfig.custom()
-        .setConnectTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT)
-        .setConnectionRequestTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT)
-        .setCookieSpec(CookieSpecs.BEST_MATCH)
-        .setExpectContinueEnabled(false)
-        .setRedirectsEnabled(true);
-
-
-        // Use a custom connection factory to customize the process of
-        // initialization of outgoing HTTP connections. Beside standard connection
-        // configuration parameters HTTP connection factory can define message
-        // parser / writer routines to be employed by individual connections.
-        HttpConnectionFactory<HttpRoute, ManagedHttpClientConnection> connFactory = new ManagedHttpClientConnectionFactory(
-            new DefaultHttpRequestWriterFactory(), new DefaultHttpResponseParserFactory());
-
-        // Create a registry of custom connection socket factories for supported
-        // protocol schemes.
-        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-            .register(Constants.HTTP, PlainConnectionSocketFactory.INSTANCE)
-            .register(Constants.HTTPS, new SSLConnectionSocketFactory(SSLContexts.createSystemDefault(), new AllowAllHostnameVerifier()))
-            .build();
-
-        // Create a connection manager with custom configuration.
-        PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager(
-            socketFactoryRegistry, connFactory, new SystemDefaultDnsResolver());
-
-        // Create socket configuration
-        SocketConfig socketConfig = SocketConfig.custom()
-            .setTcpNoDelay(true)
-            .setSoKeepAlive(true)
-            .setSoTimeout(Constants.DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT)
-            .build();
-
-        // Configure the connection manager to use socket configuration either
-        // by default or for a specific host.
-        connManager.setDefaultSocketConfig(socketConfig);
-
-        // Configure the connection manager to use connection configuration either
-        // by default or for a specific host.
-        connManager.setDefaultConnectionConfig(ConnectionConfig.custom()
-            .setCharset(Consts.UTF_8)
-            .setMessageConstraints(MessageConstraints.custom().build())
-            .build());
-
-        // Configure total max or per route limits for persistent connections
-        // that can be kept in the pool or leased by the connection manager.
-        connManager.setMaxTotal(500);
-        connManager.setDefaultMaxPerRoute(20);
-
-        httpClient = HttpClients.custom()
-            .setConnectionManager(connManager)
-            .setDefaultCookieStore(cookieStore = new BasicCookieStore())
-            .setDefaultCredentialsProvider(new BasicCredentialsProvider())
-            .setDefaultRequestConfig(requestBuilder.build())
-            .setRedirectStrategy(new LaxRedirectStrategy())
-            .setUserAgent(Constants.DEFAULT_USER_AGENT)
-            .build();
+        webClient = new WebClient(BrowserVersion.CHROME);
+	    webClient.getOptions().setJavaScriptEnabled(true);
+	    webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+	    webClient.getOptions().setThrowExceptionOnScriptError(false);
+	    webClient.getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+	    webClient.getOptions().setRedirectEnabled(true);
     }
 
     /**
@@ -256,9 +169,6 @@ public class TestExecutionContext extends Thread {
         runTest();
     }
 
-    /**
-     *
-     */
     @SuppressWarnings("SleepWhileInLoop")
     public void runTest() {
         try {
@@ -304,7 +214,9 @@ public class TestExecutionContext extends Thread {
     }
 
     private void cleanup() {
-        HttpClientUtils.closeQuietly(httpClient);
+        if (webClient != null) {
+            webClient.closeAllWindows();
+        }
     }
 
     private String buildTestReportFileName() {
@@ -348,7 +260,7 @@ public class TestExecutionContext extends Thread {
 
         // if this is a web test then initialize the client
         if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
-            getHttpClient();
+            getWebClient();
             parametersRequiringDecryption.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         }
 
@@ -643,352 +555,48 @@ public class TestExecutionContext extends Thread {
         return configuration;
     }
 
-    public void processAutoReplaceParameters(KualiTest test, HtmlRequestOperation reqop) {
-        if (autoReplaceParameterMap.size() > 0) {
-            TestOperation[] ops = kualiTest.getOperations().getOperationArray();
-            for (int i = 0; i < ops.length; ++i) {
-                if (ops[i].getOperation().getHtmlRequestOperation() != null) {
-                    replaceUrlFormEncodedParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
-                    replaceMultiPartParams(ops[i].getOperation().getHtmlRequestOperation(), autoReplaceParameterMap);
-                }
-            }
+    public List  <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
+        List  <NameValuePair> retval = new ArrayList<NameValuePair>();
+        
+        if ((nvplist != null) && !nvplist.isEmpty()) {
+            for (NameValuePair nvp : nvplist) {
+                String replacement  = paramMap.get(nvp.getName());
 
-            autoReplaceParameterMap.clear();
-        }
-    }
-
-    private void replaceMultiPartTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
-        if (Utils.isMultipart(op)) {
-            RequestParameter param = Utils.getContentParameter(op);
-
-            if (param != null) {
-                String params = param.getValue();
-                StringBuilder buf = new StringBuilder(params.length());
-
-                StringTokenizer st1 = new StringTokenizer(params, Constants.MULTIPART_PARAMETER_SEPARATOR);
-
-                String seperator = "";
-
-                while (st1.hasMoreElements()) {
-                    StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-
-                    if (st2.countTokens() == 2) {
-                        String name = st2.nextToken();
-                        String value = st2.nextToken();
-
-                        if (value.equals(ep.getValueProperty().getPropertyValue())) {
-                            value = ep.getValue();
-                        }
-
-                        buf.append(seperator);
-                        buf.append(name);
-                        buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                        buf.append(value);
-                        seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
-                    }
-                }
-
-                param.setValue(buf.toString());
-            }
-        }
-    }
-
-    private void replaceUrlFormEncodedTestExecutionParams(HtmlRequestOperation op, TestExecutionParameter ep) {
-        String params = Utils.getParamsFromUrl(op.getUrl());
-
-        // if we have a parameter string then convert to NameValuePair list and process
-        if (StringUtils.isNotBlank(params)) {
-            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
-
-            if ((nvplist != null) && !nvplist.isEmpty()) {
-                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                for (int i = 0; i < nvparray.length; ++i) {
-                    if (StringUtils.isNotBlank(nvparray[i].getValue())) {
-                        if (nvparray[i].getValue().trim().equals(ep.getValueProperty().getPropertyValue().trim())) {
-                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValue());
-                        }
-                    }
-                }
-
-                int pos = op.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
-
-                if (pos > -1) {
-                    StringBuilder buf = new StringBuilder(op.getUrl().length());
-                    buf.append(op.getUrl().substring(0, pos));
-                    buf.append(Constants.SEPARATOR_QUESTION);
-                    buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-                    op.setUrl(buf.toString());
-                }
-            }
-
-            if (Utils.isUrlFormEncoded(op)) {
-                RequestParameter param = Utils.getContentParameter(op);
-                if (param != null) {
-                    nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
-                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                    for (int i = 0; i < nvparray.length; ++i) {
-                        if (StringUtils.isNotBlank(nvparray[i].getValue())) {
-                            if (nvparray[i].getValue().equals(ep.getValueProperty().getPropertyValue())) {
-                                nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), ep.getValue());
-                            }
-                        }
-                    }
-
-                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+                if (StringUtils.isNotBlank(replacement)) {
+                    retval.add(new NameValuePair(nvp.getName(), replacement));
+                } else {
+                    retval.add(nvp);
                 }
             }
         }
-    }
-
-    private void replaceMultiPartParams(HtmlRequestOperation op, Map<String, String> paramMap) {
-        if (Utils.isMultipart(op)) {
-            RequestParameter param = Utils.getContentParameter(op);
-
-            if (param != null) {
-                String params = param.getValue();
-                StringBuilder buf = new StringBuilder(params.length());
-
-                StringTokenizer st1 = new StringTokenizer(params, Constants.MULTIPART_PARAMETER_SEPARATOR);
-
-                String seperator = "";
-
-                while (st1.hasMoreElements()) {
-                    StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-
-                    if (st2.countTokens() == 2) {
-                        String name = st2.nextToken();
-                        String value = st2.nextToken();
-
-                        String replacement = paramMap.get(name);
-
-                        if (StringUtils.isNotBlank(replacement)) {
-                            value = replacement;
-                        }
-
-                        buf.append(seperator);
-                        buf.append(name);
-                        buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                        buf.append(value);
-                        seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
-                    }
-                }
-
-                param.setValue(buf.toString());
-            }
-        }
-    }
-
-    private void replaceUrlFormEncodedParams(HtmlRequestOperation op, Map<String, String> paramMap) {
-        String params = Utils.getParamsFromUrl(op.getUrl());
-
-        // if we have a parameter string then convert to NameValuePair list and process
-        if (StringUtils.isNotBlank(params)) {
-            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
-
-            if ((nvplist != null) && !nvplist.isEmpty()) {
-                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                for (int i = 0; i < nvparray.length; ++i) {
-                    String replacement = paramMap.get(nvparray[i].getName());
-                    if (StringUtils.isNotBlank(replacement)) {
-                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
-                    }
-                }
-
-                int pos = op.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
-
-                if (pos > -1) {
-                    StringBuilder buf = new StringBuilder(op.getUrl().length());
-                    buf.append(op.getUrl().substring(0, pos));
-                    buf.append(Constants.SEPARATOR_QUESTION);
-                    buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-                    op.setUrl(buf.toString());
-                }
-            }
-            if (Utils.isUrlFormEncoded(op)) {
-                RequestParameter param = Utils.getContentParameter(op);
-                if (param != null) {
-                    nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
-                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-                    for (int i = 0; i < nvparray.length; ++i) {
-                        String replacement = paramMap.get(nvparray[i].getName());
-
-                        if (StringUtils.isNotBlank(replacement)) {
-                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), replacement);
-                        }
-                    }
-
-                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-                }
-            }
-        }
-    }
-
-    private Cookie findJSessionIdCookie(String host) {
-        Cookie retval = null;
-            
-        for (Cookie c : cookieStore.getCookies()) {
-            if (c.getDomain().equalsIgnoreCase(host) && c.getName().equalsIgnoreCase(Constants.JSESSIONID_PARAMETER_NAME)) {
-                retval = c;
-                break;
-            }
-        }
-
+        
         return retval;
     }
 
-    private String replaceJsessionId(String input) {
-        StringBuilder retval = new StringBuilder(input.length());
-
-        int pos = input.toLowerCase().indexOf(Constants.JSESSIONID_PARAMETER_NAME);
-        if (pos > -1) {
-            try {
-                Cookie cookie = findJSessionIdCookie(new URIBuilder(input).getHost());
-                if (cookie != null) {
-                    int pos2 = input.indexOf(Constants.SEPARATOR_QUESTION);
-                    retval.append(input.subSequence(0, pos));
-                    retval.append(cookie.getName());
-                    retval.append("=");
-                    retval.append(cookie.getValue());
-
-                    if (pos2 > -1) {
-                        retval.append(input.substring(pos2));
-                    }
-                } else {
-                    retval.append(input);
-                }
-            } catch (URISyntaxException ex) {
-                LOG.warn(ex.toString(), ex);
-            }
-        } else {
-            retval.append(input);
-        }
-
-        return retval.toString();
-    }
-
     /**
-     *
-     * @param reqop
+     * 
+     * @param nvplist
+     * @return
+     * @throws UnsupportedEncodingException 
      */
-    public void decryptHttpParameters(HtmlRequestOperation reqop) {
+    public List <NameValuePair> decryptHttpParameters(List<NameValuePair> nvplist) throws UnsupportedEncodingException {
+        List <NameValuePair>  retval = new ArrayList<NameValuePair>();
         String epass = Utils.getEncryptionPassword(configuration);
-        String params = Utils.getParamsFromUrl(reqop.getUrl());
 
-        if (StringUtils.isNotBlank(params)) {
-            List<NameValuePair> nvplist = URLEncodedUtils.parse(params, Consts.UTF_8);
-
-            if ((nvplist != null) && !nvplist.isEmpty()) {
-                NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                // decrypt encrypted parameters
-                for (int i = 0; i < nvparray.length; ++i) {
-                    if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
-                        nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(epass, nvparray[i].getValue()));
-                    }
-                }
-
-                int pos = reqop.getUrl().indexOf(Constants.SEPARATOR_QUESTION);
-
-                StringBuilder buf = new StringBuilder(reqop.getUrl().length());
-                buf.append(reqop.getUrl().substring(0, pos));
-                buf.append(Constants.SEPARATOR_QUESTION);
-                buf.append(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
-
-                reqop.setUrl(replaceJsessionId(buf.toString()));
-            }
-        }
-
-        RequestParameter param = Utils.getContentParameter(reqop);
-
-        if (param != null) {
-            if (Utils.isMultipart(reqop)) {
-                String seperator = "";
-                StringBuilder buf = new StringBuilder(param.getValue().length());
-                StringTokenizer st1 = new StringTokenizer(param.getValue(), Constants.MULTIPART_PARAMETER_SEPARATOR);
-                while (st1.hasMoreTokens()) {
-                    StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-
-                    if (st2.countTokens() == 2) {
-                        String name = st2.nextToken();
-                        String value = st2.nextToken();
-
-                        if (parametersRequiringDecryption.contains(name)) {
-                            value = Utils.decrypt(epass, value);
-                        }
-
-                        buf.append(seperator);
-                        buf.append(name);
-                        buf.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-                        buf.append(value);
-                        seperator = Constants.MULTIPART_PARAMETER_SEPARATOR;
-                    }
-                }
-
-                param.setValue(buf.toString());
-            } else if (Utils.isUrlFormEncoded(reqop)) {
-                List<NameValuePair> nvplist = URLEncodedUtils.parse(param.getValue(), Consts.UTF_8);
-                if ((nvplist != null) && !nvplist.isEmpty()) {
-                    NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
-
-                    // decrypt encrypted parameters
-                    for (int i = 0; i < nvparray.length; ++i) {
-                        if (parametersRequiringDecryption.contains(nvparray[i].getName())) {
-                            nvparray[i] = new BasicNameValuePair(nvparray[i].getName(), Utils.decrypt(epass, nvparray[i].getValue()));
-                        }
-                    }
-
-                    param.setValue(URLEncodedUtils.format(Arrays.asList(nvparray), Consts.UTF_8));
+        if ((nvplist != null) && !nvplist.isEmpty()) {
+            for (NameValuePair nvp : nvplist) {
+                if (parametersRequiringDecryption.contains(nvp.getName())) {
+                    retval.add(new NameValuePair(nvp.getName(), URLDecoder.decode(Utils.decrypt(epass, nvp.getValue()), CharEncoding.UTF_8)));
+                } else {
+                    retval.add(nvp);
                 }
             }
         }
+        
+        return retval;
     }
 
-    /**
-     *
-     * @param postRequest
-     * @param reqop
-     * @param input
-     * @throws IOException
-     */
-    public void addMultiPartParameters(HttpPost postRequest, HtmlRequestOperation reqop, String input) throws IOException {
-        Set<String> hsencrpt = new HashSet<String>();
-        List<String> excludeList = new ArrayList<String>();
-
-        hsencrpt.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
-
-        if (configuration.getExcludePostParameterMatchPatterns() != null) {
-            excludeList.addAll(Arrays.asList(configuration.getExcludePostParameterMatchPatterns().getMatchPatternArray()));
-        }
-
-        Map<String, String> paramMap = new HashMap<String, String>();
-
-        StringTokenizer st1 = new StringTokenizer(input, Constants.MULTIPART_PARAMETER_SEPARATOR);
-        MultipartEntityBuilder reqEntity = MultipartEntityBuilder
-            .create()
-            .setBoundary(Utils.getMultipartBoundary(reqop));
-
-        while (st1.hasMoreTokens()) {
-            StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-
-            if (st2.countTokens() == 2) {
-                String name = st2.nextToken();
-                String value = st2.nextToken();
-
-                if (hsencrpt.contains(name)) {
-                    value = Utils.decrypt(Utils.getEncryptionPassword(configuration), value);
-                } else if (paramMap.containsKey(name)) {
-                    value = paramMap.get(name);
-                }
-
-                reqEntity.addPart(name, new StringBody(value, org.apache.http.entity.ContentType.MULTIPART_FORM_DATA.withCharset(Consts.UTF_8)));
-            }
-        }
-
-        postRequest.setEntity(reqEntity.build());
-    }
+    
 
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
@@ -1006,7 +614,7 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public synchronized void updateTestExecutionParameters(KualiTest test, HtmlRequestOperation curop, String html) {
+    public synchronized void updateTestExecutionParameters(KualiTest test, HtmlRequestOperation curop, String html) throws UnsupportedEncodingException {
         Map<String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
 
         List<HtmlRequestOperation> hreqops = new ArrayList<HtmlRequestOperation>();
@@ -1045,8 +653,7 @@ public class TestExecutionContext extends Thread {
                     tep.setValue(cp.getPropertyValue().trim());
 
                     for (HtmlRequestOperation op : hreqops) {
-                        replaceUrlFormEncodedTestExecutionParams(op, tep);
-                        replaceMultiPartTestExecutionParams(op, tep);
+                        updateTestExecutionParameters(op, tep);
                     }
 
                     for (Checkpoint sqlcp : sqlops) {
@@ -1058,14 +665,84 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public CloseableHttpClient getHttpClient() {
-        if (httpClient == null) {
+    private void updateTestExecutionParameters(HtmlRequestOperation op, TestExecutionParameter tep) {
+        String[] urlparts = Utils.getUrlParts(op.getUrl());
+        StringBuilder url = new StringBuilder(512);
+        url.append(urlparts[0]);
+
+        List <NameValuePair> worklist = new ArrayList<NameValuePair>();
+        
+        if (StringUtils.isNotBlank(urlparts[1])) {
+            List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(urlparts[1]);
+
+            for (NameValuePair nvp : nvplist) {
+                if (StringUtils.isNotBlank(nvp.getValue())) {
+                    if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
+                        worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
+                    } else {
+                        worklist.add(nvp);
+                    }
+                } else {
+                    worklist.add(nvp);
+                }
+            }
+            
+            url.append(urlparts[1]);
+        }
+
+        op.setUrl(url.toString());
+        
+        if (HttpMethod.POST.equalsIgnoreCase(op.getMethod())) {
+            worklist.clear();
+            RequestParameter param = Utils.getContentParameter(op);
+            
+            if (param != null) {
+                if (Utils.isUrlFormEncoded(op)) {
+                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(Utils.getContentParameterFromRequestOperation(op));
+
+                    for (NameValuePair nvp : nvplist) {
+                        if (StringUtils.isNotBlank(nvp.getValue())) {
+                            if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
+                                worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
+                            } else {
+                                worklist.add(nvp);
+                            }
+                        } else {
+                            worklist.add(nvp);
+                        }
+                    }
+                    
+                    param.setValue(Utils.buildUrlEncodedParameterString(nvplist));
+                } else if (Utils.isMultipart(op)) {
+                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(Utils.getContentParameterFromRequestOperation(op));
+
+                    for (NameValuePair nvp : nvplist) {
+                        if (StringUtils.isNotBlank(nvp.getValue())) {
+                            if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
+                                worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
+                            } else {
+                                worklist.add(nvp);
+                            }
+                        } else {
+                            worklist.add(nvp);
+                        }
+                    }
+                    param.setValue(Utils.buildMultipartParameterString(nvplist));
+                }
+            }
+        }
+    }
+    
+    public WebClient getWebClient() {
+        if (webClient == null) {
             initializeHttpClient();
             httpResponseStack = new Stack<String>();
         }
-
-        return httpClient;
+        
+        return webClient;
     }
+    
+    
 
     public void incrementErrorCount() {
         errorCount++;
@@ -1111,7 +788,7 @@ public class TestExecutionContext extends Thread {
         return httpResponseStack;
     }
 
-    public CookieStore getCookieStore() {
-        return cookieStore;
+    public Set<String> getParametersRequiringDecryption() {
+        return parametersRequiringDecryption;
     }
 }

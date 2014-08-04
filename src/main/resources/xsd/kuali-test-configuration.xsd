@@ -36,6 +36,7 @@
                 <xs:element name="platforms" type="platforms" minOccurs="0"/>
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption" minOccurs="0"/>
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
+                <xs:element name="http-user-agent" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="exclude-http-request-match-patterns" type="exclude-http-request-match-patterns" minOccurs="0"/>
                 <xs:element name="exclude-post-parameter-match-patterns" type="exclude-post-parameter-match-patterns" minOccurs="0"/>

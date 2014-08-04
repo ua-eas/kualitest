@@ -15,6 +15,7 @@
  */
 package org.kuali.test.utils;
 
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -63,6 +65,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
+import org.eclipse.jetty.http.HttpHeaders;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.Checkpoint;
@@ -3217,7 +3220,7 @@ public class Utils {
     public static boolean isUrlFormEncoded(HtmlRequestOperation op) {
         boolean retval = false;
         
-        String contentType = getRequestHeader(op, Constants.HTTP_HEADER_CONTENT_TYPE);
+        String contentType = getRequestHeader(op, HttpHeaders.CONTENT_TYPE);
         
         if (StringUtils.isNotBlank(contentType)) {
             retval = Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType);
@@ -3226,11 +3229,20 @@ public class Utils {
         return retval;
     }
 
+    public static boolean isUrlFormEncoded(String contentType) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(contentType)) {
+            retval = Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType);
+        }
+        
+        return retval;
+    }
 
     public static boolean isMultipart(HtmlRequestOperation op) {
         boolean retval = false;
         
-        String contentType = getRequestHeader(op, Constants.HTTP_HEADER_CONTENT_TYPE);
+        String contentType = getRequestHeader(op, HttpHeaders.CONTENT_TYPE);
         
         if (StringUtils.isNotBlank(contentType)) {
             retval = isMultipart(contentType);
@@ -3290,7 +3302,7 @@ public class Utils {
     public static String getMultipartBoundary(HtmlRequestOperation reqop) {
         String retval = Long.toHexString(System.currentTimeMillis());
 
-        RequestHeader h = Utils.getRequestHeaderObject(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
+        RequestHeader h = Utils.getRequestHeaderObject(reqop, HttpHeaders.CONTENT_TYPE);
         
         if (h != null) {
             if (h.getValue().startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
@@ -3303,4 +3315,116 @@ public class Utils {
         
         return retval;
     }
+    
+    
+    public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString) {
+        List <NameValuePair> retval = new ArrayList<NameValuePair>();
+        
+        if (StringUtils.isNotBlank(paramString)) {
+            StringTokenizer st1 = new StringTokenizer(paramString, Constants.SEPARATOR_AMPERSTAND);
+
+            while (st1.hasMoreTokens()) {
+                StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.SEPARATOR_EQUALS);
+                if (st2.countTokens() > 0) {
+                    String name = st2.nextToken();
+                    String value = null;
+                    if (st2.hasMoreTokens()) {
+                        value = st2.nextToken();
+                    }
+
+                    retval.add(new NameValuePair(name, value));
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static List <NameValuePair> getNameValuePairsFromMultipartParams(String paramString) {
+        List <NameValuePair> retval = new ArrayList<NameValuePair>();
+        
+        if (StringUtils.isNotBlank(paramString)) {
+            StringTokenizer st1 = new StringTokenizer(paramString, Constants.MULTIPART_PARAMETER_SEPARATOR);
+
+            while (st1.hasMoreTokens()) {
+                StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                if (st2.countTokens() > 0) {
+                    String name = st2.nextToken();
+                    String value = null;
+                    if (st2.hasMoreTokens()) {
+                        value = st2.nextToken();
+                    }
+
+                    if (StringUtils.isNotBlank(value)) {
+                        retval.add(new NameValuePair(name, value));
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String buildUrlEncodedParameterString(List <NameValuePair> nvplist) {
+        StringBuilder retval = new StringBuilder(512);
+        
+        String paramSeparator = "";
+        
+        for (NameValuePair nvp : nvplist) {
+            retval.append(paramSeparator);
+            retval.append(nvp.getName());
+            retval.append(Constants.SEPARATOR_EQUALS);
+            
+            if (nvp.getValue() == null) {
+                retval.append("");
+            } else {
+                retval.append(nvp.getValue());
+            }
+            
+            paramSeparator = Constants.SEPARATOR_AMPERSTAND;
+        }
+        
+        return retval.toString();
+    }
+
+    public static String buildUrlEncodedParameterString(NameValuePair[] nvparray) {
+        return buildUrlEncodedParameterString(Arrays.asList(nvparray));
+    }
+    
+    public static String buildMultipartParameterString(List <NameValuePair> nvplist) {
+        StringBuilder retval = new StringBuilder(512);
+        
+        String paramSeparator = "";
+        
+        for (NameValuePair nvp : nvplist) {
+            retval.append(paramSeparator);
+            retval.append(nvp.getName());
+            retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+            
+            if (nvp.getValue() == null) {
+                retval.append("");
+            } else {
+                retval.append(nvp.getValue());
+            }
+            
+            paramSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
+        }
+        
+        return retval.toString();
+    }
+
+    public static String[] getUrlParts(String url) {
+        String[] retval = new String[2];
+        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+        
+        if (pos > -1) {
+            retval[0] = url.substring(0, pos+1);
+            retval[1] = url.substring(pos+1);
+        } else {
+            retval[0] = url;
+        }
+        
+        return retval;
+    }
+
 }

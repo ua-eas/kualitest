@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.ImageIcon;
+import org.eclipse.jetty.http.HttpHeaders;
 import org.kuali.test.creator.TestCreator;
 
 
@@ -179,17 +180,6 @@ public class Constants {
     public static final String SQL_QUERY = "sql-query";
     public static final String SAVE_QUERY_RESULTS = "save-query-results";
     public static final String NO_TEST_SUITE_NAME = "no-test-suite";
-    public static final String HTTP_HEADER_CONNECTION = "Connection";
-    public static final String HTTP_HEADER_ACCEPT = "Accept";
-    public static final String HTTP_HEADER_ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String HTTP_HEADER_REFERER = "Referer";
-    public static final String HTTP_HEADER_HOST = "Host";
-    public static final String HTTP_HEADER_COOKIE = "Cookie";
-    public static final String HTTP_HEADER_ORIGIN = "Origin";
-    public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
-    public static final String HTTP_HEADER_CONTENT_TYPE = "Content-Type";
-    public static final String HTTP_HEADER_CONTENT_LENGTH = "Content-Length";
-    public static final String HTTP_HEADER_TRANSFER_ENCODING = "Transfer-Encoding";
     public static final String CONTENT_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String UNKNOWN = "unknown";
     public static final String HTTP_HEADER_ACCEPT_LANGUAGE = "Accept-Language";
@@ -225,12 +215,13 @@ public class Constants {
     public static final String FILE_DIRECTORY = "file-directory";
     public static final String FILE_NAME_PATTERN = "file-name-pattern";
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
-    public static final String MULTIPART_NAME_VALUE_SEPARATOR = IGNORE_TABLE_DATA_INDICATOR;
+    public static final String MULTIPART_NAME_VALUE_SEPARATOR = "`";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
     public static final String MULTIPART_PARAMETER_SEPARATOR = "|";
     public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
     public static final String PARAMETER_NAME_CONTENT = "content";
     public static final String PARAMETER_NAME_PATH = "path";
+    public static final String SEPARATOR_EQUALS = "=";
     public static final String SEPARATOR_AMPERSTAND = "&";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_QUESTION = "?";
@@ -241,6 +232,8 @@ public class Constants {
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
     public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 15;
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
+    public static final String HTTP_HEADER_COOKIE = "Cookie";
+    public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
 
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
@@ -334,6 +327,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_CLASS_DATATABLE = "datatable";
     public static final String XML_SUFFIX = ".xml";
     public static final String HTML_SUFFIX = ".html";
+    public static final String DWR_SUFFIX = ".dwr";
     
     public static final String SQL_ORDER_BY_DESC = "DESC";
     public static final String AND = "AND";
@@ -474,9 +468,9 @@ public class Constants {
     public static final Set <String> HTTP_REQUEST_HEADERS_TO_IGNORE = new HashSet<String>();
     
     static {
-        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_USER_AGENT);
-        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_COOKIE);
-        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_CONTENT_LENGTH);
-        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HTTP_HEADER_TRANSFER_ENCODING);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.USER_AGENT);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.CONTENT_LENGTH);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.COOKIE);
+        HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.TRANSFER_ENCODING);
     }
 }

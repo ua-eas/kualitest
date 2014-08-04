@@ -15,22 +15,22 @@
  */
 package org.kuali.test.runner.execution;
 
+import com.gargoylesoftware.htmlunit.FormEncodingType;
+import com.gargoylesoftware.htmlunit.HttpMethod;
+import com.gargoylesoftware.htmlunit.WebRequest;
+import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Consts;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.utils.HttpClientUtils;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpHeaders;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -58,6 +58,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         super(context, op);
     }
     
+    private List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
+        TestExecutionContext tec = getTestExecutionContext();
+        List <NameValuePair> retval = tec.decryptHttpParameters(nvplist);
+        retval = tec.replaceRequestParameterValues(retval, tec.getAutoReplaceParameterMap());
+        return retval;
+    }
+    
     /**
      * 
      * @param configuration
@@ -68,12 +75,10 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTest test) throws TestException {
-        HtmlRequestOperation reqop = null;
-        HttpRequestBase request = null;
-        CloseableHttpResponse response = null;
+        WebResponse response = null;
+        HtmlRequestOperation reqop = getOperation().getHtmlRequestOperation();
 
         try {
-            reqop = getOperation().getHtmlRequestOperation();
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
                 
@@ -88,89 +93,78 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             TestExecutionContext tec = getTestExecutionContext();
 
-            tec.processAutoReplaceParameters(test, reqop);
-            tec.decryptHttpParameters(reqop);
+            String[] urlparts = Utils.getUrlParts(reqop.getUrl());
+            StringBuilder url = new StringBuilder(512);
+            url.append(urlparts[0]);
             
-            if (HttpGet.METHOD_NAME.equals(reqop.getMethod())) {
-                request = new HttpGet(reqop.getUrl());
-            } else if (HttpPost.METHOD_NAME.equals(reqop.getMethod())) {
-                HttpPost postRequest = new HttpPost(reqop.getUrl());
-                request = postRequest;
-
-                String params = Utils.getContentParameterFromRequestOperation(reqop);
-
-                if (StringUtils.isNotBlank(params)) {
-                    String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
-                    if (StringUtils.isNotBlank(contentType)) {
-                        if (Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType)) {
-                            List <NameValuePair> nvps = URLEncodedUtils.parse(params, Consts.UTF_8);
-                            postRequest.setEntity(new UrlEncodedFormEntity(nvps, Consts.UTF_8));
-                        } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                            getTestExecutionContext().addMultiPartParameters(postRequest, reqop, params);
-                        }
-                    }
+            if (StringUtils.isNotBlank(urlparts[1])) {
+                url.append(replaceJsessionId(Utils.buildUrlEncodedParameterString(getUpdatedParameterList(Utils.getNameValuePairsFromUrlEncodedParams(urlparts[1])))));
+            }
+            
+            WebRequest request = new WebRequest(new URL(url.toString()), HttpMethod.valueOf(reqop.getMethod()));
+            
+            if (reqop.getRequestHeaders() != null) {
+                for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
+                    request.setAdditionalHeader(hdr.getName(), hdr.getValue());
                 }
             }
 
-            if (request != null) {
-                // make sure e have a content type - default to text/plain
-                RequestHeader h = Utils.getRequestHeaderObject(reqop, Constants.HTTP_HEADER_CONTENT_TYPE);
-                if (h == null) {
-                    h = reqop.getRequestHeaders().addNewHeader();
-                    h.setName(Constants.HTTP_HEADER_CONTENT_TYPE);
+            if (request.getHttpMethod().equals(HttpMethod.POST)) {
+                String params = Utils.getContentParameterFromRequestOperation(reqop);
+
+                if (StringUtils.isNotBlank(params)) {
+                    if (Utils.isUrlFormEncoded(reqop)) {
+                        request.setEncodingType(FormEncodingType.URL_ENCODED);
+                        request.setRequestParameters(getUpdatedParameterList(Utils.getNameValuePairsFromUrlEncodedParams(params)));
+                    } else if (Utils.isMultipart(reqop)) {
+                        request.setEncodingType(FormEncodingType.MULTIPART);
+                        request.setRequestParameters(getUpdatedParameterList(Utils.getNameValuePairsFromMultipartParams(params)));                        
+                    }
                 }
+            }
+            
+            
+            response = tec.getWebClient().getPage(request).getWebResponse();
+            int status = response.getStatusCode();
+            
+            if (Utils.isRedirectResponse(status)) {
+                String loc = response.getResponseHeaderValue(HttpHeaders.LOCATION);
+                response =  tec.getWebClient().getPage(new WebRequest(new URL(loc))).getWebResponse();
+            }
                 
-                if (StringUtils.isBlank(h.getValue())) {
-                    h.setValue(Constants.MIME_TYPE_TEXT_PLAIN);
-                }
-                
-                if (reqop.getRequestHeaders() != null) {
-                    request.addHeader(Constants.HTTP_HEADER_USER_AGENT, Constants.DEFAULT_USER_AGENT);
-                    for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                        String value = hdr.getValue();
-                        if (StringUtils.isNotBlank(value)) {
-                            request.addHeader(hdr.getName(), value);
-                        }
-                    }
-                }
+            BufferedReader reader = null; 
+            StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
+            try {
+                reader = new BufferedReader(new InputStreamReader(response.getContentAsStream()));
 
-                response = tec.getHttpClient().execute(request);
-                if (response != null) {
-                    BufferedReader reader = null; 
-                    StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-                    try {
-                        reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+                 String line = "";
 
-                         String line = "";
-                         while ((line = reader.readLine()) != null) {
-                             responseBuffer.append(line);
-                         }                        
-                    }
+                 while ((line = reader.readLine()) != null) {
+                     responseBuffer.append(line);
+                 }                        
+            }
 
-                     finally {
-                         if (reader != null) {
-                             reader.close();
-                         }
-                    }
+             finally {
+                 if (reader != null) {
+                     reader.close();
+                 }
+            }
 
-                    int status = response.getStatusLine().getStatusCode();
 
-                //    System.out.println("---------------------------------------------------->status=" + status);
-                  //  System.out.println(responseBuffer.toString());
+            System.out.println("---------------------------------------------------------------------------------->status=" + status);
+            System.out.println(responseBuffer.toString());
 
-                    if (status == HttpURLConnection.HTTP_OK) {
-                        tec.pushHttpResponse(responseBuffer.toString());
-                        tec.updateAutoReplaceMap();
-                        tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), responseBuffer.toString());
-                    } else if ((status >= 400) && (status < 600)) {
-                        throw new TestException("server returned bad status - " 
-                            + status 
-                            + ", content-type="
-                            + Utils.getRequestHeader(reqop, Constants.HTTP_HEADER_CONTENT_TYPE)
-                            + ", uri=" 
-                            + request.getURI(), getOperation(), FailureAction.IGNORE);
-                    }
-                }
+            if (status == HttpURLConnection.HTTP_OK) {
+                tec.pushHttpResponse(responseBuffer.toString());
+                tec.updateAutoReplaceMap();
+                tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), responseBuffer.toString());
+            } else if ((status >= 400) && (status < 600)) {
+                throw new TestException("server returned bad status - " 
+                    + status 
+                    + ", content-type="
+                    + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
+                    + ", url=" 
+                    + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
             }
         } 
 
@@ -187,11 +181,50 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
 
         finally {
-            if (request != null) {
-                request.releaseConnection();
+            if (response != null) {
+                response.cleanUp();
             }
-            
-            HttpClientUtils.closeQuietly(response);
         }
     }
+    
+    private String replaceJsessionId(String input) {
+        StringBuilder retval = new StringBuilder(input.length());
+
+        int pos = input.toLowerCase().indexOf(Constants.JSESSIONID_PARAMETER_NAME);
+        if (pos > -1) {
+            Cookie cookie = findJSessionIdCookie(Utils.getHostFromUrl(input, false));
+            if (cookie != null) {
+                int pos2 = input.indexOf(Constants.SEPARATOR_QUESTION);
+                retval.append(input.subSequence(0, pos));
+                retval.append(Constants.JSESSIONID_PARAMETER_NAME);
+                retval.append(Constants.SEPARATOR_EQUALS);
+                retval.append(cookie.getValue());
+
+                if (pos2 > -1) {
+                    retval.append(input.substring(pos2));
+                }
+            } else {
+                retval.append(input);
+            }
+        } else {
+            retval.append(input);
+        }
+        
+        return retval.toString();
+    }
+
+    private Cookie findJSessionIdCookie(String host) {
+        Cookie retval = null;
+            
+        for (Cookie c : getTestExecutionContext().getWebClient().getCookieManager().getCookies()) {
+            if (c.getDomain().equalsIgnoreCase(host) && c.getName().equalsIgnoreCase(Constants.JSESSIONID_PARAMETER_NAME)) {
+                retval = c;
+                break;
+            }
+        }
+
+        return retval;
+    }
+
+
 }

@@ -92,7 +92,6 @@ public class CreateTestDlg extends BaseSetupDlg {
         
         if (platform != null) {
             platforms.setSelectedItem(platform.getName());
-            platforms.setEnabled(false);
         }
         
         platforms.addActionListener(new ActionListener() {

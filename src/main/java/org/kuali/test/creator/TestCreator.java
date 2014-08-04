@@ -82,7 +82,6 @@ import org.kuali.test.ui.components.jmxtree.JmxTree;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
 import org.kuali.test.ui.components.panels.FileTestPanel;
 import org.kuali.test.ui.components.panels.PlatformTestsPanel;
-import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.components.splash.SplashDisplay;
@@ -507,6 +506,20 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      */
     public void handleCreateTest(Platform platform) {
         setCreateTestEnabled(false);
+        
+        if (platform == null) {
+            if (testRepositoryTree.getSelectionPath() != null) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode)testRepositoryTree.getSelectionPath().getLastPathComponent();
+                if (node != null) {
+                    Object o = node.getUserObject();
+                    
+                    if (o instanceof Platform) {
+                        platform = (Platform)o;
+                    }
+                }
+            }
+        }
+        
         CreateTestDlg dlg = new CreateTestDlg(this, platform);
 
         if (dlg.isSaved()) {
@@ -522,7 +535,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     createTestPanel.replaceCenterComponent(new WebTestPanel(this, testPlatform, testHeader));
                     break;
                 case TestType.INT_WEB_SERVICE:
-                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, testPlatform, testHeader));
                     break;
                 case TestType.INT_DATABASE:
                     createTestPanel.replaceCenterComponent(new DatabasePanel(this, testPlatform, testHeader));
