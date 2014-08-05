@@ -15,7 +15,10 @@
  */
 package org.kuali.test.runner.execution;
 
+import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.IncorrectnessListener;
+import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.File;
@@ -69,8 +72,8 @@ import org.w3c.dom.Element;
  * @author rbtucker
  */
 public class TestExecutionContext extends Thread {
-
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
+    
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
     private int warningCount = 0;
@@ -109,6 +112,27 @@ public class TestExecutionContext extends Thread {
 	    webClient.getOptions().setThrowExceptionOnScriptError(false);
 	    webClient.getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
 	    webClient.getOptions().setRedirectEnabled(true);
+        
+        webClient.setAlertHandler(new AlertHandler() {
+            @Override
+            public void handleAlert(Page page, String alert) {
+            }
+        });
+
+        webClient.setIncorrectnessListener(new  IncorrectnessListener() {
+            @Override
+            public void notify(String string, Object o) {
+            }
+        });
+
+        /*
+        webClient.setScriptPreProcessor(new ScriptPreProcessor() {
+            @Override
+            public String preProcess(HtmlPage hp, final String sourceCode, final String sourceName, int lineNumber, HtmlElement he) {
+                return sourceCode;
+            }
+        });
+        */
     }
 
     /**

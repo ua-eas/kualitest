@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,8 +68,6 @@ public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>());
-    private List <String> excludeParameterList = new ArrayList<String>();
-    private List <String> excludeUrlList = new ArrayList<String>();
 
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
@@ -83,14 +80,6 @@ public class TestProxyServer {
     public TestProxyServer(WebTestPanel webTestPanel) {
         this.webTestPanel = webTestPanel;
         
-        if (webTestPanel.getMainframe().getConfiguration().getExcludePostParameterMatchPatterns() != null) {
-            excludeParameterList.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getExcludePostParameterMatchPatterns().getMatchPatternArray()));
-        }
-        
-        if (webTestPanel.getMainframe().getConfiguration().getExcludeHttpRequestMatchPatterns() != null) {
-            excludeUrlList.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getExcludeHttpRequestMatchPatterns().getMatchPatternArray()));
-        }
-
         try {
             Thread.sleep(1000);
             initializeProxyServer();
@@ -121,9 +110,7 @@ public class TestProxyServer {
                                 int delay = (int)(System.currentTimeMillis() - lastRequestTimestamp);
                                 lastRequestTimestamp = System.currentTimeMillis();
                                 try {
-                                    if (!isExcludeUrl(request)) {
-                                        testOperations.add(buildHttpRequestOperation(request, delay));
-                                    }
+                                    testOperations.add(buildHttpRequestOperation(request, delay));
                                 } catch (Exception ex) {
                                     LOG.error(ex.toString(), ex);
                                     UIUtils.showError(webTestPanel, "Error", "Error handling http request - " + ex.toString());
@@ -456,46 +443,6 @@ public class TestProxyServer {
         return retval.toString();
     }    
     
-    private boolean isExcludeParameter(String input) {
-        boolean retval = false;
-        
-        if (StringUtils.isNotBlank(input)) {
-            for (String s : this.excludeParameterList) {
-                if (input.contains(s)) {
-                    retval = true;
-                    break;
-                }
-            }
-        }
-        
-        return retval;
-    }
-
-
-    private boolean isExcludeUrl(HttpRequest request) {
-        boolean retval = false;
-        String uri = request.getUri();
-        String referer = request.headers().get(HttpHeaders.REFERER);
-        
-        if (StringUtils.isNotBlank(uri)) {
-            for (String s : this.excludeUrlList) {
-                if (uri.contains(s)) {
-                    retval = true;
-                    break;
-                }
-                
-                if (StringUtils.isNotBlank(referer)) {
-                    if (referer.contains(s)) {
-                        retval = true;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return retval;
-    }
-
     private String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         String parameterString) {
         StringBuilder retval = new StringBuilder(512);
@@ -517,14 +464,6 @@ public class TestProxyServer {
                 }
 
                 nvplist = new ArrayList(Arrays.asList(nvparray));
-                
-                Iterator <NameValuePair> it = nvplist.iterator();
-                
-                while (it.hasNext()) {
-                    if (isExcludeParameter(it.next().getName())) {
-                        it.remove();
-                    }
-                }
                 
                 retval.append(Utils.buildUrlEncodedParameterString(nvparray));
             }
@@ -557,25 +496,23 @@ public class TestProxyServer {
             String value = bos.toString();
             
             if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) {
-                if (!isExcludeParameter(name)) {
-                    boolean senstiveParameter = false;
+                boolean senstiveParameter = false;
 
-                    senstiveParameter = hs.contains(name);
-                    retval.append(nameValueSeparator);
-                    
-                    retval.append(name);
-                    retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                senstiveParameter = hs.contains(name);
+                retval.append(nameValueSeparator);
 
-                    if (senstiveParameter) {
-                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
-                    } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
-                        retval.append(replaceParams.get(name));
-                    } else {
-                        retval.append(bos.toString());
-                    }
-                
-                    nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
+                retval.append(name);
+                retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+
+                if (senstiveParameter) {
+                    retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
+                } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
+                    retval.append(replaceParams.get(name));
+                } else {
+                    retval.append(bos.toString());
                 }
+
+                nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
             }
             
             nextPart = multipartStream.readBoundary();

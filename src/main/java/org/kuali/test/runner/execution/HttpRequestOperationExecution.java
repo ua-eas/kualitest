@@ -21,13 +21,12 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeaders;
@@ -104,6 +103,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             WebRequest request = new WebRequest(new URL(url.toString()), HttpMethod.valueOf(reqop.getMethod()));
             
             if (reqop.getRequestHeaders() != null) {
+                request.setAdditionalHeader(HttpHeaders.USER_AGENT, Constants.DEFAULT_USER_AGENT);
+                
                 for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                     request.setAdditionalHeader(hdr.getName(), hdr.getValue());
                 }
@@ -123,48 +124,31 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
             
-            
             response = tec.getWebClient().getPage(request).getWebResponse();
             int status = response.getStatusCode();
             
             if (Utils.isRedirectResponse(status)) {
-                String loc = response.getResponseHeaderValue(HttpHeaders.LOCATION);
-                response =  tec.getWebClient().getPage(new WebRequest(new URL(loc))).getWebResponse();
+                request = new WebRequest(new URL(response.getResponseHeaderValue(HttpHeaders.LOCATION)), HttpMethod.GET);
+                response =  tec.getWebClient().getPage(request).getWebResponse();
             }
                 
-            BufferedReader reader = null; 
-            StringBuilder responseBuffer = new StringBuilder(Constants.DEFAULT_HTTP_RESPONSE_BUFFER_SIZE);
-            try {
-                reader = new BufferedReader(new InputStreamReader(response.getContentAsStream()));
+            String results = response.getContentAsString(CharEncoding.UTF_8);
 
-                 String line = "";
-
-                 while ((line = reader.readLine()) != null) {
-                     responseBuffer.append(line);
-                 }                        
-            }
-
-             finally {
-                 if (reader != null) {
-                     reader.close();
-                 }
-            }
-
-
-            System.out.println("---------------------------------------------------------------------------------->status=" + status);
-            System.out.println(responseBuffer.toString());
-
-            if (status == HttpURLConnection.HTTP_OK) {
-                tec.pushHttpResponse(responseBuffer.toString());
-                tec.updateAutoReplaceMap();
-                tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), responseBuffer.toString());
-            } else if ((status >= 400) && (status < 600)) {
-                throw new TestException("server returned bad status - " 
-                    + status 
-                    + ", content-type="
-                    + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
-                    + ", url=" 
-                    + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
+            if (StringUtils.isNotBlank(results)) {
+//                System.out.println("-------------------------------------------------------------->status=" + status);
+  //              System.out.println(results);
+                if (status == HttpURLConnection.HTTP_OK) {
+                    tec.pushHttpResponse(results);
+                    tec.updateAutoReplaceMap();
+                    tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), results);
+                } else {
+                    throw new TestException("server returned bad status - " 
+                        + status 
+                        + ", content-type="
+                        + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
+                        + ", url=" 
+                        + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
+                }
             }
         } 
 
@@ -225,6 +209,4 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
         return retval;
     }
-
-
 }
