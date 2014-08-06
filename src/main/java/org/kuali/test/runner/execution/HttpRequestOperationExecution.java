@@ -133,15 +133,15 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
                 
             String results = response.getContentAsString(CharEncoding.UTF_8);
-
+            
             if (StringUtils.isNotBlank(results)) {
-//                System.out.println("-------------------------------------------------------------->status=" + status);
-  //              System.out.println(results);
                 if (status == HttpURLConnection.HTTP_OK) {
                     tec.pushHttpResponse(results);
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), results);
                 } else {
+                    System.out.println("------------------------------------------------------------------------>");
+                    System.out.println(results);
                     throw new TestException("server returned bad status - " 
                         + status 
                         + ", content-type="

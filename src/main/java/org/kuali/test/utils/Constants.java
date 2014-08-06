@@ -251,7 +251,7 @@ public class Constants {
     public static final String MIME_TYPE_TEXT_PLAIN = "text/plain";
     public static final String MIME_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String MIME_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
-    
+    public static final String MULTIPART = "multipart/";
     
     public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
     public static final String TAB_SPACES = "    ";

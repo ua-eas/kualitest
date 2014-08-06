@@ -18,6 +18,7 @@ package org.kuali.test.runner.execution;
 import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
@@ -112,27 +113,21 @@ public class TestExecutionContext extends Thread {
 	    webClient.getOptions().setThrowExceptionOnScriptError(false);
 	    webClient.getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
 	    webClient.getOptions().setRedirectEnabled(true);
-        
+        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+
         webClient.setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String alert) {
+                LOG.info(alert);
             }
         });
 
-        webClient.setIncorrectnessListener(new  IncorrectnessListener() {
+        webClient.setIncorrectnessListener(new IncorrectnessListener() {
             @Override
-            public void notify(String string, Object o) {
+            public void notify(String msg, Object o) {
+                LOG.info(msg);
             }
         });
-
-        /*
-        webClient.setScriptPreProcessor(new ScriptPreProcessor() {
-            @Override
-            public String preProcess(HtmlPage hp, final String sourceCode, final String sourceName, int lineNumber, HtmlElement he) {
-                return sourceCode;
-            }
-        });
-        */
     }
 
     /**
@@ -672,7 +667,6 @@ public class TestExecutionContext extends Thread {
             String key = Utils.buildCheckpointPropertyKey(cp);
             TestExecutionParameter tep = map.get(key);
             if (tep != null) {
-                CheckpointProperty tepcp = tep.getValueProperty();
                 if (StringUtils.isNotBlank(cp.getPropertyValue())) {
                     tep.setValue(cp.getPropertyValue().trim());
 
@@ -711,7 +705,7 @@ public class TestExecutionContext extends Thread {
                 }
             }
             
-            url.append(urlparts[1]);
+            url.append(Utils.buildUrlEncodedParameterString(nvplist));
         }
 
         op.setUrl(url.toString());
@@ -738,7 +732,7 @@ public class TestExecutionContext extends Thread {
                     
                     param.setValue(Utils.buildUrlEncodedParameterString(nvplist));
                 } else if (Utils.isMultipart(op)) {
-                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(Utils.getContentParameterFromRequestOperation(op));
+                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromMultipartParams(Utils.getContentParameterFromRequestOperation(op));
 
                     for (NameValuePair nvp : nvplist) {
                         if (StringUtils.isNotBlank(nvp.getValue())) {
@@ -751,6 +745,7 @@ public class TestExecutionContext extends Thread {
                             worklist.add(nvp);
                         }
                     }
+                    
                     param.setValue(Utils.buildMultipartParameterString(nvplist));
                 }
             }

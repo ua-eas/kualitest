@@ -3233,7 +3233,7 @@ public class Utils {
         boolean retval = false;
         
         if (StringUtils.isNotBlank(contentType)) {
-            retval = Constants.MIME_TYPE_FORM_URL_ENCODED.equals(contentType);
+            retval = Constants.MIME_TYPE_FORM_URL_ENCODED.equalsIgnoreCase(contentType.trim());
         }
         
         return retval;
@@ -3255,7 +3255,7 @@ public class Utils {
         boolean retval = false;
         
         if (StringUtils.isNotBlank(contentType)) {
-            retval = contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA);
+            retval = contentType.trim().toLowerCase().startsWith(Constants.MULTIPART);
         }
         
         return retval;
@@ -3331,7 +3331,7 @@ public class Utils {
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
                     }
-
+                    
                     retval.add(new NameValuePair(name, value));
                 }
             }
@@ -3342,7 +3342,7 @@ public class Utils {
     
     public static List <NameValuePair> getNameValuePairsFromMultipartParams(String paramString) {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
-        
+
         if (StringUtils.isNotBlank(paramString)) {
             StringTokenizer st1 = new StringTokenizer(paramString, Constants.MULTIPART_PARAMETER_SEPARATOR);
 

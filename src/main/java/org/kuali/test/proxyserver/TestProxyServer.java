@@ -28,8 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +43,7 @@ import org.apache.xmlbeans.SystemProperties;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.Operation;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.TestOperation;
@@ -73,6 +72,8 @@ public class TestProxyServer {
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
+    private int operationIndex = 1;
+    
     /**
      *
      * @param webTestPanel
@@ -242,6 +243,7 @@ public class TestProxyServer {
                 && !isGetCssRequest(method, request.getUri()));
         }
         
+        /*
         if (retval) {
             // do not want to  run request that was an auto-redirect
             // for this check we are looking at refererer not the same as host
@@ -258,7 +260,7 @@ public class TestProxyServer {
                 }
             }
         }
-        
+        */
         return retval;
     }
     
@@ -358,8 +360,12 @@ public class TestProxyServer {
      */
     public TestOperation buildHttpRequestOperation(HttpRequest request, int delay) throws IOException {
         TestOperation retval = TestOperation.Factory.newInstance();
+        
+        Operation myop = retval.addNewOperation();
+        myop.setDebugInformation("" + (operationIndex++));
+        
+        HtmlRequestOperation op = myop.addNewHtmlRequestOperation();
 
-        HtmlRequestOperation op = retval.addNewOperation().addNewHtmlRequestOperation();
         retval.setOperationType(TestOperationType.HTTP_REQUEST);
         op.setDelay(delay);
         op.addNewRequestHeaders();
