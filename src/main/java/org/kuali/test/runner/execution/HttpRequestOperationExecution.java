@@ -128,6 +128,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
             
             if (Utils.isRedirectResponse(status)) {
+/*
+                for (NameValuePair nvp : response.getResponseHeaders()) {
+                System.out.println("-------->" + nvp.getName() + "=" + nvp.getValue());
+            }
+  */              
                 request = new WebRequest(new URL(response.getResponseHeaderValue(HttpHeaders.LOCATION)), HttpMethod.GET);
                 response =  tec.getWebClient().getPage(request).getWebResponse();
             }
@@ -140,8 +145,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(test, getOperation().getHtmlRequestOperation(), results);
                 } else {
-                    System.out.println("------------------------------------------------------------------------>");
-                    System.out.println(results);
                     throw new TestException("server returned bad status - " 
                         + status 
                         + ", content-type="
