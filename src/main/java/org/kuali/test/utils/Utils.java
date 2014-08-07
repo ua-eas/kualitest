@@ -3270,7 +3270,7 @@ public class Utils {
         return (StringUtils.isNotBlank(s) && s.contains("<html>"));
     }
     
-    public static String getParamsFromUrl(String url) {
+    public static String getParametersFromUrl(String url) {
         String retval = null;
         
         if (StringUtils.isNotBlank(url)) {
@@ -3283,6 +3283,17 @@ public class Utils {
         return retval;
     }
     
+    public static List <NameValuePair> getNameValueParameterListFromUrl(String url) {
+        List <NameValuePair> retval = new ArrayList<NameValuePair>();
+        String paramString = getParametersFromUrl(url);
+        
+        if (StringUtils.isNotBlank(paramString)) {
+            retval = getNameValuePairsFromUrlEncodedParams(paramString);
+        }
+        
+        return retval;
+    }
+
     public static Parameter getCheckpointParameter(Checkpoint cp, String name) {
         Parameter retval = null;
         
@@ -3422,17 +3433,6 @@ public class Utils {
         
         if (pos > -1) {
             retval = url.substring(0, pos);
-        }
-        
-        return retval;
-    }
-
-    public static String getParameters(String url) {
-        String retval = "";
-        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
-        
-        if (pos > -1) {
-            retval = url.substring(pos + 1);
         }
         
         return retval;

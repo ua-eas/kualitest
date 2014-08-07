@@ -34,11 +34,15 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpHeaders;
+import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestOperation;
@@ -83,16 +87,67 @@ public class TestWebClient extends WebClient {
                     List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
                     request.getRequestParameters().clear();
                     request.getRequestParameters().addAll(params);
+                } else {
+                    String paramString = Utils.getParametersFromUrl(request.getUrl().toExternalForm());
+                    
+                    if (StringUtils.isNotBlank(paramString)) {
+                        handleUrlParameters(request);
+                    }
                 }
 
                 replaceJsessionId(request);
                 
-                return super.getResponse(request);
+                WebResponse retval = super.getResponse(request);
+                
+                while (Utils.isRedirectResponse(retval.getStatusCode())) {
+                    String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
+                    if (StringUtils.isNotBlank(location)) {
+                        String paramString = Utils.getParametersFromUrl(location);
+
+                        if (StringUtils.isNotBlank(paramString)) {
+                            updateAutoReplaceMap(paramString);               
+                        }
+
+                        request = new WebRequest(new URL(location));
+                        
+                        if (!request.getRequestParameters().isEmpty()) {
+                            List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
+                            request.getRequestParameters().clear();
+                            request.getRequestParameters().addAll(params);
+                        }
+
+                        retval = super.getResponse(request);
+                    }
+                }
+                
+                return retval;
             }
         };
 
     }
 
+    private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
+        String url = request.getUrl().toExternalForm();
+        List <NameValuePair> npvlist = Utils.getNameValueParameterListFromUrl(url);
+        
+        if ((npvlist != null) && !npvlist.isEmpty()) {
+            npvlist = getUpdatedParameterList(npvlist);
+            
+            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+            StringBuilder buf = new StringBuilder(256);
+            if (pos > -1) {
+                buf.append(url.substring(0, pos+1));
+                buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+            } else {
+                buf.append(url);
+                buf.append(Constants.SEPARATOR_QUESTION);
+                buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+            }
+            
+            request.setUrl(new URL(buf.toString()));
+        }
+    }
+    
     private List  <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
         List  <NameValuePair> retval = new ArrayList<NameValuePair>();
         List  <NameValuePair> work = new ArrayList<NameValuePair>();
@@ -210,5 +265,21 @@ public class TestWebClient extends WebClient {
 
     public void setCurrentOperationIndex(int currentOperationIndex) {
         this.currentOperationIndex = currentOperationIndex;
+    }
+    
+   private void updateAutoReplaceMap(String params) {
+        if (tec.getConfiguration().getAutoReplaceParameters() != null) {
+            Set <String> hs = new HashSet<String>();
+            for (AutoReplaceParameter arparam : tec.getConfiguration().getAutoReplaceParameters().getAutoReplaceParameterArray()) {
+                hs.add(arparam.getParameterName());
+            }
+
+            List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(params);
+            for (NameValuePair nvp : nvplist) {
+                if (hs.contains(nvp.getName()) && !tec.getAutoReplaceParameterMap().containsKey(nvp.getName())) {
+                    tec.getAutoReplaceParameterMap().put(nvp.getName(), nvp.getValue());
+                }
+            }
+        }
     }
 }

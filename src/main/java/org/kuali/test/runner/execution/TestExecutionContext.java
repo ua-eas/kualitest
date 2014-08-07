@@ -15,7 +15,6 @@
  */
 package org.kuali.test.runner.execution;
 
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -546,21 +545,6 @@ public class TestExecutionContext extends Thread {
         return autoReplaceParameterMap;
     }
     
-    public void updateAutoReplaceMap(String params) {
-        if (getConfiguration().getAutoReplaceParameters() != null) {
-            Set <String> hs = new HashSet<String>();
-            for (AutoReplaceParameter arparam : getConfiguration().getAutoReplaceParameters().getAutoReplaceParameterArray()) {
-                hs.add(arparam.getParameterName());
-            }
-
-            List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(params);
-            for (NameValuePair nvp : nvplist) {
-                if (hs.contains(nvp.getName())) {
-                    autoReplaceParameterMap.put(nvp.getName(), nvp.getValue());
-                }
-            }
-        }
-    }
     
     public void updateAutoReplaceMap() {
         if ((configuration.getAutoReplaceParameters() != null) && !httpResponseStack.empty()) {

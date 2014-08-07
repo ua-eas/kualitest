@@ -110,40 +110,25 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             response = tec.getWebClient().getPage(request).getWebResponse();
 
             int status = response.getStatusCode();
-            
-            if (Utils.isRedirectResponse(status)) {
-                String location = response.getResponseHeaderValue(HttpHeaders.LOCATION);
-                
-                String params = Utils.getParameters(location);
-                
-                if (StringUtils.isNotBlank(params)) {
-                    tec.updateAutoReplaceMap(params);               
-                }
-                
-                response = tec.getWebClient().getPage(new WebRequest(new URL(location))).getWebResponse();
-                
-                status = response.getStatusCode();
-            }
-            
             String results = response.getContentAsString(CharEncoding.UTF_8);
 
-            System.out.println("--------------------------------------------------------------------");
-            System.out.println(results);
+        //    System.out.println(results);
+
+System.out.println("------------------------------------------------------->" + status);
             
-            if (StringUtils.isNotBlank(results)) {
-                if (status == HttpStatus.OK_200) {
+            if (status == HttpStatus.OK_200) {
+                if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(test, results);
-                } else {
-                    System.out.println("============================>" + getOperation().getIndex());
-                    throw new TestException("server returned bad status - " 
-                        + status 
-                        + ", content-type="
-                        + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
-                        + ", url=" 
-                        + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
                 }
+            } else {
+                throw new TestException("server returned bad status - " 
+                    + status 
+                    + ", content-type="
+                    + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
+                    + ", url=" 
+                    + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
             }
         } 
 
