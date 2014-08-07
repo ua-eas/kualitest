@@ -112,10 +112,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
             String results = response.getContentAsString(CharEncoding.UTF_8);
 
-        //    System.out.println(results);
+            System.out.println("------------------------------------------->status=" + getOperation().getIndex() + "=" + status);
+            System.out.println(results);
 
-System.out.println("------------------------------------------------------->" + status);
-            
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
@@ -140,7 +139,7 @@ System.out.println("------------------------------------------------------->" + 
 
             LOG.error(ex.toString(), ex);
 
-            throw new TestException("an IOException occured while processing http request: " 
+            throw new TestException("An IOException occured while processing http request: " 
                 + uri + ", error: " +  ex.toString(), getOperation(), ex);
         }
 

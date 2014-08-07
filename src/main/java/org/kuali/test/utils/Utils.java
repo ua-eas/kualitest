@@ -3437,4 +3437,34 @@ public class Utils {
         
         return retval;
     }
+
+    public static boolean isGetImageRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            retval = Constants.IMAGE_SUFFIX_SET.contains(Utils.getFileSuffix(Utils.trimParameters(uri)));
+        }
+        
+        return retval;
+    }
+
+    public static boolean isGetJavascriptRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
+        }
+        
+        return retval;
+    }
+
+    public static boolean isGetCssRequest(String method, String uri) {
+        boolean retval = false;
+        
+        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
+            retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
+        }
+        
+        return retval;
+    }
 }

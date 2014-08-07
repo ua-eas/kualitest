@@ -249,44 +249,15 @@ public class TestProxyServer {
         
         String method = request.getMethod().toString();
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-            retval = (!isGetImageRequest(method, request.getUri())
-                && !isGetJavascriptRequest(method, request.getUri())
-                && !isGetCssRequest(method, request.getUri())
+            retval = (!Utils.isGetImageRequest(method, request.getUri())
+                && !Utils.isGetJavascriptRequest(method, request.getUri())
+                && !Utils.isGetCssRequest(method, request.getUri())
                 && (lastHttpStatus == HttpStatus.OK_200));
         }
 
         return retval;
     }
     
-    private boolean isGetImageRequest(String method, String uri) {
-        boolean retval = false;
-        
-        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.IMAGE_SUFFIX_SET.contains(Utils.getFileSuffix(Utils.trimParameters(uri)));
-        }
-        
-        return retval;
-    }
-
-    private boolean isGetJavascriptRequest(String method, String uri) {
-        boolean retval = false;
-        
-        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
-        }
-        
-        return retval;
-    }
-
-    private boolean isGetCssRequest(String method, String uri) {
-        boolean retval = false;
-        
-        if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
-        }
-        
-        return retval;
-    }
     
     /**
      *

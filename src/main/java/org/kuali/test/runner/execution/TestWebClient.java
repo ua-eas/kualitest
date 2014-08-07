@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -83,40 +84,47 @@ public class TestWebClient extends WebClient {
         new WebConnectionWrapper(this) {
             @Override
             public WebResponse getResponse(WebRequest request) throws IOException {
-                if (!request.getRequestParameters().isEmpty()) {
-                    List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
-                    request.getRequestParameters().clear();
-                    request.getRequestParameters().addAll(params);
-                } else {
-                    String paramString = Utils.getParametersFromUrl(request.getUrl().toExternalForm());
-                    
-                    if (StringUtils.isNotBlank(paramString)) {
-                        handleUrlParameters(request);
-                    }
-                }
+                boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
+                if (!jscall) {
+                    if (!request.getRequestParameters().isEmpty()) {
+                        List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
+                        request.getRequestParameters().clear();
+                        request.getRequestParameters().addAll(params);
+                    } else {
+                        String paramString = Utils.getParametersFromUrl(request.getUrl().toExternalForm());
 
-                replaceJsessionId(request);
+                        if (StringUtils.isNotBlank(paramString)) {
+                            handleUrlParameters(request);
+                        }
+                    }
+                    replaceJsessionId(request);
+                }
                 
                 WebResponse retval = super.getResponse(request);
                 
-                while (Utils.isRedirectResponse(retval.getStatusCode())) {
-                    String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
-                    if (StringUtils.isNotBlank(location)) {
-                        String paramString = Utils.getParametersFromUrl(location);
+                if (!jscall) {
+                    while (Utils.isRedirectResponse(retval.getStatusCode())) {
+                        String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
+                        if (StringUtils.isNotBlank(location)) {
+                            String paramString = Utils.getParametersFromUrl(location);
 
-                        if (StringUtils.isNotBlank(paramString)) {
-                            updateAutoReplaceMap(paramString);               
+                            if (StringUtils.isNotBlank(paramString)) {
+                                updateAutoReplaceMap(paramString);               
+                            }
+
+                            request = new WebRequest(new URL(location));
+                            
+                            if (location.contains("ticket=")) {
+                            }
+                            
+                            if (!request.getRequestParameters().isEmpty()) {
+                                List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
+                                request.getRequestParameters().clear();
+                                request.getRequestParameters().addAll(params);
+                            }
+
+                            retval = super.getResponse(request);
                         }
-
-                        request = new WebRequest(new URL(location));
-                        
-                        if (!request.getRequestParameters().isEmpty()) {
-                            List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
-                            request.getRequestParameters().clear();
-                            request.getRequestParameters().addAll(params);
-                        }
-
-                        retval = super.getResponse(request);
                     }
                 }
                 
@@ -128,20 +136,25 @@ public class TestWebClient extends WebClient {
 
     private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
         String url = request.getUrl().toExternalForm();
-        List <NameValuePair> npvlist = Utils.getNameValueParameterListFromUrl(url);
-        
-        if ((npvlist != null) && !npvlist.isEmpty()) {
-            npvlist = getUpdatedParameterList(npvlist);
-            
-            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+
+        // hack to handle urls with multiple question marks in the parameter list
+        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+        if (pos > -1) {
             StringBuilder buf = new StringBuilder(256);
-            if (pos > -1) {
-                buf.append(url.substring(0, pos+1));
-                buf.append(Utils.buildUrlEncodedParameterString(npvlist));
-            } else {
-                buf.append(url);
-                buf.append(Constants.SEPARATOR_QUESTION);
-                buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+            
+            buf.append(url.substring(0, pos+1));
+            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(url), Constants.SEPARATOR_QUESTION);
+            String seperator = "";
+        
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                buf.append(seperator);
+                List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(token);
+                if ((npvlist != null) && !npvlist.isEmpty()) {
+                    npvlist = getUpdatedParameterList(npvlist);
+                    buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+                    seperator = Constants.SEPARATOR_QUESTION;
+                }
             }
             
             request.setUrl(new URL(buf.toString()));
