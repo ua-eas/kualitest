@@ -78,13 +78,13 @@ public class AutoReplaceParametersDlg extends BaseSetupDlg {
         config.setHeaders(new String[] {
             "Parameter Name",
             "Tag Name",
-            "Retain", 
+            "From Input Parameter", 
         });
         
         config.setPropertyNames(new String[] {
             "parameterName",
             "tagName",
-            "retain"
+            "fromInputParameter"
         });
             
         config.setColumnTypes(new Class[] {
@@ -118,8 +118,7 @@ public class AutoReplaceParametersDlg extends BaseSetupDlg {
         getConfiguration().setModified(true);
         
         List <AutoReplaceParameter> parameters = tp.getTable().getTableData();
-  //      Collections.sort(names);
-        
+
         if (getConfiguration().getAutoReplaceParameters() == null) {
             getConfiguration().addNewAutoReplaceParameters();
         }

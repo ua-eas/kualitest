@@ -107,7 +107,7 @@
             <xs:element name="test-execution-parameter" type="test-execution-parameter"/>
             <xs:element name="html-request-operation" type="html-request-operation"/>
         </xs:choice>  
-        <xs:attribute name="debug-information" type="xs:string"/> 
+        <xs:attribute name="index" type="xs:int"/> 
     </xs:complexType>      
 
     <xs:complexType name="test-execution-parameter">

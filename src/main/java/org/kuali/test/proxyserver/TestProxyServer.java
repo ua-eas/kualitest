@@ -41,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.xmlbeans.SystemProperties;
 import org.eclipse.jetty.http.HttpHeaders;
+import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
@@ -66,13 +67,20 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
-    private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>());
+    private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
+        @Override
+        public boolean add(TestOperation op) {
+            boolean retval = super.add(op);
+            op.getOperation().setIndex(size());
+            return retval;
+        }
+    });
 
     private boolean proxyServerRunning = false;
     private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
-    private int operationIndex = 1;
+    private int lastHttpStatus = 0;
     
     /**
      *
@@ -148,6 +156,9 @@ public class TestProxyServer {
                             }   
                             
                             content.release();
+                        } else if (httpObject instanceof HttpResponse) {
+                            HttpResponse response = (HttpResponse)httpObject;
+                            lastHttpStatus = response.getStatus().code();
                         }
                         return httpObject;
                     }
@@ -240,27 +251,10 @@ public class TestProxyServer {
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
             retval = (!isGetImageRequest(method, request.getUri())
                 && !isGetJavascriptRequest(method, request.getUri())
-                && !isGetCssRequest(method, request.getUri()));
+                && !isGetCssRequest(method, request.getUri())
+                && (lastHttpStatus == HttpStatus.OK_200));
         }
-        
-        /*
-        if (retval) {
-            // do not want to  run request that was an auto-redirect
-            // for this check we are looking at refererer not the same as host
-            String host = request.headers().get(HttpHeaders.HOST);
-            String referer = request.headers().get(HttpHeaders.REFERER);
 
-            if (StringUtils.isNotBlank(host) && StringUtils.isNotBlank(referer)) {
-                try {
-                    URL url = new URL(referer);
-                    retval = (StringUtils.isBlank(url.getHost()) || host.equals(url.getHost()));
-                } 
-                catch (MalformedURLException ex) {
-                    LOG.warn(ex.toString(), ex);
-                }
-            }
-        }
-        */
         return retval;
     }
     
@@ -268,7 +262,7 @@ public class TestProxyServer {
         boolean retval = false;
         
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.IMAGE_SUFFIX_SET.contains(Utils.getFileSuffix(uri));
+            retval = Constants.IMAGE_SUFFIX_SET.contains(Utils.getFileSuffix(Utils.trimParameters(uri)));
         }
         
         return retval;
@@ -278,7 +272,7 @@ public class TestProxyServer {
         boolean retval = false;
         
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
+            retval = Constants.JAVASCRIPT_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
         }
         
         return retval;
@@ -288,7 +282,7 @@ public class TestProxyServer {
         boolean retval = false;
         
         if (Constants.HTTP_REQUEST_METHOD_GET.equalsIgnoreCase(method)) {
-            retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(uri));
+            retval = Constants.CSS_SUFFIX.equalsIgnoreCase(Utils.getFileSuffix(Utils.trimParameters(uri)));
         }
         
         return retval;
@@ -362,8 +356,7 @@ public class TestProxyServer {
         TestOperation retval = TestOperation.Factory.newInstance();
         
         Operation myop = retval.addNewOperation();
-        myop.setDebugInformation("" + (operationIndex++));
-        
+
         HtmlRequestOperation op = myop.addNewHtmlRequestOperation();
 
         retval.setOperationType(TestOperationType.HTTP_REQUEST);
@@ -501,7 +494,11 @@ public class TestProxyServer {
             String name = Utils.getNameFromNameParam(header);
             String value = bos.toString();
             
-            if (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) {
+            if (StringUtils.isNotBlank(name)) {
+                if (StringUtils.isBlank(value)) {
+                    value = "";
+                }
+                
                 boolean senstiveParameter = false;
 
                 senstiveParameter = hs.contains(name);
@@ -515,7 +512,7 @@ public class TestProxyServer {
                 } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
                     retval.append(replaceParams.get(name));
                 } else {
-                    retval.append(bos.toString());
+                    retval.append(value);
                 }
 
                 nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;

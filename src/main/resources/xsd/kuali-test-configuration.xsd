@@ -82,7 +82,7 @@
             <xs:element name="parameter-name" type="xs:string"/>
             <xs:element name="tag-name" type="xs:string"/>
             <xs:element name="tag-attributes" type="tag-attributes"/>
-            <xs:element name="retain" type="xs:boolean" default="false"/>
+            <xs:element name="from-input-parameter" type="xs:boolean" default="false"/>
         </xs:sequence>
     </xs:complexType>
     

@@ -749,6 +749,7 @@ public class Utils {
         return retval;
     }
 
+    
     /**
      *
      * @param nm
@@ -3273,7 +3274,7 @@ public class Utils {
         String retval = null;
         
         if (StringUtils.isNotBlank(url)) {
-            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);;
+            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
                 retval = url.substring(pos+1);
             }
@@ -3357,6 +3358,8 @@ public class Utils {
 
                     if (StringUtils.isNotBlank(value)) {
                         retval.add(new NameValuePair(name, value));
+                    } else {
+                        retval.add(new NameValuePair(name, ""));
                     }
                 }
             }
@@ -3413,15 +3416,12 @@ public class Utils {
         return retval.toString();
     }
 
-    public static String[] getUrlParts(String url) {
-        String[] retval = new String[2];
+    public static String trimParameters(String url) {
+        String retval = url;
         int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
         
         if (pos > -1) {
-            retval[0] = url.substring(0, pos+1);
-            retval[1] = url.substring(pos+1);
-        } else {
-            retval[0] = url;
+            retval = url.substring(0, pos);
         }
         
         return retval;

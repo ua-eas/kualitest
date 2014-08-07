@@ -15,16 +15,8 @@
  */
 package org.kuali.test.runner.execution;
 
-import com.gargoylesoftware.htmlunit.AlertHandler;
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.IncorrectnessListener;
-import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
-import javax.ws.rs.HttpMethod;
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -44,14 +34,11 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
-import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
-import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
-import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -96,7 +83,7 @@ public class TestExecutionContext extends Thread {
     private int testRuns = 1;
     private boolean completed = false;
     
-    private WebClient webClient;
+    private TestWebClient webClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
 
     public TestExecutionContext() {
@@ -107,27 +94,7 @@ public class TestExecutionContext extends Thread {
     }
 
     private void initializeHttpClient() {
-        webClient = new WebClient(BrowserVersion.CHROME);
-	    webClient.getOptions().setJavaScriptEnabled(true);
-	    webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-	    webClient.getOptions().setThrowExceptionOnScriptError(false);
-	    webClient.getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
-	    webClient.getOptions().setRedirectEnabled(true);
-        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-
-        webClient.setAlertHandler(new AlertHandler() {
-            @Override
-            public void handleAlert(Page page, String alert) {
-                LOG.info(alert);
-            }
-        });
-
-        webClient.setIncorrectnessListener(new IncorrectnessListener() {
-            @Override
-            public void notify(String msg, Object o) {
-                LOG.info(msg);
-            }
-        });
+        webClient = new TestWebClient(this);
     }
 
     /**
@@ -574,49 +541,6 @@ public class TestExecutionContext extends Thread {
         return configuration;
     }
 
-    public List  <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
-        List  <NameValuePair> retval = new ArrayList<NameValuePair>();
-        
-        if ((nvplist != null) && !nvplist.isEmpty()) {
-            for (NameValuePair nvp : nvplist) {
-                String replacement  = paramMap.get(nvp.getName());
-
-                if (StringUtils.isNotBlank(replacement)) {
-                    retval.add(new NameValuePair(nvp.getName(), replacement));
-                } else {
-                    retval.add(nvp);
-                }
-            }
-        }
-        
-        return retval;
-    }
-
-    /**
-     * 
-     * @param nvplist
-     * @return
-     * @throws UnsupportedEncodingException 
-     */
-    public List <NameValuePair> decryptHttpParameters(List<NameValuePair> nvplist) throws UnsupportedEncodingException {
-        List <NameValuePair>  retval = new ArrayList<NameValuePair>();
-        String epass = Utils.getEncryptionPassword(configuration);
-
-        if ((nvplist != null) && !nvplist.isEmpty()) {
-            for (NameValuePair nvp : nvplist) {
-                if (parametersRequiringDecryption.contains(nvp.getName())) {
-                    retval.add(new NameValuePair(nvp.getName(), URLDecoder.decode(Utils.decrypt(epass, nvp.getValue()), CharEncoding.UTF_8)));
-                } else {
-                    retval.add(nvp);
-                }
-            }
-        }
-        
-        return retval;
-    }
-
-    
-
     public Map<String, String> getAutoReplaceParameterMap() {
         return autoReplaceParameterMap;
     }
@@ -633,126 +557,35 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public synchronized void updateTestExecutionParameters(KualiTest test, HtmlRequestOperation curop, String html) throws UnsupportedEncodingException {
+    public void updateTestExecutionParameters(KualiTest test, String html) throws UnsupportedEncodingException {
         Map<String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
-
-        List<HtmlRequestOperation> hreqops = new ArrayList<HtmlRequestOperation>();
-        List<Checkpoint> sqlops = new ArrayList<Checkpoint>();
-
-        boolean foundit = false;
-        for (TestOperation op : test.getOperations().getOperationArray()) {
-            if ((op.getOperation().getHtmlRequestOperation() != null)
-                && (curop == op.getOperation().getHtmlRequestOperation())) {
-                foundit = true;
-            }
-
-            if (foundit) {
-                if (op.getOperation().getHtmlRequestOperation() != null) {
-                    hreqops.add(op.getOperation().getHtmlRequestOperation());
-                } else if (CheckpointType.SQL.equals(op.getOperation().getCheckpointOperation().getType())) {
-                    sqlops.add(op.getOperation().getCheckpointOperation());
-                }
-            }
-
-            if (op.getOperation().getTestExecutionParameter() != null) {
-                CheckpointProperty cp = op.getOperation().getTestExecutionParameter().getValueProperty();
+        
+        for (TestOperation top : test.getOperations().getOperationArray()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                CheckpointProperty cp = top.getOperation().getTestExecutionParameter().getValueProperty();
                 String key = Utils.buildCheckpointPropertyKey(cp);
-                map.put(key, op.getOperation().getTestExecutionParameter());
+                map.put(key, top.getOperation().getTestExecutionParameter());
             }
         }
-
-        DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, html);
-
-        for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-            String key = Utils.buildCheckpointPropertyKey(cp);
-            TestExecutionParameter tep = map.get(key);
-            if (tep != null) {
-                if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                    tep.setValue(cp.getPropertyValue().trim());
-
-                    for (HtmlRequestOperation op : hreqops) {
-                        updateTestExecutionParameters(op, tep);
-                    }
-
-                    for (Checkpoint sqlcp : sqlops) {
-                        Parameter param = Utils.getCheckpointParameter(sqlcp, Constants.SQL_QUERY);
-                        param.setValue(param.getValue().replace("${" + tep.getName() + "}", tep.getValue()));
-                    }
-                }
-            }
-        }
-    }
-
-    private void updateTestExecutionParameters(HtmlRequestOperation op, TestExecutionParameter tep) {
-        String[] urlparts = Utils.getUrlParts(op.getUrl());
-        StringBuilder url = new StringBuilder(512);
-        url.append(urlparts[0]);
-
-        List <NameValuePair> worklist = new ArrayList<NameValuePair>();
         
-        if (StringUtils.isNotBlank(urlparts[1])) {
-            List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(urlparts[1]);
+        if (!map.isEmpty()) {
+            for (String h : httpResponseStack) {
+                DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, h);
 
-            for (NameValuePair nvp : nvplist) {
-                if (StringUtils.isNotBlank(nvp.getValue())) {
-                    if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
-                        worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
-                    } else {
-                        worklist.add(nvp);
-                    }
-                } else {
-                    worklist.add(nvp);
-                }
-            }
-            
-            url.append(Utils.buildUrlEncodedParameterString(nvplist));
-        }
-
-        op.setUrl(url.toString());
-        
-        if (HttpMethod.POST.equalsIgnoreCase(op.getMethod())) {
-            worklist.clear();
-            RequestParameter param = Utils.getContentParameter(op);
-            
-            if (param != null) {
-                if (Utils.isUrlFormEncoded(op)) {
-                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(Utils.getContentParameterFromRequestOperation(op));
-
-                    for (NameValuePair nvp : nvplist) {
-                        if (StringUtils.isNotBlank(nvp.getValue())) {
-                            if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
-                                worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
-                            } else {
-                                worklist.add(nvp);
-                            }
-                        } else {
-                            worklist.add(nvp);
+                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+                    String key = Utils.buildCheckpointPropertyKey(cp);
+                    TestExecutionParameter tep = map.get(key);
+                    if (tep != null) {
+                        if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                            tep.setValue(cp.getPropertyValue().trim());
                         }
                     }
-                    
-                    param.setValue(Utils.buildUrlEncodedParameterString(nvplist));
-                } else if (Utils.isMultipart(op)) {
-                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromMultipartParams(Utils.getContentParameterFromRequestOperation(op));
-
-                    for (NameValuePair nvp : nvplist) {
-                        if (StringUtils.isNotBlank(nvp.getValue())) {
-                            if (nvp.getValue().trim().equals(tep.getValueProperty().getPropertyValue().trim())) {
-                                worklist.add(new NameValuePair(nvp.getName(), tep.getValue()));
-                            } else {
-                                worklist.add(nvp);
-                            }
-                        } else {
-                            worklist.add(nvp);
-                        }
-                    }
-                    
-                    param.setValue(Utils.buildMultipartParameterString(nvplist));
                 }
             }
         }
     }
     
-    public WebClient getWebClient() {
+    public TestWebClient getWebClient() {
         if (webClient == null) {
             initializeHttpClient();
             httpResponseStack = new Stack<String>();

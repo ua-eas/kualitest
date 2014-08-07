@@ -19,6 +19,8 @@ package org.kuali.test.ui.components.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.JCheckBox;
@@ -46,10 +48,11 @@ import org.kuali.test.utils.Constants;
 public class AutoReplaceParameterDlg extends BaseSetupDlg {
     private JTextField parameterName;
     private JTextField tagName;
-    private JCheckBox retain;
+    private JCheckBox fromInputParameter;
     private BaseTable attributesTable;
     private AutoReplaceParameter parameter;
-
+    private TablePanel tp;
+    
     public AutoReplaceParameterDlg(TestCreator mainframe, JDialog parent) {
         super(mainframe, parent);
         setTitle("Add new auto replace parameter");
@@ -60,18 +63,33 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
     private void initComponents() {
         String[] labels = new String[] {
             "Parameter Name", 
-            "Tag Name",
+            "Tag/Parameter",
             ""
         };
         
         parameterName = new JTextField(parameter.getParameterName(), 20);
         tagName = new JTextField(parameter.getTagName(), 20);
-        retain = new JCheckBox();
-        retain.setSelected(parameter.getRetain());
+        fromInputParameter = new JCheckBox();
+        fromInputParameter.setSelected(parameter.getFromInputParameter());
+        fromInputParameter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (fromInputParameter.isSelected()) {
+                    List l = attributesTable.getModel().getData();
+                    if (!l.isEmpty()) {
+                        int rows = l.size();
+                        l.clear();
+                        attributesTable.getModel().fireTableRowsDeleted(0, rows-1);
+                    }
+                }
+                
+                tp.getAddButton().setEnabled(!fromInputParameter.isSelected());
+            }
+        });
         
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(retain);
-        p.add(new JLabel("Retain"));
+        p.add(fromInputParameter);
+        p.add(new JLabel("From Input Parameter"));
         
         JComponent[] components = new JComponent[] {
             parameterName,
@@ -81,7 +99,7 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
 
         p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-        TablePanel tp = new TablePanel(attributesTable = buildAttributesTable());
+        tp = new TablePanel(attributesTable = buildAttributesTable());
         
         tp.addAddButton(this, Constants.ADD_ACTION, "add attribute");
         tp.addDeleteButton(this, Constants.DELETE_ACTION, "delete attribute");
@@ -152,7 +170,7 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
                 }
             }
         } else {
-            displayRequiredFieldsMissingAlert("Parameter", "parameter name, tag name");
+            displayRequiredFieldsMissingAlert("Parameter", "parameter name, tag/cookie name");
             oktosave = false;
         }
         
@@ -165,7 +183,7 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
             
             parameter.setParameterName(parameterName.getText());
             parameter.setTagName(tagName.getText());
-            parameter.setRetain(retain.isSelected());
+            parameter.setFromInputParameter(fromInputParameter.isSelected());
             parameter.getTagAttributes().setAttributeArray(attributes.toArray(new TagAttribute[attributes.size()]));
             setSaved(true);
             dispose();
