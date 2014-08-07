@@ -112,7 +112,16 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
             
             if (Utils.isRedirectResponse(status)) {
-                response = tec.getWebClient().getPage(new WebRequest(new URL(response.getResponseHeaderValue(HttpHeaders.LOCATION)))).getWebResponse();
+                String location = response.getResponseHeaderValue(HttpHeaders.LOCATION);
+                
+                String params = Utils.getParameters(location);
+                
+                if (StringUtils.isNotBlank(params)) {
+                    tec.updateAutoReplaceMap(params);               
+                }
+                
+                response = tec.getWebClient().getPage(new WebRequest(new URL(location))).getWebResponse();
+                
                 status = response.getStatusCode();
             }
             
@@ -127,6 +136,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(test, results);
                 } else {
+                    System.out.println("============================>" + getOperation().getIndex());
                     throw new TestException("server returned bad status - " 
                         + status 
                         + ", content-type="

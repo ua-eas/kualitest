@@ -3426,4 +3426,15 @@ public class Utils {
         
         return retval;
     }
+
+    public static String getParameters(String url) {
+        String retval = "";
+        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+        
+        if (pos > -1) {
+            retval = url.substring(pos + 1);
+        }
+        
+        return retval;
+    }
 }
