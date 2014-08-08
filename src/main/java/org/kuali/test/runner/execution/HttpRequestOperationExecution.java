@@ -19,8 +19,17 @@ import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.StringPart;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -84,12 +93,20 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             tec.getWebClient().setCurrentTest(test);
             
             WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
+            boolean multiPart = Utils.isMultipart(reqop);
+            boolean urlFormEncoded = Utils.isUrlFormEncoded(reqop);
             
             if (reqop.getRequestHeaders() != null) {
                 request.setAdditionalHeader(HttpHeaders.USER_AGENT, Constants.DEFAULT_USER_AGENT);
                 
                 for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
-                    request.setAdditionalHeader(hdr.getName(), hdr.getValue());
+                    if (HttpHeaders.CONTENT_TYPE.equals(hdr.getName())) {
+                        if (!multiPart) {
+                            request.setAdditionalHeader(hdr.getName(), hdr.getValue());
+                        }
+                    } else {
+                        request.setAdditionalHeader(hdr.getName(), hdr.getValue());
+                    }
                 }
             }
 
@@ -97,12 +114,19 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
 
                 if (StringUtils.isNotBlank(params)) {
-                    if (Utils.isUrlFormEncoded(reqop)) {
-                        request.setEncodingType(FormEncodingType.URL_ENCODED);
+                    if (urlFormEncoded) {
                         request.setRequestParameters(Utils.getNameValuePairsFromUrlEncodedParams(params));
-                    } else if (Utils.isMultipart(reqop)) {
+                        request.setEncodingType(FormEncodingType.URL_ENCODED);
+                    } else if (multiPart) {
+                        if (request.getRequestParameters() != null) {
+                            request.getRequestParameters().clear();
+                        }
                         request.setEncodingType(FormEncodingType.MULTIPART);
-                        request.setRequestParameters(Utils.getNameValuePairsFromMultipartParams(params));                        
+                        MultipartRequestEntity mpr = getMultipartRequestEntity(Utils.getNameValuePairsFromMultipartParams(params));
+                        request.setAdditionalHeader(HttpHeaders.CONTENT_TYPE, mpr.getContentType());
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream((int)mpr.getContentLength());
+                        mpr.writeRequest(bos);
+                        request.setRequestBody(bos.toString());
                     }
                 }
             }
@@ -112,9 +136,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
             String results = response.getContentAsString(CharEncoding.UTF_8);
 
-            System.out.println("------------------------------------------->status=" + getOperation().getIndex() + "=" + status);
-            System.out.println(results);
-
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
@@ -122,10 +143,34 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     tec.updateTestExecutionParameters(test, results);
                 }
             } else {
+            System.out.println("---------------------------------------------------------------------->");
+            System.out.println("url=" + request.getUrl().toExternalForm());
+            System.out.println("index=" + getOperation().getIndex());
+            System.out.println("status=" + status);
+            System.out.println("----------------------------cookies---------------------------------->");
+            for (Cookie c : tec.getWebClient().getCookies()) {
+                System.out.println(c.getName() + "=" + c.getValue());
+            }
+
+            System.out.println("----------------------------request headers---------------------------------->");
+            for (Entry e : request.getAdditionalHeaders().entrySet()) {
+                System.out.println(e);
+            }
+
+            System.out.println("----------------------------request parameters---------------------------------->");
+            for (NameValuePair nvp : request.getRequestParameters()) {
+                System.out.println(nvp.getName() + "=" + nvp.getValue());
+            }
+
+            System.out.println("----------------------------response parameters---------------------------------->");
+            for (NameValuePair nvp : response.getResponseHeaders()) {
+                System.out.println(nvp.getName() + "=" + nvp.getValue());
+            }
+
+            System.out.println("----------------------------results---------------------------------->");
+            System.out.println(results);
                 throw new TestException("server returned bad status - " 
                     + status 
-                    + ", content-type="
-                    + Utils.getRequestHeader(reqop, HttpHeaders.CONTENT_TYPE)
                     + ", url=" 
                     + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
             }
@@ -148,5 +193,17 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 response.cleanUp();
             }
         }
+    }
+    
+    private MultipartRequestEntity getMultipartRequestEntity(List <NameValuePair> params) {
+        List <StringPart> parts = new ArrayList<StringPart>();
+        
+        for (NameValuePair nvp : params) {
+            parts.add(new StringPart(nvp.getName(), nvp.getValue(), CharEncoding.UTF_8));
+        }
+        HttpMethodParams methodParams = new HttpMethodParams();
+        methodParams.setContentCharset(CharEncoding.UTF_8);
+        
+        return new MultipartRequestEntity(parts.toArray(new StringPart[parts.size()]), methodParams);
     }
 }
