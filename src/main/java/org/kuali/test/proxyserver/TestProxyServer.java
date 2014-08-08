@@ -36,6 +36,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -67,6 +68,11 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
+    private boolean proxyServerRunning = false;
+    private StringBuilder currentHtmlResponse;
+    private WebTestPanel webTestPanel;
+    private long lastRequestTimestamp = System.currentTimeMillis();
+    private Stack <Integer> httpStatus = new Stack<Integer>();
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
         public boolean add(TestOperation op) {
@@ -75,12 +81,6 @@ public class TestProxyServer {
             return retval;
         }
     });
-
-    private boolean proxyServerRunning = false;
-    private StringBuilder currentHtmlResponse;
-    private WebTestPanel webTestPanel;
-    private long lastRequestTimestamp = System.currentTimeMillis();
-    private int lastHttpStatus = 0;
     
     /**
      *
@@ -142,8 +142,10 @@ public class TestProxyServer {
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
                         if (httpObject instanceof HttpContent) {
-                            ByteBuf content = ((HttpContent)httpObject).content().retain();
+                            HttpContent httpContent = (HttpContent)httpObject;
+                            ByteBuf content = httpContent.content().retain();
                             if (content.isReadable()) {
+                                
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
                                 
                                 if (httpObject instanceof LastHttpContent) {
@@ -158,8 +160,13 @@ public class TestProxyServer {
                             content.release();
                         } else if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
-                            lastHttpStatus = response.getStatus().code();
+                            
+                            if (Utils.isRedirectResponse(response.getStatus().code()) 
+                                || (response.getStatus().code() == HttpStatus.OK_200)) {
+                                httpStatus.push(Integer.valueOf(response.getStatus().code()));
+                            }
                         }
+                        
                         return httpObject;
                     }
                 };
@@ -249,10 +256,17 @@ public class TestProxyServer {
         
         String method = request.getMethod().toString();
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-            retval = (!Utils.isGetImageRequest(method, request.getUri())
+            if (!Utils.isGetImageRequest(method, request.getUri())
                 && !Utils.isGetJavascriptRequest(method, request.getUri())
-                && !Utils.isGetCssRequest(method, request.getUri())
-                && (lastHttpStatus == HttpStatus.OK_200));
+                && !Utils.isGetCssRequest(method, request.getUri())) {
+                
+                int status = HttpStatus.OK_200;
+                if (!httpStatus.isEmpty()) {
+                    status = httpStatus.pop().intValue();
+                }
+                
+                retval = (status == HttpStatus.OK_200);
+            }
         }
 
         return retval;
