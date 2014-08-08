@@ -3467,4 +3467,23 @@ public class Utils {
         
         return retval;
     }
+    
+    public static String stripMultipartBoundary(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            int pos = input.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+            
+            if (pos > -1) {
+                retval = input.substring(0, pos).trim();
+                
+                if (retval.endsWith(Constants.SEPARATOR_SEMICOLON)) {
+                    pos = retval.indexOf(Constants.SEPARATOR_SEMICOLON);
+                    retval = retval.substring(0, pos).trim();
+                }
+            }
+        }
+
+        return retval;
+    }
 }

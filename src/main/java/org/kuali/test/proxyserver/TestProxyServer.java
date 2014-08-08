@@ -355,6 +355,13 @@ public class TestProxyServer {
                 if (!Constants.HTTP_REQUEST_HEADERS_TO_IGNORE.contains(name)) {
                     RequestHeader header = op.getRequestHeaders().addNewHeader();
                     header.setName(name);
+                    
+                    if (HttpHeaders.CONTENT_TYPE.equals(name)) {
+                        if (Utils.isMultipart(value)) {
+                            value = Utils.stripMultipartBoundary(value);
+                        }
+                    }
+                    
                     header.setValue(value);
                 }
             }
@@ -461,11 +468,7 @@ public class TestProxyServer {
         String input, String boundary, Map<String, String> replaceParams) throws IOException {
         StringBuilder retval = new StringBuilder(512);
         
-        Set <String> hs = new HashSet<String>();
-        for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-            hs.add(parameterName);
-        }
-        
+        Set <String> hs = new HashSet<String>(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
         boolean nextPart = multipartStream.skipPreamble();
         ByteArrayOutputStream bos = new ByteArrayOutputStream(512);

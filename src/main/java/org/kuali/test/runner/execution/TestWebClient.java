@@ -58,7 +58,7 @@ public class TestWebClient extends WebClient {
     private int currentOperationIndex = 0;
     
     public TestWebClient(final TestExecutionContext tec) {
-        super(BrowserVersion.CHROME);
+        super(BrowserVersion.FIREFOX_24);
         this.tec = tec;
 	    getOptions().setJavaScriptEnabled(true);
 	    getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -103,7 +103,7 @@ public class TestWebClient extends WebClient {
                 }
                 
                 WebResponse retval = super.getResponse(request);
-                
+
                 if (!jscall && !csscall) {
                     while (Utils.isRedirectResponse(retval.getStatusCode())) {
                         String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
@@ -129,6 +129,8 @@ public class TestWebClient extends WebClient {
                 
                 return retval;
             }
+            
+            
         };
 
     }
@@ -293,5 +295,9 @@ public class TestWebClient extends WebClient {
                 }
             }
         }
+    }
+   
+    public Set <Cookie> getCookies() {
+        return getCookieManager().getCookies();
     }
 }
