@@ -85,7 +85,8 @@ public class TestWebClient extends WebClient {
             @Override
             public WebResponse getResponse(WebRequest request) throws IOException {
                 boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
-                if (!jscall) {
+                boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
+                if (!jscall && !csscall) {
                     if (!request.getRequestParameters().isEmpty()) {
                         List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
                         request.getRequestParameters().clear();
@@ -97,12 +98,13 @@ public class TestWebClient extends WebClient {
                             handleUrlParameters(request);
                         }
                     }
+                    
                     replaceJsessionId(request);
                 }
                 
                 WebResponse retval = super.getResponse(request);
                 
-                if (!jscall) {
+                if (!jscall && !csscall) {
                     while (Utils.isRedirectResponse(retval.getStatusCode())) {
                         String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
                         if (StringUtils.isNotBlank(location)) {
@@ -113,9 +115,6 @@ public class TestWebClient extends WebClient {
                             }
 
                             request = new WebRequest(new URL(location));
-                            
-                            if (location.contains("ticket=")) {
-                            }
                             
                             if (!request.getRequestParameters().isEmpty()) {
                                 List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
@@ -177,17 +176,17 @@ public class TestWebClient extends WebClient {
         }
         
         if (currentTest != null) {
+            if ((currentOperationIndex >= 6) && (currentOperationIndex < 10)) {
+                int i = 0;
+            }
             Map<String, String> map = new HashMap<String, String>();
             
-            TestOperation[] testOperations = currentTest.getOperations().getOperationArray();
-            if ((currentOperationIndex-1) < testOperations.length) {
-                for (int i = (currentOperationIndex-1); i >= 0; --i) {
-                    if (testOperations[i].getOperation().getTestExecutionParameter() != null) {
-                        TestExecutionParameter tep = testOperations[i].getOperation().getTestExecutionParameter();
-                        String key = tep.getValueProperty().getPropertyValue();
-                        if (StringUtils.isNotBlank(tep.getValue())) {
-                            map.put(key, tep.getValue());
-                        }
+            for (TestOperation top : currentTest.getOperations().getOperationArray()) {
+                if (top.getOperation().getTestExecutionParameter() != null) {
+                    TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                    String key = tep.getValueProperty().getPropertyValue();
+                    if (StringUtils.isNotBlank(tep.getValue())) {
+                        map.put(key, tep.getValue());
                     }
                 }
             }
