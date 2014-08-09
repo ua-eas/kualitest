@@ -178,9 +178,6 @@ public class TestWebClient extends WebClient {
         }
         
         if (currentTest != null) {
-            if ((currentOperationIndex >= 6) && (currentOperationIndex < 10)) {
-                int i = 0;
-            }
             Map<String, String> map = new HashMap<String, String>();
             
             for (TestOperation top : currentTest.getOperations().getOperationArray()) {

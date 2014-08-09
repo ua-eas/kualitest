@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -115,18 +114,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                 if (StringUtils.isNotBlank(params)) {
                     if (urlFormEncoded) {
-                        request.setRequestParameters(Utils.getNameValuePairsFromUrlEncodedParams(params));
                         request.setEncodingType(FormEncodingType.URL_ENCODED);
+                        request.setRequestParameters(Utils.getNameValuePairsFromUrlEncodedParams(params));
                     } else if (multiPart) {
-                        if (request.getRequestParameters() != null) {
-                            request.getRequestParameters().clear();
-                        }
                         request.setEncodingType(FormEncodingType.MULTIPART);
-                        MultipartRequestEntity mpr = getMultipartRequestEntity(Utils.getNameValuePairsFromMultipartParams(params));
-                        request.setAdditionalHeader(HttpHeaders.CONTENT_TYPE, mpr.getContentType());
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream((int)mpr.getContentLength());
-                        mpr.writeRequest(bos);
-                        request.setRequestBody(bos.toString());
+                        request.setRequestParameters(Utils.getNameValuePairsFromMultipartParams(params));
                     }
                 }
             }
@@ -135,7 +127,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
             int status = response.getStatusCode();
             String results = response.getContentAsString(CharEncoding.UTF_8);
-
+            
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
@@ -158,10 +150,14 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             System.out.println("----------------------------request parameters---------------------------------->");
-            for (NameValuePair nvp : request.getRequestParameters()) {
-                System.out.println(nvp.getName() + "=" + nvp.getValue());
+            if (StringUtils.isNotBlank(request.getRequestBody())) {
+                System.out.println(request.getRequestBody());
+            } else {
+                for (NameValuePair nvp : request.getRequestParameters()) {
+                    System.out.println(nvp.getName() + "=" + nvp.getValue());
+                }
             }
-
+            
             System.out.println("----------------------------response parameters---------------------------------->");
             for (NameValuePair nvp : response.getResponseHeaders()) {
                 System.out.println(nvp.getName() + "=" + nvp.getValue());
@@ -169,7 +165,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
             System.out.println("----------------------------results---------------------------------->");
             System.out.println(results);
-                throw new TestException("server returned bad status - " 
+
+            throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 
                     + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);

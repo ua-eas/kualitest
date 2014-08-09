@@ -768,20 +768,20 @@ public class Utils {
         return retval;
     }
 
-    public static String getNameFromNameParam(String param) {
+    public static String getParameterFromString(String name, String input) {
         String retval = null;
         
-        if (StringUtils.isNotBlank(param)) {
-            int pos = param.indexOf("name=");
+        if (StringUtils.isNotBlank(input)) {
+            int pos = input.indexOf(name + "=");
             
             if (pos > -1) {
-                pos = param.indexOf("\"", pos);
+                pos = input.indexOf("\"", pos);
                 
                 if (pos > -1) {
-                    int pos2 = param.indexOf("\"", pos+1);
+                    int pos2 = input.indexOf("\"", pos+1);
                     
                     if (pos2 > pos) {
-                        retval = param.substring(pos+1, pos2);
+                        retval = input.substring(pos+1, pos2);
                     }
                 }
             }
@@ -3311,24 +3311,6 @@ public class Utils {
         return retval;
     }
 
-    public static String getMultipartBoundary(HtmlRequestOperation reqop) {
-        String retval = Long.toHexString(System.currentTimeMillis());
-
-        RequestHeader h = Utils.getRequestHeaderObject(reqop, HttpHeaders.CONTENT_TYPE);
-        
-        if (h != null) {
-            if (h.getValue().startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                int pos = h.getValue().indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
-                if (pos > -1) {
-                    retval = h.getValue().substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()).trim();
-                }
-            }
-        }
-        
-        return retval;
-    }
-    
-    
     public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString) {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
         
@@ -3484,6 +3466,19 @@ public class Utils {
             }
         }
 
+        return retval;
+    }
+
+    public static String getMultipartBoundary(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            int pos = input.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
+            
+            if (pos > -1) {
+                retval = input.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length());
+            }
+        }
         return retval;
     }
 }

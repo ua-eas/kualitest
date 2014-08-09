@@ -260,6 +260,7 @@ public class TestProxyServer {
                 && !Utils.isGetJavascriptRequest(method, request.getUri())
                 && !Utils.isGetCssRequest(method, request.getUri())) {
                 
+                
                 int status = HttpStatus.OK_200;
                 if (!httpStatus.isEmpty()) {
                     status = httpStatus.pop().intValue();
@@ -348,6 +349,8 @@ public class TestProxyServer {
         op.setDelay(delay);
         op.addNewRequestHeaders();
         op.addNewRequestParameters();
+        String multipartBoundary = null;
+        
         if (request != null) {
             io.netty.handler.codec.http.HttpHeaders headers = request.headers();
             for (String name : headers.names()) {
@@ -358,6 +361,7 @@ public class TestProxyServer {
                     
                     if (HttpHeaders.CONTENT_TYPE.equals(name)) {
                         if (Utils.isMultipart(value)) {
+                            multipartBoundary = Utils.getMultipartBoundary(value);
                             value = Utils.stripMultipartBoundary(value);
                         }
                     }
@@ -382,7 +386,7 @@ public class TestProxyServer {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
                             param.setValue(processPostContent(webTestPanel.getMainframe().getConfiguration(), 
-                                op, new String(data)));
+                                op, new String(data), multipartBoundary));
                         }
                     }
                 }
@@ -397,34 +401,28 @@ public class TestProxyServer {
      * @param configuration
      * @param reqop
      * @param input
+     * @param multipartBoundary
      * @return
      * @throws IOException 
      */
-  public String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-      HtmlRequestOperation reqop, String input) throws IOException {
+    public String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+      HtmlRequestOperation reqop, String input, String multipartBoundary) throws IOException {
         StringBuilder retval = new StringBuilder(input.length());
 
-        
         String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_RESPONSE_CONTENT_TYPE);
         
         if (StringUtils.isNotBlank(contentType)) {
-            if (contentType.startsWith(Constants.MIME_TYPE_FORM_URL_ENCODED)) {
+            if (Utils.isUrlFormEncoded(contentType)) {
                 String s = encryptFormUrlEncodedParameters(configuration, input);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
                 } else {
                     retval.append(input);
                 }
-            } else if (contentType.startsWith(Constants.MIME_TYPE_MULTIPART_FORM_DATA)) {
-                int pos = contentType.indexOf(Constants.MULTIPART_BOUNDARY_IDENTIFIER);
-
-                if (pos > -1) {
-                    String s = handleMultipartRequestParameters(configuration, input, contentType.substring(pos + Constants.MULTIPART_BOUNDARY_IDENTIFIER.length()), null);
-                    if (StringUtils.isNotBlank(s)) {
-                        retval.append(s);
-                    } else {
-                        retval.append(input);
-                    }
+            } else if (Utils.isMultipart(contentType)) {
+                String s = handleMultipartRequestParameters(configuration, input, multipartBoundary, null);
+                if (StringUtils.isNotBlank(s)) {
+                    retval.append(s);
                 } else {
                     retval.append(input);
                 }
@@ -475,35 +473,37 @@ public class TestProxyServer {
         
         String nameValueSeparator = "";
         while (nextPart) {
-            String header = multipartStream.readHeaders();
+            MultiPartHeader mph = new MultiPartHeader(multipartStream.readHeaders());
             bos.reset();
             multipartStream.readBodyData(bos);
-
-            String name = Utils.getNameFromNameParam(header);
-            String value = bos.toString();
             
-            if (StringUtils.isNotBlank(name)) {
-                if (StringUtils.isBlank(value)) {
-                    value = "";
+            String name = mph.getParameter("name");
+            if (StringUtils.isBlank(mph.getContentType()) && StringUtils.isNotBlank(name)) {
+                String value = bos.toString();
+
+                if (StringUtils.isNotBlank(name)) {
+                    if (StringUtils.isBlank(value)) {
+                        value = "";
+                    }
+
+                    boolean senstiveParameter = false;
+
+                    senstiveParameter = hs.contains(name);
+                    retval.append(nameValueSeparator);
+
+                    retval.append(name);
+                    retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+
+                    if (senstiveParameter) {
+                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
+                    } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
+                        retval.append(replaceParams.get(name));
+                    } else {
+                        retval.append(value);
+                    }
+
+                    nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
                 }
-                
-                boolean senstiveParameter = false;
-
-                senstiveParameter = hs.contains(name);
-                retval.append(nameValueSeparator);
-
-                retval.append(name);
-                retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
-
-                if (senstiveParameter) {
-                    retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
-                } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
-                    retval.append(replaceParams.get(name));
-                } else {
-                    retval.append(value);
-                }
-
-                nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
             }
             
             nextPart = multipartStream.readBoundary();
