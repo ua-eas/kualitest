@@ -27,6 +27,7 @@ import io.netty.util.CharsetUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -433,7 +434,7 @@ public class TestProxyServer {
     }    
     
     private String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        String parameterString) {
+        String parameterString) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
 
         // if we have a parameter string then convert to NameValuePair list and 

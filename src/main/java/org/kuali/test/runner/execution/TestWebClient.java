@@ -58,7 +58,7 @@ public class TestWebClient extends WebClient {
     private int currentOperationIndex = 0;
     
     public TestWebClient(final TestExecutionContext tec) {
-        super(BrowserVersion.FIREFOX_24);
+        super(BrowserVersion.CHROME);
         this.tec = tec;
 	    getOptions().setJavaScriptEnabled(true);
 	    getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -278,7 +278,7 @@ public class TestWebClient extends WebClient {
         this.currentOperationIndex = currentOperationIndex;
     }
     
-   private void updateAutoReplaceMap(String params) {
+   private void updateAutoReplaceMap(String params) throws UnsupportedEncodingException {
         if (tec.getConfiguration().getAutoReplaceParameters() != null) {
             Set <String> hs = new HashSet<String>();
             for (AutoReplaceParameter arparam : tec.getConfiguration().getAutoReplaceParameters().getAutoReplaceParameterArray()) {

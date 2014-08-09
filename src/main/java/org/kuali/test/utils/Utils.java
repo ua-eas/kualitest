@@ -21,10 +21,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
+import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -60,6 +62,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -3283,7 +3286,7 @@ public class Utils {
         return retval;
     }
     
-    public static List <NameValuePair> getNameValueParameterListFromUrl(String url) {
+    public static List <NameValuePair> getNameValueParameterListFromUrl(String url) throws UnsupportedEncodingException {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
         String paramString = getParametersFromUrl(url);
         
@@ -3311,7 +3314,7 @@ public class Utils {
         return retval;
     }
 
-    public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString) {
+    public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString) throws UnsupportedEncodingException {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
         
         if (StringUtils.isNotBlank(paramString)) {
@@ -3321,12 +3324,12 @@ public class Utils {
                 StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.SEPARATOR_EQUALS);
                 if (st2.countTokens() > 0) {
                     String name = st2.nextToken();
-                    String value = null;
+                    String value = "";
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
                     }
                     
-                    retval.add(new NameValuePair(name, value));
+                    retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
                 }
             }
         }
@@ -3344,7 +3347,7 @@ public class Utils {
                 StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
                 if (st2.countTokens() > 0) {
                     String name = st2.nextToken();
-                    String value = null;
+                    String value = "";
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
                     }
