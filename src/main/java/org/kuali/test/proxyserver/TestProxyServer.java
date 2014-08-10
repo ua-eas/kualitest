@@ -486,9 +486,7 @@ public class TestProxyServer {
                     if (StringUtils.isBlank(value)) {
                         value = "";
                     }
-
                     boolean senstiveParameter = false;
-
                     senstiveParameter = hs.contains(name);
                     retval.append(nameValueSeparator);
 

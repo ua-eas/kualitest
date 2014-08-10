@@ -153,13 +153,13 @@ public class AutoReplaceParametersDlg extends BaseSetupDlg {
     @Override
     protected void handleOtherActions(String actionCommand) {
         if (Constants.REMOVE_NAME_ACTION.equals(actionCommand)) {
-            List <String> l = tp.getTable().getTableData();
+            List <AutoReplaceParameter> l = tp.getTable().getTableData();
             if ((l != null) && !l.isEmpty()) {
                 int selrow = tp.getTable().getSelectedRow();
-                String param = l.get(selrow);
+                AutoReplaceParameter param = l.get(selrow);
 
                 if (UIUtils.promptForDelete(AutoReplaceParametersDlg.this, 
-                    "Remove Parameter", "Remove parameter '" + param + "'?")) {
+                    "Remove Parameter", "Remove parameter '" + param.getParameterName() + "'?")) {
                     l.remove(selrow);
                     tp.getTable().getModel().fireTableRowsDeleted(selrow, selrow);
                 }

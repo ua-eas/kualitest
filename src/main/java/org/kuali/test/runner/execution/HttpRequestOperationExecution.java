@@ -91,8 +91,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             boolean urlFormEncoded = Utils.isUrlFormEncoded(reqop);
             
             if (reqop.getRequestHeaders() != null) {
-             //   request.setAdditionalHeader(HttpHeaders.USER_AGENT, Constants.DEFAULT_USER_AGENT);
-                
                 for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                     if (HttpHeaders.CONTENT_TYPE.equals(hdr.getName())) {
                         if (!multiPart) {
@@ -122,9 +120,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
             int status = response.getStatusCode();
             String results = response.getContentAsString(CharEncoding.UTF_8);
-     //       System.out.println("------------------------------------------->" + getOperation().getIndex());
-     //       System.out.println(results);
-            
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
@@ -132,8 +127,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     tec.updateTestExecutionParameters(test, results);
                 }
             } else {
-                     if (getOperation().getIndex() == 14) {
             System.out.println("----------------------------------------------------------------->");
+            System.out.println("status=" + status);
+            System.out.println("index=" + getOperation().getIndex());
             System.out.println("url=" + request.getUrl());
             System.out.println("----------------------------------------------------------------->");
 
@@ -148,8 +144,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 for (NameValuePair nvp : request.getRequestParameters()) {
                     System.out.println("----->" + nvp.getName() + "=" + nvp.getValue());
                 }
-            }
-            System.out.println(results);
+            
+                System.out.println(results);
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

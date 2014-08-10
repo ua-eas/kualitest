@@ -16,34 +16,61 @@
 
 package org.kuali.test.proxyserver;
 
-import com.google.common.net.HttpHeaders;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.StringTokenizer;
+import org.kuali.test.utils.Constants;
 
 
 public class MultiPartHeader {
     private Map <String, String> parameters = new HashMap<String, String>();
+    private String[] PARAMETER_NAMES = {
+        "name",
+        "filename"
+    };
+    
     private String contentType;
     
-    public MultiPartHeader(String data) {
-        StringTokenizer st = new StringTokenizer(data);
-        while (st.hasMoreTokens()) {
-            String token = st.nextToken();
-            if (token.startsWith(HttpHeaders.CONTENT_TYPE)) {
-                if (st.hasMoreTokens()) {
-                    contentType = st.nextToken().trim();
-                    break;
+    public MultiPartHeader(String data) throws IOException {
+        LineNumberReader lnr = null;
+        
+        try {
+            lnr = new LineNumberReader(new StringReader(data));
+            String line = null;
+
+            while ((line = lnr.readLine()) != null) {
+                if (line.startsWith(Constants.CONTENT_DISPOSITION)) {
+                    for (String param : PARAMETER_NAMES) {
+                        int pos = line.indexOf(param);
+                        if (pos > -1) {
+                            pos += (param.length() + 2);
+                            int pos2 = line.indexOf("\"", pos);
+
+                            if ((pos > -1) && (pos2 > -1) && (pos2 > pos)) {
+                                parameters.put(param, line.substring(pos, pos2));
+                            }
+                        }
+                    }
+                }
+
+                if (line.startsWith(Constants.HTTP_RESPONSE_CONTENT_TYPE)) {
+                    int pos = line.indexOf(Constants.SEPARATOR_COLON);
+
+                    if (pos > -1) {
+                        contentType = line.substring(pos+1).trim();
+                    }
                 }
             }
-            
-            int pos = token.indexOf("=");
-            
-            if (pos > -1) {
-                String key = token.substring(0, pos).trim();
-                String value = token.substring(pos+1).replace("\"", "").trim();
-                parameters.put(key, value);
+        }
+        
+        finally {
+            try {
+                lnr.close();
             }
+            
+            catch (Exception ex) {};
         }
     }
     

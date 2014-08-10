@@ -224,6 +224,7 @@ public class Constants {
     public static final String SEPARATOR_EQUALS = "=";
     public static final String SEPARATOR_AMPERSTAND = "&";
     public static final String SEPARATOR_SEMICOLON = ";";
+    public static final String SEPARATOR_COLON = ":";
     public static final String SEPARATOR_QUESTION = "?";
     public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
@@ -252,6 +253,7 @@ public class Constants {
     public static final String MIME_TYPE_FORM_URL_ENCODED = "application/x-www-form-urlencoded";
     public static final String MIME_TYPE_MULTIPART_FORM_DATA = "multipart/form-data";
     public static final String MULTIPART = "multipart/";
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
     
     public static final String HTML_TAB = "&nbsp;&nbsp;&nbsp;&nbsp;";
     public static final String TAB_SPACES = "    ";
