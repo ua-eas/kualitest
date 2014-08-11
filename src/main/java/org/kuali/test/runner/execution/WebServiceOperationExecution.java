@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -86,7 +87,7 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
     }
     
     public Object[] executeWebServiceCall(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, Checkpoint checkpoint, boolean poll) throws AxisFault, TestException, ClassNotFoundException {
+        Platform platform, Checkpoint checkpoint, boolean poll) throws AxisFault, TestException, ClassNotFoundException, UnsupportedEncodingException {
         Object[] retval = null;
         
         WebService ws = Utils.findWebServiceByName(configuration, platform.getWebServiceName());

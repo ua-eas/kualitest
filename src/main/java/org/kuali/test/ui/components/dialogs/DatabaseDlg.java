@@ -19,6 +19,7 @@ package org.kuali.test.ui.components.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.io.UnsupportedEncodingException;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -104,9 +105,15 @@ public class DatabaseDlg extends BaseSetupDlg {
         String pass = "";
         
         if (StringUtils.isNotBlank(dbconnection.getPassword())) {
-            pass = Utils.decrypt(getMainframe().getEncryptionPassword(), dbconnection.getPassword());
+            try {
+                pass = Utils.decrypt(getMainframe().getEncryptionPassword(), dbconnection.getPassword());
+            }
+
+            catch (UnsupportedEncodingException ex) {
+                UIUtils.showError(this, "Decrypt Exception", "Password decryption failed");
+            }
         }
-    
+        
         password = new JPasswordField(pass, 20);
         
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -132,44 +139,49 @@ public class DatabaseDlg extends BaseSetupDlg {
     @Override
     protected boolean save() {
         boolean retval = false;
-        boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText()) 
-            && StringUtils.isNotBlank(url.getText())
-            && StringUtils.isNotBlank(schema.getText())
-            && StringUtils.isNotBlank(username.getText())
-            && StringUtils.isNotBlank(password.getText())
-            && StringUtils.isNotBlank(driver.getText())) {
-            
-            if (!isEditmode()) {
-                if (databaseConnectionNameExists()) {
-                    oktosave = false;
-                    displayExistingNameAlert("Database Connection", name.getText());
+        try {
+            boolean oktosave = true;
+            if (StringUtils.isNotBlank(name.getText()) 
+                && StringUtils.isNotBlank(url.getText())
+                && StringUtils.isNotBlank(schema.getText())
+                && StringUtils.isNotBlank(username.getText())
+                && StringUtils.isNotBlank(password.getText())
+                && StringUtils.isNotBlank(driver.getText())) {
+
+                if (!isEditmode()) {
+                    if (databaseConnectionNameExists()) {
+                        oktosave = false;
+                        displayExistingNameAlert("Database Connection", name.getText());
+                    }
                 }
+            } else {
+                displayRequiredFieldsMissingAlert("Database Connection", "name, type, url, driver, schema, user name, password");
+                oktosave = false;
             }
-        } else {
-            displayRequiredFieldsMissingAlert("Database Connection", "name, type, url, driver, schema, user name, password");
-            oktosave = false;
+
+            if (oktosave) {
+                if (!isEditmode()) {
+                    dbconnection = getConfiguration().getDatabaseConnections().addNewDatabaseConnection();
+                }
+
+                dbconnection.setName(name.getText());
+                dbconnection.setJdbcUrl(url.getText());
+                dbconnection.setJdbcDriver(driver.getText());
+                dbconnection.setSchema(schema.getText());
+                dbconnection.setUsername(username.getText());
+                dbconnection.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
+                dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
+                dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
+                setSaved(true);
+                getConfiguration().setModified(true);
+                dispose();
+                retval = true;
+            }
         }
         
-        if (oktosave) {
-            if (!isEditmode()) {
-                dbconnection = getConfiguration().getDatabaseConnections().addNewDatabaseConnection();
-            }
-            
-            dbconnection.setName(name.getText());
-            dbconnection.setJdbcUrl(url.getText());
-            dbconnection.setJdbcDriver(driver.getText());
-            dbconnection.setSchema(schema.getText());
-            dbconnection.setUsername(username.getText());
-            dbconnection.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
-            dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
-            dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
-            setSaved(true);
-            getConfiguration().setModified(true);
-            dispose();
-            retval = true;
+        catch (Exception ex) {
+            UIUtils.showError(this, "Save Error", "Error occurred while attempting to save database connection - " + ex.toString());
         }
-        
         
         return retval;
     }

@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -1904,7 +1905,7 @@ public class Utils {
      * @throws ClassNotFoundException
      * @throws SQLException
      */
-    public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) throws ClassNotFoundException, SQLException {
+    public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) throws ClassNotFoundException, SQLException, UnsupportedEncodingException {
         Class.forName(dbconn.getJdbcDriver());
         Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(password, dbconn.getPassword()));
         retval.setReadOnly(true);
@@ -2702,18 +2703,14 @@ public class Utils {
      * @param input
      * @return
      */
-    public static String encrypt(String password, String input) {
+    public static String encrypt(String password, String input) throws UnsupportedEncodingException {
         String retval = input;
 
         if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
-            try {
-                // use StrongTextEncryptor with JCE installed for more secutity
-                BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-                textEncryptor.setPassword(password);
-                retval = textEncryptor.encrypt(input);
-            } catch (Exception ex) {
-                LOG.warn(ex.toString(), ex);
-            }
+            // use StrongTextEncryptor with JCE installed for more secutity
+            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+            textEncryptor.setPassword(password);
+            retval = URLEncoder.encode(textEncryptor.encrypt(input), CharEncoding.UTF_8);
         }
 
         return retval;
@@ -2725,18 +2722,14 @@ public class Utils {
      * @param input
      * @return
      */
-    public static String decrypt(String password, String input) {
+    public static String decrypt(String password, String input) throws UnsupportedEncodingException {
         String retval = input;
 
         if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
-            try {
-                // use StrongTextEncryptor with JCE installed for more secutity
-                BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
-                textEncryptor.setPassword(password);
-                retval = textEncryptor.decrypt(input);
-            } catch (Exception ex) {
-                LOG.warn(ex.toString(), ex);
-            }
+            // use StrongTextEncryptor with JCE installed for more secutity
+            BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
+            textEncryptor.setPassword(password);
+            retval = URLDecoder.decode(textEncryptor.decrypt(input), CharEncoding.UTF_8);
         }
 
         return retval;

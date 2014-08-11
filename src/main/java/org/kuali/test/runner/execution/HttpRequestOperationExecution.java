@@ -19,11 +19,8 @@ import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.util.Cookie;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -102,6 +99,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
 
+            
             if (request.getHttpMethod().equals(HttpMethod.POST)) {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
 
@@ -120,23 +118,17 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
             int status = response.getStatusCode();
             String results = response.getContentAsString(CharEncoding.UTF_8);
-            if (status == HttpStatus.OK_200) {
-                if (StringUtils.isNotBlank(results)) {
-                    tec.pushHttpResponse(results);
-                    tec.updateAutoReplaceMap();
-                    tec.updateTestExecutionParameters(test, results);
-                }
-            } else {
+/*
             System.out.println("----------------------------------------------------------------->");
-            System.out.println("status=" + status);
-            System.out.println("index=" + getOperation().getIndex());
-            System.out.println("url=" + request.getUrl());
-            System.out.println("----------------------------------------------------------------->");
+                System.out.println("status=" + status);
+                System.out.println("index=" + getOperation().getIndex());
+                System.out.println("url=" + request.getUrl());
+                System.out.println("----------------------------------------------------------------->");
 
                 for (Map.Entry e : request.getAdditionalHeaders().entrySet()) {
                     System.out.println("----->" + e);
                 }
-            
+
                 for (Cookie c : tec.getWebClient().getCookies()) {
                     System.out.println("----->" + c.getName() + "=" + c.getValue());
                 }
@@ -144,8 +136,20 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 for (NameValuePair nvp : request.getRequestParameters()) {
                     System.out.println("----->" + nvp.getName() + "=" + nvp.getValue());
                 }
-            
+
                 System.out.println(results);
+            }
+  */          
+                System.out.println("----------------------------------------------------------------->" + status);
+                System.out.println(results);
+
+            if (status == HttpStatus.OK_200) {
+                if (StringUtils.isNotBlank(results)) {
+                    tec.pushHttpResponse(results);
+                    tec.updateAutoReplaceMap();
+                    tec.updateTestExecutionParameters(test, results);
+                }
+            } else {
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

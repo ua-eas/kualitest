@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.UnsupportedEncodingException;
 import javax.swing.JComponent;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -84,7 +85,14 @@ public class JmxDlg extends BaseSetupDlg {
         
         String pass = "";
         if (StringUtils.isNotBlank(jmx.getPassword())) {
-            pass = Utils.decrypt(getMainframe().getEncryptionPassword(), jmx.getPassword());
+            try {
+                pass = Utils.decrypt(getMainframe().getEncryptionPassword(), jmx.getPassword());
+            }
+            
+            catch (UnsupportedEncodingException ex) {
+                UIUtils.showError(this, "Decrypt Exception", "Password decryption failed");
+            }
+            
         }
         
         password = new JPasswordField(pass, 20);
@@ -105,47 +113,53 @@ public class JmxDlg extends BaseSetupDlg {
     @Override
     protected boolean save() {
         boolean retval = false;
-        boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText()) 
-            && StringUtils.isNotBlank(jmxUrl.getText())) {
-            
-            if (!isEditmode()) {
-                if (jmxConnectionNameExists()) {
-                    oktosave = false;
-                    displayExistingNameAlert("JMX Connection", name.getText());
-                }
-            }
-        } else {
-            displayRequiredFieldsMissingAlert("JMX Connection", "name, JMX url"); 
-            oktosave = false;
-        }
         
-        if (oktosave) {
-            if (!isEditmode()) {
-                if (getConfiguration().getJmxConnections() == null) {
-                    getConfiguration().addNewJmxConnections();
-                }
-                
-                jmx = getConfiguration().getJmxConnections().addNewJmxConnection();
-            }
-        
-            jmx.setName(name.getText());
-            jmx.setJmxUrl(jmxUrl.getText());
+        try {
+            boolean oktosave = true;
+            if (StringUtils.isNotBlank(name.getText()) 
+                && StringUtils.isNotBlank(jmxUrl.getText())) {
 
-            if (StringUtils.isNotBlank(username.getText())) {
-                jmx.setUsername(username.getText());
-                jmx.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
+                if (!isEditmode()) {
+                    if (jmxConnectionNameExists()) {
+                        oktosave = false;
+                        displayExistingNameAlert("JMX Connection", name.getText());
+                    }
+                }
             } else {
-                jmx.setUsername("");
-                jmx.setPassword("");
+                displayRequiredFieldsMissingAlert("JMX Connection", "name, JMX url"); 
+                oktosave = false;
             }
-            
-            setSaved(true);
-            getConfiguration().setModified(true);
-            dispose();
-            retval = true;
+
+            if (oktosave) {
+                if (!isEditmode()) {
+                    if (getConfiguration().getJmxConnections() == null) {
+                        getConfiguration().addNewJmxConnections();
+                    }
+
+                    jmx = getConfiguration().getJmxConnections().addNewJmxConnection();
+                }
+
+                jmx.setName(name.getText());
+                jmx.setJmxUrl(jmxUrl.getText());
+
+                if (StringUtils.isNotBlank(username.getText())) {
+                    jmx.setUsername(username.getText());
+                    jmx.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
+                } else {
+                    jmx.setUsername("");
+                    jmx.setPassword("");
+                }
+
+                setSaved(true);
+                getConfiguration().setModified(true);
+                dispose();
+                retval = true;
+            }
         }
         
+        catch (Exception ex) {
+            UIUtils.showError(this, "Save Error", "Error occurred while attempting to save JMX connection - " + ex.toString());
+        }
         
         return retval;
     }

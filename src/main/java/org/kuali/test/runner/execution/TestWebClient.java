@@ -31,15 +31,15 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeaders;
@@ -56,10 +56,16 @@ public class TestWebClient extends WebClient {
     private TestExecutionContext tec;
     private KualiTest currentTest;
     private int currentOperationIndex = 0;
+    private List<String> parametersToIgnore = new ArrayList<String>();
     
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.CHROME);
         this.tec = tec;
+        
+        if (tec.getConfiguration().getParametersToIgnore() != null) {
+            parametersToIgnore.addAll(Arrays.asList(tec.getConfiguration().getParametersToIgnore().getParameterNameArray()));
+        }
+        
 	    getOptions().setJavaScriptEnabled(true);
 	    getOptions().setThrowExceptionOnFailingStatusCode(false);
 	    getOptions().setThrowExceptionOnScriptError(false);
@@ -205,9 +211,30 @@ public class TestWebClient extends WebClient {
     }
 
     private List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
+        Iterator <NameValuePair> it = nvplist.iterator();
+        while (it.hasNext()) {
+            if (isIgnoreParameter(it.next().getName())) {
+                it.remove();
+            }
+        }
         return replaceRequestParameterValues(decryptHttpParameters(nvplist), tec.getAutoReplaceParameterMap());
     }
 
+    private boolean isIgnoreParameter(String name) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(name)) {
+            for (String compareString : parametersToIgnore) {
+                if (Utils.isStringMatch(compareString, name)) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
     private List <NameValuePair> decryptHttpParameters(List<NameValuePair> nvplist) throws UnsupportedEncodingException {
         List <NameValuePair>  retval = new ArrayList<NameValuePair>();
         
@@ -216,7 +243,8 @@ public class TestWebClient extends WebClient {
         if ((nvplist != null) && !nvplist.isEmpty()) {
             for (NameValuePair nvp : nvplist) {
                 if (tec.getParametersRequiringDecryption().contains(nvp.getName())) {
-                    retval.add(new NameValuePair(nvp.getName(), URLDecoder.decode(Utils.decrypt(epass, nvp.getValue()), CharEncoding.UTF_8)));
+System.out.println("---------->"+ nvp.getName() + "=" + nvp.getValue());
+                    retval.add(new NameValuePair(nvp.getName(), Utils.decrypt(epass, nvp.getValue())));
                 } else {
                     retval.add(nvp);
                 }

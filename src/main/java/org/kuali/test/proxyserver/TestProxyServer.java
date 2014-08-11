@@ -74,6 +74,8 @@ public class TestProxyServer {
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
+    private List <String> urlsToIgnore = new ArrayList<String>();
+    
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
         public boolean add(TestOperation op) {
@@ -212,6 +214,10 @@ public class TestProxyServer {
         
         proxyServerRunning = true;
         
+        if (webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore() != null) {
+            urlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore().getUrlArray()));
+        }
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("proxy server started");
         }
@@ -268,6 +274,10 @@ public class TestProxyServer {
                 }
                 
                 retval = (status == HttpStatus.OK_200);
+            }
+            
+            if (retval) {
+                retval = !isIgnoreUrl(request.getUri());
             }
         }
 
@@ -510,4 +520,20 @@ public class TestProxyServer {
 
         return retval.toString();
     }
+    
+    private boolean isIgnoreUrl(String url) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(url)) {
+            for (String compareString : urlsToIgnore) {
+                if (Utils.isStringMatch(compareString, url)) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
 }

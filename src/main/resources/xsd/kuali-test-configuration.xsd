@@ -37,6 +37,8 @@
                 <xs:element name="parameters-requiring-encryption" type="parameters-requiring-encryption" minOccurs="0"/>
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
+                <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
+                <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -57,6 +59,18 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="urls-to-ignore">
+        <xs:sequence>
+            <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="parameters-to-ignore">
+        <xs:sequence>
+            <xs:element name="parameter-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="exclude-http-request-match-patterns">
         <xs:sequence>

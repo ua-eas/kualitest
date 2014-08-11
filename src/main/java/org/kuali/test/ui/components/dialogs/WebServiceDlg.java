@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.UnsupportedEncodingException;
 import javax.swing.JComponent;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -85,7 +86,13 @@ public class WebServiceDlg extends BaseSetupDlg {
         String pass = "";
         
         if (StringUtils.isNotBlank(webService.getPassword())) {
-            pass = Utils.decrypt(Utils.getEncryptionPassword(getConfiguration()), webService.getPassword());
+            try {
+                pass = Utils.decrypt(Utils.getEncryptionPassword(getConfiguration()), webService.getPassword());
+            }
+            
+            catch (UnsupportedEncodingException ex) {
+                UIUtils.showError(this, "Decrypt Exception", "Password decryption failed");
+            }
         }
         
         password = new JPasswordField(pass, 20);
@@ -106,43 +113,48 @@ public class WebServiceDlg extends BaseSetupDlg {
     @Override
     protected boolean save() {
         boolean retval = false;
-        boolean oktosave = true;
-        if (StringUtils.isNotBlank(name.getText()) 
-            && StringUtils.isNotBlank(wsdlUrl.getText())) {
-            
-            if (!isEditmode()) {
-                if (webServiceNameExists()) {
-                    oktosave = false;
-                    displayExistingNameAlert("Web Service", name.getText());
-                }
-            }
-        } else {
-            displayRequiredFieldsMissingAlert("Web Service", "name, wsdl url"); 
-            oktosave = false;
-        }
-        
-        if (oktosave) {
-            if (!isEditmode()) {
-                webService = getConfiguration().getWebServices().addNewWebService();
-            }
-        
-            webService.setName(name.getText());
-            webService.setWsdlUrl(wsdlUrl.getText());
+        try {
+            boolean oktosave = true;
+            if (StringUtils.isNotBlank(name.getText()) 
+                && StringUtils.isNotBlank(wsdlUrl.getText())) {
 
-            if (StringUtils.isNotBlank(username.getText())) {
-                webService.setUsername(username.getText());
-                webService.setPassword(Utils.encrypt(Utils.getEncryptionPassword(getConfiguration()), password.getText()));
+                if (!isEditmode()) {
+                    if (webServiceNameExists()) {
+                        oktosave = false;
+                        displayExistingNameAlert("Web Service", name.getText());
+                    }
+                }
             } else {
-                webService.setUsername("");
-                webService.setPassword("");
+                displayRequiredFieldsMissingAlert("Web Service", "name, wsdl url"); 
+                oktosave = false;
             }
-            
-            setSaved(true);
-            getConfiguration().setModified(true);
-            dispose();
-            retval = true;
+
+            if (oktosave) {
+                if (!isEditmode()) {
+                    webService = getConfiguration().getWebServices().addNewWebService();
+                }
+
+                webService.setName(name.getText());
+                webService.setWsdlUrl(wsdlUrl.getText());
+
+                if (StringUtils.isNotBlank(username.getText())) {
+                    webService.setUsername(username.getText());
+                    webService.setPassword(Utils.encrypt(Utils.getEncryptionPassword(getConfiguration()), password.getText()));
+                } else {
+                    webService.setUsername("");
+                    webService.setPassword("");
+                }
+
+                setSaved(true);
+                getConfiguration().setModified(true);
+                dispose();
+                retval = true;
+            }
         }
         
+        catch (Exception ex) {
+            UIUtils.showError(this, "Save Error", "Error occurred while attempting to save web service - " + ex.toString());
+        }
         
         return retval;
     }
