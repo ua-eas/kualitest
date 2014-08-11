@@ -156,21 +156,12 @@ public class TestWebClient extends WebClient {
         }
         
         if (currentTest != null) {
-            Map<String, String> map = new HashMap<String, String>();
-            
-            for (TestOperation top : currentTest.getOperations().getOperationArray()) {
-                if (top.getOperation().getTestExecutionParameter() != null) {
-                    TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                    String key = tep.getValueProperty().getPropertyValue();
-                    if (StringUtils.isNotBlank(tep.getValue())) {
-                        map.put(key, tep.getValue());
-                    }
-                }
-            }
-            
+            Map<String, TestExecutionParameter> map = getTestExecutionParameterMap(true);
+
             for (NameValuePair nvp : work) {
-                if (map.containsKey(nvp.getValue())) {
-                    retval.add(new NameValuePair(nvp.getName(), map.get(nvp.getValue())));
+                TestExecutionParameter tep = map.get(nvp.getValue());
+                if (tep != null) {
+                    retval.add(new NameValuePair(nvp.getName(), tep.getValueProperty().getPropertyValue()));
                 } else {
                     retval.add(nvp);
                 }
@@ -182,6 +173,28 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
+    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
+        Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
+
+        for (TestOperation top : currentTest.getOperations().getOperationArray()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                String key = null;
+                    
+                if (byvalue) {
+                    key = tep.getValueProperty().getPropertyValue();
+                } else {
+                    key = tep.getName();
+                }
+                
+                if (StringUtils.isNotBlank(tep.getValue())) {
+                    retval.put(key, tep);
+                }
+            }
+        }
+        
+        return retval;
+    }
     private List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         Iterator <NameValuePair> it = nvplist.iterator();
         while (it.hasNext()) {

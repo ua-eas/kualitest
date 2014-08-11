@@ -27,12 +27,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -53,16 +55,17 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     }
     
     /**
-     *
+     * 
      * @param configuration
      * @param platform
-     * @throws TestException
+     * @param test
+     * @throws TestException 
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTestDocument.KualiTest test) throws TestException {
         try {
-            String sqlQuery = getParameter(Constants.SQL_QUERY);
+            String sqlQuery = replaceTestExecutionParameters(getParameter(Constants.SQL_QUERY));
             
             boolean saveQueryResults = Boolean.parseBoolean(getParameter(Constants.SAVE_QUERY_RESULTS));
         
@@ -185,5 +188,21 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         }
         
         pw.println(Utils.buildCsvLine(dataList));
+    }
+    
+    private String replaceTestExecutionParameters(String sql) {
+        String retval = sql;
+        
+        TestExecutionContext tec = getTestExecutionContext();
+        
+        Map<String, TestExecutionParameter> map = tec.getTestExecutionParameterMap(false);
+        
+        for (String nm : map.keySet()) {
+            TestExecutionParameter tep = map.get(nm);
+            nm = "${" + nm + "}";
+            retval = retval.replace(nm, tep.getValue());
+        }
+
+        return retval;
     }
 }

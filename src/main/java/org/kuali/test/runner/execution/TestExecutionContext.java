@@ -644,4 +644,14 @@ public class TestExecutionContext extends Thread {
     public Set<String> getParametersRequiringDecryption() {
         return parametersRequiringDecryption;
     }
+    
+    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
+        Map <String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
+        
+        if (webClient != null) {
+            retval = webClient.getTestExecutionParameterMap(byvalue);
+        }
+        
+        return retval;
+    }
 }
