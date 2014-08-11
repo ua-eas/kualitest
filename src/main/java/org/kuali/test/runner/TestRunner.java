@@ -203,10 +203,10 @@ public class TestRunner {
                         String platformName = "unknown";
 
                         if (kualiTest != null) {
-                            nm = ("'" + kualiTest.getTestHeader().getTestName());
+                            nm = (kualiTest.getTestHeader().getTestName());
                             platformName= kualiTest.getTestHeader().getPlatformName();
                         } else if (testSuite != null) {
-                            nm = (" suite '" + testSuite.getName());
+                            nm = (" suite " + testSuite.getName());
                             platformName = testSuite.getPlatformName();
                         }
 
