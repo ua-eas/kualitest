@@ -115,40 +115,16 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
             
             response = tec.getWebClient().getPage(request).getWebResponse();
-
             int status = response.getStatusCode();
-            String results = response.getContentAsString(CharEncoding.UTF_8);
-/*
-            System.out.println("----------------------------------------------------------------->");
-                System.out.println("status=" + status);
-                System.out.println("index=" + getOperation().getIndex());
-                System.out.println("url=" + request.getUrl());
-                System.out.println("----------------------------------------------------------------->");
-
-                for (Map.Entry e : request.getAdditionalHeaders().entrySet()) {
-                    System.out.println("----->" + e);
-                }
-
-                for (Cookie c : tec.getWebClient().getCookies()) {
-                    System.out.println("----->" + c.getName() + "=" + c.getValue());
-                }
-
-                for (NameValuePair nvp : request.getRequestParameters()) {
-                    System.out.println("----->" + nvp.getName() + "=" + nvp.getValue());
-                }
-
-                System.out.println(results);
-            }
-  */          
-                System.out.println("----------------------------------------------------------------->" + status);
-                System.out.println(results);
 
             if (status == HttpStatus.OK_200) {
+                String results = response.getContentAsString(CharEncoding.UTF_8);
                 if (StringUtils.isNotBlank(results)) {
                     tec.pushHttpResponse(results);
                     tec.updateAutoReplaceMap();
                     tec.updateTestExecutionParameters(test, results);
                 }
+            } else if (Utils.isRedirectResponse(status)) {
             } else {
                 throw new TestException("server returned bad status - " 
                     + status 

@@ -266,8 +266,6 @@ public class TestProxyServer {
             if (!Utils.isGetImageRequest(method, request.getUri())
                 && !Utils.isGetJavascriptRequest(method, request.getUri())
                 && !Utils.isGetCssRequest(method, request.getUri())) {
-                
-                
                 int status = HttpStatus.OK_200;
                 if (!httpStatus.isEmpty()) {
                     status = httpStatus.pop().intValue();

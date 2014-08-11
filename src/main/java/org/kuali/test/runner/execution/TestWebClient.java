@@ -42,7 +42,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.eclipse.jetty.http.HttpHeaders;
 import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestExecutionParameter;
@@ -70,7 +69,7 @@ public class TestWebClient extends WebClient {
 	    getOptions().setThrowExceptionOnFailingStatusCode(false);
 	    getOptions().setThrowExceptionOnScriptError(false);
 	    getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
-	    getOptions().setRedirectEnabled(false);
+	    getOptions().setRedirectEnabled(true);
         setAjaxController(new NicelyResynchronizingAjaxController());
 
         setAlertHandler(new AlertHandler() {
@@ -108,35 +107,8 @@ public class TestWebClient extends WebClient {
                     replaceJsessionId(request);
                 }
                 
-                WebResponse retval = super.getResponse(request);
-
-                if (!jscall && !csscall) {
-                    while (Utils.isRedirectResponse(retval.getStatusCode())) {
-                        String location = retval.getResponseHeaderValue(HttpHeaders.LOCATION);
-                        if (StringUtils.isNotBlank(location)) {
-                            String paramString = Utils.getParametersFromUrl(location);
-
-                            if (StringUtils.isNotBlank(paramString)) {
-                                updateAutoReplaceMap(paramString);               
-                            }
-
-                            request = new WebRequest(new URL(location));
-                            
-                            if (!request.getRequestParameters().isEmpty()) {
-                                List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
-                                request.getRequestParameters().clear();
-                                request.getRequestParameters().addAll(params);
-                            }
-
-                            retval = super.getResponse(request);
-                        }
-                    }
-                }
-                
-                return retval;
+                return super.getResponse(request);
             }
-            
-            
         };
 
     }
@@ -243,7 +215,6 @@ public class TestWebClient extends WebClient {
         if ((nvplist != null) && !nvplist.isEmpty()) {
             for (NameValuePair nvp : nvplist) {
                 if (tec.getParametersRequiringDecryption().contains(nvp.getName())) {
-System.out.println("---------->"+ nvp.getName() + "=" + nvp.getValue());
                     retval.add(new NameValuePair(nvp.getName(), Utils.decrypt(epass, nvp.getValue())));
                 } else {
                     retval.add(nvp);
