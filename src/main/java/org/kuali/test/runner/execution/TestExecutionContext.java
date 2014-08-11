@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -35,7 +34,6 @@ import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -70,8 +68,6 @@ public class TestExecutionContext extends Thread {
 
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
-
-    private Stack<String> httpResponseStack;
 
     private Platform platform;
     private TestSuite testSuite;
@@ -155,7 +151,6 @@ public class TestExecutionContext extends Thread {
         runTest();
     }
 
-    @SuppressWarnings("SleepWhileInLoop")
     public void runTest() {
         try {
             startTime = new Date();
@@ -230,20 +225,10 @@ public class TestExecutionContext extends Thread {
     }
 
     private void runTest(KualiTest test, PoiHelper poiHelper) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("--------------------------- starting test ---------------------------");
-            LOG.info("platform: " + test.getTestHeader().getPlatformName());
-
-            if (StringUtils.isNotBlank(test.getTestHeader().getTestSuiteName())) {
-                LOG.info("test suite: " + test.getTestHeader().getTestSuiteName());
-            }
-
-            LOG.info("test: " + test.getTestHeader().getTestName());
-            LOG.info("---------------------------------------------------------------------");
-        }
-
         long start = System.currentTimeMillis();
 
+        KualiTestWrapper testWrapper = new KualiTestWrapper(test);
+        
         // if this is a web test then initialize the client
         if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
             getWebClient();
@@ -252,11 +237,11 @@ public class TestExecutionContext extends Thread {
 
         for (TestOperation op : test.getOperations().getOperationArray()) {
             // if executeTestOperation returns false we want to halt test
-            if (!executeTestOperation(test, op, poiHelper)) {
+            if (!executeTestOperation(testWrapper, op, poiHelper)) {
                 break;
             }
         }
-
+        
         // check for max runtime exceeded
         long runtime = ((System.currentTimeMillis() - start) / 1000);
         if ((test.getTestHeader().getMaxRunTime() > 0) && (runtime > test.getTestHeader().getMaxRunTime())) {
@@ -301,16 +286,16 @@ public class TestExecutionContext extends Thread {
      * @param poiHelper
      * @return true to continue test - false to halt
      */
-    private boolean executeTestOperation(KualiTestDocument.KualiTest test, TestOperation op, PoiHelper poiHelper) {
+    private boolean executeTestOperation(KualiTestWrapper testWrapper, TestOperation op, PoiHelper poiHelper) {
         boolean retval = true;
         OperationExecution opExec = null;
 
         Date opStartTime = new Date();
         try {
-            opExec = OperationExecutionFactory.getInstance().getOperationExecution(test, this, op);
+            opExec = OperationExecutionFactory.getInstance().getOperationExecution(this, op);
             if (opExec != null) {
                 try {
-                    opExec.execute(configuration, platform, test);
+                    opExec.execute(configuration, platform, testWrapper);
                     if (op.getOperation().getCheckpointOperation() != null) {
                         incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
@@ -426,30 +411,6 @@ public class TestExecutionContext extends Thread {
 
     /**
      *
-     * @param html
-     */
-    public void pushHttpResponse(String html) {
-        httpResponseStack.push(html);
-        if (httpResponseStack.size() > Constants.LAST_RESPONSE_STACK_SIZE) {
-            httpResponseStack.remove(0);
-        }
-    }
-
-    /**
-     *
-     * @return
-     */
-    public List<String> getRecentHttpResponseData() {
-        List<String> retval = new ArrayList<String>();
-        while (!httpResponseStack.empty()) {
-            retval.add(httpResponseStack.pop());
-        }
-
-        return retval;
-    }
-
-    /**
-     *
      * @return
      */
     public int getTestRun() {
@@ -546,9 +507,9 @@ public class TestExecutionContext extends Thread {
     }
     
     
-    public void updateAutoReplaceMap() {
-        if ((configuration.getAutoReplaceParameters() != null) && !httpResponseStack.empty()) {
-            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(httpResponseStack.peek());
+    public void updateAutoReplaceMap(KualiTestWrapper testWrapper) {
+        if ((configuration.getAutoReplaceParameters() != null) && !testWrapper.getHttpResponseStack().isEmpty()) {
+            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(testWrapper.getHttpResponseStack().peek());
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
                 if (!autoReplaceParameterMap.containsKey(param.getParameterName()) && StringUtils.isNotBlank(value)) {
@@ -558,10 +519,10 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public void updateTestExecutionParameters(KualiTest test, String html) throws UnsupportedEncodingException {
+    public void updateTestExecutionParameters(KualiTestWrapper testWrapper, String html) throws UnsupportedEncodingException {
         Map<String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
         
-        for (TestOperation top : test.getOperations().getOperationArray()) {
+        for (TestOperation top : testWrapper.getTest().getOperations().getOperationArray()) {
             if (top.getOperation().getTestExecutionParameter() != null) {
                 CheckpointProperty cp = top.getOperation().getTestExecutionParameter().getValueProperty();
                 String key = Utils.buildCheckpointPropertyKey(cp);
@@ -570,7 +531,7 @@ public class TestExecutionContext extends Thread {
         }
         
         if (!map.isEmpty()) {
-            for (String h : httpResponseStack) {
+            for (String h : testWrapper.getHttpResponseStack()) {
                 DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, h);
 
                 for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
@@ -589,13 +550,10 @@ public class TestExecutionContext extends Thread {
     public TestWebClient getWebClient() {
         if (webClient == null) {
             initializeHttpClient();
-            httpResponseStack = new Stack<String>();
         }
         
         return webClient;
     }
-    
-    
 
     public void incrementErrorCount() {
         errorCount++;
@@ -635,10 +593,6 @@ public class TestExecutionContext extends Thread {
 
     public int getErrorCount() {
         return errorCount;
-    }
-
-    public Stack<String> getHttpResponseStack() {
-        return httpResponseStack;
     }
 
     public Set<String> getParametersRequiringDecryption() {

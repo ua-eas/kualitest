@@ -120,7 +120,6 @@ public class TestExecutionMonitor extends Thread {
         pos = fname.lastIndexOf("_", pos);
         
         fname = fname.substring(0, pos) + ".xlsx";
-        
         return poiHelper.mergeWorkbookFiles(fname, files, true);
     }
 }

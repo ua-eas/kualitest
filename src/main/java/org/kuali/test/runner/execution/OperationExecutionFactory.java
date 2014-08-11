@@ -18,7 +18,6 @@ package org.kuali.test.runner.execution;
 
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointType;
-import org.kuali.test.KualiTestDocument;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 
@@ -42,15 +41,14 @@ public class OperationExecutionFactory {
         }
         return instance;
     }
-    
+
     /**
      * 
-     * @param test
      * @param testContext
      * @param op
      * @return 
      */
-    public OperationExecution getOperationExecution(KualiTestDocument.KualiTest test, TestExecutionContext testContext, TestOperation op) {
+    public OperationExecution getOperationExecution(TestExecutionContext testContext, TestOperation op) {
         OperationExecution retval = null;
         
         if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {

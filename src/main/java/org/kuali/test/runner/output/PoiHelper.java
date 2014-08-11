@@ -576,7 +576,7 @@ public class PoiHelper {
                 }
             }
         }
-        
+
         return retval;
     }
 

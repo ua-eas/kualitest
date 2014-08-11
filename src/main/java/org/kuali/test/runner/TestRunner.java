@@ -185,8 +185,6 @@ public class TestRunner {
     }
     
     private void checkForRunnableTests() {
-        System.out.println("checking for runnable test");
-        
         synchronized(scheduledTests) {
             Iterator <TestExecutionContext> it = scheduledTests.iterator();
 

@@ -29,7 +29,6 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
@@ -62,7 +61,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, KualiTest test) throws TestException {
+        Platform platform, KualiTestWrapper testWrapper) throws TestException {
         WebResponse response = null;
         HtmlRequestOperation reqop = getOperation().getHtmlRequestOperation();
         try {
@@ -81,7 +80,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             TestExecutionContext tec = getTestExecutionContext();
 
             tec.getWebClient().setCurrentOperationIndex(getOperation().getIndex());
-            tec.getWebClient().setCurrentTest(test);
+            tec.getWebClient().setCurrentTest(testWrapper.getTest());
             
             WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
             boolean multiPart = Utils.isMultipart(reqop);
@@ -120,9 +119,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (status == HttpStatus.OK_200) {
                 String results = response.getContentAsString(CharEncoding.UTF_8);
                 if (StringUtils.isNotBlank(results)) {
-                    tec.pushHttpResponse(results);
-                    tec.updateAutoReplaceMap();
-                    tec.updateTestExecutionParameters(test, results);
+                    testWrapper.pushHttpResponse(results);
+                    tec.updateAutoReplaceMap(testWrapper);
+                    tec.updateTestExecutionParameters(testWrapper, results);
                 }
             } else if (Utils.isRedirectResponse(status)) {
             } else {

@@ -29,7 +29,6 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
@@ -52,14 +51,15 @@ public class FileOperationExecution extends AbstractOperationExecution {
     }
     
     /**
-     *
+     * 
      * @param configuration
      * @param platform
-     * @throws TestException
+     * @param testWrapper
+     * @throws TestException 
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, KualiTestDocument.KualiTest test) throws TestException {
+        Platform platform,KualiTestWrapper testWrapper) throws TestException {
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));
         String fileNamePattern = getParameter(Constants.FILE_NAME_PATTERN);
         

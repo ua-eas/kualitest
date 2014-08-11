@@ -17,7 +17,6 @@
 package org.kuali.test.runner.execution;
 
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
 
@@ -27,12 +26,13 @@ import org.kuali.test.runner.exceptions.TestException;
  */
 public interface OperationExecution {
     /**
-     *
+     * 
      * @param configuration
      * @param platform
-     * @throws TestException
+     * @param testwrapper
+     * @throws TestException 
      */
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, KualiTest test) throws TestException;
+        Platform platform, KualiTestWrapper testwrapper) throws TestException;
 
 }

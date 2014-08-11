@@ -31,7 +31,6 @@ import java.util.Map;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
-import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
@@ -53,17 +52,17 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     public SqlOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
-    
+
     /**
      * 
      * @param configuration
      * @param platform
-     * @param test
+     * @param testWrapper
      * @throws TestException 
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, KualiTestDocument.KualiTest test) throws TestException {
+        Platform platform, KualiTestWrapper testWrapper) throws TestException {
         try {
             String sqlQuery = replaceTestExecutionParameters(getParameter(Constants.SQL_QUERY));
             
