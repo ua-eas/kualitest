@@ -104,7 +104,6 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
-import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -1898,14 +1897,16 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param password
      * @param dbconn
      * @return
      * @throws ClassNotFoundException
      * @throws SQLException
+     * @throws UnsupportedEncodingException 
      */
-    public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) throws ClassNotFoundException, SQLException, UnsupportedEncodingException {
+    public static Connection getDatabaseConnection(String password, DatabaseConnection dbconn) 
+        throws ClassNotFoundException, SQLException, UnsupportedEncodingException {
         Class.forName(dbconn.getJdbcDriver());
         Connection retval = DriverManager.getConnection(dbconn.getJdbcUrl(), dbconn.getUsername(), Utils.decrypt(password, dbconn.getPassword()));
         retval.setReadOnly(true);
@@ -2220,15 +2221,23 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param configuration
      * @param testSuite
      * @param testHeader
      * @param testResults
-     * @param tec
+     * @param errorCount
+     * @param warningCount
+     * @param successCount 
      */
-    public static void sendMail(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        TestSuite testSuite, TestHeader testHeader, List<File> testResults, TestExecutionContext tec) {
+    public static void sendMail(
+        KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        TestSuite testSuite, 
+        TestHeader testHeader, 
+        List<File> testResults,
+        int errorCount,
+        int warningCount,
+        int successCount) {
 
         if (StringUtils.isNotBlank(configuration.getEmailSetup().getFromAddress())
             && StringUtils.isNotBlank(configuration.getEmailSetup().getMailHost())) {
@@ -2261,11 +2270,11 @@ public class Utils {
                     }
 
                     subject.append(" - [errors=");
-                    subject.append(tec.getErrorCount());
+                    subject.append(errorCount);
                     subject.append(", warnings=");
-                    subject.append(tec.getWarningCount());
+                    subject.append(warningCount);
                     subject.append(", successes=");
-                    subject.append(tec.getSuccessCount());
+                    subject.append(successCount);
                     subject.append("]");
 
                     msg.setSubject(subject.toString());
@@ -2698,10 +2707,11 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param password
      * @param input
      * @return
+     * @throws UnsupportedEncodingException 
      */
     public static String encrypt(String password, String input) throws UnsupportedEncodingException {
         String retval = input;

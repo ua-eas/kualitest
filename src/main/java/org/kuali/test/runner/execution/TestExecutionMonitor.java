@@ -77,7 +77,21 @@ public class TestExecutionMonitor extends Thread {
             testHeader = tec.getKualiTest().getTestHeader();
         }
         
-        Utils.sendMail(tec.getConfiguration(), tec.getTestSuite(), testHeader, getTestResultsFileList(), tec);
+        int[] count = getReportCounts();
+        Utils.sendMail(tec.getConfiguration(), tec.getTestSuite(), testHeader, getTestResultsFileList(), count[0], count[1], count[2]);
+    }
+    
+    private int[] getReportCounts() {
+        int[] retval = {0, 0, 0};
+        for (TestExecutionContext tec : testExecutionList) {
+            for (KualiTestWrapper test : tec.getCompletedTests()) {
+                retval[0] += test.getErrorCount();
+                retval[1] += test.getWarningCount();
+                retval[2] += test.getSuccessCount();
+            }
+        }
+        
+        return retval;
     }
     
     private List <File> getTestResultsFileList() {

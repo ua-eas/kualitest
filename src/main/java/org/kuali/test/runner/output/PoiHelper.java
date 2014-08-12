@@ -56,7 +56,6 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public class PoiHelper {
-
     private static final Logger LOG = Logger.getLogger(PoiHelper.class);
     int currentReportRow = 0;
 
@@ -595,7 +594,7 @@ public class PoiHelper {
             XSSFRow srcRow = sheet.getRow(i);  
             XSSFRow destRow = newSheet.createRow(i);  
             if (srcRow != null) {  
-                copyRow(sheet, newSheet, srcRow, destRow, styleMap);  
+                copyRow(srcRow, destRow, styleMap);  
                 if (srcRow.getLastCellNum() > maxColumnNum) {  
                     maxColumnNum = srcRow.getLastCellNum();  
                 }  
@@ -606,7 +605,7 @@ public class PoiHelper {
         }  
     }  
   
-    private void copyRow(XSSFSheet srcSheet, XSSFSheet destSheet, XSSFRow srcRow, XSSFRow destRow, Map<Integer, XSSFCellStyle> styleMap) {  
+    private void copyRow(XSSFRow srcRow, XSSFRow destRow, Map<Integer, XSSFCellStyle> styleMap) {  
         destRow.setHeight(srcRow.getHeight());  
         for (int j = srcRow.getFirstCellNum(); j <= srcRow.getLastCellNum(); j++) {  
             XSSFCell oldCell = srcRow.getCell(j);  
@@ -622,19 +621,18 @@ public class PoiHelper {
       
     private void copyCell(XSSFCell oldCell, XSSFCell newCell, Map<Integer, XSSFCellStyle> styleMap) {  
         if(styleMap != null) {  
-            if(oldCell.getSheet().getWorkbook() == newCell.getSheet().getWorkbook()){  
-                newCell.setCellStyle(oldCell.getCellStyle());  
-            } else{  
-                int stHashCode = oldCell.getCellStyle().hashCode();  
-                XSSFCellStyle newCellStyle = styleMap.get(stHashCode);  
-                if(newCellStyle == null){  
-                    newCellStyle = newCell.getSheet().getWorkbook().createCellStyle();  
-                    newCellStyle.cloneStyleFrom(oldCell.getCellStyle());  
-                    styleMap.put(stHashCode, newCellStyle);  
-                }  
-                newCell.setCellStyle(newCellStyle);  
+            int stHashCode = oldCell.getCellStyle().hashCode();  
+            XSSFCellStyle newCellStyle = styleMap.get(stHashCode);  
+            if(newCellStyle == null) {  
+                newCellStyle = newCell.getSheet().getWorkbook().createCellStyle();  
+                newCellStyle.cloneStyleFrom(oldCell.getCellStyle());  
+                newCellStyle.setFont(oldCell.getCellStyle().getFont());
+                styleMap.put(stHashCode, newCellStyle);  
             }  
+            
+            newCell.setCellStyle(newCellStyle);  
         }  
+        
         switch(oldCell.getCellType()) {  
             case XSSFCell.CELL_TYPE_STRING:  
                 newCell.setCellValue(oldCell.getStringCellValue());  

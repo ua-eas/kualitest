@@ -51,7 +51,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
     
     private List <CheckpointProperty> findCurrentProperties(Checkpoint cp, HtmlDomProcessor.DomInformation dominfo) {
         List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
-
         for (CheckpointProperty originalProperty : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
             for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
                 if (Utils.isCheckPointPropertyMatch(currentProperty, originalProperty)) {
@@ -101,7 +100,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         Checkpoint cp = getOperation().getCheckpointOperation();
         List <CheckpointProperty> matchingProperties = null;
         String html = null;
-        
         if (cp.getCheckpointProperties() != null) {
             HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
             for (String curhtml : testWrapper.getRecentHttpResponseData()) {
@@ -124,8 +122,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 for (int i = 0; i < properties.length; ++i) {
                     if (i < matchingProperties.size()) {
                         properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
-
-                        if (!evaluateCheckpointProperty(properties[i])) {
+                        if (!evaluateCheckpointProperty(testWrapper, properties[i])) {
                             success = false;
                         }
                     }
@@ -135,14 +132,14 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                     throw new TestException("Current web document values do not match test criteria", getOperation());
                 }
             } else {
-                tec.incrementErrorCount();
+                testWrapper.incrementErrorCount();
                 throw new TestException("Expected checkpoint property count mismatch: expected " 
                     + properties.length 
                     + " found " 
                     + matchingProperties.size(), getOperation());
             }
         } else {
-            tec.incrementErrorCount();
+            testWrapper.incrementErrorCount();
             throw new TestException("No matching properties found", getOperation());
         }
     }

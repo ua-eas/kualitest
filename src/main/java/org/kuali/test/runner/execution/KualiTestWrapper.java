@@ -19,6 +19,7 @@ package org.kuali.test.runner.execution;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -29,6 +30,9 @@ import org.kuali.test.utils.Constants;
 public class KualiTestWrapper {
     public Stack<String> httpResponseStack = new Stack<String>();
     public KualiTest test;
+    private int warningCount = 0;
+    private int successCount = 0;
+    private int errorCount = 0;
     
     public KualiTestWrapper(KualiTest test) {
         this.test = test;
@@ -58,7 +62,6 @@ public class KualiTestWrapper {
         while (!httpResponseStack.empty()) {
             retval.add(httpResponseStack.pop());
         }
-
         return retval;
     }
 
@@ -88,5 +91,57 @@ public class KualiTestWrapper {
     
     public boolean getUseTestEntryTimes() {
         return test.getTestHeader().getUseTestEntryTimes();
+    }
+
+    public void incrementErrorCount() {
+        errorCount++;
+    }
+
+    public void incrementWarningCount() {
+        warningCount++;
+    }
+
+    public void incrementSuccessCount() {
+        successCount++;
+    }
+
+    public int getWarningCount() {
+        return warningCount;
+    }
+
+    public int getSuccessCount() {
+        return successCount;
+    }
+
+    public int getErrorCount() {
+        return errorCount;
+    }
+
+    public void updateCounts(FailureAction.Enum failureAction) {
+        if (failureAction != null) {
+            switch (failureAction.intValue()) {
+                case FailureAction.INT_ERROR_CONTINUE:
+                case FailureAction.INT_ERROR_HALT_TEST:
+                    incrementErrorCount();
+                    break;
+                case FailureAction.INT_WARNING:
+                    incrementWarningCount();
+                    break;
+            }
+        } else {
+            incrementSuccessCount();
+        }
+    }
+    
+    public void cleanup() {
+        httpResponseStack.clear();
+    }
+    
+    public String getTestName() {
+        return test.getTestHeader().getTestName();
+    }
+
+    public String getPlatformName() {
+        return test.getTestHeader().getPlatformName();
     }
 }

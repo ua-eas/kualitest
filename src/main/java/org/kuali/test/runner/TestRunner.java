@@ -193,28 +193,8 @@ public class TestRunner {
 
                 if ((ec.getScheduledTime() != null) && (ec.getScheduledTime().getTime() < System.currentTimeMillis())) {
                     List <TestExecutionContext> testExecutions = ec.getTestInstances();
-
-                    for (TestExecutionContext testExecution : testExecutions) {
-                        KualiTest kualiTest = testExecution.getKualiTest();
-                        TestSuite testSuite = testExecution.getTestSuite();
-                        String nm = "unknown";
-                        String platformName = "unknown";
-
-                        if (kualiTest != null) {
-                            nm = (kualiTest.getTestHeader().getTestName());
-                            platformName= kualiTest.getTestHeader().getPlatformName();
-                        } else if (testSuite != null) {
-                            nm = (" suite " + testSuite.getName());
-                            platformName = testSuite.getPlatformName();
-                        }
-
-                        System.out.println("starting test '" + nm + "[" + testExecution.getTestRun() + "]' for platform " + platformName);
-                    }
-
                     new TestExecutionMonitor(testExecutions);
-
                     executingTests.addAll(testExecutions);
-
                     it.remove();
                 }
             }
@@ -377,7 +357,7 @@ public class TestRunner {
                     }
                     
                     updateTestRunnerConfiguration();
-                    
+                    Utils.initializeHtmlTagHandlers(configuration);
                     retval = true;
                 } 
                 

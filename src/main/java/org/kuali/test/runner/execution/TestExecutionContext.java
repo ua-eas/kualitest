@@ -32,7 +32,6 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
-import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -62,13 +61,11 @@ public class TestExecutionContext extends Thread {
     
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
-    private int warningCount = 0;
-    private int successCount = 0;
-    private int errorCount = 0;
 
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
-
+    private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
+    
     private Platform platform;
     private TestSuite testSuite;
     private KualiTest kualiTest;
@@ -166,7 +163,6 @@ public class TestExecutionContext extends Thread {
                     KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
 
                     if (test != null) {
-
                         // add pause between tests if configured
                         if (defaultTestWaitInterval > 0) {
                             try {
@@ -227,6 +223,8 @@ public class TestExecutionContext extends Thread {
     private void runTest(KualiTestWrapper testWrapper, PoiHelper poiHelper) {
         long start = System.currentTimeMillis();
 
+        System.out.println("starting test '" + testWrapper.getTestName() + "[" + getTestRun() + "]' for platform " + testWrapper.getPlatformName());
+
         // if this is a web test then initialize the client
         if (TestType.WEB.equals(testWrapper.getTestType())) {
             getWebClient();
@@ -245,8 +243,14 @@ public class TestExecutionContext extends Thread {
         if ((testWrapper.getMaxRunTime() > 0) && (runtime > testWrapper.getMaxRunTime())) {
             poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(testWrapper.getTestHeader(), runtime), new Date(start), null);
         }
+        
+        testWrapper.cleanup();
+        completedTests.add(testWrapper);
+        
+        System.out.println("test '" + testWrapper.getTestName() + "[" + getTestRun() + "]' completed. runtime=" + runtime + "sec.");
     }
 
+    
     private TestOperation createTestRuntimeCheckOperation(TestHeader testHeader, long runtime) {
         TestOperation retval = TestOperation.Factory.newInstance();
         Operation op = Operation.Factory.newInstance();
@@ -295,7 +299,7 @@ public class TestExecutionContext extends Thread {
                 try {
                     opExec.execute(configuration, platform, testWrapper);
                     if (op.getOperation().getCheckpointOperation() != null) {
-                        incrementSuccessCount();
+                        testWrapper.incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
                     }
                 } catch (TestException ex) {
@@ -553,46 +557,6 @@ public class TestExecutionContext extends Thread {
         return webClient;
     }
 
-    public void incrementErrorCount() {
-        errorCount++;
-    }
-
-    public void incrementWarningCount() {
-        warningCount++;
-    }
-
-    public void incrementSuccessCount() {
-        successCount++;
-    }
-
-    public void updateCounts(FailureAction.Enum failureAction) {
-        if (failureAction != null) {
-            switch (failureAction.intValue()) {
-                case FailureAction.INT_ERROR_CONTINUE:
-                case FailureAction.INT_ERROR_HALT_TEST:
-                    incrementErrorCount();
-                    break;
-                case FailureAction.INT_WARNING:
-                    incrementWarningCount();
-                    break;
-            }
-        } else {
-            incrementSuccessCount();
-        }
-    }
-
-    public int getWarningCount() {
-        return warningCount;
-    }
-
-    public int getSuccessCount() {
-        return successCount;
-    }
-
-    public int getErrorCount() {
-        return errorCount;
-    }
-
     public Set<String> getParametersRequiringDecryption() {
         return parametersRequiringDecryption;
     }
@@ -605,5 +569,9 @@ public class TestExecutionContext extends Thread {
         }
         
         return retval;
+    }
+
+    public List<KualiTestWrapper> getCompletedTests() {
+        return completedTests;
     }
 }

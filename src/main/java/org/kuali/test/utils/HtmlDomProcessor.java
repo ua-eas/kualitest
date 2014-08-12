@@ -86,7 +86,6 @@ public class HtmlDomProcessor {
                 }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
-
                 if ((cp != null) && !Utils.isNodeProcessed(domInformation.getProcessedNodes(), node)) {
                     if (StringUtils.isBlank(cp.getPropertyGroup())
                         || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {

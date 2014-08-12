@@ -97,7 +97,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             }
-
             
             if (request.getHttpMethod().equals(HttpMethod.POST)) {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
