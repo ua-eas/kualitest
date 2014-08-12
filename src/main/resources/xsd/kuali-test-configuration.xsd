@@ -39,6 +39,8 @@
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
                 <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
+                <xs:element name="default-web-service-call-max-time" type="xs:int"/>
+                <xs:element name="default-web-service-polling" type="xs:boolean"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

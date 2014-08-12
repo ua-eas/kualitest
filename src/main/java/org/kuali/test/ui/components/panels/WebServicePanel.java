@@ -195,6 +195,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
 
             JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
             poll = new JCheckBox();
+            poll.setSelected(getMainframe().getConfiguration().getDefaultWebServicePolling());
             p.add(poll);
             p.add(new JLabel("Poll web service"));
             

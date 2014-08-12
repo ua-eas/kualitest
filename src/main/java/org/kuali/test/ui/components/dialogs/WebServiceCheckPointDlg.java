@@ -112,6 +112,7 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         name.setEditable(!isEditmode());
         wsFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         maxRunTime = new IntegerTextField();
+        maxRunTime.setInt(getMainframe().getConfiguration().getDefaultWebServiceCallMaxTime());
         
         JComponent[] components = new JComponent[]{
             name,
