@@ -104,13 +104,11 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
         String[] wsparts = Utils.getWebServiceOperationParts(wsOperation);
         QName wsMethod = new QName(wsparts[0], wsparts[1]);
         List wsArgs = new ArrayList();
-        List <Class> wsArgTypes = new ArrayList<Class>();
-
+        
         for (Parameter param : checkpoint.getInputParameters().getParameterArray()) {
             if (StringUtils.isNotBlank(param.getName())) {
                 if (!Constants.WEB_SERVICE_OPERATION.equals(param.getName())) {
                     wsArgs.add(param.getValue());
-                    wsArgTypes.add(Class.forName(param.getJavaType()));
                 }
             }
         }

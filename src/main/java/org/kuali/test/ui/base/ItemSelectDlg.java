@@ -61,8 +61,8 @@ public class ItemSelectDlg extends JDialog implements ListSelectionListener {
     
     @Override
     public void valueChanged(ListSelectionEvent lse) {
-        JList list = (JList)lse.getSource();
-        selectedValue = (String)list.getSelectedValue();
+        JList l = (JList)lse.getSource();
+        selectedValue = (String)l.getSelectedValue();
         dispose();
     }
 

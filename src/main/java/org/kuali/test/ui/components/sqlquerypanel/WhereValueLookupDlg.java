@@ -84,8 +84,8 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
     
     @Override
     public void valueChanged(ListSelectionEvent lse) {
-        JList list = (JList)lse.getSource();
-        lookupValue = (LookupValue)list.getSelectedValue();
+        JList l = (JList)lse.getSource();
+        lookupValue = (LookupValue)l.getSelectedValue();
         dispose();
     }
 

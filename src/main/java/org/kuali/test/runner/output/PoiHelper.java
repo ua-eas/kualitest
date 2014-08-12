@@ -439,10 +439,7 @@ public class PoiHelper {
 
         cell = row.createCell(10);
         cell.setCellStyle(cellStyleNormal);
-        
-        if (ex != null) {
-            cell.setCellValue(ex.getMessage());
-        }
+        cell.setCellValue(ex.getMessage());
         
         return retval;
     }

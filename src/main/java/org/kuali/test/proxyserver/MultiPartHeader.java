@@ -67,7 +67,9 @@ public class MultiPartHeader {
         
         finally {
             try {
-                lnr.close();
+                if (lnr != null) {
+                    lnr.close();
+                }
             }
             
             catch (Exception ex) {};
