@@ -475,4 +475,17 @@ public class Constants {
         HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.COOKIE);
         HTTP_REQUEST_HEADERS_TO_IGNORE.add(HttpHeaders.TRANSFER_ENCODING);
     }
+    
+    public static final String DAILY = "daily";
+    public static final String HOURLY = "hourly";
+    public static final String WEEKLY = "weekly";
+    public static final String MONTHLY = "monthly";
+
+    public static final String[] TEST_REPEAT_INTERVALS = {
+        "",
+        HOURLY,
+        DAILY,
+        WEEKLY,
+        MONTHLY
+    };
 }

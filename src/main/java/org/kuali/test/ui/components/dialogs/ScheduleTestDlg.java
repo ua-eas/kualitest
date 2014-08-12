@@ -18,6 +18,7 @@ package org.kuali.test.ui.components.dialogs;
 
 import com.toedter.calendar.JDateChooser;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Date;
 import javax.swing.DefaultListModel;
@@ -53,6 +54,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     private IntegerTextField testRuns;
     private JList testSuites;
     private JList platformTests;
+    private JComboBox repeatInterval;
     private ScheduledTest scheduledTest;
     
     /**
@@ -71,7 +73,8 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         String[] labels = {
             "Platform",
             "Start Date/Time",
-            "Test Runs"
+            "Test Runs",
+            "Repeat Interval"
         };
         
         platforms = new JComboBox(getPlatformArray());
@@ -82,7 +85,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         
         testRuns = new IntegerTextField();
         testRuns.setInt(1);
-        JComponent[] components = {platforms, startDateTime, testRuns};
+
+        repeatInterval = new JComboBox(Constants.TEST_REPEAT_INTERVALS);
+        
+        JComponent[] components = {platforms, startDateTime, testRuns, repeatInterval};
         
         platforms.addActionListener(this);
         platforms.setActionCommand(Constants.PLATFORM_SELECTED_ACTION);
@@ -142,6 +148,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             scheduledTest.setPlaformName((String)platforms.getSelectedItem());
             scheduledTest.setStartTime(startDateTime.getCalendar());
             scheduledTest.setTestRuns(testRuns.getInt());
+            scheduledTest.setRepeatInterval(repeatInterval.getSelectedItem().toString());
         } else {
             StringBuilder msg = new StringBuilder(256);
             
@@ -264,5 +271,10 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     @Override
     public Object getNewRepositoryObject() {
         return scheduledTest;
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(600, 400);
     }
 }

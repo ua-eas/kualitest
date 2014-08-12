@@ -19,6 +19,7 @@ package org.kuali.test.runner;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -150,9 +152,9 @@ public class TestRunner {
             for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
                 if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
                     if (test.getType().equals(ScheduledTestType.TEST_SUITE)) {
-                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns());
+                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRepeatInterval());
                     } else if (test.getType().equals(ScheduledTestType.PLATFORM_TEST)) {
-                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns());
+                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRepeatInterval());
                     }
                     activeTests.add(test);
                 }
@@ -184,6 +186,28 @@ public class TestRunner {
         configurationUpdateTimer.cancel();
     }
     
+    private Date getNextScheduledTime(Date lastRunTime, String repeatInterval) {
+        Date retval = null;
+        Calendar c = Calendar.getInstance();
+        c.setTime(lastRunTime);
+        
+        if (Constants.HOURLY.equals(repeatInterval)) {
+            c.add(Calendar.HOUR_OF_DAY, 1);
+            retval = c.getTime();
+        } else if (Constants.DAILY.equals(repeatInterval)) {
+            c.add(Calendar.DATE, 1);
+            retval = c.getTime();
+        } else if (Constants.WEEKLY.equals(repeatInterval)) {
+            c.add(Calendar.DATE, 7);
+            retval = c.getTime();
+        } else if (Constants.MONTHLY.equals(repeatInterval)) {
+            c.add(Calendar.MONTH, 1);
+            retval = c.getTime();
+        }
+        
+        return retval;
+    }
+    
     private void checkForRunnableTests() {
         synchronized(scheduledTests) {
             Iterator <TestExecutionContext> it = scheduledTests.iterator();
@@ -195,7 +219,26 @@ public class TestRunner {
                     List <TestExecutionContext> testExecutions = ec.getTestInstances();
                     new TestExecutionMonitor(testExecutions);
                     executingTests.addAll(testExecutions);
-                    it.remove();
+                    
+                    String repeatInterval = ec.getRepeatInterval();
+                    if (StringUtils.isNotBlank(repeatInterval)) {
+                        Date dt = getNextScheduledTime(ec.getScheduledTime(), repeatInterval);
+                        if (dt != null) {
+                            ec.setScheduledTime(dt);
+                            try {
+                                saveTestRunnerConfiguration();
+                            }
+                            
+                            catch (IOException ex) {
+                                LOG.error(ex.toString(), ex);
+                                System.out.println("error trying to write next scheduled test time for test/testsuite");
+                            }
+                        } else {
+                            it.remove();
+                        }
+                    } else {
+                        it.remove();
+                    }
                 }
             }
         }
@@ -209,15 +252,16 @@ public class TestRunner {
             }
         }
     }
-    
+
     /**
-     *
+     * 
      * @param platformName
      * @param testName
      * @param scheduledTime
      * @param testRuns
+     * @param repeatInterval 
      */
-    public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns) {
+    public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns, String repeatInterval) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -226,7 +270,7 @@ public class TestRunner {
             KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
             
             if (test != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime, testRuns));
+                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime, testRuns, repeatInterval));
             } else {
                 System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
             }
@@ -234,13 +278,14 @@ public class TestRunner {
     }
 
     /**
-     *
+     * 
      * @param platformName
      * @param testSuiteName
      * @param scheduledTime
      * @param testRuns
+     * @param repeatInterval 
      */
-    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns) {
+    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns, String repeatInterval) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -249,7 +294,7 @@ public class TestRunner {
             TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
             
             if (testSuite != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime, testRuns));
+                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime, testRuns, repeatInterval));
             } else {
                 System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
             }

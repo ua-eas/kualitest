@@ -131,27 +131,31 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             "Type",
             "Name",
             "Scheduled Date/Time",
-            "Test Runs (multi-threaded)"
+            "Test Runs (multi-threaded)",
+            "Repeat Interval"
         });
         
         config.setPropertyNames(new String[] {
             "type",
             "name",
             "startTime",
-            "testRuns"
+            "testRuns",
+            "repeatInterval"
         });
             
         config.setColumnTypes(new Class[] {
             String.class,
             String.class,
             Calendar.class,
-            Integer.class
+            Integer.class,
+            String.class
         });
         
         config.setColumnWidths(new int[] {
             20,
             100,
             30,
+            20,
             20
         });
 
@@ -229,7 +233,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
     
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
+        return new Dimension(750, 400);
     }
 
     /**
