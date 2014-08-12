@@ -51,12 +51,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     public HttpRequestOperationExecution(TestExecutionContext context, Operation op) {
         super(context, op);
     }
-    
+
     /**
      * 
      * @param configuration
      * @param platform
-     * @param test
+     * @param testWrapper
      * @throws TestException 
      */
     @Override
@@ -68,7 +68,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
                 
-                if (getTestExecutionContext().getKualiTest().getTestHeader().getUseTestEntryTimes()) {
+                if (testWrapper.getUseTestEntryTimes()) {
                     delay = reqop.getDelay();
                 }
                 
@@ -80,7 +80,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             TestExecutionContext tec = getTestExecutionContext();
 
             tec.getWebClient().setCurrentOperationIndex(getOperation().getIndex());
-            tec.getWebClient().setCurrentTest(testWrapper.getTest());
+            tec.getWebClient().setCurrentTest(testWrapper);
             
             WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
             boolean multiPart = Utils.isMultipart(reqop);
@@ -115,7 +115,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             response = tec.getWebClient().getPage(request).getWebResponse();
             int status = response.getStatusCode();
-
             if (status == HttpStatus.OK_200) {
                 String results = response.getContentAsString(CharEncoding.UTF_8);
                 if (StringUtils.isNotBlank(results)) {

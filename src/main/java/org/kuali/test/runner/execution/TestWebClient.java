@@ -43,7 +43,6 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
-import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.utils.Constants;
@@ -53,7 +52,7 @@ import org.kuali.test.utils.Utils;
 public class TestWebClient extends WebClient {
     private static final Logger LOG = Logger.getLogger(TestWebClient.class);
     private TestExecutionContext tec;
-    private KualiTest currentTest;
+    private KualiTestWrapper currentTest;
     private int currentOperationIndex = 0;
     private List<String> parametersToIgnore = new ArrayList<String>();
     
@@ -176,7 +175,7 @@ public class TestWebClient extends WebClient {
     public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestOperation top : currentTest.getOperations().getOperationArray()) {
+        for (TestOperation top : currentTest.getOperations()) {
             if (top.getOperation().getTestExecutionParameter() != null) {
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
                 String key = null;
@@ -274,11 +273,11 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
-    public KualiTest getCurrentTest() {
+    public KualiTestWrapper getCurrentTest() {
         return currentTest;
     }
 
-    public void setCurrentTest(KualiTest currentTest) {
+    public void setCurrentTest(KualiTestWrapper currentTest) {
         this.currentTest = currentTest;
     }
 

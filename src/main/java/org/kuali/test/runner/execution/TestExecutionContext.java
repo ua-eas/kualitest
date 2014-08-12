@@ -177,11 +177,11 @@ public class TestExecutionContext extends Thread {
                         }
 
                         poiHelper.writeTestHeader(test);
-                        runTest(test, poiHelper);
+                        runTest(new KualiTestWrapper(test), poiHelper);
                     }
                 }
             } else if (kualiTest != null) {
-                runTest(kualiTest, poiHelper);
+                runTest(new KualiTestWrapper(kualiTest), poiHelper);
             }
 
             endTime = new Date();
@@ -224,18 +224,16 @@ public class TestExecutionContext extends Thread {
         return retval.toString();
     }
 
-    private void runTest(KualiTest test, PoiHelper poiHelper) {
+    private void runTest(KualiTestWrapper testWrapper, PoiHelper poiHelper) {
         long start = System.currentTimeMillis();
 
-        KualiTestWrapper testWrapper = new KualiTestWrapper(test);
-        
         // if this is a web test then initialize the client
-        if (TestType.WEB.equals(test.getTestHeader().getTestType())) {
+        if (TestType.WEB.equals(testWrapper.getTestType())) {
             getWebClient();
             parametersRequiringDecryption.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         }
 
-        for (TestOperation op : test.getOperations().getOperationArray()) {
+        for (TestOperation op : testWrapper.getOperations()) {
             // if executeTestOperation returns false we want to halt test
             if (!executeTestOperation(testWrapper, op, poiHelper)) {
                 break;
@@ -244,8 +242,8 @@ public class TestExecutionContext extends Thread {
         
         // check for max runtime exceeded
         long runtime = ((System.currentTimeMillis() - start) / 1000);
-        if ((test.getTestHeader().getMaxRunTime() > 0) && (runtime > test.getTestHeader().getMaxRunTime())) {
-            poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(test.getTestHeader(), runtime), new Date(start), null);
+        if ((testWrapper.getMaxRunTime() > 0) && (runtime > testWrapper.getMaxRunTime())) {
+            poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(testWrapper.getTestHeader(), runtime), new Date(start), null);
         }
     }
 

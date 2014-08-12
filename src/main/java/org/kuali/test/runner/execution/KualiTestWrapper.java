@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestType;
 import org.kuali.test.utils.Constants;
 
 
@@ -63,5 +66,27 @@ public class KualiTestWrapper {
         return httpResponseStack;
     }
     
+    public TestHeader getTestHeader() {
+        return test.getTestHeader();
+    }
+
+    public TestOperation[] getOperations() {
+        if (test.getOperations() == null) {
+            return new TestOperation[0];
+        } else {
+            return test.getOperations().getOperationArray();
+        }
+    }
     
+    public int getMaxRunTime() {
+        return test.getTestHeader().getMaxRunTime();
+    }
+    
+    public TestType.Enum getTestType() {
+        return test.getTestHeader().getTestType();
+    }
+    
+    public boolean getUseTestEntryTimes() {
+        return test.getTestHeader().getUseTestEntryTimes();
+    }
 }

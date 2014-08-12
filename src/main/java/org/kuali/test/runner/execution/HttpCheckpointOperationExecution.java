@@ -103,9 +103,10 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         String html = null;
         
         if (cp.getCheckpointProperties() != null) {
+            HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
             for (String curhtml : testWrapper.getRecentHttpResponseData()) {
                 if (StringUtils.isNotBlank(curhtml)) {
-                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, curhtml);
+                    HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, curhtml);
                     matchingProperties = findCurrentProperties(cp, dominfo);
                     if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
                         html = curhtml;
