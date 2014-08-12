@@ -583,4 +583,8 @@ public class TestExecutionContext extends Thread {
     public String getRepeatInterval() {
         return repeatInterval;
     }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }

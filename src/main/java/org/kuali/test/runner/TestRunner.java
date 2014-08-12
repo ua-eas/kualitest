@@ -134,17 +134,24 @@ public class TestRunner {
         }
     }
 
+    private KualiTestRunnerDocument.KualiTestRunner getTestRunnerConfiguration() throws XmlException, IOException {
+        KualiTestRunnerDocument.KualiTestRunner retval = null;       
+        File trConfigFile =  Utils.getTestRunnerConfigurationFile(configuration);
+                    
+        if (trConfigFile.exists() && trConfigFile.isFile()) {
+            retval = KualiTestRunnerDocument.Factory.parse(trConfigFile).getKualiTestRunner();
+        }
+
+        return retval;
+    }
+    
     /**
      *
      * @throws XmlException
      * @throws IOException
      */
-    protected void updateTestRunnerConfiguration() throws XmlException, IOException {
-        File trConfigFile =  Utils.getTestRunnerConfigurationFile(configuration);
-                    
-        if (trConfigFile.exists() && trConfigFile.isFile()) {
-            testRunnerConfiguration = KualiTestRunnerDocument.Factory.parse(trConfigFile).getKualiTestRunner();
-        }
+    protected synchronized void updateTestRunnerConfiguration() throws XmlException, IOException {
+        testRunnerConfiguration = getTestRunnerConfiguration() ;
         
         List <ScheduledTest> activeTests = new ArrayList<ScheduledTest>();
         scheduledTests.clear();
@@ -156,6 +163,7 @@ public class TestRunner {
                     } else if (test.getType().equals(ScheduledTestType.PLATFORM_TEST)) {
                         scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRepeatInterval());
                     }
+                    
                     activeTests.add(test);
                 }
             }
@@ -170,39 +178,33 @@ public class TestRunner {
         saveTestRunnerConfiguration();
     }
     
-    private void saveTestRunnerConfiguration() throws IOException {
+    private synchronized void saveTestRunnerConfiguration() throws IOException {
         File f =  Utils.getTestRunnerConfigurationFile(configuration);
         KualiTestRunnerDocument doc = KualiTestRunnerDocument.Factory.newInstance();
         doc.setKualiTestRunner(testRunnerConfiguration);
         doc.save(f);
     }
     
-    /**
-     *
-     */
     public void stopRunner() {
         stopRunner = true;
         testInquiryTimer.cancel();
         configurationUpdateTimer.cancel();
     }
     
-    private Date getNextScheduledTime(Date lastRunTime, String repeatInterval) {
-        Date retval = null;
-        Calendar c = Calendar.getInstance();
-        c.setTime(lastRunTime);
+    private Calendar getNextScheduledTime(Date lastRunTime, String repeatInterval) {
+        Calendar retval = Calendar.getInstance();
+        retval.setTime(lastRunTime);
         
         if (Constants.HOURLY.equals(repeatInterval)) {
-            c.add(Calendar.HOUR_OF_DAY, 1);
-            retval = c.getTime();
+            retval.add(Calendar.HOUR_OF_DAY, 1);
         } else if (Constants.DAILY.equals(repeatInterval)) {
-            c.add(Calendar.DATE, 1);
-            retval = c.getTime();
+            retval.add(Calendar.DATE, 1);
         } else if (Constants.WEEKLY.equals(repeatInterval)) {
-            c.add(Calendar.DATE, 7);
-            retval = c.getTime();
+            retval.add(Calendar.DATE, 7);
         } else if (Constants.MONTHLY.equals(repeatInterval)) {
-            c.add(Calendar.MONTH, 1);
-            retval = c.getTime();
+            retval.add(Calendar.MONTH, 1);
+        } else {
+            retval = null;
         }
         
         return retval;
@@ -211,7 +213,6 @@ public class TestRunner {
     private void checkForRunnableTests() {
         synchronized(scheduledTests) {
             Iterator <TestExecutionContext> it = scheduledTests.iterator();
-
             while (it.hasNext()) {
                 TestExecutionContext ec = it.next();
 
@@ -222,17 +223,9 @@ public class TestRunner {
                     
                     String repeatInterval = ec.getRepeatInterval();
                     if (StringUtils.isNotBlank(repeatInterval)) {
-                        Date dt = getNextScheduledTime(ec.getScheduledTime(), repeatInterval);
-                        if (dt != null) {
-                            ec.setScheduledTime(dt);
-                            try {
-                                saveTestRunnerConfiguration();
-                            }
-                            
-                            catch (IOException ex) {
-                                LOG.error(ex.toString(), ex);
-                                System.out.println("error trying to write next scheduled test time for test/testsuite");
-                            }
+                        Calendar cal = getNextScheduledTime(ec.getScheduledTime(), repeatInterval);
+                        if (cal != null) {
+                            rescheduleTest(ec, cal);
                         } else {
                             it.remove();
                         }
@@ -250,6 +243,34 @@ public class TestRunner {
             if (ec.isCompleted()) {
                 it.remove();
             }
+        }
+    }
+
+    private void rescheduleTest(TestExecutionContext tec, Calendar newDate) {
+        try {
+            testRunnerConfiguration = getTestRunnerConfiguration();
+            ScheduledTest scheduledTest = testRunnerConfiguration.getScheduledTests().addNewScheduledTest();
+            if (tec.getKualiTest() != null) {
+                scheduledTest.setName(tec.getKualiTest().getTestHeader().getTestName());
+                scheduledTest.setType(ScheduledTestType.PLATFORM_TEST);
+            } else {
+                scheduledTest.setName(tec.getTestSuite().getName());
+                scheduledTest.setType(ScheduledTestType.TEST_SUITE);
+            }
+
+            scheduledTest.setTestRuns(tec.getTestRun());
+            scheduledTest.setRepeatInterval(tec.getRepeatInterval());
+            scheduledTest.setStartTime(newDate);
+            scheduledTest.setPlaformName(tec.getPlatform().getName());
+            saveTestRunnerConfiguration();
+        } 
+        
+        catch (XmlException ex) {
+            LOG.error(ex.toString(), ex);
+        } 
+        
+        catch (IOException ex) {
+            LOG.error(ex.toString(), ex);
         }
     }
 
