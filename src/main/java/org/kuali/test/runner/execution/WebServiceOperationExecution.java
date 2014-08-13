@@ -152,6 +152,8 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
                         break;
                     }
                 }
+                
+                processUpdate((System.currentTimeMillis() - start));
             }
         } else {
             retval = serviceClient.invokeBlocking(wsMethod, wsArgs.toArray(), new Class[] { getClassForValueType(resultProperty.getValueType()) });
@@ -174,5 +176,8 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
         }
         
         return retval;
+    }
+    
+    protected void processUpdate(long runtime) {
     }
 }

@@ -281,15 +281,26 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 }
                 
                 String[] wsparts = Utils.getWebServiceOperationParts(opname);
-
-                new SplashDisplay(getMainframe(), "Run Web Service", "Running web service '" + wsparts[1] + "'") {
+                long start = System.currentTimeMillis();
+                
+                new SplashDisplay(getMainframe(), "Run Web Service", "Running web service '" + wsparts[1] + "'", true) {
                     @Override
                     protected void processCompleted() {
                     }
 
                     @Override
                     protected void runProcess() {
-                        WebServiceOperationExecution wsop = new WebServiceOperationExecution(cp);
+                        WebServiceOperationExecution wsop = new WebServiceOperationExecution(cp) {
+                            @Override
+                            protected void processUpdate(long runtime) {
+                                long seconds = runtime / 1000;
+
+                                if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
+                                    updateElapsedTime(seconds);
+                                }
+                            }
+                        };
+                        
                         try {
                             wsop.executeWebServiceCall(getMainframe().getConfiguration(), getPlatform(), cp, poll);
                         }
@@ -299,6 +310,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                             UIUtils.showError(getDlg(), "Error", ex.toString());
                         }
                     }
+
                 };
             }
         }
