@@ -60,7 +60,6 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
-import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -422,14 +421,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
                             XmlSchemaElement element = (XmlSchemaElement)obj;
                             WebServiceInputParameter param = new WebServiceInputParameter();                            
                             param.setParameterName(element.getName());
-                            Class clazz = Constants.XML_SCHEMA_TYPE_TO_JAVA_CLASS.get(element.getSchemaType().getName());
-                            
-                            if (clazz != null) {
-                                param.setParameterType(clazz.getName());
-                            } else {
-                                param.setParameterType(element.getSchemaType().getName());
-                            }
-                            
+                            param.setParameterType(element.getSchemaType().getName());
                             parameters.add(param);
                         }
                     }
