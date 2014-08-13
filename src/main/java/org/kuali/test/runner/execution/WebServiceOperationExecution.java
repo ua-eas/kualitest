@@ -113,7 +113,8 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
             }
         }
 
-        int maxRuntime = Constants.DEFAULT_WEB_SERVICE_WAIT_TIME;
+        // if no max runtime entered - set to large value (basically no limitation)
+        int maxRuntime = Integer.MAX_VALUE;
 
         CheckpointProperty cp = getProperty(Constants.MAX_RUNTIME_PROPERTY_NAME);
         if (cp != null) {
