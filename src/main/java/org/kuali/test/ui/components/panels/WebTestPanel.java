@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
@@ -216,21 +215,13 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
 
-   public String getCurrentHtmlResponse(JWebBrowser wb) {
-        String retval = wb.getHTMLContent();
-        
-        if (Utils.isHtmlDocument(retval)) {
-            lastProxyHtmlResponse = retval;
-        } else if (StringUtils.isNotBlank(lastProxyHtmlResponse)) {
-            retval = lastProxyHtmlResponse;
-        }
-        
-        return retval;
+   public String getLastHtmlResponse() {
+        return lastProxyHtmlResponse;
     }
     
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
-        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, getCurrentHtmlResponse(wb));
+        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, getLastHtmlResponse());
 
         if (dlg.isSaved()) {
             addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
@@ -479,7 +470,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private void handleAddExecutionParameter() {
         TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
-            getCurrentBrowser(), getTestHeader(), getCurrentHtmlResponse(getCurrentBrowser()));
+            getCurrentBrowser(), getTestHeader(), getLastHtmlResponse());
         
         if (dlg.isSaved()) {
             addTestExecutionParameter(dlg.getTestExecutionParameter());

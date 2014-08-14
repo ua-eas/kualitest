@@ -32,7 +32,11 @@ public class KualiLookupTdTagHandler extends TdTagHandler {
         Element pnode = (Element)node.getParentNode();
         
         if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
-            retval = ("lookup results row[" + (Utils.getChildNodeIndex(pnode)+1) + "]");
+            StringBuilder buf = new StringBuilder(128);
+            int row = (Utils.getChildNodeIndex(pnode)+1);
+            buf.append("lookup results ");
+            buf.append(Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "row[" +row + "]"));
+            retval = buf.toString();
         }
 
         return retval;

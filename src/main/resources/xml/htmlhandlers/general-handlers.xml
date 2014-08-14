@@ -15,6 +15,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>general1</handler-name>
     </handler>
     <handler>
         <tag-name>input</tag-name>
@@ -31,6 +32,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>general2</handler-name>
     </handler>
 
     <handler>
@@ -48,11 +50,13 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>general3</handler-name>
     </handler>
 
     <handler>
         <tag-name>select</tag-name>
         <handler-class-name>org.kuali.test.handlers.SelectInputTagHandler</handler-class-name>
+        <handler-name>general4</handler-name>
     </handler>
 
     <handler>
@@ -66,5 +70,6 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>general5</handler-name>
     </handler>
 </tag-handlers>

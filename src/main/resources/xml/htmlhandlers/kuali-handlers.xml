@@ -236,6 +236,7 @@
                 <match-attributes></match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>kuali6</handler-name>
     </handler>
 
     <handler>
@@ -253,7 +254,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
-        <handler-name>kuali6</handler-name>
+        <handler-name>kuali7</handler-name>
     </handler>
 
     <handler>
@@ -271,7 +272,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
-        <name>kuali6</name>
+        <name>kuali8</name>
     </handler>
 
     <handler>
@@ -293,7 +294,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
-        <handler-name>kuali7</handler-name>
+        <handler-name>kuali9</handler-name>
     </handler>
 
     <!-- lookup handlers -->    
@@ -312,6 +313,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>kuali10</handler-name>
     </handler>
     <handler>
         <tag-name>table</tag-name>
@@ -332,6 +334,7 @@
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
+        <handler-name>kuali11</handler-name>
     </handler>
     
     <handler>
@@ -400,6 +403,6 @@
                 </match-attributes>
             </tag-matcher>
         </label-matcher>
-        <handler-name>lookup-results-td</handler-name>
+        <handler-name>kuali12</handler-name>
     </handler>
 </tag-handlers>

@@ -3270,6 +3270,7 @@ public class Utils {
 
     public static boolean isHtmlDocument(StringBuilder s) {
         return ((s != null) && s.indexOf("<html>") > -1);
+        
     }
 
     public static boolean isHtmlDocument(String s) {

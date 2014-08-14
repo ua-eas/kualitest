@@ -129,6 +129,7 @@ public class TestProxyServer {
                                 }
                             }
                         }
+                        
                         return null;
                     }
 
@@ -148,16 +149,13 @@ public class TestProxyServer {
                             HttpContent httpContent = (HttpContent)httpObject;
                             ByteBuf content = httpContent.content().retain();
                             if (content.isReadable()) {
-                                
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
-                                
                                 if (httpObject instanceof LastHttpContent) {
                                     if (Utils.isHtmlDocument(getCurrentResponseBuffer())) {
                                         webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
                                     }
-                                    
                                     getCurrentResponseBuffer().setLength(0);
-                                }
+                                } 
                             }   
                             
                             content.release();
