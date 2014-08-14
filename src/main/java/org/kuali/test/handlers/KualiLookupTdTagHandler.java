@@ -27,16 +27,16 @@ import org.w3c.dom.Element;
 public class KualiLookupTdTagHandler extends TdTagHandler {
     @Override
     public String getSectionName(Element node) {
-        String retval = null;
+        return "lookup result";
+    }
 
+    @Override
+    public String getSubSectionName(Element node) {
+        String retval = null;
         Element pnode = (Element)node.getParentNode();
         
         if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
-            StringBuilder buf = new StringBuilder(128);
-            int row = (Utils.getChildNodeIndex(pnode)+1);
-            buf.append("lookup results ");
-            buf.append(Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "row[" +row + "]"));
-            retval = buf.toString();
+            retval = Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "row[" + (Utils.getChildNodeIndex(pnode)+1) + "]");
         }
 
         return retval;
