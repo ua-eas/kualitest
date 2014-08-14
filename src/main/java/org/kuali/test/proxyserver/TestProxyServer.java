@@ -41,7 +41,6 @@ import java.util.Stack;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.xmlbeans.SystemProperties;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.HtmlRequestOperation;
@@ -75,7 +74,6 @@ public class TestProxyServer {
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
     private List <String> urlsToIgnore = new ArrayList<String>();
-    
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
         public boolean add(TestOperation op) {
@@ -150,11 +148,12 @@ public class TestProxyServer {
                             ByteBuf content = httpContent.content().retain();
                             if (content.isReadable()) {
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
+                                
                                 if (httpObject instanceof LastHttpContent) {
-                                    if (Utils.isHtmlDocument(getCurrentResponseBuffer())) {
+                                    if (!httpStatus.isEmpty() && (httpStatus.pop() == HttpStatus.OK_200)) {
                                         webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                        getCurrentResponseBuffer().setLength(0);
                                     }
-                                    getCurrentResponseBuffer().setLength(0);
                                 } 
                             }   
                             
@@ -187,12 +186,12 @@ public class TestProxyServer {
 
     private void initializeProxyServer() {
         // proxy port and host should be passed in as vm params
-        String proxyHost = SystemProperties.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
-        String proxyPort = SystemProperties.getProperty("network.proxy_port", Constants.DEFAULT_PROXY_PORT);
+        String proxyHost = System.getProperty("network.proxy_host", Constants.DEFAULT_PROXY_HOST);
+        String proxyPort = System.getProperty("network.proxy_port", Constants.DEFAULT_PROXY_PORT);
         
         if (StringUtils.isBlank(proxyHost)) {
-            proxyHost = SystemProperties.getProperty("http.proxyHost", Constants.DEFAULT_PROXY_HOST);
-            proxyPort = SystemProperties.getProperty("http.proxyPort", Constants.DEFAULT_PROXY_PORT);
+            proxyHost = System.getProperty("http.proxyHost", Constants.DEFAULT_PROXY_HOST);
+            proxyPort = System.getProperty("http.proxyPort", Constants.DEFAULT_PROXY_PORT);
         }
         
         if (LOG.isDebugEnabled()) {
@@ -200,7 +199,7 @@ public class TestProxyServer {
             LOG.debug("proxyHost: " + proxyHost);
             LOG.debug("proxyPort: " + proxyPort);
         }
-
+        
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
             .withPort(Integer.parseInt(proxyPort))

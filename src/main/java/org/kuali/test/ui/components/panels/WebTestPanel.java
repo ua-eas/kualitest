@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
@@ -215,13 +216,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         testProxyServer.getTestOperations().add(testOp);
     }
 
-   public String getLastHtmlResponse() {
-        return lastProxyHtmlResponse;
-    }
-    
     private void createHtmlCheckpoint() {
         JWebBrowser wb = getCurrentBrowser();
-        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, getLastHtmlResponse());
+        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
 
         if (dlg.isSaved()) {
             addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
@@ -428,13 +425,35 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     /**
-     *
-     * @param lastProxyHtmlResponse
+     * 
+     * @param lastResponse 
      */
-    public void setLastProxyHtmlResponse(String lastProxyHtmlResponse) {
-        if (Utils.isHtmlDocument(lastProxyHtmlResponse)) {
-            this.lastProxyHtmlResponse = lastProxyHtmlResponse;
+    public void setLastProxyHtmlResponse(String lastResponse) {
+        if (isHtml(lastResponse) && isValidResponseDocument(lastResponse)) {
+            lastProxyHtmlResponse = lastResponse;
+System.out.println("------------------->" + lastProxyHtmlResponse);
         }
+    }
+
+    private boolean isHtml(String input) {
+        return (StringUtils.isNotBlank(input) && input.contains("<html>"));
+    }
+    
+    private boolean isValidResponseDocument(String input) {
+        boolean retval = true;
+        
+        if (StringUtils.isNotBlank(input)) {
+            if (getMainframe().getConfiguration().getResponseHtmlToIgnore() != null) {
+                for (String s : getMainframe().getConfiguration().getResponseHtmlToIgnore().getHtmlComparisonTextArray()) {
+                    if (input.contains(s)) {
+                        retval = false;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
     }
 
     /**
@@ -470,7 +489,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     
     private void handleAddExecutionParameter() {
         TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
-            getCurrentBrowser(), getTestHeader(), getLastHtmlResponse());
+            getCurrentBrowser(), getTestHeader(), lastProxyHtmlResponse);
         
         if (dlg.isSaved()) {
             addTestExecutionParameter(dlg.getTestExecutionParameter());

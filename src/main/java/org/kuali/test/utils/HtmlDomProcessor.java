@@ -91,7 +91,7 @@ public class HtmlDomProcessor {
                         || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
                         cp.setPropertyGroup(domInformation.getGroupStack().peek());
                     }
-
+                    
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
                     if (th.getTagHandler().getLabelMatcher() != null) {

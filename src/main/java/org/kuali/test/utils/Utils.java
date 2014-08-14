@@ -2663,11 +2663,14 @@ public class Utils {
      * @return
      */
     public static Document tidify(String input) {
-        Document retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
+        Document retval = null;
 
-        // remove tags we do not want
-        removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
-
+        if (StringUtils.isNotBlank(input)) {
+            retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
+            // remove tags we do not want
+            removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+        }
+        
         return retval;
     }
 
@@ -3268,15 +3271,6 @@ public class Utils {
         return retval;
     }
 
-    public static boolean isHtmlDocument(StringBuilder s) {
-        return ((s != null) && s.indexOf("<html>") > -1);
-        
-    }
-
-    public static boolean isHtmlDocument(String s) {
-        return (StringUtils.isNotBlank(s) && s.contains("<html>"));
-    }
-    
     public static String getParametersFromUrl(String url) {
         String retval = null;
         

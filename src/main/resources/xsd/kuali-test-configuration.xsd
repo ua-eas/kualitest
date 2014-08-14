@@ -39,6 +39,7 @@
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
                 <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
+                <xs:element name="response-html-to-ignore" type="response-html-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
             </xs:sequence>
         </xs:complexType>
@@ -60,6 +61,12 @@
             <xs:enumeration value="MySQL"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="response-html-to-ignore">
+        <xs:sequence>
+            <xs:element name="html-comparison-text" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="urls-to-ignore">
         <xs:sequence>
