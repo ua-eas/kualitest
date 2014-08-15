@@ -54,7 +54,30 @@ public class CheckpointPropertyComparator implements Comparator <CheckpointPrope
             }
             
             
-            retval = s1.compareTo(s2);
+        
+            // handle section names that end with index values enclosed in square brackets
+            int pos1 = s1.indexOf("[");
+            int pos2 = s1.indexOf("]");
+            int pos3 = s2.indexOf("[");
+            int pos4 = s2.indexOf("]");
+
+            if ((pos1 > -1) && (pos2 > pos1) && (pos3 > -1) && (pos4 > pos3)) {
+                retval = s1.substring(0, pos1).compareTo(s2.substring(0, pos3));
+
+                if (retval == 0) {
+                    try {
+                        Integer indx1 = Integer.valueOf(s1.substring(pos1+1, pos2).trim());
+                        Integer indx2 = Integer.valueOf(s1.substring(pos3+1, pos4).trim());
+
+                        retval = indx1.compareTo(indx2);
+                    }
+
+                    catch (NumberFormatException ex) {};
+                }
+                
+            } else {
+                retval = s1.compareTo(s2);
+            }
         }
         
         if (retval == 0) {
