@@ -60,13 +60,23 @@ public class HtmlDomProcessor {
     public DomInformation processDom(Platform platform, JWebBrowser webBrowser, String html) {
         List<Element> labelNodes = new ArrayList<Element>();
         DomInformation retval = new DomInformation(platform, Utils.buildLabelMap(labelNodes));
+        
+        if (webBrowser != null) {
+            if (!webBrowser.getResourceLocation().contains("returnLocation=")) {
+                html = webBrowser.getHTMLContent();
+            }
+        }
+
         retval.setCurrentNode(getHtmlRootNode(html, labelNodes, retval, webBrowser));
+        
         processNode(retval);
+        
         return retval;
     }
 
     private void processNode(DomInformation domInformation) {
         Element node = domInformation.getCurrentNode();
+        
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
         
         if (th != null) {
@@ -91,7 +101,7 @@ public class HtmlDomProcessor {
                         || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
                         cp.setPropertyGroup(domInformation.getGroupStack().peek());
                     }
-                    
+
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
                     if (th.getTagHandler().getLabelMatcher() != null) {
@@ -201,7 +211,7 @@ public class HtmlDomProcessor {
         if (LOG.isDebugEnabled()) {
             Utils.printDom(doc);
         }
-
+        
         return doc.getDocumentElement();
     }
 

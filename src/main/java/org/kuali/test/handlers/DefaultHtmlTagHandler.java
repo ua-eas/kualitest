@@ -49,7 +49,8 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         if (Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(node.getNodeName()) 
             || Constants.HTML_TAG_TYPE_TD.equalsIgnoreCase(node.getNodeName()) 
             || Constants.HTML_TAG_TYPE_TH.equalsIgnoreCase(node.getNodeName())) {
-            retval = Utils.containsChildNode(node, Constants.HTML_TAG_TYPE_TABLE);
+            retval = (Utils.containsChildNode(node, Constants.HTML_TAG_TYPE_TABLE) 
+                || Utils.containsChildNode(node, Constants.HTML_TAG_TYPE_IFRAME));
         }
         
         return retval;

@@ -3482,4 +3482,17 @@ public class Utils {
         }
         return retval;
     }
+
+    public static boolean isHtml(String input) {
+        return (StringUtils.isNotBlank(input) && input.contains("<html>"));
+    }
+    
+    
+
+    public static void printNode(Node rootNode, String spacer) {
+        System.out.println(spacer + rootNode.getNodeName() + " -> " + rootNode.getNodeValue());
+        NodeList nl = rootNode.getChildNodes();
+        for (int i = 0; i < nl.getLength(); i++)
+            printNode(nl.item(i), spacer + "  ");
+    }
 }

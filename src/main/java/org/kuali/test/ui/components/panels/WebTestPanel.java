@@ -429,31 +429,13 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      * @param lastResponse 
      */
     public void setLastProxyHtmlResponse(String lastResponse) {
-        if (isHtml(lastResponse) && isValidResponseDocument(lastResponse)) {
+        if (isHtml(lastResponse)) {
             lastProxyHtmlResponse = lastResponse;
-System.out.println("------------------->" + lastProxyHtmlResponse);
         }
     }
 
     private boolean isHtml(String input) {
         return (StringUtils.isNotBlank(input) && input.contains("<html>"));
-    }
-    
-    private boolean isValidResponseDocument(String input) {
-        boolean retval = true;
-        
-        if (StringUtils.isNotBlank(input)) {
-            if (getMainframe().getConfiguration().getResponseHtmlToIgnore() != null) {
-                for (String s : getMainframe().getConfiguration().getResponseHtmlToIgnore().getHtmlComparisonTextArray()) {
-                    if (input.contains(s)) {
-                        retval = false;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        return retval;
     }
 
     /**

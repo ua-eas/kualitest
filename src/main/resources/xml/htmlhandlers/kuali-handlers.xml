@@ -280,7 +280,6 @@
         </tag-matchers>
         <name>kuali8</name>
     </handler>
-
     <handler>
         <tag-name>iframe</tag-name>
         <handler-class-name>org.kuali.test.handlers.KualiRouteLogIframeTagHandler</handler-class-name>

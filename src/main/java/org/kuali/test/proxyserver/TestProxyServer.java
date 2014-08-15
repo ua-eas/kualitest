@@ -150,10 +150,8 @@ public class TestProxyServer {
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
                                 
                                 if (httpObject instanceof LastHttpContent) {
-                                    if (!httpStatus.isEmpty() && (httpStatus.pop() == HttpStatus.OK_200)) {
-                                        webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
-                                        getCurrentResponseBuffer().setLength(0);
-                                    }
+                                    webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                    getCurrentResponseBuffer().setLength(0);
                                 } 
                             }   
                             
