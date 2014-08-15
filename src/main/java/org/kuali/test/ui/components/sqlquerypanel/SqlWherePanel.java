@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
+import java.util.Iterator;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
@@ -51,7 +52,7 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     private final DateChooserCellEditor dateCellRenderer;
     private final TableCellEditor defaultCellEditor;
     private final DefaultTableCellRenderer defaultCellRenderer;
-    
+    private TablePanel tp;
     /**
      *
      * @param mainframe
@@ -70,7 +71,7 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     }
 
     private void initComponents() {
-        TablePanel tp = new TablePanel(getWhereColumnTable());
+        tp = new TablePanel(getWhereColumnTable());
         setTablePanel(tp);
         
         createTableCellEditorRenderer(2, 3);
@@ -259,7 +260,24 @@ public class SqlWherePanel extends BaseSqlPanel <WhereColumnData> {
     @Override
     protected void handlePanelShown() {
         populateSelectedTables(2);
+        checkSelectedColumns();
     }
+    
+    private void checkSelectedColumns() {
+        Iterator <WhereColumnData> it = tp.getTable().getTableData().iterator();
+        boolean itemsRemoved = false;
+        while (it.hasNext()) {
+            if (!it.next().getColumnData().isSelected()) {
+                it.remove();
+                itemsRemoved = true;
+            }
+        }
+        
+        if (itemsRemoved) {
+            tp.getTable().getModel().fireTableDataChanged();
+        }
+    }
+
 
     private TableCellEditor getValueCellEditor(ColumnData cd) {
         TableCellEditor retval = null;
