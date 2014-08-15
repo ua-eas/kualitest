@@ -89,9 +89,6 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         });
     }
 
-    /**
-     *
-     */
     @Override
     protected void handlePanelShown() {
         String sql = buildHtml();

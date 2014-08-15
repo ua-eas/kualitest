@@ -205,6 +205,7 @@ public class Constants {
     public static final String ROW_COUNT_PROPERTY = "row-count";
     public static final String DELETE_ROW_ACTION = "Delete Row";
     public static final String ADD_COLUMN_ACTION = "Add Column";
+    public static final String ADD_ALL_COLUMNS_ACTION = "Add All Columns";
     public static final String DELETE_COLUMN_ACTION = "Delete Column";
     public static final String ADD_COMPARISON_ACTION = "Add Comparison";
     public static final String ADD_NAME_ACTION = "Add Name";

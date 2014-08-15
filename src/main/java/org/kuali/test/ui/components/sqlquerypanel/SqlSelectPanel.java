@@ -17,8 +17,12 @@
 package org.kuali.test.ui.components.sqlquerypanel;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +46,8 @@ import org.kuali.test.utils.Utils;
 public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     private static final Logger LOG = Logger.getLogger(SqlSelectPanel.class);
     private JCheckBox distinct;
+    private JButton addAllButton;
+    private TablePanel tp;
     
     /**
      *
@@ -53,17 +59,20 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
         initComponents();
     }
 
+
     private void initComponents() {
-        TablePanel tp = new TablePanel(getSelectColumnTable());
+        tp = new TablePanel(getSelectColumnTable());
         
         setTablePanel(tp);
         
         createTableCellEditorRenderer(0, 1);
         createColumnCellEditorRenderer(1);
 
+        addAllButton = tp.addButton(this, Constants.ADD_ALL_COLUMNS_ACTION, Constants.ADD_ICON, "add all selected columns");
+        addAllButton.setEnabled(getDbPanel().haveSelectedColumns());
         tp.addAddButton(this, Constants.ADD_COLUMN_ACTION, "add new select column");
-        tp.getAddButton().setEnabled(false);
-        tp.addDeleteButton(this, Constants.DELETE_COLUMN_ACTION, "delete selected row");
+        tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
+        tp.addDeleteButton(this, Constants.DELETE_COLUMN_ACTION, "delete selected column");
         tp.getButtonPanel().add(distinct = new JCheckBox("DISTINCT"));
 
         add(tp, BorderLayout.CENTER);
@@ -178,6 +187,25 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     @Override
     protected void handlePanelShown() {
         populateSelectedTables(0);
+        addAllButton.setEnabled(getDbPanel().haveSelectedColumns());
+        tp.getAddButton().setEnabled(getDbPanel().haveSelectedColumns());
+        
+        checkSelectedColumns();
+    }
+    
+    private void checkSelectedColumns() {
+        Iterator <SelectColumnData> it = tp.getTable().getTableData().iterator();
+        boolean itemsRemoved = false;
+        while (it.hasNext()) {
+            if (!it.next().getColumnData().isSelected()) {
+                it.remove();
+                itemsRemoved = true;
+            }
+        }
+        
+        if (itemsRemoved) {
+            tp.getTable().getModel().fireTableDataChanged();
+        }
     }
     
     /**
@@ -241,5 +269,39 @@ public class SqlSelectPanel extends BaseSqlPanel <SelectColumnData> {
     @Override
     public boolean haveEntries() {
         return !getTable().getTableData().isEmpty();
+    }
+
+    @Override
+    protected void handleUnprocessedActions(ActionEvent e) {
+        if (Constants.ADD_ALL_COLUMNS_ACTION.equals(e.getActionCommand())) {
+            List data = getTable().getTableData();
+            
+            if (data == null) {
+                getTable().setTableData(data = new ArrayList());
+            }
+            
+            if (!data.isEmpty()) {
+                int rows = data.size();
+                data.clear();
+                getTable().getModel().fireTableRowsDeleted(0, rows);
+            }
+            
+            List <TableData> tdlist = getDbPanel().getSelectedDbObjects();
+            
+            for (TableData td : tdlist) {
+                for (ColumnData cd : td.getColumns()) {
+                    if (cd.isSelected()) {
+                        SelectColumnData scd = new SelectColumnData();
+                        scd.setTableData(td);
+                        scd.setColumnData(cd);
+                        data.add(scd);
+                    }
+                }
+            }
+
+            if (!data.isEmpty()) {
+                getTable().getModel().fireTableRowsInserted(0, data.size()-1);
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -95,14 +96,29 @@ public class TablePanel extends JPanel implements ListSelectionListener {
      * @param tooltipText
      */
     public void addAddButton(ActionListener listener, String text, String tooltipText) {;
+        getButtonPanel().add(addButton = addButton(listener, text, Constants.ADD_ICON, tooltipText));
+    }
+
+    /**
+     * 
+     * @param listener
+     * @param text
+     * @param icon
+     * @param tooltipText
+     * @return 
+     */
+    public JButton addButton(ActionListener listener, String text, ImageIcon icon, String tooltipText) {;
         JPanel p = getButtonPanel();
-        addButton = new JButton(text, Constants.ADD_ICON);
-        addButton.setMargin(new Insets(1, 1, 1, 1));
-        addButton.setToolTipText(tooltipText);
-        addButton.addActionListener(listener);
-        p.add(addButton);
+        JButton retval = new JButton(text, icon);
+        retval.setMargin(new Insets(1, 1, 1, 1));
+        retval.setToolTipText(tooltipText);
+        retval.addActionListener(listener);
+        p.add(retval);
+        
+        return retval;
     }
     
+
     /**
      *
      * @param listener
@@ -110,14 +126,8 @@ public class TablePanel extends JPanel implements ListSelectionListener {
      * @param tooltipText
      */
     public void addDeleteButton(ActionListener listener, String text, String tooltipText) {
-        JPanel p = getButtonPanel();
-        deleteButton = new JButton(text, Constants.DELETE_ICON);
-        deleteButton.setMargin(new Insets(1, 1, 1, 1));
-        deleteButton.setToolTipText(tooltipText);
+        getButtonPanel().add(deleteButton = addButton(listener, text, Constants.DELETE_ICON, tooltipText));
         deleteButton.setEnabled(false);
-        deleteButton.addActionListener(listener);
-        table.getSelectionModel().addListSelectionListener(this);
-        p.add(deleteButton);
     }
 
     @Override
