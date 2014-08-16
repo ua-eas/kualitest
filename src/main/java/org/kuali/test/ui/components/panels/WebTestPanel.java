@@ -89,9 +89,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 testProxyServer = new TestProxyServer(WebTestPanel.this);
                 getStartTest().setEnabled(true);
             }
-        };
 
-        initializeNativeBrowser();
+            @Override
+            protected void processCompleted() {
+                initializeNativeBrowser();
+            }
+        };
     }
 
     @Override

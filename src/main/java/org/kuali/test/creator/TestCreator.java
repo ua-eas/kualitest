@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
@@ -117,6 +118,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private WebServiceTree webServiceTree;
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
+    private int saveProxyEnable;
+    private String saveProxyServer;
+    private boolean proxyServerSet = false;
 
     /**
      *
@@ -563,6 +567,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      */
     public void handleExit() {
         savePreferences();
+        restoreProxyPreference();
         System.exit(0);
     }
     
@@ -1135,5 +1140,40 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     private void showHelpAbout() {
         new AboutDlg(this);
+    }
+    
+    public void restoreProxyPreference() {
+        if (proxyServerSet) {
+            try {
+                Preferences p = Preferences.userRoot();
+                p.putInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, saveProxyEnable); 
+                if (saveProxyEnable == 0) {
+                    p.remove(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY); 
+                } else {
+                    p.put(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, saveProxyServer); 
+                }
+                p.flush();
+            }
+            catch (BackingStoreException ex) {
+                LOG.error(ex.toString(), ex);
+            }
+        }
+    }
+    
+    public void setProxyPreference(String proxyServer, String proxyPort, int proxyEnable) {
+        try {
+            Preferences p = Preferences.userRoot();
+            saveProxyEnable = p.getInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, 0); 
+            saveProxyServer = p.get(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, null); 
+
+            p.putInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, proxyEnable); 
+            p.put(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, proxyServer + ":" + proxyPort); 
+            p.flush();
+            proxyServerSet = true;
+        }
+        
+        catch (BackingStoreException ex) {
+            LOG.error(ex.toString(), ex);
+        }
     }
 }

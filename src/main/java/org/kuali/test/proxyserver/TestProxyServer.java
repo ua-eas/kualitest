@@ -212,6 +212,8 @@ public class TestProxyServer {
             LOG.debug("proxyPort: " + proxyPort);
         }
         
+        webTestPanel.getMainframe().setProxyPreference(proxyHost, proxyPort, 1);
+        
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
             .withPort(Integer.parseInt(proxyPort))
