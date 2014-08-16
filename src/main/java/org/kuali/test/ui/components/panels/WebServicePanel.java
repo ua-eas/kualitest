@@ -192,23 +192,20 @@ public class WebServicePanel extends BaseCreateTestPanel {
             failureAction = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
             failureAction.setEnabled(false);
 
-            JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-            poll = new JCheckBox();
+            poll = new JCheckBox("Poll web service");
             poll.setSelected(getMainframe().getConfiguration().getDefaultWebServicePolling());
-            p.add(poll);
-            p.add(new JLabel("Poll web service"));
             
             JComponent[] components = {
                 operations = new JComboBox(),
                 returnType,
                 expectedResult,
                 failureAction,
-                p
+                poll
             };
             
             operations.addActionListener(this);
 
-            p = new JPanel(new BorderLayout());
+            JPanel p = new JPanel(new BorderLayout());
             JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
             p2.add(UIUtils.buildEntryPanel(labels, components));
             p.add(p2, BorderLayout.NORTH);
