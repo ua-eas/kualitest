@@ -18,11 +18,9 @@ package org.kuali.test.ui.components.dialogs;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -86,14 +84,12 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         name = new JTextField(checkpoint.getName(), 30);
         name.setEditable(!isEditmode());
 
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(saveScreen = new JCheckBox());
-        p.add(new JLabel("Save screen with checkpoint"));
+        saveScreen = new JCheckBox("Save screen with checkpoint");
         
         JComponent[] components = new JComponent[]{
-            name, p};
+            name, saveScreen};
 
-        p = new BasePanel(getMainframe());
+        JPanel p = new BasePanel(getMainframe());
 
         addStandardButtons();
 

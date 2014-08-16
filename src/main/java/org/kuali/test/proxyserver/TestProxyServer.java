@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import org.apache.commons.collections.map.IdentityMap;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -107,7 +108,9 @@ public class TestProxyServer {
     }
     
     private HttpFiltersSource getHttpFiltersSource() {
-          return new HttpFiltersSourceAdapter() {
+        return new HttpFiltersSourceAdapter() {
+            Map <HttpRequest, HttpResponse> imap = new IdentityMap();
+            
             @Override
             public HttpFilters filterRequest(HttpRequest originalRequest) {
                 return new HttpFiltersAdapter(originalRequest) {
@@ -150,7 +153,17 @@ public class TestProxyServer {
                                 getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
                                 
                                 if (httpObject instanceof LastHttpContent) {
-                                    webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                    HttpResponse response = imap.get(originalRequest);
+                                    if (response != null) {
+                                        if (Utils.isTextHtmlContentType(response.headers().get(HttpHeaders.CONTENT_TYPE))
+                                            && (response.getStatus().code() == HttpStatus.OK_200)
+                                            && !isIgnoreUrl(originalRequest.getUri())) {
+                                                webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
+                                        }
+                                        
+                                        imap.remove(originalRequest);
+                                    }
+                                    
                                     getCurrentResponseBuffer().setLength(0);
                                 } 
                             }   
@@ -158,9 +171,10 @@ public class TestProxyServer {
                             content.release();
                         } else if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
-                            
                             if (Utils.isRedirectResponse(response.getStatus().code()) 
-                                || (response.getStatus().code() == HttpStatus.OK_200)) {
+                                || (response.getStatus().code() == HttpStatus.OK_200)
+                                || Utils.isRedirectResponse(response.getStatus().code())) {
+                                imap.put(originalRequest, response);
                                 httpStatus.push(Integer.valueOf(response.getStatus().code()));
                             }
                         }

@@ -18,7 +18,6 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
@@ -69,7 +68,7 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
         
         parameterName = new JTextField(parameter.getParameterName(), 20);
         tagName = new JTextField(parameter.getTagName(), 20);
-        fromInputParameter = new JCheckBox();
+        fromInputParameter = new JCheckBox("From Input Parameter");
         fromInputParameter.setSelected(parameter.getFromInputParameter());
         fromInputParameter.addActionListener(new ActionListener() {
             @Override
@@ -87,17 +86,13 @@ public class AutoReplaceParameterDlg extends BaseSetupDlg {
             }
         });
         
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(fromInputParameter);
-        p.add(new JLabel("From Input Parameter"));
-        
         JComponent[] components = new JComponent[] {
             parameterName,
             tagName,
-            p
+            fromInputParameter
         };
 
-        p = new JPanel(new BorderLayout(3, 3));
+        JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
         tp = new TablePanel(attributesTable = buildAttributesTable());
         

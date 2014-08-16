@@ -18,13 +18,10 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.io.UnsupportedEncodingException;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
@@ -116,14 +113,12 @@ public class DatabaseDlg extends BaseSetupDlg {
         
         password = new JPasswordField(pass, 20);
         
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(configuredTablesOnly = new JCheckBox());
-        p.add(new JLabel("Configured Tables Only"));
+        configuredTablesOnly = new JCheckBox("Configured Tables Only");
         
         
         configuredTablesOnly.setSelected(dbconnection.getConfiguredTablesOnly());
         
-        JComponent[] components = {name, type, url, driver, schema, username, password, p};
+        JComponent[] components = {name, type, url, driver, schema, username, password, configuredTablesOnly};
 
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);

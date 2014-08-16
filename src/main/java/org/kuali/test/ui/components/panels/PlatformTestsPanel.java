@@ -247,11 +247,7 @@ public class PlatformTestsPanel extends BasePanel
 
                             catch (InterruptedException ex) {};
 
-                            long seconds = ((System.currentTimeMillis() - startTime) / 1000);
-
-                            if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
-                                updateElapsedTime(seconds);
-                            }
+                            updateElapsedTime((System.currentTimeMillis() - startTime) / 1000);
                         }
                     } else {
                         UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());

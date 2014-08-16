@@ -2968,10 +2968,13 @@ public class Utils {
 
         if (StringUtils.isNotBlank(patternString)) {
             int pos = patternString.indexOf("*");
-
+            int pos2 = patternString.indexOf("*", pos+1);
+            
             if (pos > -1) {
                 if (StringUtils.isNotBlank(checkString)) {
-                    if (pos == 0) {
+                    if (pos2 > -1) {
+                        retval = checkString.toLowerCase().contains(patternString.substring(pos+1, pos2).toLowerCase());
+                    } else if (pos == 0) {
                         retval = checkString.toLowerCase().endsWith(patternString.substring(1).toLowerCase());
                     } else if (pos == (patternString.length() - 1)) {
                         retval = checkString.toLowerCase().startsWith(patternString.toLowerCase().substring(0, pos));
@@ -3486,13 +3489,8 @@ public class Utils {
     public static boolean isHtml(String input) {
         return (StringUtils.isNotBlank(input) && input.contains("<html>"));
     }
-    
-    
 
-    public static void printNode(Node rootNode, String spacer) {
-        System.out.println(spacer + rootNode.getNodeName() + " -> " + rootNode.getNodeValue());
-        NodeList nl = rootNode.getChildNodes();
-        for (int i = 0; i < nl.getLength(); i++)
-            printNode(nl.item(i), spacer + "  ");
+    public static boolean isTextHtmlContentType(String input) {
+        return (StringUtils.isNotBlank(input) && input.toLowerCase().startsWith(Constants.MIME_TYPE_HTML));
     }
 }

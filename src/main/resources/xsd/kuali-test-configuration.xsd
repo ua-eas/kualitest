@@ -40,6 +40,7 @@
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
                 <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
+                <xs:element name="date-replace-format" type="xs:string"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

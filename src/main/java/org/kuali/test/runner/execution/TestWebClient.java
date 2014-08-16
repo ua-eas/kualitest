@@ -31,8 +31,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,6 +57,7 @@ public class TestWebClient extends WebClient {
     private KualiTestWrapper currentTest;
     private int currentOperationIndex = 0;
     private List<String> parametersToIgnore = new ArrayList<String>();
+    private SimpleDateFormat dateReplaceFormat;
     
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.CHROME);
@@ -63,6 +66,8 @@ public class TestWebClient extends WebClient {
         if (tec.getConfiguration().getParametersToIgnore() != null) {
             parametersToIgnore.addAll(Arrays.asList(tec.getConfiguration().getParametersToIgnore().getParameterNameArray()));
         }
+        
+        dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
         
 	    getOptions().setJavaScriptEnabled(true);
 	    getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -160,7 +165,11 @@ public class TestWebClient extends WebClient {
             for (NameValuePair nvp : work) {
                 TestExecutionParameter tep = map.get(nvp.getValue());
                 if (tep != null) {
-                    retval.add(new NameValuePair(nvp.getName(), tep.getValueProperty().getPropertyValue()));
+                    if (tep.getTreatAsDate()) {
+                        retval.add(new NameValuePair(nvp.getName(), dateReplaceFormat.format(new Date())));
+                    } else {
+                        retval.add(new NameValuePair(nvp.getName(), tep.getValueProperty().getPropertyValue()));
+                    }
                 } else {
                     retval.add(nvp);
                 }

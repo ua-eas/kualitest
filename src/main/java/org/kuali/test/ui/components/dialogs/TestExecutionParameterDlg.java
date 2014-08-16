@@ -20,6 +20,7 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -47,6 +48,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
     private JTextField filters;
+    private JCheckBox treatAsDate;
     private TestExecutionParameter testExecutionParameter;
 
     /**
@@ -65,16 +67,19 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     private void initComponents(JWebBrowser wb, TestHeader testHeader, String html) {
         String[] labels = new String[]{
             "Name",
-            "Filters"
+            "Filters",
+            ""
         };
 
         name = new JTextField(30);
         name.getDocument().addDocumentListener(this);
         filters = new JTextField(30);
-
+        treatAsDate = new JCheckBox("Treat value as date - replace with current date");
+        
         JComponent[] components = new JComponent[]{
             name,
-            filters
+            filters,
+            treatAsDate
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -122,7 +127,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         if (StringUtils.isNotBlank(filters.getText())) {
             cp.setPropertyGroup(filters.getText());
         }
+        
         testExecutionParameter.setValueProperty(cp);
+        testExecutionParameter.setTreatAsDate(treatAsDate.isSelected());
+        
         setSaved(true);
         dispose();
         return true;

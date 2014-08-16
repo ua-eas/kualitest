@@ -151,7 +151,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         config.setDisplayName("Available Properties - " + groupName);
 
         
-        int[] alignment = new int[3];
+        int[] alignment = new int[4];
         for (int i = 0; i < alignment.length; ++i) {
             alignment[i] = JLabel.LEFT;
         }
@@ -161,11 +161,13 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         config.setHeaders(new String[]{
             "Section",
             "Property Name",
+            "Display Name",
             "Value",
         });
 
         config.setPropertyNames(new String[]{
             "propertySection",
+            "propertyName",
             "displayName",
             "propertyValue",
         });
@@ -173,11 +175,13 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         config.setColumnTypes(new Class[]{
             String.class,
             String.class,
+            String.class,
             String.class
         });
 
         config.setColumnWidths(new int[]{
             70,
+            100,
             100,
             50,
         });

@@ -279,13 +279,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     @Override
                     protected void runProcess() {
                         WebServiceOperationExecution wsop = new WebServiceOperationExecution(cp) {
+                            
                             @Override
                             protected void processUpdate(long runtime) {
-                                long seconds = runtime / 1000;
-
-                                if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
-                                    updateElapsedTime(seconds);
-                                }
+                                updateElapsedTime(runtime / 1000);
                             }
                         };
                         

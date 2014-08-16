@@ -18,7 +18,6 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -27,8 +26,6 @@ import java.util.Calendar;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -132,10 +129,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             }
         });
         
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        
-        p.add(useTestEntryTimes = new JCheckBox());
-        p.add(new JLabel("Use test entry times during test execution"));
+        useTestEntryTimes = new JCheckBox("Use test entry times during test execution");
         
 
         if (testTypes.length > 0) {
@@ -156,7 +150,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             description,
             maxRunTime,
             runtimeFailure,
-            p
+            useTestEntryTimes
         };
 
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);

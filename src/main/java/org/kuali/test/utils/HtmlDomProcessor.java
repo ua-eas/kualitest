@@ -61,9 +61,15 @@ public class HtmlDomProcessor {
         List<Element> labelNodes = new ArrayList<Element>();
         DomInformation retval = new DomInformation(platform, Utils.buildLabelMap(labelNodes));
         
+        // the code below is a hack to get the most comple current html
+        // for some reason the web browser does not always provide the
+        // get html so if we have html saved from the proxy server we
+        // will use it in the event there is an iframe 
         if (webBrowser != null) {
-            if (!webBrowser.getResourceLocation().contains("returnLocation=")) {
-                html = webBrowser.getHTMLContent();
+            String s = webBrowser.getHTMLContent();
+            
+            if (StringUtils.isBlank(html) || !s.contains("<iframe")) {
+                html = s;
             }
         }
 
