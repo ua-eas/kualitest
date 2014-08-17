@@ -167,7 +167,11 @@ public class HtmlDomProcessor {
 
         // if we get html back then clean and get the iframe body node
         if (o != null) {
-            retval = Utils.tidify(o.toString()).getDocumentElement();
+            Document doc = Utils.tidify(o.toString());
+            
+            if (doc != null) {
+                retval = doc.getDocumentElement();
+            }
         }
 
         return retval;

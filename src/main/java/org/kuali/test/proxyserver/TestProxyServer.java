@@ -212,7 +212,7 @@ public class TestProxyServer {
             LOG.debug("proxyPort: " + proxyPort);
         }
         
-        webTestPanel.getMainframe().setProxyPreference(proxyHost, proxyPort, 1);
+        webTestPanel.getMainframe().setProxyPreference(proxyHost, proxyPort);
         
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()

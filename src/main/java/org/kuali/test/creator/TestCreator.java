@@ -54,6 +54,7 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.JmxConnection;
@@ -94,6 +95,7 @@ import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.kuali.test.utils.WindowsRegistryProxyHandler;
 
 /**
  *
@@ -118,10 +120,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private WebServiceTree webServiceTree;
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
-    private int saveProxyEnable;
-    private String saveProxyServer;
-    private boolean proxyServerSet = false;
-
+    private WindowsRegistryProxyHandler windowsProxyHandler = null;
     /**
      *
      * @param configFileName
@@ -165,32 +164,49 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     }
 
     private void loadPreferences() {
-        Preferences proot = Preferences.userRoot();
-        Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
-        int left = node.getInt(Constants.PREFS_MAINFRAME_LEFT, Constants.MAINFRAME_DEFAULT_LEFT);
-        int top = node.getInt(Constants.PREFS_MAINFRAME_TOP, Constants.MAINFRAME_DEFAULT_TOP);
-        int width = node.getInt(Constants.PREFS_MAINFRAME_WIDTH, Constants.MAINFRAME_DEFAULT_WIDTH);
-        int height = node.getInt(Constants.PREFS_MAINFRAME_HEIGHT, Constants.MAINFRAME_DEFAULT_HEIGHT);
-        setState(node.getInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, Frame.NORMAL));
+        try {
+            Preferences proot = Preferences.userRoot();
+            Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+            int left = node.getInt(Constants.PREFS_MAINFRAME_LEFT, Constants.MAINFRAME_DEFAULT_LEFT);
+            int top = node.getInt(Constants.PREFS_MAINFRAME_TOP, Constants.MAINFRAME_DEFAULT_TOP);
+            int width = node.getInt(Constants.PREFS_MAINFRAME_WIDTH, Constants.MAINFRAME_DEFAULT_WIDTH);
+            int height = node.getInt(Constants.PREFS_MAINFRAME_HEIGHT, Constants.MAINFRAME_DEFAULT_HEIGHT);
+            setState(node.getInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, Frame.NORMAL));
 
-        setBounds(left, top, width, height);
-        hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
-        vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
+            setBounds(left, top, width, height);
+            hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
+            vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
+    
+            node.flush();
+        } 
+        
+        catch (BackingStoreException ex) {
+            LOG.error(ex.toString(), ex);
+        }
     }
 
     private void savePreferences() {
-        Preferences proot = Preferences.userRoot();
-        Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+        try {
+            Preferences proot = Preferences.userRoot();
+            Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
 
-        Rectangle rect = getBounds();
+            Rectangle rect = getBounds();
 
-        node.putInt(Constants.PREFS_MAINFRAME_LEFT, rect.x);
-        node.putInt(Constants.PREFS_MAINFRAME_TOP, rect.y);
-        node.putInt(Constants.PREFS_MAINFRAME_WIDTH, rect.width);
-        node.putInt(Constants.PREFS_MAINFRAME_HEIGHT, rect.height);
-        node.putInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, hsplitPane.getDividerLocation());
-        node.putInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, vsplitPane.getDividerLocation());
-        node.putInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, getState());
+            node.putInt(Constants.PREFS_MAINFRAME_LEFT, rect.x);
+            node.putInt(Constants.PREFS_MAINFRAME_TOP, rect.y);
+            node.putInt(Constants.PREFS_MAINFRAME_WIDTH, rect.width);
+            node.putInt(Constants.PREFS_MAINFRAME_HEIGHT, rect.height);
+            node.putInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, hsplitPane.getDividerLocation());
+            node.putInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, vsplitPane.getDividerLocation());
+            node.putInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, getState());
+            
+            node.flush();
+        } 
+        
+        catch (BackingStoreException ex) {
+            LOG.error(ex.toString(), ex);
+        }
+            
     }
 
     private void createMenuBar() {
@@ -1143,37 +1159,20 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     }
     
     public void restoreProxyPreference() {
-        if (proxyServerSet) {
-            try {
-                Preferences p = Preferences.userRoot();
-                p.putInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, saveProxyEnable); 
-                if (saveProxyEnable == 0) {
-                    p.remove(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY); 
-                } else {
-                    p.put(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, saveProxyServer); 
-                }
-                p.flush();
-            }
-            catch (BackingStoreException ex) {
-                LOG.error(ex.toString(), ex);
+        if (SystemUtils.IS_OS_WINDOWS) {
+            if (windowsProxyHandler != null) {
+                windowsProxyHandler.resetProxy();
             }
         }
     }
     
-    public void setProxyPreference(String proxyServer, String proxyPort, int proxyEnable) {
-        try {
-            Preferences p = Preferences.userRoot();
-            saveProxyEnable = p.getInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, 0); 
-            saveProxyServer = p.get(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, null); 
-
-            p.putInt(Constants.WINDOWS_REGISTRY_PROXY_ENABLE_KEY, proxyEnable); 
-            p.put(Constants.WINDOWS_REGISTRY_PROXY_SERVER_KEY, proxyServer + ":" + proxyPort); 
-            p.flush();
-            proxyServerSet = true;
-        }
-        
-        catch (BackingStoreException ex) {
-            LOG.error(ex.toString(), ex);
+    public void setProxyPreference(String proxyServer, String proxyPort) {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            if (windowsProxyHandler != null) {
+                windowsProxyHandler.resetProxy();
+            }
+            
+            windowsProxyHandler = new WindowsRegistryProxyHandler(this, proxyServer, proxyPort);
         }
     }
 }

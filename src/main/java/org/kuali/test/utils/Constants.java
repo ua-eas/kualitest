@@ -236,8 +236,6 @@ public class Constants {
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
     public static final String HTTP_HEADER_COOKIE = "Cookie";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
-    public static final String WINDOWS_REGISTRY_PROXY_SERVER_KEY = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ProxyServer";
-    public static final String WINDOWS_REGISTRY_PROXY_ENABLE_KEY = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\ProxyEnable";
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

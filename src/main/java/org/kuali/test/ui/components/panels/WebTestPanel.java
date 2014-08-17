@@ -82,19 +82,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         super(mainframe, platform, testHeader);
 
         initComponents();
-
-        new SplashDisplay(mainframe, "Initializing Web Test", "Loading web proxy server...") {
-            @Override
-            protected void runProcess() {
-                testProxyServer = new TestProxyServer(WebTestPanel.this);
-                getStartTest().setEnabled(true);
-            }
-
-            @Override
-            protected void processCompleted() {
-                initializeNativeBrowser();
-            }
-        };
+        testProxyServer = new TestProxyServer(WebTestPanel.this);
+        getStartTest().setEnabled(true);
+        initializeNativeBrowser();
     }
 
     @Override
