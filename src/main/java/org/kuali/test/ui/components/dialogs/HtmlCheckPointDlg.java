@@ -95,7 +95,7 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        checkpointPanel = new HtmlCheckpointPanel(getMainframe(), webBrowser, testHeader, html);
+        checkpointPanel = new HtmlCheckpointPanel(this, webBrowser, testHeader, html);
         p.add(checkpointPanel, BorderLayout.CENTER);
 
         getContentPane().add(p, BorderLayout.CENTER);

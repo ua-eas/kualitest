@@ -126,7 +126,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      *
      * @return
      */
-    protected TestCreator getMainframe() {
+    public TestCreator getMainframe() {
         return mainframe;
     }
     

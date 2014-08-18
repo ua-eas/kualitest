@@ -33,90 +33,102 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
-import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.dialogs.CheckpointTable;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
+import org.kuali.test.utils.JWebBrowserDocumentGenerator;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
 
 
 public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListener {
     private static Logger LOG = Logger.getLogger(HtmlCheckpointPanel.class);
     private List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
     private boolean empty = false;
-    boolean singleSelectMode;
+    private boolean singleSelectMode;
+    private BaseSetupDlg parentDialog;
+    
     private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
 
-    public HtmlCheckpointPanel (TestCreator mainframe, JWebBrowser webBrowser, 
-        TestHeader testHeader, String html, boolean singleSelectMode) {
-        super(mainframe);
+    public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
+        TestHeader testHeader, boolean singleSelectMode) {
         this.singleSelectMode = singleSelectMode;
-        initComponents(webBrowser, testHeader, html);
+        this.parentDialog = parentDialog;
+        initComponents(webBrowser, testHeader);
 
     }
 
-    public HtmlCheckpointPanel (TestCreator mainframe, JWebBrowser webBrowser, 
+    public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
         TestHeader testHeader, String html) {
-        this(mainframe, webBrowser, testHeader, html, false);
+        this(parentDialog, webBrowser, testHeader, false);
     }
     
-    private void initComponents(JWebBrowser webBrowser, TestHeader testHeader, String html) {
-        setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+    private void initComponents(JWebBrowser webBrowser, TestHeader testHeader) {
+        Document doc = JWebBrowserDocumentGenerator.getInstance().generate(webBrowser);
         
-        HtmlDomProcessor.DomInformation dominfo 
-            = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(getMainframe().getConfiguration(), 
-                testHeader.getPlatformName()), webBrowser, html);
+        Utils.printDom(doc);
+        
+        if (doc != null) {
+            setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
+        
+            HtmlDomProcessor.DomInformation dominfo 
+                = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(parentDialog.getMainframe().getConfiguration(), testHeader.getPlatformName()), doc);
 
-        Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
+            Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("labelNodes.size(): " + dominfo.getLabelMap().size());
-            LOG.debug("CheckpointProperty list size: " + dominfo.getCheckpointProperties().size());
-            LOG.debug("CheckpointProperty map.size: " + pmap.size());
-        }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("labelNodes.size(): " + dominfo.getLabelMap().size());
+                LOG.debug("CheckpointProperty list size: " + dominfo.getCheckpointProperties().size());
+                LOG.debug("CheckpointProperty map.size: " + pmap.size());
+            }
 
-        // if we have more than 1 group then we will use tabs
-        if (pmap.size() > 1) {
-            JTabbedPane tp = new JTabbedPane();
-            List<String> tabNames = new ArrayList(pmap.keySet());
-            Collections.sort(tabNames, new HtmlCheckpointTabComparator());
+            // if we have more than 1 group then we will use tabs
+            if (pmap.size() > 1) {
+                JTabbedPane tp = new JTabbedPane();
+                List<String> tabNames = new ArrayList(pmap.keySet());
+                Collections.sort(tabNames, new HtmlCheckpointTabComparator());
 
-            for (String s : tabNames) {
-                if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
-                    List<CheckpointProperty> props = pmap.get(s);
+                for (String s : tabNames) {
+                    if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
+                        List<CheckpointProperty> props = pmap.get(s);
 
-                    if ((props != null) && !props.isEmpty()) {
-                        CheckpointTable t = null ;
-                        if (singleSelectMode) {
-                            t = buildParameterTableForSingleSelect(s, props);
-                        } else {
-                            t = buildParameterTable(s, props);
+                        if ((props != null) && !props.isEmpty()) {
+                            CheckpointTable t = null ;
+                            if (singleSelectMode) {
+                                t = buildParameterTableForSingleSelect(s, props);
+                            } else {
+                                t = buildParameterTable(s, props);
+                            }
+                            checkpointTables.add(t);
+                            t.getSelectionModel().addListSelectionListener(this);
+                            tp.addTab(s, new TablePanel(t));
                         }
-                        checkpointTables.add(t);
-                        t.getSelectionModel().addListSelectionListener(this);
-                        tp.addTab(s, new TablePanel(t));
                     }
                 }
-            }
 
-            add(tp, BorderLayout.CENTER);
+                add(tp, BorderLayout.CENTER);
 
-        } else if (pmap.size() == 1) {
-            CheckpointTable t;
-            if (singleSelectMode) {
-                t = buildParameterTableForSingleSelect(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+            } else if (pmap.size() == 1) {
+                CheckpointTable t;
+                if (singleSelectMode) {
+                    t = buildParameterTableForSingleSelect(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+                } else {
+                    t = buildParameterTable(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+                }
+                TablePanel p = new TablePanel(t);
+                checkpointTables.add(t);
+                add(p, BorderLayout.CENTER);
+                t.getSelectionModel().addListSelectionListener(this);
             } else {
-                t = buildParameterTable(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+                add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
+                empty = true;
             }
-            TablePanel p = new TablePanel(t);
-            checkpointTables.add(t);
-            add(p, BorderLayout.CENTER);
-            t.getSelectionModel().addListSelectionListener(this);
         } else {
-            add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
-            empty = true;
+            UIUtils.showError(parentDialog, "HTML Parse Error", "Unable to parse web browser HTML");
         }
     }
 

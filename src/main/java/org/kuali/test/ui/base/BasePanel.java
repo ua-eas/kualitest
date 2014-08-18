@@ -40,6 +40,14 @@ public class BasePanel extends JPanel {
 
     /**
      *
+     * @param mainframe
+     */
+    public BasePanel() {
+        this(null);
+    }
+
+    /**
+     *
      * @param newComponent
      */
     public void replaceCenterComponent(JComponent newComponent) {

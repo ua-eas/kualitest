@@ -89,7 +89,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         
         getContentPane().add(p, BorderLayout.NORTH);
         
-        getContentPane().add(valuesPanel = new HtmlCheckpointPanel(getMainframe(), wb, testHeader, html, true), BorderLayout.CENTER);
+        getContentPane().add(valuesPanel = new HtmlCheckpointPanel(this, wb, testHeader, true), BorderLayout.CENTER);
         valuesPanel.addListSelectionListener(this);
         
         addStandardButtons();

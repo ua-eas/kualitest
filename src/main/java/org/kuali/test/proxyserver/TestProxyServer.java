@@ -154,6 +154,7 @@ public class TestProxyServer {
                                 
                                 if (httpObject instanceof LastHttpContent) {
                                     HttpResponse response = imap.get(originalRequest);
+
                                     if (response != null) {
                                         if (Utils.isTextHtmlContentType(response.headers().get(HttpHeaders.CONTENT_TYPE))
                                             && (response.getStatus().code() == HttpStatus.OK_200)
