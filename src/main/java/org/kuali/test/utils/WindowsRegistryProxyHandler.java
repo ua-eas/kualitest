@@ -41,17 +41,19 @@ public class WindowsRegistryProxyHandler {
     
     public  WindowsRegistryProxyHandler(TestCreator mainframe, String server, String port) {
         this.mainframe = mainframe;
-        try {
-            saveProxyServer = getCurrentProxyServer();
-            saveProxyEnable = getCurrentProxyEnable();
-            setProxyEnable(1);
-            setProxyServer(server + ":" + port);
-            testProxySet = true;
-        } 
-        
-        catch (Exception ex) {
-            UIUtils.showError(mainframe, "Proxy Error", "Error occurred while attempting to configure test proxy - " + ex.toString());
-            LOG.error(ex.toString(), ex);
+        if (mainframe.getConfiguration().getAutoUpdateWindowsRegistryForProxy()) {
+            try {
+                saveProxyServer = getCurrentProxyServer();
+                saveProxyEnable = getCurrentProxyEnable();
+                setProxyEnable(1);
+                setProxyServer(server + ":" + port);
+                testProxySet = true;
+            } 
+
+            catch (Exception ex) {
+                UIUtils.showError(mainframe, "Proxy Error", "Error occurred while attempting to configure test proxy - " + ex.toString());
+                LOG.error(ex.toString(), ex);
+            }
         }
     }
     
@@ -117,22 +119,24 @@ public class WindowsRegistryProxyHandler {
     }
     
     public void resetProxy() {
-        if (testProxySet) {
-            try {
-                setProxyEnable(saveProxyEnable);
-                
-                if (StringUtils.isNotBlank(saveProxyServer)) {
-                    setProxyServer(saveProxyServer);
-                } else {
-                    deleteProxyServer();
+        if (mainframe.getConfiguration().getAutoUpdateWindowsRegistryForProxy()) {
+            if (testProxySet) {
+                try {
+                    setProxyEnable(saveProxyEnable);
+
+                    if (StringUtils.isNotBlank(saveProxyServer)) {
+                        setProxyServer(saveProxyServer);
+                    } else {
+                        deleteProxyServer();
+                    }
+
+                    testProxySet = false;
+                } 
+
+                catch (Exception ex) {
+                    UIUtils.showError(mainframe, "Proxy Error", "Error occurred reseting proxy to original values");
+                    LOG.error(ex.toString(), ex);
                 }
-                
-                testProxySet = false;
-            } 
-            
-            catch (Exception ex) {
-                UIUtils.showError(mainframe, "Proxy Error", "Error occurred reseting proxy to original values");
-                LOG.error(ex.toString(), ex);
             }
         }
     }

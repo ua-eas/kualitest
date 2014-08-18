@@ -41,6 +41,7 @@
                 <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
                 <xs:element name="date-replace-format" type="xs:string"/>
+                <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
