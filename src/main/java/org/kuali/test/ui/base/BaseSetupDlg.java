@@ -263,10 +263,12 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      */
     protected String[] getDatabaseConnectionNames() {
         DatabaseConnection[] dbconns = getConfiguration().getDatabaseConnections().getDatabaseConnectionArray();
-        String[] retval = new String[dbconns.length];
+        String[] retval = new String[dbconns.length + 1];
+        
+        retval[0] = "";
         
         for (int i = 0; i < dbconns.length; ++i) {
-            retval[i] = dbconns[i].getName();
+            retval[i+1] = dbconns[i].getName();
         }
         
         return retval;
