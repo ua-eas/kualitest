@@ -18,12 +18,9 @@ package org.kuali.test.proxyserver;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.util.CharsetUtil;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,7 +67,6 @@ public class TestProxyServer {
     private static final Logger LOG = Logger.getLogger(TestProxyServer.class);
     private DefaultHttpProxyServer proxyServer;
     private boolean proxyServerRunning = false;
-    private StringBuilder currentHtmlResponse;
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
@@ -99,14 +95,6 @@ public class TestProxyServer {
         }
     }
 
-    private synchronized StringBuilder getCurrentResponseBuffer() {
-        if (currentHtmlResponse == null) {
-            currentHtmlResponse = new StringBuilder(Constants.INITIAL_HTML_RESPONSE_BUFFER_SIZE);
-        }
-        
-        return currentHtmlResponse;
-    }
-    
     private HttpFiltersSource getHttpFiltersSource() {
         return new HttpFiltersSourceAdapter() {
             Map <HttpRequest, HttpResponse> imap = new IdentityMap();
@@ -146,31 +134,7 @@ public class TestProxyServer {
 
                     @Override
                     public HttpObject responsePost(HttpObject httpObject) {
-                        if (httpObject instanceof HttpContent) {
-                            HttpContent httpContent = (HttpContent)httpObject;
-                            ByteBuf content = httpContent.content().retain();
-                            if (content.isReadable()) {
-                                getCurrentResponseBuffer().append(content.toString(CharsetUtil.UTF_8));
-                                
-                                if (httpObject instanceof LastHttpContent) {
-                                    HttpResponse response = imap.get(originalRequest);
-
-                                    if (response != null) {
-                                        if (Utils.isTextHtmlContentType(response.headers().get(HttpHeaders.CONTENT_TYPE))
-                                            && (response.getStatus().code() == HttpStatus.OK_200)
-                                            && !isIgnoreUrl(originalRequest.getUri())) {
-                                                webTestPanel.setLastProxyHtmlResponse(getCurrentResponseBuffer().toString());
-                                        }
-                                        
-                                        imap.remove(originalRequest);
-                                    }
-                                    
-                                    getCurrentResponseBuffer().setLength(0);
-                                } 
-                            }   
-                            
-                            content.release();
-                        } else if (httpObject instanceof HttpResponse) {
+                        if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
                             if (Utils.isRedirectResponse(response.getStatus().code()) 
                                 || (response.getStatus().code() == HttpStatus.OK_200)

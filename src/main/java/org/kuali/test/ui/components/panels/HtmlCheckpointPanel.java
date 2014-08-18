@@ -70,8 +70,6 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private void initComponents(JWebBrowser webBrowser, TestHeader testHeader) {
         Document doc = JWebBrowserDocumentGenerator.getInstance().generate(webBrowser);
         
-        Utils.printDom(doc);
-        
         if (doc != null) {
             setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         

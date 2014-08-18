@@ -62,6 +62,12 @@ import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JDialog;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -2667,8 +2673,8 @@ public class Utils {
 
         if (StringUtils.isNotBlank(input)) {
             retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
-            // remove tags we do not want
-            removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+         //   remove tags we do not want
+           // removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
         }
         
         return retval;
@@ -3101,8 +3107,23 @@ public class Utils {
         return retval;
     }
 
-    public static void printDom(Document doc) {
-        tidy.pprint(doc, System.out);
+    public static String printElement(Element node) {
+        String retval = "";
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            StringWriter buffer = new StringWriter();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "    ");
+            transformer.transform(new DOMSource(node), new StreamResult(buffer));
+            retval = buffer.toString();
+        }
+        
+        catch (TransformerException ex) {
+            retval = ex.toString();
+        }
+        
+        return retval;    
     }
 
     public static String getContentParameterFromRequestOperation(HtmlRequestOperation reqop) {
