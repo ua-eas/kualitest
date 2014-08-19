@@ -2674,7 +2674,7 @@ public class Utils {
         if (StringUtils.isNotBlank(input)) {
             retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
          //   remove tags we do not want
-           // removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+            removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
         }
         
         return retval;

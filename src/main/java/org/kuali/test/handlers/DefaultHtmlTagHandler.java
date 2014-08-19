@@ -80,12 +80,29 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         }
         
         if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID))) {
-            retval.setPropertyName(Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID)));
+            String id = Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID));
+            
+            if (id.contains(".")) {
+                int pos = id.lastIndexOf(".");
+                retval.setDisplayName(id.substring(pos+1));
+                
+            }
+            
+            retval.setPropertyName(id);
         } else if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
-            retval.setPropertyName(Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+            String nm = Utils.trimString(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME));
+            
+            if (nm.contains(".")) {
+                int pos = nm.lastIndexOf(".");
+                retval.setDisplayName(nm.substring(pos+1));
+            }
+            
+            retval.setPropertyName(nm);
         } 
-        
-        retval.setDisplayName(Utils.trimString(retval.getPropertyName()));
+
+        if (StringUtils.isBlank(retval.getDisplayName())) {
+            retval.setDisplayName(Utils.trimString(retval.getPropertyName()));
+        }
 
         return retval;
     }
