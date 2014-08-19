@@ -42,7 +42,6 @@ public class JWebBrowserDocumentGenerator {
 
     private Document getHtmlDocument(JWebBrowser webBrowser) {
         Document retval = null;
-        
         Object o = webBrowser.executeJavascriptWithResult("return document.documentElement.innerHTML;");
         if (o != null) {
             retval = Utils.tidify(o.toString());
@@ -52,25 +51,45 @@ public class JWebBrowserDocumentGenerator {
         return retval;
     }
     
+    private String getIframeContentCall(Element element, String id, String name) {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append("return ");
+        
+        Element pnode = null; //Utils.findFirstParentNode(element, Constants.HTML_TAG_TYPE_IFRAME);
+        
+        if (pnode == null) {
+            if (StringUtils.isNotBlank(id)) {
+                retval.append("document.getElementById('");
+                retval.append(id);
+                retval.append("')");
+            } else if (StringUtils.isNotBlank(name)) {
+                retval.append("document.getElementsByTagName('");
+                retval.append(id);
+                retval.append("')[0]");
+            }
+            retval.append(".contentDocument.body.innerHTML;");
+        } else {
+            id = pnode.getAttribute("id");
+            name = pnode.getAttribute("name");
+        }
+        
+        return retval.toString();
+    }
+    
     private void populateIframes(JWebBrowser webBrowser, Document doc, Element element) {
-        if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(element.getTagName())) {
+        if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(element.getTagName()) && !element.hasChildNodes()) {
             String id = element.getAttribute("id");
             String name = element.getAttribute("name");
+
+            String iframeCall = getIframeContentCall(element, id, name);
             
-            if (StringUtils.isNotBlank("id")) {
-                Object o = webBrowser.executeJavascriptWithResult("return document.getElementById('" + id + "').contentDocument.body.innerHTML");
-
-                if (o != null) {
-                    element.appendChild(Utils.tidify(o.toString()).getDocumentElement());
-                }
-            } else if (StringUtils.isNotBlank(name)) {
-                Object o = webBrowser.executeJavascriptWithResult("return document.getElementsByName('" + name + "')[0].contentDocument.body.innerHTML");
-
+            if (StringUtils.isNotBlank(iframeCall)) {
+                Object o = webBrowser.executeJavascriptWithResult(iframeCall);
                 if (o != null) {
                     element.appendChild(Utils.tidify(o.toString()).getDocumentElement());
                 }
             }
-            
         }
         
         for (Element e : Utils.getChildElements(element)) {
