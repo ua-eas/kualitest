@@ -227,18 +227,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-       getMainframe().startSpinner("Loading available checkpoint properties...");
-        
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                JWebBrowser wb = getCurrentBrowser();
-                HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
+        JWebBrowser wb = getCurrentBrowser();
+        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
 
-                if (dlg.isSaved()) {
-                    addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
-                }
-            }
-         });
+        if (dlg.isSaved()) {
+            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+        }
     }
     
     private void createMemoryCheckpoint() {
@@ -331,6 +325,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     @Override
     protected void handleStartTest() {
+        getMainframe().startSpinner("Initializing browser interface...");
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         
@@ -339,7 +334,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             public void run() {
                 getCurrentBrowser().navigate(getPlatform().getWebUrl());
                 getMainframe().stopSpinner();
-                
             }
         });
          

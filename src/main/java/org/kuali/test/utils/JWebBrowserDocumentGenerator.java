@@ -56,7 +56,7 @@ public class JWebBrowserDocumentGenerator {
         
         retval.append("return ");
         
-        Element pnode = null; //Utils.findFirstParentNode(element, Constants.HTML_TAG_TYPE_IFRAME);
+        Element pnode = getIframeParent(element);
         
         if (pnode == null) {
             if (StringUtils.isNotBlank(id)) {
@@ -70,11 +70,61 @@ public class JWebBrowserDocumentGenerator {
             }
             retval.append(".contentDocument.body.innerHTML;");
         } else {
-            id = pnode.getAttribute("id");
-            name = pnode.getAttribute("name");
+            String pid = pnode.getAttribute("id");
+            String pname = pnode.getAttribute("name");
+
+            if (StringUtils.isNotBlank(pid)) {
+                retval.append("document.getElementById('");
+                retval.append(pid);
+                retval.append("').");
+                
+                if (StringUtils.isNotBlank(id)) {
+                    retval.append("contentDocument.getElementById('");
+                    retval.append(id);
+                    retval.append("').contentDocument.body.innerHTML;");
+                } else if (StringUtils.isNotBlank(name)) {
+                    retval.append("contentDocument.getElementsByTagName('");
+                    retval.append(id);
+                    retval.append("')[0].contentDocument.body.innerHTML;");
+                }
+            } else if (StringUtils.isNotBlank(name)) {
+                retval.append("document.getElementsByTagName('");
+                retval.append(id);
+                retval.append("')[0].");
+                if (StringUtils.isNotBlank(id)) {
+                    retval.append("contentDocument.getElementById('");
+                    retval.append(id);
+                    retval.append("').contentDocument.body.innerHTML;");
+                } else if (StringUtils.isNotBlank(name)) {
+                    retval.append("contentDocument.getElementsByTagName('");
+                    retval.append(id);
+                    retval.append("')[0].contentDocument.body.innerHTML;");
+                }
+            }
         }
         
         return retval.toString();
+    }
+    
+    private Element getIframeParent(Element element) {
+        Element retval = null;
+        
+        Element pnode = (Element)element.getParentNode();
+        
+        while (pnode != null) {
+            if (Constants.HTML_TAG_TYPE_IFRAME.equalsIgnoreCase(pnode.getTagName())) {
+                retval = pnode;
+                break;
+            }
+            
+            if (pnode.getParentNode() instanceof Element) {
+                pnode = (Element)pnode.getParentNode();
+            } else {
+                break;
+            }
+        }
+        
+        return retval;
     }
     
     private void populateIframes(JWebBrowser webBrowser, Document doc, Element element) {

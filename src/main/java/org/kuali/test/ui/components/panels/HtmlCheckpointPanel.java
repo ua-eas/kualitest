@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
@@ -54,29 +55,39 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     
     private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
 
-    public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
-        TestHeader testHeader, boolean singleSelectMode) {
+    public HtmlCheckpointPanel (final BaseSetupDlg parentDialog, final JWebBrowser webBrowser, 
+        final TestHeader testHeader, boolean singleSelectMode) {
         this.singleSelectMode = singleSelectMode;
         this.parentDialog = parentDialog;
-        initComponents(webBrowser, testHeader);
-        parentDialog.getMainframe().stopSpinner();
-
+        
+        parentDialog.getMainframe().startSpinner("Loading available checkpoint properties...");
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                initComponents(loadDocumentInformation(webBrowser, testHeader), webBrowser);
+                parentDialog.getMainframe().stopSpinner();
+            }
+        });
     }
 
+    private HtmlDomProcessor.DomInformation loadDocumentInformation(JWebBrowser webBrowser, TestHeader testHeader) {
+        HtmlDomProcessor.DomInformation retval = null;
+        Document doc = JWebBrowserDocumentGenerator.getInstance().generate(webBrowser);
+        if (doc != null) {
+            retval = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(parentDialog.getMainframe().getConfiguration(), testHeader.getPlatformName()), doc);
+        }
+        
+        return retval;
+    }
     public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
         TestHeader testHeader, String html) {
         this(parentDialog, webBrowser, testHeader, false);
     }
     
-    private void initComponents(JWebBrowser webBrowser, TestHeader testHeader) {
-        Document doc = JWebBrowserDocumentGenerator.getInstance().generate(webBrowser);
-        
-        if (doc != null) {
+    private void initComponents(HtmlDomProcessor.DomInformation dominfo, JWebBrowser webBrowser) {
+        if (dominfo != null) {
             setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
-            HtmlDomProcessor.DomInformation dominfo 
-                = HtmlDomProcessor.getInstance().processDom(Utils.findPlatform(parentDialog.getMainframe().getConfiguration(), testHeader.getPlatformName()), doc);
-
             Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
             if (LOG.isDebugEnabled()) {
@@ -110,7 +121,6 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 }
 
                 add(tp, BorderLayout.CENTER);
-
             } else if (pmap.size() == 1) {
                 CheckpointTable t;
                 if (singleSelectMode) {
