@@ -29,7 +29,7 @@ public class Spinner extends JLabel {
     public void startSpinner(String msg) {
         setText(msg);
         setVisible(true);
-        getParent().validate();
+        repaint(0);
     }
     
     public void stopSpinner() {
