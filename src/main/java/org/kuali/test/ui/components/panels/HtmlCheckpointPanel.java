@@ -59,6 +59,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         this.singleSelectMode = singleSelectMode;
         this.parentDialog = parentDialog;
         initComponents(webBrowser, testHeader);
+        parentDialog.getMainframe().stopSpinner();
 
     }
 

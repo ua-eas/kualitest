@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -82,8 +83,24 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         super(mainframe, platform, testHeader);
 
         initComponents();
-        testProxyServer = new TestProxyServer(WebTestPanel.this);
+        
+        mainframe.startSpinner("Starting proxy server...");
+        
+        new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                testProxyServer = new TestProxyServer(WebTestPanel.this);
+                return null;
+            };
+
+            @Override
+            protected void done() {
+                getMainframe().stopSpinner();
+            }
+        }.execute();
+        
         getStartTest().setEnabled(true);
+        
         initializeNativeBrowser();
     }
 
@@ -210,6 +227,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
+        getMainframe().startSpinner("Loading available checkpoint properties...");
+        
         JWebBrowser wb = getCurrentBrowser();
         HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
 
@@ -217,7 +236,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
         }
     }
-
+    
     private void createMemoryCheckpoint() {
         MemoryCheckPointDlg dlg = new MemoryCheckPointDlg(getMainframe(), getTestHeader());
 
@@ -308,6 +327,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     @Override
     protected void handleStartTest() {
+        getMainframe().startSpinner("Starting web test...");
+
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         
@@ -315,6 +336,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             @Override
             public void run() {
                 getCurrentBrowser().navigate(getPlatform().getWebUrl());
+                getMainframe().stopSpinner();
+                
             }
         });
          

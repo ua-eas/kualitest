@@ -90,6 +90,7 @@ import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.webservicetree.WebServiceTree;
+import org.kuali.test.ui.utils.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
@@ -121,6 +122,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
+    private Spinner spinner;
+    
     /**
      *
      * @param configFileName
@@ -1111,8 +1114,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         toolbar.addSeparator();
         
         toolbar.add(exitApplication = new ToolbarButton(Constants.EXIT_APPLICATION_TOOLBAR_ICON, "exit application"));
+        
         exitApplication.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (JOptionPane.showConfirmDialog(TestCreator.this, "Exit Test Application?", "Exit", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
@@ -1126,6 +1129,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
         });
         
+        toolbar.addSeparator();
+        
+        toolbar.add(spinner = new Spinner());
 
         retval.add(new JSeparator(), BorderLayout.NORTH);
         retval.add(toolbar, BorderLayout.CENTER);
@@ -1174,5 +1180,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
             windowsProxyHandler = new WindowsRegistryProxyHandler(this, proxyServer, proxyPort);
         }
+    }
+    
+    public void startSpinner(String message) {
+        spinner.startSpinner(message);
+    }
+
+    public void stopSpinner() {
+        spinner.stopSpinner();
     }
 }

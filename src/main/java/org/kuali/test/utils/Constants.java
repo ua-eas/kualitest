@@ -81,6 +81,7 @@ public class Constants {
     public static final ImageIcon ADD_PARAM_ICON = new ImageIcon(TestCreator.class.getResource("/images/add-param.png"));
     public static final ImageIcon SET_PARAM_ICON = new ImageIcon(TestCreator.class.getResource("/images/set-param.png"));
     public static final ImageIcon REFRESH_BROWSER_ICON = new ImageIcon(TestCreator.class.getResource("/images/refresh-browser.png"));
+    public static final ImageIcon LOADING_SPINNER_ICON = new ImageIcon(TestCreator.class.getResource("/images/loading-spinner.gif"));
 
     
     public static final int DEFAULT_HORIZONTAL_DIVIDER_LOCATION = 150;
