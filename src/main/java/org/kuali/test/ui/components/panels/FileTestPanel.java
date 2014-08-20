@@ -95,9 +95,6 @@ public class FileTestPanel extends BaseCreateTestPanel {
         }
     }
 
-    /**
-     *
-     */
     protected void initComponents() {
         super.initComponents();
         

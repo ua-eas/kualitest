@@ -73,6 +73,7 @@ public class TablePanel extends JPanel implements ListSelectionListener {
             table.getPreferredScrollableViewportSize().width, 
             numberOfRowsToDisplay*table.getRowHeight())); 
 
+        table.getSelectionModel().addListSelectionListener(this);
     }
     
     @Override
@@ -134,6 +135,7 @@ public class TablePanel extends JPanel implements ListSelectionListener {
     public void valueChanged(ListSelectionEvent e) {
         if (deleteButton != null) {
             deleteButton.setEnabled(table.getSelectedRow() > -1);
+System.out.println("------------------->" + deleteButton.isEnabled());
         }
     }
 

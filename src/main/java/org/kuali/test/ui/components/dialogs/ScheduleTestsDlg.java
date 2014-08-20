@@ -172,6 +172,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         
         retval.getColumnModel().getColumn(2).setCellRenderer(new CalendarTableCellRenderer());
         retval.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
+
         return retval;
     }
     
