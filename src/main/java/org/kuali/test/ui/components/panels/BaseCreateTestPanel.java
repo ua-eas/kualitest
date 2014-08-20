@@ -17,6 +17,7 @@
 package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,11 +25,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.kuali.test.Checkpoint;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Platform;
 import org.kuali.test.PlatformTests;
@@ -37,8 +41,10 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperations;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.components.buttons.ExtraInfoToolbarButton;
 import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
+import org.kuali.test.ui.components.dialogs.TestCheckpointsDlg;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -53,7 +59,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private final Platform platform;
     private final TestHeader testHeader;
     private ToggleToolbarButton startTest;
-    private ToolbarButton createCheckpoint;
+    private ExtraInfoToolbarButton createCheckpoint;
     private ToolbarButton saveTest;
     
     /**
@@ -79,7 +85,9 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         JToolBar tb = createToolbar();
         
         if (tb != null) {
-            add(tb, BorderLayout.NORTH);
+            JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            p.add(tb);
+            add(p, BorderLayout.NORTH);
         }
     }
     
@@ -103,17 +111,22 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             retval.addSeparator();
         }
         
-        createCheckpoint = new ToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON);
+        createCheckpoint = new ExtraInfoToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON) {
+            @Override
+            public void showExtraInfo() {
+                new TestCheckpointsDlg(getMainframe(), getCheckpoints());
+            }
+        };
+        
         createCheckpoint.addActionListener(this);
         createCheckpoint.setEnabled(false);
         retval.add(createCheckpoint);
         retval.addSeparator();
         
-        List <ToolbarButton> customButtons = getCustomButtons();
+        List <JComponent> customButtons = getCustomButtons();
 
         if (customButtons != null) {
-            for (ToolbarButton tb : customButtons) {
-                tb.addActionListener(this);
+            for (JComponent tb : customButtons) {
                 retval.add(tb);
                 retval.addSeparator();
             }
@@ -151,9 +164,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      *
      * @return
      */
-    protected List <ToolbarButton> getCustomButtons() {
+    protected List <JComponent> getCustomButtons() {
         return null;
     }
+    
+    protected abstract List <Checkpoint> getCheckpoints();
     
     /**
      *
@@ -228,7 +243,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      *
      * @return
      */
-    public ToolbarButton getCreateCheckpoint() {
+    public ExtraInfoToolbarButton getCreateCheckpoint() {
         return createCheckpoint;
     }
 
@@ -236,7 +251,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      *
      * @param createCheckpoint
      */
-    public void setCreateCheckpoint(ToolbarButton createCheckpoint) {
+    public void setCreateCheckpoint(ExtraInfoToolbarButton createCheckpoint) {
         this.createCheckpoint = createCheckpoint;
     }
 

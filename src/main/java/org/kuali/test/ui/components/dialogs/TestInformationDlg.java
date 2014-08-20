@@ -18,8 +18,6 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +32,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
-import org.kuali.test.ui.base.TableConfiguration;
-import org.kuali.test.ui.components.buttons.TableCellIconButton;
-import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.ui.components.panels.TestCheckpointsPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -114,7 +110,7 @@ public class TestInformationDlg extends BaseSetupDlg {
 
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        getContentPane().add(new TablePanel(checkpointTable = buildCheckpointTable()), BorderLayout.CENTER);
+        getContentPane().add(new TestCheckpointsPanel(getMainframe(), this, getTestCheckpoints()), BorderLayout.CENTER);
         
         addStandardButtons();
         
@@ -130,70 +126,6 @@ public class TestInformationDlg extends BaseSetupDlg {
     @Override
     protected String getCancelText() {
         return Constants.CLOSE_ACTION;
-    }
-    
-    private BaseTable buildCheckpointTable() {
-        TableConfiguration config = new TableConfiguration();
-        config.setTableName("test-checkpoint-table");
-        config.setDisplayName("Checkpoints");
-        
-        int[] alignment = new int[3];
-        for (int i = 0; i < alignment.length; ++i) {
-            alignment[i] = JLabel.LEFT;
-        }
-            
-        config.setColumnAlignment(alignment);
-        
-        config.setHeaders(new String[] {
-            "Name",
-            "Type",
-            "Details"
-        });
-        
-        config.setPropertyNames(new String[] {
-            "name",
-            "type",
-            Constants.IGNORE_TABLE_DATA_INDICATOR
-        });
-            
-        config.setColumnTypes(new Class[] {
-            String.class,
-            String.class,
-            String.class
-        });
-        
-        config.setColumnWidths(new int[] {
-            30,
-            20,
-            30
-        });
-
-        config.setData(getTestCheckpoints());
-        
-        BaseTable retval = new BaseTable(config) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return (column == 2);
-            }
-        };
-        
-        TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
-        b.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TableCellIconButton b = (TableCellIconButton)e.getSource();
-                List <Checkpoint> l = checkpointTable.getTableData();
-                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    new CheckpointDetailsDlg(getMainframe(), TestInformationDlg.this, l.get(b.getCurrentRow()));
-                }
-            }
-        });
-        
-        retval.getColumnModel().getColumn(2).setCellRenderer(b);
-        retval.getColumnModel().getColumn(2).setCellEditor(b);
-        
-        return retval;
     }
     
     private List <Checkpoint> getTestCheckpoints() {

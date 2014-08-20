@@ -29,6 +29,7 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -47,6 +48,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.runner.execution.WebServiceOperationExecution;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
+import org.kuali.test.ui.components.buttons.ExtraInfoToolbarButton;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
@@ -70,7 +72,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
-    private ToolbarButton addParam;
+    private ExtraInfoToolbarButton addParam;
     private ToolbarButton refresh;
     
     /**
@@ -452,9 +454,15 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      * @return
      */
     @Override
-    protected List<ToolbarButton> getCustomButtons() {
-        List <ToolbarButton> retval = new ArrayList<ToolbarButton>();
-        retval.add(addParam = new ToolbarButton(Constants.ADD_PARAM_ACTION, Constants.ADD_PARAM_ICON));
+    protected List <JComponent> getCustomButtons() {
+        List <JComponent> retval = new ArrayList<JComponent>();
+        retval.add(addParam = new ExtraInfoToolbarButton(Constants.ADD_PARAM_ACTION, Constants.ADD_PARAM_ICON) {
+            @Override
+            public void showExtraInfo() {
+            }
+        });
+        
+        addParam.addActionListener(this);
         addParam.setToolTipText("add test execution parameter");
         addParam.setEnabled(false);
 
@@ -490,4 +498,18 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     public TestProxyServer getTestProxyServer() {
         return testProxyServer;
     }
+    
+    @Override
+    protected List<Checkpoint> getCheckpoints() {
+        List <Checkpoint> retval = new ArrayList<Checkpoint>();
+        
+        for (TestOperation op :  testProxyServer.getTestOperations()) {
+            if (op.getOperation().getCheckpointOperation() != null) {
+                retval.add(op.getOperation().getCheckpointOperation());
+            }
+        }
+        
+        return retval;
+    }
+
 }

@@ -25,7 +25,6 @@ import javax.swing.JButton;
  * @author rbtucker
  */
 public class ToolbarButton extends JButton {
-
     /**
      *
      * @param actionCommand

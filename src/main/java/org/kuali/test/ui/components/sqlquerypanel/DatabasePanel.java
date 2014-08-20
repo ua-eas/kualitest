@@ -1326,4 +1326,17 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     public TestProxyServer getTestProxyServer() {
         return testProxyServer;
     }
+
+    @Override
+    protected List<Checkpoint> getCheckpoints() {
+        List <Checkpoint> retval = new ArrayList<Checkpoint>();
+        
+        for (TestOperation op :  testOperations) {
+            if (op.getOperation().getCheckpointOperation() != null) {
+                retval.add(op.getOperation().getCheckpointOperation());
+            }
+        }
+        
+        return retval;
+    }
 }
