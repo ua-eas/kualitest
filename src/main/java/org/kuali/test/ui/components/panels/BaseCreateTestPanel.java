@@ -78,9 +78,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
 
-    /**
-     *
-     */
     protected void initComponents() {
         JToolBar tb = createToolbar();
         

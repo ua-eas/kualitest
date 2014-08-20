@@ -56,6 +56,7 @@ import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParametersDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
@@ -459,6 +460,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         retval.add(addParam = new ExtraInfoToolbarButton(Constants.ADD_PARAM_ACTION, Constants.ADD_PARAM_ICON) {
             @Override
             public void showExtraInfo() {
+                new TestExecutionParametersDlg(getMainframe(), getTestExecutionParameters());
             }
         });
         
@@ -512,4 +514,15 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
+    private List<TestExecutionParameter> getTestExecutionParameters() {
+        List <TestExecutionParameter> retval = new ArrayList<TestExecutionParameter>();
+        
+        for (TestOperation op :  testProxyServer.getTestOperations()) {
+            if (op.getOperation().getTestExecutionParameter() != null) {
+                retval.add(op.getOperation().getTestExecutionParameter());
+            }
+        }
+        
+        return retval;
+    }
 }

@@ -19,9 +19,11 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
@@ -75,9 +77,17 @@ public class TestCheckpointsPanel extends BasePanel {
             30
         });
 
+        Iterator <Checkpoint> it = checkpoints.iterator();
+        
+        while (it.hasNext()) {
+            if (StringUtils.isBlank(it.next().getName())) {
+                it.remove();
+            }
+        }
+
         config.setData(checkpoints);
         
-       checkpointTable = new BaseTable(config) {
+        checkpointTable = new BaseTable(config) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return (column == 2);
