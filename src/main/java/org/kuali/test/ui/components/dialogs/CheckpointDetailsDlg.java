@@ -162,7 +162,8 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
             20
         });
 
-        if (checkpoint.getCheckpointProperties().sizeOfCheckpointPropertyArray() > 0) {
+        if ((checkpoint.getCheckpointProperties() != null) 
+            && (checkpoint.getCheckpointProperties().sizeOfCheckpointPropertyArray() > 0)) {
             config.setData(Arrays.asList(checkpoint.getCheckpointProperties().getCheckpointPropertyArray()));
         }
         
