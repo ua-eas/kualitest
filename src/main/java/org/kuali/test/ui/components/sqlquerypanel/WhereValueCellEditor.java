@@ -189,6 +189,8 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
             }
 
             currentRowData = null;
+
+            stopCellEditing();
         }
     }
 

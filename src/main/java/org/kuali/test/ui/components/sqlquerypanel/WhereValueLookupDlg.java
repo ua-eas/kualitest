@@ -34,11 +34,12 @@ import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.Platform;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Utils;
 
 
-public class WhereValueLookupDlg extends JDialog implements ListSelectionListener {
+public class WhereValueLookupDlg extends BaseSetupDlg implements ListSelectionListener {
     private static final Logger LOG = Logger.getLogger(WhereValueLookupDlg.class);
     private LookupValue lookupValue;
     private JList list;
@@ -47,12 +48,12 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
     private String sql;
     
     public WhereValueLookupDlg(TestCreator mainframe, Platform platform, String sql) {
-        super(mainframe, true);
+        super(mainframe);
         init(mainframe, platform, sql);
     }
 
     public WhereValueLookupDlg(TestCreator mainframe, JDialog parent, Platform platform, String sql) {
-        super(parent, true);
+        super(mainframe);
         init(mainframe, platform, sql);
     }
     
@@ -71,15 +72,13 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
         loadLookup();
         
         getContentPane().add(new JScrollPane(list), BorderLayout.CENTER);
-        pack();
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);       
-        setVisible(true);
+        
+        setDefaultBehavior();
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(250, 400);
+        return new Dimension(300, 400);
     }
     
     @Override
@@ -137,5 +136,15 @@ public class WhereValueLookupDlg extends JDialog implements ListSelectionListene
         finally {
             Utils.closeDatabaseResources(conn, stmt, res);
         }
+    }
+
+    @Override
+    protected String getDialogName() {
+        return "where-value-lookup";
+    }
+
+    @Override
+    protected boolean save() {
+        return true;
     }
 }

@@ -24192,8 +24192,64 @@
                 </columns>
             </table>
         </tables>
-        <lookups>
 
+        <lookups>
+            <lookup>
+                <column-name>ACTIVITY_TYPE_CODE</column-name>
+                <sql>select activity_type_code, description from activity_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>AWARD_TYPE_CODE</column-name>
+                <sql>select award_type_code, description from award_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>CARRIER_TYPE_CODE</column-name>
+                <sql>select carrier_type_code, description from carrier_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>COST_SHARE_TYPE_CODE</column-name>
+                <sql>select cost_share_type_code, description from cost_share_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>EXEMPTION_TYPE_CODE</column-name>
+                <sql>select exemption_type_code, description from exemption_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>FUNDING_SOURCE_TYPE_CODE</column-name>
+                <sql>select funding_source_type_code, description from funding_source_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>GROUP_TYPE_CODE</column-name>
+                <sql>select group_type_code, group_name from group_types order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>JOB_CODE</column-name>
+                <sql>select job_code, job_title from job_code order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>LOCATION_TYPE_CODE</column-name>
+                <sql>select location_type_code, location_type_desc from location_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>NARRATIVE_TYPE_CODE</column-name>
+                <sql>select narrative_type_code, description from narrative_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>PROPOSAL_TYPE_CODE</column-name>
+                <sql>select proposal_type_code, description from proposal_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>PROTOCOL_ACTION_TYPE_CODE</column-name>
+                <sql>select protocol_action_type_code, description from protocol_action_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>PROTOCOL_TYPE_CODE</column-name>
+                <sql>select protocol_type_code, description from protocol_type order by 2</sql>
+            </lookup>
+            <lookup>
+                <column-name>SPONSOR_TYPE_CODE</column-name>
+                <sql>select sponsor_type_code, description from sponsor_type order by 2</sql>
+            </lookup>
         </lookups>
     </application>
 </additional-database-info>

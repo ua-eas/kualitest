@@ -60,6 +60,7 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
         setDefaultBehavior();
     }
 
+
     /**
      *
      * @return

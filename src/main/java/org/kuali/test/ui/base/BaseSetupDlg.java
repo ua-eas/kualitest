@@ -201,9 +201,6 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
         getContentPane().add(p2, BorderLayout.SOUTH);
     }
     
-    /**
-     *
-     */
     protected void setDefaultBehavior() {
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(getMainframe());
