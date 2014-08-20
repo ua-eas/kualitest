@@ -313,7 +313,7 @@
                 <match-attributes>
                     <match-attribute>
                         <name>id</name>
-                        <value>lookup</value>
+                        <value>lookup|lookup-criteria</value>
                     </match-attribute>
                 </match-attributes>
             </tag-matcher>
