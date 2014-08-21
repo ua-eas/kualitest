@@ -169,10 +169,9 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             }
 
             FileOutputStream fos = null;
-            ITextRenderer renderer = null;
             try {
                 fos = new FileOutputStream(f);
-                renderer = new ITextRenderer();
+                ITextRenderer renderer = new ITextRenderer();
         		renderer.setDocument(doc, null);
                 renderer.layout();
                 renderer.createPDF(fos);
