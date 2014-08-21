@@ -116,6 +116,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
             if (status == HttpStatus.OK_200) {
                 String results = response.getContentAsString(CharEncoding.UTF_8);
+
                 if (StringUtils.isNotBlank(results)) {
                     testWrapper.pushHttpResponse(results);
                     tec.updateAutoReplaceMap(testWrapper);

@@ -30,7 +30,9 @@ import org.kuali.test.utils.Utils;
 public class TestExecutionMonitor extends Thread {
     private static final int DEFAULT_TEST_MONITORING_SLEEP_TIME = 2000;
     private List <TestExecutionContext> testExecutionList;
-
+    private int currentTestOperation = 0;
+    private int testOperationCount = 0;
+    
     /**
      *
      * @param testExecutionList
@@ -49,6 +51,13 @@ public class TestExecutionMonitor extends Thread {
         while (!testsCompleted()) {
             try {
                 Thread.sleep(DEFAULT_TEST_MONITORING_SLEEP_TIME);
+                
+                // if we only have 1 test then we can monitor the test operations
+                if (testExecutionList.size() == 1) {
+                    TestExecutionContext tec = testExecutionList.get(0);
+                    currentTestOperation = tec.getCurrentTestOperation();
+                    testOperationCount = tec.getTestOperationCount();
+                }
             } 
             
             catch (InterruptedException ex) {};
@@ -135,5 +144,13 @@ public class TestExecutionMonitor extends Thread {
         
         fname = fname.substring(0, pos) + ".xlsx";
         return poiHelper.mergeWorkbookFiles(fname, files, true);
+    }
+
+    public int getCurrentTestOperation() {
+        return currentTestOperation;
+    }
+
+    public int getTestOperationCount() {
+        return testOperationCount;
     }
 }

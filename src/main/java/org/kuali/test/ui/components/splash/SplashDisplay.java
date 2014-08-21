@@ -95,7 +95,7 @@ public class SplashDisplay {
                     p.add(label = new JLabel(getMessage(), getIcon(), JLabel.LEFT), BorderLayout.NORTH);
                     
                     if (showElapsedTime) {
-                        p.add(elapsedTime = new JLabel("  Elapsed Time: "), BorderLayout.CENTER);
+                        p.add(elapsedTime = new JLabel(""), BorderLayout.CENTER);
                     }
                     
                     p.add(progressBar = new JProgressBar(), BorderLayout.SOUTH);
@@ -227,6 +227,11 @@ public class SplashDisplay {
 
     public JLabel getElapsedTime() {
         return elapsedTime;
+    }
+
+    public void updateElapsedTime(String txt) {
+        elapsedTime.setText(txt);
+        elapsedTime.validate();
     }
     
     public void updateElapsedTime(final long timeInSeconds) {

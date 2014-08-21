@@ -74,6 +74,8 @@ public class TestExecutionContext extends Thread {
     private Date endTime;
     private int testRun = 1;
     private int testRuns = 1;
+    private int currentTestOperation = 0;
+    private int testOperationCount = 0;
     private boolean completed = false;
     private String repeatInterval;
     
@@ -236,7 +238,12 @@ public class TestExecutionContext extends Thread {
             parametersRequiringDecryption.addAll(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         }
 
+        
+        testOperationCount = testWrapper.getOperations().length;
+        
         for (TestOperation op : testWrapper.getOperations()) {
+            currentTestOperation = op.getOperation().getIndex();
+            
             // if executeTestOperation returns false we want to halt test
             if (!executeTestOperation(testWrapper, op, poiHelper)) {
                 break;
@@ -586,5 +593,13 @@ public class TestExecutionContext extends Thread {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public int getCurrentTestOperation() {
+        return currentTestOperation;
+    }
+
+    public int getTestOperationCount() {
+        return testOperationCount;
     }
 }
