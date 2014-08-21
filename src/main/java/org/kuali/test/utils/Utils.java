@@ -17,6 +17,8 @@ package org.kuali.test.utils;
 
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.Component;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.StringReader;
@@ -127,6 +129,7 @@ public class Utils {
 
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
+    private static Tidy tidy2;
     private static String encryptionPassword;
     private static MessageDigest messageDigest;
 
@@ -2680,6 +2683,30 @@ public class Utils {
         return retval;
     }
 
+    public static Tidy getTidy2() {
+        if (tidy2 == null) {
+            tidy2 = new Tidy();
+            tidy2.setXHTML(true);
+            tidy2.setDocType("\"-//W3C//DTD XHTML 1.0 Transitional//EN\"");
+            tidy2.setQuiet(true);
+            tidy2.setShowWarnings(false);
+            tidy2.setIndentContent(false);
+            tidy2.setSmartIndent(false);
+            tidy2.setIndentAttributes(false);
+            tidy2.setWraplen(0);
+        }
+        
+        return tidy2;
+    }
+    
+    public static String tidify2(String html) {
+        ByteArrayInputStream in = new ByteArrayInputStream(html.getBytes());
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        Document doc = getTidy2().parseDOM(in, null);
+        getTidy2().pprint(doc, out);
+        return new String(out.toByteArray());
+    }
+    
     /**
      *
      * @param node

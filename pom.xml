@@ -196,6 +196,11 @@
             <artifactId>htmlunit</artifactId>
             <version>2.15</version>
         </dependency>
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.0.6</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
