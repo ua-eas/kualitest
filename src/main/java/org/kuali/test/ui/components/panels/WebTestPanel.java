@@ -16,8 +16,6 @@
 package org.kuali.test.ui.components.panels;
 
 import chrriis.dj.nativeswing.NSComponentOptions;
-import chrriis.dj.nativeswing.NativeSwing;
-import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
@@ -84,10 +82,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      */
     public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
         super(mainframe, platform, testHeader);
-
         initComponents();
         getStartTest().setEnabled(true);
-        initializeNativeBrowser();
     }
 
     @Override
@@ -97,7 +93,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         addContainerListener(this);
         tabbedPane = new JTabbedPane();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
-        addNewBrowserPanel(true);
         add(tabbedPane, BorderLayout.CENTER);
     }
 
@@ -317,6 +312,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             @Override
             protected Object doInBackground() throws Exception {
                 testProxyServer = new TestProxyServer(WebTestPanel.this);
+                addNewBrowserPanel(true);
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -365,6 +361,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
         }
 
+        
         closeProxyServer();
         
         return retval;
@@ -381,33 +378,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
             LOG.warn(t.toString(), t);
         }
     }
-
-    private void initializeNativeBrowser() {
-        if (!NativeInterface.isInitialized()) {
-            NativeSwing.initialize();
-        }
-
-        if (!NativeInterface.isOpen()) {
-            try {
-                NativeInterface.open();
-            }
-            
-            catch (Exception ex) {
-                LOG.error(ex.toString(), ex);
-            }
-        }
-    }
-
-    public void browserRemoved() {
-        try {
-            if (NativeInterface.isOpen()) {
-                NativeInterface.close();
-            }
-        } catch (Exception ex) {
-            LOG.warn(ex.toString());
-        }
-    }
-
     @Override
     public void componentAdded(ContainerEvent e) {
     }
@@ -416,10 +386,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     public void componentRemoved(ContainerEvent e) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("component removed: " + e.getComponent().getClass().getName());
-        }
-
-        if (e.getComponent() instanceof JWebBrowser) {
-            browserRemoved();
         }
     }
 

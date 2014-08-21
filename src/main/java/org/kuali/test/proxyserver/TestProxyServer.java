@@ -15,6 +15,8 @@
  */
 package org.kuali.test.proxyserver;
 
+import chrriis.dj.nativeswing.NativeSwing;
+import chrriis.dj.nativeswing.swtimpl.NativeInterface;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -205,6 +207,20 @@ public class TestProxyServer {
             urlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore().getUrlArray()));
         }
         
+        if (!NativeInterface.isInitialized()) {
+            NativeSwing.initialize();
+        }
+
+        if (!NativeInterface.isOpen()) {
+            try {
+                NativeInterface.open();
+            }
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+            }
+        }
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("proxy server started");
         }
@@ -214,6 +230,14 @@ public class TestProxyServer {
      *
      */
     public void stop() {
+       try {
+            if (NativeInterface.isOpen()) {
+                NativeInterface.close();
+            }
+        } catch (Exception ex) {
+            LOG.warn(ex.toString());
+        }
+
         try {
             proxyServer.stop();
             proxyServerRunning = false;
