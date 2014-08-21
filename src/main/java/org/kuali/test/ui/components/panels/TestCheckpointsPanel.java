@@ -92,11 +92,12 @@ public class TestCheckpointsPanel extends BasePanel {
             public boolean isCellEditable(int row, int column) {
                 return (column == 2);
             }
+            
+            
         };
         
         TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
         b.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 TableCellIconButton b = (TableCellIconButton)e.getSource();
@@ -104,8 +105,12 @@ public class TestCheckpointsPanel extends BasePanel {
                 if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
                     new CheckpointDetailsDlg(getMainframe(), parentDialog, l.get(b.getCurrentRow()));
                 }
+                
+                b.stopCellEditing();
             }
         });
+        
+        
         
         checkpointTable.getColumnModel().getColumn(2).setCellRenderer(b);
         checkpointTable.getColumnModel().getColumn(2).setCellEditor(b);

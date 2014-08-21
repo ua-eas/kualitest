@@ -16,12 +16,15 @@
 package org.kuali.test.ui.components.buttons;
 
 import java.awt.Component;
-import java.util.EventObject;
+import java.util.ArrayList;
+import java.util.EventObject ;
+import java.util.List ;
 import javax.swing.BorderFactory ;
-import javax.swing.ImageIcon ;
-import javax.swing.JButton ;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -30,8 +33,8 @@ import javax.swing.table.TableCellRenderer;
  * @author rbtucker
  */
 public class TableCellIconButton extends JButton implements TableCellEditor, TableCellRenderer {
-    int currentRow = -1;
-
+    private int currentRow = -1;
+    private List <CellEditorListener> listeners = new ArrayList<CellEditorListener>();
     /**
      *
      * @param icon
@@ -65,24 +68,42 @@ public class TableCellIconButton extends JButton implements TableCellEditor, Tab
 
     @Override
     public boolean stopCellEditing() {
+        fireEditingStopped();
         return true;
     }
 
     @Override
     public void cancelCellEditing() {
+        fireEditingCancelled();
     }
 
     @Override
     public void addCellEditorListener(CellEditorListener l) {
+        listeners.add(l);
     }
 
     @Override
     public void removeCellEditorListener(CellEditorListener l) {
+        listeners.remove(l);
     }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         return this;
+    }
+    
+    protected void  fireEditingStopped() {
+        ChangeEvent ce = new ChangeEvent(this);
+        for (CellEditorListener listener : listeners) {
+            listener.editingStopped(ce);
+        }
+    }
+
+    protected void fireEditingCancelled() {
+        ChangeEvent ce = new ChangeEvent(this);
+        for (CellEditorListener listener : listeners) {
+            listener.editingCanceled(ce);
+        }
     }
 
     /**

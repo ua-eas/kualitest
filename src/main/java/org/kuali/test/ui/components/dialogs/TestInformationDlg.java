@@ -31,7 +31,6 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
-import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.components.panels.TestCheckpointsPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -43,7 +42,6 @@ import org.kuali.test.utils.Utils;
  */
 public class TestInformationDlg extends BaseSetupDlg {
     private TestHeader testHeader;
-    private BaseTable checkpointTable;
     
     /**
      * Creates new form TestInformationDlg
@@ -117,8 +115,15 @@ public class TestInformationDlg extends BaseSetupDlg {
         getSaveButton().setVisible(false);
         
         setDefaultBehavior();
+        
     }
 
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
+    
+    
     /**
      *
      * @return
@@ -156,7 +161,7 @@ public class TestInformationDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
+        return new Dimension(600, 700);
     }
 
     /**
