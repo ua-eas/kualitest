@@ -15,16 +15,19 @@
  */
 package org.kuali.test.ui.components.buttons;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.EventObject ;
-import java.util.List ;
+import java.awt.event.ActionListener;
+import java.util.EventObject;
 import javax.swing.BorderFactory ;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
+import javax.swing.ImageIcon ;
+import javax.swing.JButton ;
+import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
+import javax.swing.event.EventListenerList;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
@@ -32,17 +35,20 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author rbtucker
  */
-public class TableCellIconButton extends JButton implements TableCellEditor, TableCellRenderer {
+public class TableCellIconButton extends JPanel implements TableCellEditor, TableCellRenderer {
     private int currentRow = -1;
-    private List <CellEditorListener> listeners = new ArrayList<CellEditorListener>();
+    private JButton button;
+    private EventListenerList listeners = new EventListenerList();
     /**
      *
      * @param icon
      */
     public TableCellIconButton(ImageIcon icon) {
-        super(icon);
+        super(new BorderLayout(0, 0));
+        add(button = new JButton(icon), BorderLayout.CENTER);
+        button.setBorder(BorderFactory.createEmptyBorder());
+        button.setContentAreaFilled(false);
         setBorder(BorderFactory.createEmptyBorder());
-        setContentAreaFilled(false);
     }
 
     @Override
@@ -68,7 +74,7 @@ public class TableCellIconButton extends JButton implements TableCellEditor, Tab
 
     @Override
     public boolean stopCellEditing() {
-        fireEditingStopped();
+        fireEditingCancelled();
         return true;
     }
 
@@ -77,32 +83,48 @@ public class TableCellIconButton extends JButton implements TableCellEditor, Tab
         fireEditingCancelled();
     }
 
+    public void addActionListener(ActionListener listener) {
+        button.addActionListener(listener);
+    }
+    
     @Override
     public void addCellEditorListener(CellEditorListener l) {
-        listeners.add(l);
+        listeners.add(CellEditorListener.class, l);
     }
 
     @Override
     public void removeCellEditorListener(CellEditorListener l) {
-        listeners.remove(l);
+        listeners.remove(CellEditorListener.class, l);
     }
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        if (isSelected) {
+            setForeground(UIManager.getColor("Table.selectionForeground"));
+            setBackground(UIManager.getColor("Table.selectionBackground"));
+        } else {
+            setForeground(UIManager.getColor("Table.foreground"));
+            setBackground(UIManager.getColor("Table.background"));
+        }
+        
         return this;
     }
     
     protected void  fireEditingStopped() {
         ChangeEvent ce = new ChangeEvent(this);
-        for (CellEditorListener listener : listeners) {
-            listener.editingStopped(ce);
+        for (Object listener : listeners.getListenerList()) {
+            if (listener instanceof CellEditorListener) {
+                ((CellEditorListener)listener).editingStopped(ce);
+            }
         }
     }
 
     protected void fireEditingCancelled() {
         ChangeEvent ce = new ChangeEvent(this);
-        for (CellEditorListener listener : listeners) {
-            listener.editingCanceled(ce);
+        for (Object listener : listeners.getListenerList()) {
+            if (listener instanceof CellEditorListener) {
+                ((CellEditorListener)listener).editingCanceled(ce);
+            }
         }
     }
 

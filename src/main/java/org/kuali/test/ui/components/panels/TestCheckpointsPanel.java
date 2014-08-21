@@ -96,11 +96,10 @@ public class TestCheckpointsPanel extends BasePanel {
             
         };
         
-        TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
+        final TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
         b.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TableCellIconButton b = (TableCellIconButton)e.getSource();
                 List <Checkpoint> l = checkpointTable.getTableData();
                 if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
                     new CheckpointDetailsDlg(getMainframe(), parentDialog, l.get(b.getCurrentRow()));

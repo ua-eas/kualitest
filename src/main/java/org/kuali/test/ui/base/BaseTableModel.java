@@ -87,9 +87,11 @@ public class BaseTableModel extends AbstractTableModel {
     @Override
     public void setValueAt(Object value, int row, int col) {
         if ((row < data.size()) && (col < config.getPropertyNames().length)) {
-            Object o = data.get(row);
-            Utils.setObjectProperty(o, config.getPropertyNames()[col], value);
-            fireTableCellUpdated(row, col);
+            if (!Constants.IGNORE_TABLE_DATA_INDICATOR.equals(config.getPropertyNames()[col])) {
+                Object o = data.get(row);
+                Utils.setObjectProperty(o, config.getPropertyNames()[col], value);
+                fireTableCellUpdated(row, col);
+            }
         }
     }
 
