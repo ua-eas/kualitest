@@ -17,7 +17,7 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,6 +33,8 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 /**
  *
@@ -74,13 +76,14 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         retval.append(Constants.FORWARD_SLASH);
         retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
         retval.append(Constants.FORWARD_SLASH);
-        retval.append(getOperation().getCheckpointOperation().getTestName());
+        retval.append(getOperation().getCheckpointOperation().getTestName().toLowerCase().replace(" ", "-"));
+        retval.append("_");
         retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
-        retval.append("-");
+        retval.append("_");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
         retval.append("_");
         retval.append(getTestExecutionContext().getTestRun());
-        retval.append(Constants.HTML_SUFFIX);
+        retval.append(Constants.PDF_SUFFIX);
         
         return retval.toString();
     }
@@ -104,10 +107,12 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
             for (String curhtml : testWrapper.getRecentHttpResponseData()) {
                 if (StringUtils.isNotBlank(curhtml)) {
-                    HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, Utils.tidify(curhtml));
+                    Document doc = Utils.tidify(curhtml);
+                    HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
                     matchingProperties = findCurrentProperties(cp, dominfo);
                     if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
                         html = curhtml;
+                        writeHtmlIfRequired(cp, configuration, platform, doc);
                         break;
                     }
                 }
@@ -117,7 +122,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         if (matchingProperties != null) {
             CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
             if (matchingProperties.size() == properties.length) {
-                writeHtmlIfRequired(cp, configuration, platform, html);
                 boolean success = true;
                 for (int i = 0; i < properties.length; ++i) {
                     if (i < matchingProperties.size()) {
@@ -145,7 +149,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
     }
     
     private void writeHtmlIfRequired(Checkpoint cp, KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, String html) {
+        Platform platform, Document doc) {
         boolean saveScreen = false;
 
         if (cp.getInputParameters() != null) {
@@ -159,15 +163,20 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
 
         if (saveScreen) {
             File f = new File(getSaveScreenFileName(configuration, platform));
-            getTestExecutionContext().getGeneratedCheckpointFiles().add(f);
+            
             if (!f.getParentFile().exists()) {
                 f.getParentFile().mkdirs();
             }
 
-            PrintWriter pw = null;
+            FileOutputStream fos = null;
+            ITextRenderer renderer = null;
             try {
-                pw = new PrintWriter(f);
-                pw.print(html);
+                fos = new FileOutputStream(f);
+                renderer = new ITextRenderer();
+        		renderer.setDocument(doc, null);
+                renderer.layout();
+                renderer.createPDF(fos);
+                getTestExecutionContext().getGeneratedCheckpointFiles().add(f);
             }
 
             catch (Exception ex) {
@@ -176,8 +185,8 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
 
             finally {
                 try {
-                    if (pw != null) {
-                        pw.close();
+                    if (fos != null) {
+                        fos.close();
                     }
                 }
 
