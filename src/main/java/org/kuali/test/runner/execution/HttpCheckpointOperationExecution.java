@@ -148,8 +148,8 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         }
     }
     
-    private void writeHtmlIfRequired(Checkpoint cp, KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform, Document doc) {
+    private void writeHtmlIfRequired(Checkpoint cp, 
+        KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, Document doc) {
         boolean saveScreen = false;
 
         if (cp.getInputParameters() != null) {
@@ -172,7 +172,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             try {
                 fos = new FileOutputStream(f);
                 ITextRenderer renderer = new ITextRenderer();
-        		renderer.setDocument(doc, null);
+        		renderer.setDocument(doc, platform.getWebUrl());
                 renderer.layout();
                 renderer.createPDF(fos);
                 getTestExecutionContext().getGeneratedCheckpointFiles().add(f);
