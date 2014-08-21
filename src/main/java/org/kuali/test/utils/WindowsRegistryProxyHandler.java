@@ -34,7 +34,6 @@ public class WindowsRegistryProxyHandler {
 
     private String saveProxyServer;
     private int saveProxyEnable;
-    private boolean testProxySet = false;
     private TestCreator mainframe;
     
     public  WindowsRegistryProxyHandler(TestCreator mainframe, String server, String port) {
@@ -45,7 +44,6 @@ public class WindowsRegistryProxyHandler {
                 saveProxyEnable = getCurrentProxyEnable();
                 setProxyEnable(1);
                 setProxyServer(server + ":" + port);
-                testProxySet = true;
             } 
 
             catch (Exception ex) {
@@ -112,23 +110,18 @@ public class WindowsRegistryProxyHandler {
     
     public void resetProxy() {
         if (mainframe.getConfiguration().getAutoUpdateWindowsRegistryForProxy()) {
-            if (testProxySet) {
-                try {
-                    if (saveProxyEnable == 0) {
-                        deleteProxyServer();
-                        setProxyEnable(0);
-                    } else {
-                        setProxyServer(saveProxyServer);
-                    }
-                    
-                    
-                    testProxySet = false;
-                } 
-
-                catch (Exception ex) {
-                    UIUtils.showError(mainframe, "Proxy Error", "Error occurred reseting proxy to original values");
-                    LOG.error(ex.toString(), ex);
+            try {
+                if (saveProxyEnable == 0) {
+                    deleteProxyServer();
+                    setProxyEnable(0);
+                } else {
+                    setProxyServer(saveProxyServer);
                 }
+            } 
+
+            catch (Exception ex) {
+                UIUtils.showError(mainframe, "Proxy Error", "Error occurred reseting proxy to original values");
+                LOG.error(ex.toString(), ex);
             }
         }
     }

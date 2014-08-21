@@ -41,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -65,7 +66,6 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
@@ -155,7 +155,23 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         p.add(new JLabel("Base Table:", JLabel.RIGHT));
         p.add(tableDropdown = new JComboBox());
-        loadAvailableDatabaseTables();
+
+        getMainframe().startSpinner("Loading available database tables...");
+        
+        new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                loadAvailableDatabaseTables();
+                return null;
+            };
+
+            @Override
+            protected void done() {
+                getMainframe().stopSpinner();
+                tableDropdown.addActionListener(DatabasePanel.this);
+            }
+        }.execute();
+
         
         JPanel p2 = new JPanel(new BorderLayout());
         p2.add(p, BorderLayout.NORTH);
@@ -178,66 +194,54 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     
     
     private void loadAvailableDatabaseTables() {
-        new SplashDisplay(getMainframe(), "Loading tables", "Load available database tables...") {
+        List <TableData> tables = new ArrayList<TableData>();
 
-            @Override
-            protected void processCompleted() {
-                tableDropdown.addActionListener(DatabasePanel.this);
-            }
+        Connection conn = null;
+        ResultSet res = null;
 
-            @Override
-            protected void runProcess() {
-                List <TableData> tables = new ArrayList<TableData>();
+        try {
+            // load any additional database info - this will give us user-friendly names
+            loadAdditionalDbInfo();
 
-                Connection conn = null;
-                ResultSet res = null;
+            // this is the empty place holder for base table selection
+            tables.add(new TableData());
 
-                try {
-                    // load any additional database info - this will give us user-friendly names
-                    loadAdditionalDbInfo();
+            DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
 
-                    // this is the empty place holder for base table selection
-                    tables.add(new TableData());
+            if (dbconn != null) {
+                conn = Utils.getDatabaseConnection(getMainframe().getEncryptionPassword(), dbconn);
+                DatabaseMetaData dmd = conn.getMetaData();
+                res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
 
-                    DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(getMainframe().getConfiguration(), getPlatform().getDatabaseConnectionName());
+                while (res.next()) {
+                    String tableName = res.getString(3);
 
-                    if (dbconn != null) {
-                        conn = Utils.getDatabaseConnection(getMainframe().getEncryptionPassword(), dbconn);
-                        DatabaseMetaData dmd = conn.getMetaData();
-                        res = dmd.getTables(null, dbconn.getSchema(), null, new String[] {"TABLE", "VIEW"});
+                    Table t = additionalDbInfo.get(tableName);
 
-                        while (res.next()) {
-                            String tableName = res.getString(3);
-
-                            Table t = additionalDbInfo.get(tableName);
-
-                            if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
-                                if (t != null) {
-                                    tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
-                                } else {
-                                    tables.add(new TableData(dbconn.getSchema(), tableName, tableName));
-                                }
-                            } 
+                    if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
+                        if (t != null) {
+                            tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
+                        } else {
+                            tables.add(new TableData(dbconn.getSchema(), tableName, tableName));
                         }
-                    }
-                }
-
-                catch (Exception ex) {
-                    UIUtils.showError(getMainframe(), "Database Connection Error", "An error occurred while attemption to connect to database - " + ex.toString());
-                }
-
-                finally {
-                    Utils.closeDatabaseResources(conn, null, res);
-                }
-
-                Collections.sort(tables);
-
-                for (TableData td : tables) {
-                    tableDropdown.addItem(td);
+                    } 
                 }
             }
+        }
 
-        };
+        catch (Exception ex) {
+            UIUtils.showError(getMainframe(), "Database Connection Error", "An error occurred while attemption to connect to database - " + ex.toString());
+        }
+
+        finally {
+            Utils.closeDatabaseResources(conn, null, res);
+        }
+
+        Collections.sort(tables);
+
+        for (TableData td : tables) {
+            tableDropdown.addItem(td);
+        }
     }
 
     private void loadAdditionalDbInfo() {
@@ -325,7 +329,12 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 res = dmd.getImportedKeys(null, td.getSchema(), td.getName());
                 
                 while(res.next()) {
-                    ikdlist.add(new ImportedKeyData(res));
+                    ImportedKeyData ikd = new ImportedKeyData(res);
+                    
+                    Table t = additionalDbInfo.get(ikd.getPkTable());
+                    if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
+                        ikdlist.add(ikd);
+                    }
                 }
                 
                 importedKeysData.put(ikdkey, ikdlist);
@@ -1217,32 +1226,49 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             final TableData td = (TableData)tableDropdown.getSelectedItem();
 
             if (StringUtils.isNotBlank(td.getName())) {
-                new SplashDisplay(getMainframe(), "Related Tables", "Loading table relationships...") {
+
+                getMainframe().startSpinner("Loading table relationships...");
+                new SwingWorker() {
                     @Override
-                    protected void runProcess() {
+                    protected Object doInBackground() throws Exception {
+                        Object retval = null;
                         try {
                             DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
                             rootNode.removeAllChildren();
                             loadTables(td, rootNode);
                         }
-
+                        
                         catch (Exception ex) {
-                            UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + ex.toString());
+                            retval = ex.toString();
                         }
-                    }
+                        return retval;
+                    };
 
                     @Override
-                    protected void processCompleted() {
-                        DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-                        if (getCreateCheckpoint() != null) {
-                            getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                    protected void done() {
+                        getMainframe().stopSpinner();
+                        try {
+                            Object result = get();
+                            
+                            if (result != null) {
+                                UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + result.toString());
+                            } else {
+                                DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
+                                if (getCreateCheckpoint() != null) {
+                                    getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                                }
+                                sqlQueryTree.getModel().nodeStructureChanged(rootNode);
+                                sqlQueryTree.expandNode(rootNode, 1);
+                                sqlSelectPanel.clear();
+                                sqlWherePanel.clear();
+                            }
+                        } 
+                        
+                        catch (Exception ex) {
+                            LOG.error(ex.toString(), ex);
                         }
-                        sqlQueryTree.getModel().nodeStructureChanged(rootNode);
-                        sqlQueryTree.expandNode(rootNode, 1);
-                        sqlSelectPanel.clear();
-                        sqlWherePanel.clear();
                     }
-                };
+                }.execute();
             }
         }
     }
