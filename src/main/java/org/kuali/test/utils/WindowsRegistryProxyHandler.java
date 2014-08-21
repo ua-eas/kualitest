@@ -26,12 +26,10 @@ import org.kuali.test.ui.utils.UIUtils;
 
 public class WindowsRegistryProxyHandler {
     private static final Logger LOG = Logger.getLogger(WindowsRegistryProxyHandler.class);
-    private static final String SUCCESS_ADD_DELETE = "The operation completed successfully.";
-    private static final String FAILURE_NOT_FOUND = "ERROR: The system was unable to find the specified registry key or value.";
     private static final String PROXY_ENABLE_QUERY = "REG QUERY \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyEnable";
     private static final String PROXY_SERVER_QUERY = "REG QUERY \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer";
     private static final String PROXY_ENABLE_ADD = "REG ADD \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyEnable /t REG_DWORD /d ? /f";
-    private static final String PROXY_SERVER_ADD = "REG ADD \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxySERVER /t REG_SZ /d ? /f";
+    private static final String PROXY_SERVER_ADD = "REG ADD \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer /t REG_SZ /d ? /f";
     private static final String PROXY_SERVER_DELETE = "REG DELETE \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer /f";
 
     private String saveProxyServer;
@@ -57,13 +55,13 @@ public class WindowsRegistryProxyHandler {
         }
     }
     
-    private String getCurrentProxyServer() throws IOException {
+    private String getCurrentProxyServer() throws Exception {
         String retval = null;
         
         Process p = Runtime.getRuntime().exec(PROXY_SERVER_QUERY);
-
         String results = getResults(p.getInputStream());
-        if (StringUtils.isNoneBlank(results) && results.contains("REG_SZ")) {
+
+        if (StringUtils.isNotBlank(results) && results.contains("REG_SZ")) {
             int pos = (results.indexOf("REG_SZ") + "REG_SZ".length() + 1);
             retval = results.substring(pos).trim();
         }
@@ -71,13 +69,13 @@ public class WindowsRegistryProxyHandler {
         return retval;
     }
     
-    private int getCurrentProxyEnable() throws IOException {
+    private int getCurrentProxyEnable() throws Exception {
         int retval = 0;
 
         Process p = Runtime.getRuntime().exec(PROXY_ENABLE_QUERY);
-
         String results = getResults(p.getInputStream());
-        if (StringUtils.isNoneBlank(results) && results.contains("REG_DWORD")) {
+        
+        if (StringUtils.isNotBlank(results) && results.contains("REG_DWORD")) {
             int pos = (results.indexOf("REG_DWORD") + "REG_DWORD".length() + 1);
 
             if (results.substring(pos).trim().contains("1")) {
@@ -89,19 +87,13 @@ public class WindowsRegistryProxyHandler {
     }
     
     private void setProxyEnable(int enable) throws Exception {
-        Process p = Runtime.getRuntime().exec(PROXY_ENABLE_ADD.replace("?", "" + enable));
-
-        String results = getResults(p.getInputStream());
-        if (StringUtils.isNotBlank(results) && !results.contains(SUCCESS_ADD_DELETE)) {
+        if ( Runtime.getRuntime().exec(PROXY_ENABLE_ADD.replace("?", "" + enable)).waitFor() != 0) {
             throw new Exception("add proxy enable (" + enable + ") failed");
         }
     }
     
     private void setProxyServer(String server) throws Exception {
-        Process p = Runtime.getRuntime().exec(PROXY_SERVER_ADD.replace("?", server));
-
-        String results = getResults(p.getInputStream());
-        if (StringUtils.isNotBlank(results) && !results.contains(SUCCESS_ADD_DELETE)) {
+        if (Runtime.getRuntime().exec(PROXY_SERVER_ADD.replace("?", server)).waitFor() != 0) {
             throw new Exception("add proxy server (" + server + ") failed");
         }
     }
@@ -122,14 +114,14 @@ public class WindowsRegistryProxyHandler {
         if (mainframe.getConfiguration().getAutoUpdateWindowsRegistryForProxy()) {
             if (testProxySet) {
                 try {
-                    setProxyEnable(saveProxyEnable);
-
-                    if (StringUtils.isNotBlank(saveProxyServer)) {
-                        setProxyServer(saveProxyServer);
-                    } else {
+                    if (saveProxyEnable == 0) {
                         deleteProxyServer();
+                        setProxyEnable(0);
+                    } else {
+                        setProxyServer(saveProxyServer);
                     }
-
+                    
+                    
                     testProxySet = false;
                 } 
 
@@ -142,10 +134,7 @@ public class WindowsRegistryProxyHandler {
     }
     
     private void deleteProxyServer() throws Exception {
-        Process p = Runtime.getRuntime().exec(PROXY_SERVER_DELETE);
-
-        String results = getResults(p.getInputStream());
-        if (StringUtils.isNotBlank(results) && !results.contains(SUCCESS_ADD_DELETE)) {
+        if (Runtime.getRuntime().exec(PROXY_SERVER_DELETE).waitFor() != 0) {
             throw new Exception("delete proxy server failed");
         }
     }

@@ -38,6 +38,7 @@ import java.util.Stack;
 import org.apache.commons.collections.map.IdentityMap;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.eclipse.jetty.http.HttpStatus;
@@ -52,6 +53,7 @@ import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.kuali.test.utils.WindowsRegistryProxyHandler;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSource;
@@ -71,6 +73,8 @@ public class TestProxyServer {
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
     private List <String> urlsToIgnore = new ArrayList<String>();
+    private WindowsRegistryProxyHandler windowsProxyHandler = null;
+
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
         public boolean add(TestOperation op) {
@@ -177,7 +181,14 @@ public class TestProxyServer {
             LOG.debug("proxyPort: " + proxyPort);
         }
         
-        webTestPanel.getMainframe().setProxyPreference(proxyHost, proxyPort);
+        if (SystemUtils.IS_OS_WINDOWS) {
+            if (windowsProxyHandler != null) {
+                windowsProxyHandler.resetProxy();
+            }
+
+            windowsProxyHandler = new WindowsRegistryProxyHandler(webTestPanel.getMainframe(), proxyHost, proxyPort);
+        }
+
         
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
@@ -206,6 +217,11 @@ public class TestProxyServer {
         try {
             proxyServer.stop();
             proxyServerRunning = false;
+            if (SystemUtils.IS_OS_WINDOWS) {
+                if (windowsProxyHandler != null) {
+                    windowsProxyHandler.resetProxy();
+                }
+            }
         }
         
         catch (Throwable t) {

@@ -54,7 +54,6 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.JmxConnection;
@@ -96,7 +95,6 @@ import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
-import org.kuali.test.utils.WindowsRegistryProxyHandler;
 
 /**
  *
@@ -121,7 +119,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private WebServiceTree webServiceTree;
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
-    private WindowsRegistryProxyHandler windowsProxyHandler = null;
     private Spinner spinner;
     
     /**
@@ -586,7 +583,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      */
     public void handleExit() {
         savePreferences();
-        restoreProxyPreference();
         System.exit(0);
     }
     
@@ -1162,24 +1158,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     private void showHelpAbout() {
         new AboutDlg(this);
-    }
-    
-    public void restoreProxyPreference() {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            if (windowsProxyHandler != null) {
-                windowsProxyHandler.resetProxy();
-            }
-        }
-    }
-    
-    public void setProxyPreference(String proxyServer, String proxyPort) {
-        if (SystemUtils.IS_OS_WINDOWS) {
-            if (windowsProxyHandler != null) {
-                windowsProxyHandler.resetProxy();
-            }
-            
-            windowsProxyHandler = new WindowsRegistryProxyHandler(this, proxyServer, proxyPort);
-        }
     }
     
     public void startSpinner(String message) {

@@ -75,7 +75,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private String lastProxyHtmlResponse;
     private ExtraInfoToolbarButton addParam;
     private ToolbarButton refresh;
-    
+
     /**
      *
      * @param mainframe
@@ -86,24 +86,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         super(mainframe, platform, testHeader);
 
         initComponents();
-        
-        mainframe.startSpinner("Starting proxy server...");
-        
-        new SwingWorker() {
-            @Override
-            protected Object doInBackground() throws Exception {
-                testProxyServer = new TestProxyServer(WebTestPanel.this);
-                return null;
-            };
-
-            @Override
-            protected void done() {
-                getMainframe().stopSpinner();
-            }
-        }.execute();
-        
         getStartTest().setEnabled(true);
-        
         initializeNativeBrowser();
     }
 
@@ -329,16 +312,29 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected void handleStartTest() {
         getMainframe().startSpinner("Initializing browser interface...");
+        
+        new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                testProxyServer = new TestProxyServer(WebTestPanel.this);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        getCurrentBrowser().navigate(getPlatform().getWebUrl());
+                    }
+                });
+                return null;
+            };
+
+            @Override
+            protected void done() {
+                getMainframe().stopSpinner();
+            }
+        }.execute();
+
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
         
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                getCurrentBrowser().navigate(getPlatform().getWebUrl());
-                getMainframe().stopSpinner();
-            }
-        });
          
         addParam.setEnabled(true);
         refresh.setEnabled(true);
