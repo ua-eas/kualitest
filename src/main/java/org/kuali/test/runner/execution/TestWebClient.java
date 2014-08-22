@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.utils.Constants;
@@ -101,46 +99,57 @@ public class TestWebClient extends WebClient {
                         request.getRequestParameters().clear();
                         request.getRequestParameters().addAll(params);
                     } else {
-                        String paramString = Utils.getParametersFromUrl(request.getUrl().toExternalForm());
-
-                        if (StringUtils.isNotBlank(paramString)) {
+                        if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
+                            if (request.getUrl().toExternalForm().contains("kew/DocHandler.do?command=displayDocSearchView&docId")) {
+                                System.out.println("----------------->(1): " +  request.getUrl().toExternalForm());
+                            }
+                            
                             handleUrlParameters(request);
+
+                            if (request.getUrl().toExternalForm().contains("kew/DocHandler.do?command=displayDocSearchView&docId")) {
+                                System.out.println("----------------->(2): " +  request.getUrl().toExternalForm());
+                                System.out.println("----------------------------------------------------------------------");
+                            }
                         }
                     }
                     
                     replaceJsessionId(request);
                 }
-                
+
                 return super.getResponse(request);
             }
         };
-
     }
 
-    private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
-        String url = request.getUrl().toExternalForm();
-
+    private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
+        StringBuilder retval = new StringBuilder(512);
+        
         // hack to handle urls with multiple question marks in the parameter list
-        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+        int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
         if (pos > -1) {
-            StringBuilder buf = new StringBuilder(256);
-            
-            buf.append(url.substring(0, pos+1));
-            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(url), Constants.SEPARATOR_QUESTION);
+            retval.append(input.substring(0, pos+1));
+            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(input), Constants.SEPARATOR_QUESTION);
             String seperator = "";
         
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-                buf.append(seperator);
+                retval.append(seperator);
                 List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(token);
                 if ((npvlist != null) && !npvlist.isEmpty()) {
                     npvlist = getUpdatedParameterList(npvlist);
-                    buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+                    retval.append(Utils.buildUrlEncodedParameterString(npvlist));
                     seperator = Constants.SEPARATOR_QUESTION;
                 }
             }
-            
-            request.setUrl(new URL(buf.toString()));
+        }
+        
+        return retval.toString();
+    }
+    
+    private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
+        String updatedUrl = getUpdatedUrlParameters(request.getUrl().toExternalForm());
+        if (StringUtils.isNotBlank(updatedUrl)) {
+            request.setUrl(new URL(updatedUrl));
         }
     }
     
@@ -168,7 +177,7 @@ public class TestWebClient extends WebClient {
                     if (tep.getTreatAsDate()) {
                         retval.add(new NameValuePair(nvp.getName(), dateReplaceFormat.format(new Date())));
                     } else {
-                        retval.add(new NameValuePair(nvp.getName(), tep.getValueProperty().getPropertyValue()));
+                        retval.add(new NameValuePair(nvp.getName(), tep.getValue()));
                     }
                 } else {
                     retval.add(nvp);
@@ -186,6 +195,9 @@ public class TestWebClient extends WebClient {
 
         for (TestOperation top : currentTest.getOperations()) {
             if (top.getOperation().getTestExecutionParameter() != null) {
+                if (top.getOperation().getIndex() > currentOperationIndex) {
+                    break;
+                }
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
                 String key = null;
                     
@@ -210,6 +222,7 @@ public class TestWebClient extends WebClient {
                 it.remove();
             }
         }
+        
         return replaceRequestParameterValues(decryptHttpParameters(nvplist), tec.getAutoReplaceParameterMap());
     }
 
@@ -298,22 +311,6 @@ public class TestWebClient extends WebClient {
         this.currentOperationIndex = currentOperationIndex;
     }
     
-   private void updateAutoReplaceMap(String params) throws UnsupportedEncodingException {
-        if (tec.getConfiguration().getAutoReplaceParameters() != null) {
-            Set <String> hs = new HashSet<String>();
-            for (AutoReplaceParameter arparam : tec.getConfiguration().getAutoReplaceParameters().getAutoReplaceParameterArray()) {
-                hs.add(arparam.getParameterName());
-            }
-
-            List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(params);
-            for (NameValuePair nvp : nvplist) {
-                if (hs.contains(nvp.getName()) && !tec.getAutoReplaceParameterMap().containsKey(nvp.getName())) {
-                    tec.getAutoReplaceParameterMap().put(nvp.getName(), nvp.getValue());
-                }
-            }
-        }
-    }
-   
     public Set <Cookie> getCookies() {
         return getCookieManager().getCookies();
     }

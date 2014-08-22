@@ -157,42 +157,42 @@ public class TestExecutionMonitor extends Thread {
     }
 
     public String buildDisplayMessage(long startTime) {
-        StringBuilder txt = new StringBuilder(256);
+        StringBuilder retval = new StringBuilder(256);
         
-        txt.append("<html><span style='text-decoration: underline;'>Executing test operation ");
+        retval.append("<html><span style='text-decoration: underline; padding-left: 5px;'>Executing test operation ");
         if ((getCurrentTestOperation() != null)
             && (getCurrentTestOperation().getOperation() != null)) {
-            txt.append(getCurrentTestOperation().getOperation().getIndex()+1);
-            txt.append(" of ");
+            retval.append(getCurrentTestOperation().getOperation().getIndex()+1);
+            retval.append(" of ");
             if (getTestOperationCount() > 0) {
-                txt.append(getTestOperationCount());
+                retval.append(getTestOperationCount());
             }
 
-            txt.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr>");
-            txt.append("<th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0px 0px 0px 5px;'>");
-            txt.append(getCurrentTestOperation().getOperationType().toString());
-            txt.append("</td></tr>");
+            retval.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr>");
+            retval.append("<th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0px 0px 0px 5px;'>");
+            retval.append(getCurrentTestOperation().getOperationType().toString());
+            retval.append("</td></tr>");
             if (getCurrentTestOperation().getOperationType().equals(TestOperationType.CHECKPOINT)) {
-                txt.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
-                txt.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName());
-                txt.append("</td></tr>");
+                retval.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
+                retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName());
+                retval.append("</td></tr>");
             }
         } else {
-            txt.append("- of -</span><table>");
+            retval.append("- of -</span><table>");
         }
 
-        txt.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");
+        retval.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");
 
         long seconds = ((System.currentTimeMillis() - startTime) / 1000);
-        if (seconds > 60) {
-            txt.append((seconds / 60));
-            txt.append("min. ");
+        if (seconds >= 60) {
+            retval.append((seconds / 60));
+            retval.append("min. ");
         }
 
-        txt.append(seconds % 60);
-        txt.append("sec.</td></tr></table>");
-        txt.append("</html>");
+        retval.append(seconds % 60);
+        retval.append("sec.</td></tr></table>");
+        retval.append("</html>");
 
-        return txt.toString();
+        return retval.toString();
     }
 }

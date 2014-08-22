@@ -3387,7 +3387,7 @@ public class Utils {
         return retval;
     }
     
-    public static String buildUrlEncodedParameterString(List <NameValuePair> nvplist) {
+    public static String buildUrlEncodedParameterString(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
         
         String paramSeparator = "";
@@ -3409,7 +3409,7 @@ public class Utils {
         return retval.toString();
     }
 
-    public static String buildUrlEncodedParameterString(NameValuePair[] nvparray) {
+    public static String buildUrlEncodedParameterString(NameValuePair[] nvparray) throws UnsupportedEncodingException {
         return buildUrlEncodedParameterString(Arrays.asList(nvparray));
     }
     

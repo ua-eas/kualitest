@@ -124,7 +124,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                     testWrapper.pushHttpResponse(results);
                     tec.updateAutoReplaceMap(testWrapper);
-                    tec.updateTestExecutionParameters(testWrapper, results);
+                  //  tec.updateTestExecutionParameters(testWrapper, results);
                 }
             } else if (Utils.isRedirectResponse(status)) {
             } else {
