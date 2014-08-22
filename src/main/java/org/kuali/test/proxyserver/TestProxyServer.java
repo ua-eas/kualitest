@@ -75,6 +75,7 @@ public class TestProxyServer {
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
     private List <String> urlsToIgnore = new ArrayList<String>();
+    private Set <String> hostsRequiringHttps = new HashSet<String>();
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
 
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
@@ -205,6 +206,10 @@ public class TestProxyServer {
         
         if (webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore() != null) {
             urlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore().getUrlArray()));
+        }
+        
+        if (webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps() != null) {
+            hostsRequiringHttps.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps().getHostArray()));
         }
         
         if (!NativeInterface.isInitialized()) {
@@ -342,6 +347,18 @@ public class TestProxyServer {
                 }
             }
 
+            String myhost = null;
+
+            if (StringUtils.isNotBlank(host)) {
+              myhost = host;  
+            } else {
+              myhost = platformHost;
+            }
+            
+            if (hostsRequiringHttps.contains(myhost)) {
+                protocol = Constants.HTTPS;
+            }
+            
             retval.append(protocol);
             retval.append("://");
             if (StringUtils.isNotBlank(host)) {

@@ -74,11 +74,10 @@ public class TestExecutionContext extends Thread {
     private Date endTime;
     private int testRun = 1;
     private int testRuns = 1;
-    private int currentTestOperation = 0;
-    private int testOperationCount = 0;
     private boolean completed = false;
     private String repeatInterval;
-    
+    private int testOperationCount = 0;
+    private TestOperation currentTestOperation;
     private TestWebClient webClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
 
@@ -242,7 +241,7 @@ public class TestExecutionContext extends Thread {
         testOperationCount = testWrapper.getOperations().length;
         
         for (TestOperation op : testWrapper.getOperations()) {
-            currentTestOperation = op.getOperation().getIndex();
+            currentTestOperation = op;
             
             // if executeTestOperation returns false we want to halt test
             if (!executeTestOperation(testWrapper, op, poiHelper)) {
@@ -595,7 +594,7 @@ public class TestExecutionContext extends Thread {
         this.completed = completed;
     }
 
-    public int getCurrentTestOperation() {
+    public TestOperation getCurrentTestOperation() {
         return currentTestOperation;
     }
 

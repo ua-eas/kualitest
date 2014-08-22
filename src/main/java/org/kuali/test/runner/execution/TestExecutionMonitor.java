@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Utils;
 
@@ -30,7 +32,7 @@ import org.kuali.test.utils.Utils;
 public class TestExecutionMonitor extends Thread {
     private static final int DEFAULT_TEST_MONITORING_SLEEP_TIME = 2000;
     private List <TestExecutionContext> testExecutionList;
-    private int currentTestOperation = 0;
+    private TestOperation currentTestOperation;
     private int testOperationCount = 0;
     
     /**
@@ -146,11 +148,50 @@ public class TestExecutionMonitor extends Thread {
         return poiHelper.mergeWorkbookFiles(fname, files, true);
     }
 
-    public int getCurrentTestOperation() {
+    public TestOperation getCurrentTestOperation() {
         return currentTestOperation;
     }
 
     public int getTestOperationCount() {
         return testOperationCount;
+    }
+
+    public String buildDisplayMessage(long startTime) {
+        StringBuilder txt = new StringBuilder(256);
+        
+        txt.append("<html><span style='text-decoration: underline;'>Executing test operation ");
+        if ((getCurrentTestOperation() != null)
+            && (getCurrentTestOperation().getOperation() != null)) {
+            txt.append(getCurrentTestOperation().getOperation().getIndex()+1);
+            txt.append(" of ");
+            if (getTestOperationCount() > 0) {
+                txt.append(getTestOperationCount());
+            }
+
+            txt.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0;'>");
+            txt.append(getCurrentTestOperation().getOperationType().toString());
+            txt.append("</td></tr>");
+            if (getCurrentTestOperation().getOperationType().equals(TestOperationType.CHECKPOINT)) {
+                txt.append("<tr><th style='text-align: right; padding: 0;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
+                txt.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName());
+                txt.append("</td></tr>");
+            }
+        } else {
+            txt.append("- of -</span><table>");
+        }
+
+        txt.append("<tr><th style='text-align: right; padding: 0;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");
+
+        long seconds = ((System.currentTimeMillis() - startTime) / 1000);
+        if (seconds > 60) {
+            txt.append((seconds / 60));
+            txt.append("min. ");
+        }
+
+        txt.append(seconds % 60);
+        txt.append("sec.</td></tr></table>");
+        txt.append("</html>");
+
+        return txt.toString();
     }
 }

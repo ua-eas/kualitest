@@ -42,6 +42,7 @@
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
                 <xs:element name="date-replace-format" type="xs:string"/>
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
+                <xs:element name="hosts-requiring-https" type="hosts-requiring-https" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -64,6 +65,12 @@
     <xs:complexType name="urls-to-ignore">
         <xs:sequence>
             <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="hosts-requiring-https">
+        <xs:sequence>
+            <xs:element name="host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

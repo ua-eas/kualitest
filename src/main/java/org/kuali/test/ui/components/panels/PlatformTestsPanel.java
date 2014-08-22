@@ -247,15 +247,7 @@ public class PlatformTestsPanel extends BasePanel
 
                             catch (InterruptedException ex) {};
 
-                            StringBuilder txt = new StringBuilder(256);
-                            txt.append("<html>&nbsp;Executing test operation ");
-                            txt.append(monitor.getCurrentTestOperation()+1);
-                            txt.append(" of ");
-                            txt.append(monitor.getTestOperationCount());
-                            txt.append("<br />&nbsp;Elapsed Time: ");
-                            txt.append((System.currentTimeMillis() - startTime) / 1000);
-                            txt.append("</html>");
-                            updateElapsedTime(txt.toString());
+                            updateElapsedTime(monitor.buildDisplayMessage(startTime));
                         }
                     } else {
                         UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());

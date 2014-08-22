@@ -123,11 +123,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
 
                         catch (InterruptedException ex) {};
 
-                        long seconds = ((System.currentTimeMillis() - startTime) / 1000);
-
-                        if ((seconds % Constants.ELAPSED_TIME_UPDATE_INTERVAL) == 0) {
-                            updateElapsedTime(seconds);
-                        }
+                        updateElapsedTime(monitor.buildDisplayMessage(startTime));
                     }
                 }
             };

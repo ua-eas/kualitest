@@ -114,10 +114,14 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             response = tec.getWebClient().getPage(request).getWebResponse();
             int status = response.getStatusCode();
+
             if (status == HttpStatus.OK_200) {
                 String results = response.getContentAsString(CharEncoding.UTF_8);
-
                 if (StringUtils.isNotBlank(results)) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("========================================= test operation " + getOperation().getIndex() +  " =========================================");
+                        LOG.debug(results);
+                    }
                     testWrapper.pushHttpResponse(results);
                     tec.updateAutoReplaceMap(testWrapper);
                     tec.updateTestExecutionParameters(testWrapper, results);
