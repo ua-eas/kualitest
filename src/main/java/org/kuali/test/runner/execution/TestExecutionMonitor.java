@@ -168,11 +168,12 @@ public class TestExecutionMonitor extends Thread {
                 txt.append(getTestOperationCount());
             }
 
-            txt.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0;'>");
+            txt.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr>");
+            txt.append("<th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0px 0px 0px 5px;'>");
             txt.append(getCurrentTestOperation().getOperationType().toString());
             txt.append("</td></tr>");
             if (getCurrentTestOperation().getOperationType().equals(TestOperationType.CHECKPOINT)) {
-                txt.append("<tr><th style='text-align: right; padding: 0;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
+                txt.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
                 txt.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName());
                 txt.append("</td></tr>");
             }
@@ -180,7 +181,7 @@ public class TestExecutionMonitor extends Thread {
             txt.append("- of -</span><table>");
         }
 
-        txt.append("<tr><th style='text-align: right; padding: 0;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");
+        txt.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");
 
         long seconds = ((System.currentTimeMillis() - startTime) / 1000);
         if (seconds > 60) {
