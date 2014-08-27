@@ -38,12 +38,22 @@
         <httpcore.version>4.3.2</httpcore.version>
         <netty.version>4.0.10.Final</netty.version>
         <native.swing.version>1.0.3</native.swing.version>
+        <flying.saucer.version>9.0.6</flying.saucer.version>
+        <htmlunit.version>2.15</htmlunit.version>
+        <org.jdesktop.version>1.2.1</org.jdesktop.version>
+        <xmlbeans.xbean.version>2.2.0</xmlbeans.xbean.version>
+        <com.sun.jna.version>3.0.9</com.sun.jna.version>
+        <xmlschema.version>1.1</xmlschema.version>
+        <xml.apis.version>1.4.01</xml.apis.version>
+        <apache.httpcore.version>4.3.2</apache.httpcore.version>
+        <commons.fileupload.version>1.3.1</commons.fileupload.version>
+        <jasypt.version>1.9.2</jasypt.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.jdesktop</groupId>
             <artifactId>beansbinding</artifactId>
-            <version>1.2.1</version>
+            <version>${org.jdesktop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlbeans</groupId>
@@ -53,7 +63,7 @@
         <dependency>
             <groupId>xmlbeans</groupId>
             <artifactId>xbean</artifactId>
-            <version>2.2.0</version>
+            <version>${xmlbeans.xbean.version}</version>
         </dependency>    
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -78,7 +88,7 @@
         <dependency>
             <groupId>com.sun.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>3.0.9</version>
+            <version>${com.sun.jna.version}</version>
         </dependency>
         <dependency>
             <groupId>chrriis</groupId>
@@ -159,7 +169,7 @@
         <dependency>
             <groupId>org.apache.ws.commons</groupId>
             <artifactId>XmlSchema</artifactId>
-            <version>1.1</version>
+            <version>${xmlschema.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.jtidy</groupId>
@@ -169,7 +179,7 @@
         <dependency>
             <groupId>org.jasypt</groupId>
             <artifactId>jasypt</artifactId>
-            <version>1.9.2</version>
+            <version>${jasypt.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -179,27 +189,27 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.1</version>
+            <version>${commons.fileupload.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.3.2</version>
+            <version>${apache.httpcore.version}</version>
         </dependency>
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis</artifactId>
-            <version>1.4.01</version>
+            <version>${xml.apis.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.15</version>
+            <version>${htmlunit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.xhtmlrenderer</groupId>
             <artifactId>flying-saucer-pdf</artifactId>
-            <version>9.0.6</version>
+            <version>${flying.saucer.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -246,11 +256,11 @@
     
     <profiles>
         <profile>
-            <id>linux64</id>
+            <id>linux32</id>
             <dependencies>
                 <dependency>
-                    <groupId>org.eclipse.swt.org.eclipse.swt.gtk.linux.x86_64.4.3.swt</groupId>
-                    <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+                    <groupId>org.eclipse.swt.org.eclipse.swt.gtk.linux.x86.4.3.swt</groupId>
+                    <artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
                     <version>${eclipse.swt.version}</version>
                 </dependency>   
             </dependencies>

@@ -159,7 +159,7 @@ public class TestExecutionMonitor extends Thread {
     public String buildDisplayMessage(long startTime) {
         StringBuilder retval = new StringBuilder(256);
         
-        retval.append("<html><span style='text-decoration: underline; padding-left: 5px;'>Executing test operation ");
+        retval.append("<html>&nbsp;&nbsp;<span style='text-decoration: underline;'>Executing test operation ");
         if ((getCurrentTestOperation() != null)
             && (getCurrentTestOperation().getOperation() != null)) {
             retval.append(getCurrentTestOperation().getOperation().getIndex()+1);

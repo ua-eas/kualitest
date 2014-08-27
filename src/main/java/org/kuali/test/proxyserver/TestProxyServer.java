@@ -77,6 +77,7 @@ public class TestProxyServer {
     private List <String> urlsToIgnore = new ArrayList<String>();
     private Set <String> hostsRequiringHttps = new HashSet<String>();
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
+    private String previousGetRequest;
 
     private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
@@ -281,25 +282,32 @@ public class TestProxyServer {
      */
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
-        
-        String method = request.getMethod().toString();
-        if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-            if (!Utils.isGetImageRequest(method, request.getUri())
-                && !Utils.isGetJavascriptRequest(method, request.getUri())
-                && !Utils.isGetCssRequest(method, request.getUri())) {
-                int status = HttpStatus.OK_200;
-                if (!httpStatus.isEmpty()) {
-                    status = httpStatus.pop().intValue();
+        try {
+            String method = request.getMethod().toString();
+            if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
+                if (!Utils.isGetImageRequest(method, request.getUri())
+                    && !Utils.isGetJavascriptRequest(method, request.getUri())
+                    && !Utils.isGetCssRequest(method, request.getUri())
+                    && !isDuplicateGetRequest(request)) {
+                    int status = HttpStatus.OK_200;
+                    
+                    if (!httpStatus.isEmpty()) {
+                        status = httpStatus.pop().intValue();
+                    }
+                    
+                    retval = (status == HttpStatus.OK_200);
                 }
-                
-                retval = (status == HttpStatus.OK_200);
-            }
-            
-            if (retval) {
-                retval = !isIgnoreUrl(request.getUri());
+
+                if (retval) {
+                    retval = !isIgnoreUrl(request.getUri());
+                }
             }
         }
-
+        
+        catch (IOException ex) {
+            LOG.error(ex.toString(), ex);
+        }
+        
         return retval;
     }
     
@@ -347,12 +355,10 @@ public class TestProxyServer {
                 }
             }
 
-            String myhost = null;
+            String myhost = platformHost;
 
             if (StringUtils.isNotBlank(host)) {
               myhost = host;  
-            } else {
-              myhost = platformHost;
             }
             
             if (hostsRequiringHttps.contains(myhost)) {
@@ -414,7 +420,8 @@ public class TestProxyServer {
 
             op.setMethod(request.getMethod().name());
             
-            op.setUrl(buildFullUrl(request));
+            String url = buildFullUrl(request);
+            op.setUrl(url);
 
             // if this is a post then try to get content
             if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(op.getMethod())) {
@@ -432,9 +439,19 @@ public class TestProxyServer {
                         }
                     }
                 }
+            } else {
+                previousGetRequest = url;
             }
         }
         
+        return retval;
+    }
+
+    private boolean isDuplicateGetRequest(HttpRequest request) throws IOException {
+        boolean retval = false;
+        if (Constants.HTTP_REQUEST_METHOD_GET.equals(request.getMethod())) {
+            retval = buildFullUrl(request).equals(previousGetRequest);
+        }
         return retval;
     }
 
@@ -493,8 +510,6 @@ public class TestProxyServer {
                         }
                     }
                 }
-
-                nvplist = new ArrayList(Arrays.asList(nvparray));
                 
                 retval.append(Utils.buildUrlEncodedParameterString(nvparray));
             }
@@ -527,8 +542,8 @@ public class TestProxyServer {
                     if (StringUtils.isBlank(value)) {
                         value = "";
                     }
-                    boolean senstiveParameter = false;
-                    senstiveParameter = hs.contains(name);
+
+                    boolean senstiveParameter = hs.contains(name);
                     retval.append(nameValueSeparator);
 
                     retval.append(name);

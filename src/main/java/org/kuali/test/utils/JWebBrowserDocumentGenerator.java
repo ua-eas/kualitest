@@ -137,7 +137,11 @@ public class JWebBrowserDocumentGenerator {
             if (StringUtils.isNotBlank(iframeCall)) {
                 Object o = webBrowser.executeJavascriptWithResult(iframeCall);
                 if (o != null) {
-                    element.appendChild(Utils.tidify(o.toString()).getDocumentElement());
+                    if (o.toString().contains("<html>")) {
+                        element.appendChild(Utils.tidify(o.toString()).getDocumentElement());
+                    } else {
+                        element.appendChild(Utils.tidify("<html>" + o.toString() + "</html>").getDocumentElement());
+                    }
                 }
             }
         }

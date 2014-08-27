@@ -60,8 +60,9 @@ public class PoiHelper {
     int currentReportRow = 0;
 
     private static final String[] HEADER_NAMES = {
-        "Checkpoint Name",
-        "Checkpoint Type",
+        "Op Number",
+        "Op Name",
+        "Op Type",
         "Group",
         "Section",
         "Start Time",
@@ -280,18 +281,24 @@ public class PoiHelper {
 
     private Row writeBaseEntryInformation(TestOperation op, Date startTime) {
         Row retval = wb.getSheetAt(0).createRow(++currentReportRow);
-        // checkpoint name
+
+        // operation nmber
         Cell cell = retval.createCell(0);
+        cell.setCellValue(op.getOperation().getIndex());
+        cell.setCellStyle(cellStyleNormal);
+        
+        // checkpoint name
+        cell = retval.createCell(1);
         cell.setCellValue(getOperationNameForOutput(op));
         cell.setCellStyle(cellStyleNormal);
 
         // checkpoint type
-        cell = retval.createCell(1);
+        cell = retval.createCell(2);
         cell.setCellValue(getOperationTypeForOutput(op));
         cell.setCellStyle(cellStyleNormal);
 
         // group
-        cell = retval.createCell(2);
+        cell = retval.createCell(3);
         cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             int lines = op.getOperation().getCheckpointOperation().getCheckpointProperties().sizeOfCheckpointPropertyArray();
@@ -312,7 +319,7 @@ public class PoiHelper {
         }
 
         // section
-        cell = retval.createCell(3);
+        cell = retval.createCell(4);
         cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
@@ -328,24 +335,24 @@ public class PoiHelper {
         }
 
         // start time
-        cell = retval.createCell(4);
+        cell = retval.createCell(5);
         cell.setCellValue(startTime);
         cell.setCellStyle(cellStyleTime);
 
         // endTime time
         long endts = System.currentTimeMillis();
 
-        cell = retval.createCell(5);
+        cell = retval.createCell(6);
         cell.setCellValue(new Date(endts));
         cell.setCellStyle(cellStyleTime);
 
         // run time
-        cell = retval.createCell(6);
+        cell = retval.createCell(7);
         cell.setCellValue((endts - startTime.getTime()) / 1000);
         cell.setCellStyle(cellStyleNormal);
 
         // expected values
-        cell = retval.createCell(7);
+        cell = retval.createCell(8);
         cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
@@ -365,7 +372,7 @@ public class PoiHelper {
         }
 
         // actual values
-        cell = retval.createCell(8);
+        cell = retval.createCell(9);
         cell.setCellStyle(cellStyleNormal);
         if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
             StringBuilder s = new StringBuilder(128);
@@ -392,13 +399,14 @@ public class PoiHelper {
      * @param startTime
      */
     public void writeSuccessEntry(TestOperation op, Date startTime) {
-        Row row = writeBaseEntryInformation(op, startTime);
+        if (!TestOperationType.TEST_EXECUTION_PARAMETER.equals(op.getOperationType())) {
+            Row row = writeBaseEntryInformation(op, startTime);
 
-        // status
-        Cell cell = row.createCell(9);
-        cell.setCellValue("success");
-        cell.setCellStyle(cellStyleSuccess);
-
+            // status
+            Cell cell = row.createCell(10);
+            cell.setCellValue("success");
+            cell.setCellStyle(cellStyleSuccess);
+        }
     }
 
     /**
@@ -413,7 +421,7 @@ public class PoiHelper {
         Row row = writeBaseEntryInformation(op, startTime);
 
         // status
-        Cell cell = row.createCell(9);
+        Cell cell = row.createCell(10);
 
         FailureAction.Enum failureAction = ex.getFailureAction();
         
@@ -437,7 +445,7 @@ public class PoiHelper {
 
         cell.setCellValue(failureAction.toString());
 
-        cell = row.createCell(10);
+        cell = row.createCell(11);
         cell.setCellStyle(cellStyleNormal);
         cell.setCellValue(ex.getMessage());
         
@@ -516,7 +524,9 @@ public class PoiHelper {
                 if (fos != null) {
                     fos.close();
                 }
-            } catch (Exception ex) {
+            } 
+            
+            catch (Exception ex) {
             };
         }
     }

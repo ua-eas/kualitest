@@ -115,8 +115,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             response = tec.getWebClient().getPage(request).getWebResponse();
             int status = response.getStatusCode();
 
+            String results = response.getContentAsString(CharEncoding.UTF_8);
             if (status == HttpStatus.OK_200) {
-                String results = response.getContentAsString(CharEncoding.UTF_8);
                 if (StringUtils.isNotBlank(results)) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("========================================= test operation " + getOperation().getIndex() +  " =========================================");
@@ -124,10 +124,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                     testWrapper.pushHttpResponse(results);
                     tec.updateAutoReplaceMap(testWrapper);
-                  //  tec.updateTestExecutionParameters(testWrapper, results);
                 }
             } else if (Utils.isRedirectResponse(status)) {
             } else {
+       //         System.out.println("-----------------------------------------------------------------");
+        //        System.out.println(results);
+                
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

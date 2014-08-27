@@ -100,23 +100,16 @@ public class TestWebClient extends WebClient {
                         request.getRequestParameters().addAll(params);
                     } else {
                         if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
-                            if (request.getUrl().toExternalForm().contains("kew/DocHandler.do?command=displayDocSearchView&docId")) {
-                                System.out.println("----------------->(1): " +  request.getUrl().toExternalForm());
-                            }
-                            
                             handleUrlParameters(request);
-
-                            if (request.getUrl().toExternalForm().contains("kew/DocHandler.do?command=displayDocSearchView&docId")) {
-                                System.out.println("----------------->(2): " +  request.getUrl().toExternalForm());
-                                System.out.println("----------------------------------------------------------------------");
-                            }
                         }
                     }
                     
                     replaceJsessionId(request);
                 }
 
-                return super.getResponse(request);
+                WebResponse retval = super.getResponse(request);
+                
+                return retval;
             }
         };
     }
@@ -156,6 +149,8 @@ public class TestWebClient extends WebClient {
     private List  <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
         List  <NameValuePair> retval = new ArrayList<NameValuePair>();
         List  <NameValuePair> work = new ArrayList<NameValuePair>();
+        
+        boolean test = false;
         if ((nvplist != null) && !nvplist.isEmpty()) {
             for (NameValuePair nvp : nvplist) {
                 String replacement = paramMap.get(nvp.getName());
@@ -208,6 +203,9 @@ public class TestWebClient extends WebClient {
                 }
                 
                 if (StringUtils.isNotBlank(tep.getValue())) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("name=" + tep.getName() + ", key=" + key + ", value=" + tep.getValue());
+                    }
                     retval.put(key, tep);
                 }
             }
@@ -215,6 +213,7 @@ public class TestWebClient extends WebClient {
         
         return retval;
     }
+    
     private List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         Iterator <NameValuePair> it = nvplist.iterator();
         while (it.hasNext()) {
