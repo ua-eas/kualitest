@@ -449,7 +449,7 @@ public class TestProxyServer {
 
     private boolean isDuplicateGetRequest(HttpRequest request) throws IOException {
         boolean retval = false;
-        if (Constants.HTTP_REQUEST_METHOD_GET.equals(request.getMethod())) {
+        if (Constants.HTTP_REQUEST_METHOD_GET.equals(request.getMethod().name())) {
             retval = buildFullUrl(request).equals(previousGetRequest);
         }
         return retval;
@@ -581,5 +581,4 @@ public class TestProxyServer {
         
         return retval;
     }
-
 }

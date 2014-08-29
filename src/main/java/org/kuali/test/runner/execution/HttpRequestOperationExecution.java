@@ -19,6 +19,7 @@ import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
 import java.net.URL;
 import org.apache.commons.lang3.CharEncoding;
@@ -116,6 +117,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             int status = response.getStatusCode();
 
             String results = response.getContentAsString(CharEncoding.UTF_8);
+                
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     if (LOG.isDebugEnabled()) {
@@ -127,9 +129,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             } else if (Utils.isRedirectResponse(status)) {
             } else {
-       //         System.out.println("-----------------------------------------------------------------");
-        //        System.out.println(results);
-                
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

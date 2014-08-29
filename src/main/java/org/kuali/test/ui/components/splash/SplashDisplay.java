@@ -19,6 +19,8 @@ package org.kuali.test.ui.components.splash;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Window;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -26,6 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -125,21 +128,33 @@ public class SplashDisplay {
         new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
+                String retval = null;
                 try {
                     runProcess();
                 } 
                 
                 catch (Exception ex) {
+                    retval = ex.toString();
                     LOG.error(ex.toString(), ex);
-                    getDlg().dispose();
-                    UIUtils.showError(getParentWindow(), "Error", ex.toString());
                 }
                 
-                return null;
+                return retval;
             };
 
             @Override
             protected void done() {
+                Object errmsg = null;
+                try {
+                    errmsg = this.get();
+                } 
+                
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+                    
+                if (errmsg != null) {
+                    UIUtils.showError(getParentWindow(), "Error", errmsg.toString());
+                }
                 getDlg().dispose();
                 processCompleted();
             }
