@@ -95,9 +95,7 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             "Section",
             "Type",
             "Name",
-            "Operator",
-            "Value",
-            "On Failure"
+            "Origial Value"
         });
         
         config.setPropertyNames(new String[] {
@@ -105,14 +103,10 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             "propertySection",
             "valueType",
             "displayName",
-            "operator",
-            "propertyValue",
-            "onFailure"
+            "propertyValue"
         });
             
         config.setColumnTypes(new Class[] {
-            String.class,
-            String.class,
             String.class,
             String.class,
             String.class,
@@ -125,8 +119,6 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             20,
             10,
             30,
-            15,
-            20,
             20
         });
 
