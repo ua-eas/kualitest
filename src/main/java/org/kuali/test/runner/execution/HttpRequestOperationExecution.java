@@ -19,7 +19,6 @@ import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
 import java.net.URL;
 import org.apache.commons.lang3.CharEncoding;
@@ -128,7 +127,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     tec.updateAutoReplaceMap(testWrapper);
                 }
             } else if (Utils.isRedirectResponse(status)) {
-            } else {
+            } else if (configuration.getOutputIgnoredResults()) {
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

@@ -32,6 +32,7 @@ import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -252,7 +253,11 @@ public class TestExecutionContext extends Thread {
         // check for max runtime exceeded
         long runtime = ((System.currentTimeMillis() - start) / 1000);
         if ((testWrapper.getMaxRunTime() > 0) && (runtime > testWrapper.getMaxRunTime())) {
-            poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(testWrapper.getTestHeader(), runtime), new Date(start), null);
+            if (configuration.getOutputIgnoredResults() 
+                || !FailureAction.IGNORE.equals(testWrapper.getTestHeader().getOnRuntimeFailure())) {
+                poiHelper.writeFailureEntry(createTestRuntimeCheckOperation(testWrapper.getTestHeader(), runtime), new Date(start), null);
+            }
+
         }
         
         testWrapper.cleanup();
@@ -321,7 +326,10 @@ public class TestExecutionContext extends Thread {
                 }
             }
         } catch (TestException ex) {
-            retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
+            if (configuration.getOutputIgnoredResults() 
+                    || !FailureAction.IGNORE.equals(ex.getFailureAction())) {
+                retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
+            }
         }
 
         return retval;
