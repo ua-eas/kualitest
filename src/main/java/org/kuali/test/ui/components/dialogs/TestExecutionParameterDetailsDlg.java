@@ -18,14 +18,10 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import org.kuali.test.Checkpoint;
-import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
@@ -34,6 +30,7 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.CheckpointProperty;
 
 /**
  *
@@ -122,9 +119,7 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             20
         });
 
-        List <CheckpointProperty> l = new ArrayList<CheckpointProperty>();
-        l.add(checkpointProperty);
-        config.setData(l);
+        config.setData(Arrays.asList(new CheckpointProperty[] {checkpointProperty}));
                 
         return new BaseTable(config);
     }
