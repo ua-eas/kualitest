@@ -20,18 +20,17 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import org.kuali.test.Checkpoint;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
-import org.kuali.test.ui.components.panels.TestCheckpointsPanel;
+import org.kuali.test.ui.components.panels.TestOperationsPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -108,7 +107,7 @@ public class TestInformationDlg extends BaseSetupDlg {
 
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
 
-        getContentPane().add(new TestCheckpointsPanel(getMainframe(), this, getTestCheckpoints()), BorderLayout.CENTER);
+        getContentPane().add(new TestOperationsPanel(getMainframe(), this, getTestOperations()), BorderLayout.CENTER);
         
         addStandardButtons();
         
@@ -133,21 +132,16 @@ public class TestInformationDlg extends BaseSetupDlg {
         return Constants.CLOSE_ACTION;
     }
     
-    private List <Checkpoint> getTestCheckpoints() {
-        List <Checkpoint> retval = new ArrayList<Checkpoint>();
-        
+    private List <TestOperation> getTestOperations() {
+        List <TestOperation> retval = new ArrayList<TestOperation>();
         File f = new File(testHeader.getTestFileName());
         
         if (f.exists() && f.isFile()) {
             try {
                 KualiTestDocument doc = KualiTestDocument.Factory.parse(f);
                 
-                if (doc.getKualiTest().getOperations().sizeOfOperationArray() > 0) {
-                    for (TestOperation op : doc.getKualiTest().getOperations().getOperationArray()) {
-                        if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
-                            retval.add(op.getOperation().getCheckpointOperation());
-                        }
-                    }      
+                if (doc.getKualiTest().getOperations() != null) {
+                    retval = Arrays.asList(doc.getKualiTest().getOperations().getOperationArray());
                 }
             } 
             
@@ -156,6 +150,7 @@ public class TestInformationDlg extends BaseSetupDlg {
                     "Error occured while loading test filem - " + ex.toString());
             }
         }
+        
         return retval;
     }
 
