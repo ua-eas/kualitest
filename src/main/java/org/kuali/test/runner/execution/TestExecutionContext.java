@@ -81,7 +81,9 @@ public class TestExecutionContext extends Thread {
     private TestOperation currentTestOperation;
     private TestWebClient webClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
-
+    private KualiTestWrapper currentTest;
+    private int currentOperationIndex;
+    
     public TestExecutionContext() {
         init();
     }
@@ -580,16 +582,6 @@ public class TestExecutionContext extends Thread {
         return parametersRequiringDecryption;
     }
     
-    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
-        Map <String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
-        
-        if (webClient != null) {
-            retval = webClient.getTestExecutionParameterMap(byvalue);
-        }
-        
-        return retval;
-    }
-
     public List<KualiTestWrapper> getCompletedTests() {
         return completedTests;
     }
@@ -609,4 +601,48 @@ public class TestExecutionContext extends Thread {
     public int getTestOperationCount() {
         return testOperationCount;
     }
+    
+    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
+        Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
+
+        for (TestOperation top : currentTest.getOperations()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                if (top.getOperation().getIndex() > currentOperationIndex) {
+                    break;
+                }
+                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                String key = tep.getValueProperty().getPropertyValue();
+                    
+                if (!byvalue) {
+                    key = tep.getName();
+                }
+                
+                if (StringUtils.isNotBlank(tep.getValue())) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("name=" + tep.getName() + ", key=" + key + ", value=" + tep.getValue());
+                    }
+                    retval.put(key, tep);
+                }
+            }
+        }
+        
+        return retval;
+    }
+    public KualiTestWrapper getCurrentTest() {
+        return currentTest;
+    }
+
+    public void setCurrentTest(KualiTestWrapper currentTest) {
+        this.currentTest = currentTest;
+    }
+
+    public int getCurrentOperationIndex() {
+        return currentOperationIndex;
+    }
+
+    public void setCurrentOperationIndex(int currentOperationIndex) {
+        this.currentOperationIndex = currentOperationIndex;
+    }
+    
+
 }

@@ -44,6 +44,7 @@
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
                 <xs:element name="hosts-requiring-https" type="hosts-requiring-https" minOccurs="0"/>
                 <xs:element name="output-ignored-results" type="xs:boolean" minOccurs="0"/>
+                <xs:element name="http-request-processors" type="http-request-processors" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -69,6 +70,12 @@
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="http-request-processors">
+        <xs:sequence>
+            <xs:element name="request-processor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    
     <xs:complexType name="hosts-requiring-https">
         <xs:sequence>
             <xs:element name="host" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

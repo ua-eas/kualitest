@@ -112,7 +112,6 @@ import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.tidy.Tidy;
@@ -127,7 +126,6 @@ public class Utils {
 
     public static String ENUM_CHILD_CLASS = "$Enum";
     private static Tidy tidy;
-    private static Tidy tidy2;
     private static String encryptionPassword;
     private static MessageDigest messageDigest;
 
@@ -177,7 +175,6 @@ public class Utils {
             Object userObject = node.getUserObject();
 
             if (userObject != null) {
-                DefaultMutableTreeNode pnode = (DefaultMutableTreeNode) node.getParent();
                 if (userObject instanceof Platform) {
                     retval = (Platform) userObject;
                 } else if (userObject instanceof TestSuite) {
@@ -1053,7 +1050,6 @@ public class Utils {
             for (TagMatchAttribute att : tm.getMatchAttributes().getMatchAttributeArray()) {
                 // this is here to handle case where we have 1 empty <match-attribute> tag
                 if ((numAttributes > 1) || StringUtils.isNotBlank(att.getName())) {
-                    NamedNodeMap m = node.getAttributes();
                     if (StringUtils.isBlank(node.getAttribute(att.getName()))) {
                         retval = false;
                         break;
@@ -1557,8 +1553,6 @@ public class Utils {
         int retval = -1;
 
         Element parent = (Element) node.getParentNode();
-
-        List<Element> elements = getChildElements(parent);
 
         int indx = 0;
         for (Node curnode : getChildElements(parent)) {

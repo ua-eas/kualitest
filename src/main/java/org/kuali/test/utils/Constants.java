@@ -237,6 +237,8 @@ public class Constants {
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
     public static final String HTTP_HEADER_COOKIE = "Cookie";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
+    public static final String TEST_OPERATION_INDEX = "test-operation-index";
+    
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

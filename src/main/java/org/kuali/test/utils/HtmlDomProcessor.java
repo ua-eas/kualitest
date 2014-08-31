@@ -146,27 +146,6 @@ public class HtmlDomProcessor {
         return Utils.tidify(html).getDocumentElement();
     }
 
-    private Node cloneNode(Document d, Node n) {
-        Node r = null;
-        switch (n.getNodeType()) {
-            case Node.TEXT_NODE:
-                r = d.createTextNode(((Text) n).getData());
-                break;
-            case Node.CDATA_SECTION_NODE:
-                r = d.createCDATASection(((CDATASection) n).getData());
-                break;
-            case Node.ELEMENT_NODE:
-                r = d.createElement(((Element) n).getTagName());
-                NamedNodeMap map = n.getAttributes();
-                for (int i = 0; i < map.getLength(); i++) {
-                    ((Element) r).setAttribute(((Attr) map.item(i)).getName(),
-                        ((Attr) map.item(i)).getValue());
-                }
-                break;
-        }
-        return r;
-    }
-
     private void processDocument(Document document, List<Element> labelNodes, DomInformation domInfo) {
         traverseNode(document.getDocumentElement(), domInfo, labelNodes);
     }

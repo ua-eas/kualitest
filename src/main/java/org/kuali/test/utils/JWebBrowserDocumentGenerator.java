@@ -71,7 +71,6 @@ public class JWebBrowserDocumentGenerator {
             retval.append(".contentDocument.body.innerHTML;");
         } else {
             String pid = pnode.getAttribute("id");
-            String pname = pnode.getAttribute("name");
 
             if (StringUtils.isNotBlank(pid)) {
                 retval.append("document.getElementById('");

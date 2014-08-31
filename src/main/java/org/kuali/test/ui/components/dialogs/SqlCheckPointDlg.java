@@ -156,9 +156,6 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
         }
 
         if (oktosave) {
-            if (!isEditmode()) {
-            }
-
             checkpoint.setName(name.getText());
             checkpoint.addNewInputParameters();
 
@@ -212,7 +209,6 @@ public class SqlCheckPointDlg extends BaseSetupDlg {
 
     private boolean checkpointNameExists() {
         boolean retval = false;
-        String newname = name.getText();
         return retval;
     }
 

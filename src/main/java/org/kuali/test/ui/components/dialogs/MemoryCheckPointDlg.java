@@ -144,7 +144,6 @@ public class MemoryCheckPointDlg extends BaseSetupDlg {
 
     private boolean checkpointNameExists() {
         boolean retval = false;
-        String newname = name.getText();
         return retval;
     }
 

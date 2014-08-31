@@ -130,8 +130,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
         }
 
         if (oktosave) {
-            if (!isEditmode()) {
-            }
             checkpoint.setName(name.getText());
             InputParameters params = checkpoint.addNewInputParameters();
             Parameter param= params.addNewParameter();
@@ -151,8 +149,6 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
 
     private boolean checkpointNameExists() {
         boolean retval = false;
-        String newname = name.getText();
-        
         return retval;
     }
 

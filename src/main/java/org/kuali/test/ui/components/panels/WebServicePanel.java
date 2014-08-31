@@ -311,7 +311,6 @@ public class WebServicePanel extends BaseCreateTestPanel {
         TestOperation testOp = TestOperation.Factory.newInstance();
         testOp.setOperationType(TestOperationType.CHECKPOINT);
         Operation op = testOp.addNewOperation();
-        Checkpoint cp = op.addNewCheckpointOperation();
         op.setCheckpointOperation(checkpoint);
         testOperations.add(testOp);
     }

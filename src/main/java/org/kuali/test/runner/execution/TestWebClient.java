@@ -21,6 +21,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -35,7 +36,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,8 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.TestOperation;
+import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
+import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -52,11 +53,10 @@ import org.kuali.test.utils.Utils;
 public class TestWebClient extends WebClient {
     private static final Logger LOG = Logger.getLogger(TestWebClient.class);
     private TestExecutionContext tec;
-    private KualiTestWrapper currentTest;
-    private int currentOperationIndex = 0;
     private List<String> parametersToIgnore = new ArrayList<String>();
+    private List<HttpRequestProcessor> requestProcessors = new ArrayList<HttpRequestProcessor>();
     private SimpleDateFormat dateReplaceFormat;
-    
+
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.CHROME);
         this.tec = tec;
@@ -65,15 +65,26 @@ public class TestWebClient extends WebClient {
             parametersToIgnore.addAll(Arrays.asList(tec.getConfiguration().getParametersToIgnore().getParameterNameArray()));
         }
         
-        dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
-        
-	    getOptions().setJavaScriptEnabled(true);
-	    getOptions().setThrowExceptionOnFailingStatusCode(false);
-	    getOptions().setThrowExceptionOnScriptError(false);
-	    getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
-	    getOptions().setRedirectEnabled(true);
-        setAjaxController(new NicelyResynchronizingAjaxController());
+        if (tec.getConfiguration().getHttpRequestProcessors() != null) {
+            for (String clazz : tec.getConfiguration().getHttpRequestProcessors().getRequestProcessorArray()) {
+                try {
+                    requestProcessors.add((HttpRequestProcessor)Class.forName(clazz).newInstance());
+                } 
 
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        }
+        
+        dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
+        getOptions().setJavaScriptEnabled(true);
+        getOptions().setThrowExceptionOnFailingStatusCode(false);
+        getOptions().setThrowExceptionOnScriptError(false);
+        getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+        getOptions().setRedirectEnabled(true);
+        setAjaxController(new NicelyResynchronizingAjaxController());
+        
         setAlertHandler(new AlertHandler() {
             @Override
             public void handleAlert(Page page, String alert) {
@@ -93,6 +104,7 @@ public class TestWebClient extends WebClient {
             public WebResponse getResponse(WebRequest request) throws IOException {
                 boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
                 boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
+                
                 if (!jscall && !csscall) {
                     if (!request.getRequestParameters().isEmpty()) {
                         List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
@@ -103,17 +115,33 @@ public class TestWebClient extends WebClient {
                             handleUrlParameters(request);
                         }
                     }
-                    
-                    replaceJsessionId(request);
-                }
 
-                WebResponse retval = super.getResponse(request);
-            
+                    replaceJsessionId(request);
+                } 
+                
+                // allow custom requst pocessing if desired
+                for (HttpRequestProcessor p : requestProcessors) {
+                    try {
+                        p.process(TestWebClient.this, tec, request);
+                    } 
+                    
+                    catch (HttpRequestProcessorException ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                }
+                
+                String indx = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
+                
+                WebResponse retval  = super.getResponse(request);
+                
+//                         if (!jscall && !csscall) {
+  //     System.out.println("------------------status=" + retval.getStatusCode() + ", method=" + request.getHttpMethod() + ", indx=" + request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX) + ": " + request.getUrl().toExternalForm());
+    //                     }
                 return retval;
             }
         };
     }
-
+    
     private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
         
@@ -163,8 +191,8 @@ public class TestWebClient extends WebClient {
             }
         }
         
-        if (currentTest != null) {
-            Map<String, TestExecutionParameter> map = getTestExecutionParameterMap(true);
+        if (tec.getCurrentTest() != null) {
+            Map<String, TestExecutionParameter> map = tec.getTestExecutionParameterMap(true);
 
             for (NameValuePair nvp : work) {
                 TestExecutionParameter tep = map.get(nvp.getValue());
@@ -180,35 +208,6 @@ public class TestWebClient extends WebClient {
             }
         } else {
             retval = work;
-        }
-        
-        return retval;
-    }
-
-    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
-        Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
-
-        for (TestOperation top : currentTest.getOperations()) {
-            if (top.getOperation().getTestExecutionParameter() != null) {
-                if (top.getOperation().getIndex() > currentOperationIndex) {
-                    break;
-                }
-                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                String key = null;
-                    
-                if (byvalue) {
-                    key = tep.getValueProperty().getPropertyValue();
-                } else {
-                    key = tep.getName();
-                }
-                
-                if (StringUtils.isNotBlank(tep.getValue())) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("name=" + tep.getName() + ", key=" + key + ", value=" + tep.getValue());
-                    }
-                    retval.put(key, tep);
-                }
-            }
         }
         
         return retval;
@@ -294,22 +293,6 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
-    public KualiTestWrapper getCurrentTest() {
-        return currentTest;
-    }
-
-    public void setCurrentTest(KualiTestWrapper currentTest) {
-        this.currentTest = currentTest;
-    }
-
-    public int getCurrentOperationIndex() {
-        return currentOperationIndex;
-    }
-
-    public void setCurrentOperationIndex(int currentOperationIndex) {
-        this.currentOperationIndex = currentOperationIndex;
-    }
-    
     public Set <Cookie> getCookies() {
         return getCookieManager().getCookies();
     }

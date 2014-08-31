@@ -79,10 +79,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             
             TestExecutionContext tec = getTestExecutionContext();
 
-            tec.getWebClient().setCurrentOperationIndex(getOperation().getIndex());
-            tec.getWebClient().setCurrentTest(testWrapper);
+            tec.setCurrentOperationIndex(getOperation().getIndex());
+            tec.setCurrentTest(testWrapper);
             
             WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
+            request.setAdditionalHeader(Constants.TEST_OPERATION_INDEX, "" + getOperation().getIndex());
+            
             boolean multiPart = Utils.isMultipart(reqop);
             boolean urlFormEncoded = Utils.isUrlFormEncoded(reqop);
             
@@ -113,10 +115,13 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
             
             response = tec.getWebClient().getPage(request).getWebResponse();
+
             int status = response.getStatusCode();
 
             String results = response.getContentAsString(CharEncoding.UTF_8);
-                
+
+            //        System.out.println("------------------------- status=" + status + ", index=" + getOperation().getIndex() + " -----------------------------------");
+            //        System.out.println(results);
             if (status == HttpStatus.OK_200) {
                 if (StringUtils.isNotBlank(results)) {
                     if (LOG.isDebugEnabled()) {
@@ -128,6 +133,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             } else if (Utils.isRedirectResponse(status)) {
             } else if (configuration.getOutputIgnoredResults()) {
+      //              System.out.println("------------------------- status=" + status + ", index=" + getOperation().getIndex() + " -----------------------------------");
+        //            System.out.println(results);
+
                 throw new TestException("server returned bad status - " 
                     + status 
                     + ", url=" 

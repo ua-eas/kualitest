@@ -55,6 +55,7 @@ import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import static org.kuali.test.utils.Utils.isStringMatch;
 import org.kuali.test.utils.WindowsRegistryProxyHandler;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
@@ -299,7 +300,7 @@ public class TestProxyServer {
                 }
 
                 if (retval) {
-                    retval = !isIgnoreUrl(request.getUri());
+                    retval = isIgnoreUrl(request.getUri());
                 }
             }
         }
@@ -566,13 +567,13 @@ public class TestProxyServer {
 
         return retval.toString();
     }
-    
+
     private boolean isIgnoreUrl(String url) {
         boolean retval = false;
         
         if (StringUtils.isNotBlank(url)) {
             for (String compareString : urlsToIgnore) {
-                if (Utils.isStringMatch(compareString, url)) {
+                if (isStringMatch(compareString, url)) {
                     retval = true;
                     break;
                 }
@@ -581,4 +582,5 @@ public class TestProxyServer {
         
         return retval;
     }
+
 }

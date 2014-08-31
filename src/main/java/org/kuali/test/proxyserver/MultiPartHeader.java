@@ -38,7 +38,7 @@ public class MultiPartHeader {
         
         try {
             lnr = new LineNumberReader(new StringReader(data));
-            String line = null;
+            String line;
 
             while ((line = lnr.readLine()) != null) {
                 if (line.startsWith(Constants.CONTENT_DISPOSITION)) {

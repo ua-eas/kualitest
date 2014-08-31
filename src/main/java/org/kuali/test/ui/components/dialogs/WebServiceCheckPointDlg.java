@@ -145,9 +145,6 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
         }
 
         if (oktosave) {
-            if (!isEditmode()) {
-            }
-
             checkpoint.setName(name.getText());
             checkpoint.setType(CheckpointType.WEB_SERVICE);
 
@@ -197,7 +194,6 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
 
     private boolean checkpointNameExists() {
         boolean retval = false;
-        String newname = name.getText();
         return retval;
     }
 
