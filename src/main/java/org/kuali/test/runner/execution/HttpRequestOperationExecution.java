@@ -111,33 +111,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
             
-            response = tec.getWebClient().getPage(request).getWebResponse();
-
-            int status = response.getStatusCode();
-
-        //    String results = response.getContentAsString(CharEncoding.UTF_8);
-
-           /*
-            if (status == HttpStatus.OK_200) {
-                if (StringUtils.isNotBlank(results)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("========================================= test operation " + getOperation().getIndex() +  " =========================================");
-                        LOG.debug(results);
-                    }
-                    testWrapper.pushHttpResponse(results);
-                    tec.updateAutoReplaceMap(testWrapper);
-                }
-            } else if (Utils.isRedirectResponse(status)) {
-            } else 
-            
-            System.out.println("------------------------- index=" + getOperation().getIndex() + " -----------------------------------");
-            System.out.println(results);
-                throw new TestException("server returned bad status - " 
-                    + status 
-                    + ", url=" 
-                    + request.getUrl().toString(), getOperation(), FailureAction.IGNORE);
-            }
-            */    
+            tec.getWebClient().getPage(request); //.getWebResponse();
         } 
 
         catch (IOException ex) {

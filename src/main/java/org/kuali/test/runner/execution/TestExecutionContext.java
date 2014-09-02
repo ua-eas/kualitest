@@ -82,6 +82,7 @@ public class TestExecutionContext extends Thread {
     private TestWebClient webClient;
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private KualiTestWrapper currentTest;
+    private PoiHelper poiHelper;
     private int currentOperationIndex;
     
     public TestExecutionContext() {
@@ -161,7 +162,7 @@ public class TestExecutionContext extends Thread {
         try {
             startTime = new Date();
 
-            PoiHelper poiHelper = new PoiHelper();
+            poiHelper = new PoiHelper();
             poiHelper.writeReportHeader(testSuite, kualiTest);
             poiHelper.writeColumnHeaders();
 
@@ -644,5 +645,11 @@ public class TestExecutionContext extends Thread {
         this.currentOperationIndex = currentOperationIndex;
     }
     
-
+    public boolean writeFailureEntry(TestOperation op, Date startTime, TestException ex) {
+        if (poiHelper != null) {
+            return poiHelper.writeFailureEntry(op, startTime, ex);
+        } else {
+            return false;
+        }
+    }
 }

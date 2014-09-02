@@ -238,6 +238,8 @@ public class Constants {
     public static final String HTTP_HEADER_COOKIE = "Cookie";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
     public static final String TEST_OPERATION_INDEX = "test-operation-index";
+    public static final int HTML_TEST_RETRY_COUNT = 3;
+    public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 5000;
     
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";

@@ -225,7 +225,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
      * @return
      * @throws TestException 
      */
-    protected boolean evaluateCheckpointProperty(KualiTestWrapper testWrapper, CheckpointProperty cp) throws TestException {
+    protected boolean evaluateCheckpointProperty(KualiTestWrapper testWrapper, CheckpointProperty cp, boolean updateCounts) throws TestException {
         boolean retval = false;
         
         try {
@@ -236,7 +236,9 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
             } else if ((value == null) || (comparisonValue == null)) {
-                testWrapper.updateCounts(cp.getOnFailure());
+                if (updateCounts) {
+                    testWrapper.updateCounts(cp.getOnFailure());
+                }
                 throw new TestException("input value is null, comparison value = " + comparisonValue, op);
             } else {
                 ValueType.Enum type = cp.getValueType();
@@ -296,18 +298,22 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                         }
                     }
                 } else {
-                    testWrapper.updateCounts(cp.getOnFailure());
+                    if (updateCounts) {
+                        testWrapper.updateCounts(cp.getOnFailure());
+                    }
                     throw new TestException("input type (" + inputType + ") comparison type (" + type + ") mismatch" + comparisonValue, op);
                 }
             }
         }
         
         catch (ParseException ex) {
-            testWrapper.updateCounts(cp.getOnFailure());
+            if (updateCounts) {
+                testWrapper.updateCounts(cp.getOnFailure());
+            }
             throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
         }
 
-        if(!retval) {
+        if(!retval && updateCounts) {
             testWrapper.updateCounts(cp.getOnFailure());
         }
         

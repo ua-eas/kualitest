@@ -265,6 +265,16 @@
                 </dependency>   
             </dependencies>
         </profile>
+         <profile>
+            <id>linux64</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.eclipse.swt.org.eclipse.swt.gtk.linux.x86_64.4.3.swt</groupId>
+                    <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+                    <version>${eclipse.swt.version}</version>
+                </dependency>   
+            </dependencies>
+        </profile>
         <profile>
             <id>win64</id>
             <dependencies>

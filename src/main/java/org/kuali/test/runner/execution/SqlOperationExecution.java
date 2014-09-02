@@ -106,7 +106,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     
                     CheckpointProperty cp = getProperty(Constants.ROW_COUNT_PROPERTY);
                     cp.setActualValue("" + rowcount);
-                    if (!evaluateCheckpointProperty(testWrapper, cp)) {
+                    if (!evaluateCheckpointProperty(testWrapper, cp, true)) {
                         throw new TestException("row count of " 
                             + rowcount 
                             + " does not match comparison value", getOperation());

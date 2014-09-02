@@ -46,7 +46,9 @@ import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
+import org.kuali.test.FailureAction;
 import org.kuali.test.TestExecutionParameter;
+import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
 import org.kuali.test.utils.Constants;
@@ -135,6 +137,7 @@ public class TestWebClient extends WebClient {
                 WebResponse retval = super.getResponse(request);
                 
                 if (!jscall && !csscall) {
+                    String testIndex = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
                     if ((retval.getStatusCode() == HttpStatus.OK_200) 
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         String html = retval.getContentAsString();
@@ -143,6 +146,15 @@ public class TestWebClient extends WebClient {
                             tec.getCurrentTest().pushHttpResponse(html);
                             tec.updateAutoReplaceMap(tec.getCurrentTest());
                         }
+                    } else if (!Utils.isRedirectResponse(retval.getStatusCode()) 
+                        && tec.getConfiguration().getOutputIgnoredResults()
+                        && StringUtils.isNotBlank(testIndex)) {
+                        TestException tex = new TestException("server returned bad status - " 
+                            + retval.getStatusCode() 
+                            + ", url=" 
+                            + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                        
+                        tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
                     }
                 }
                 
@@ -154,10 +166,9 @@ public class TestWebClient extends WebClient {
     @Override
     public HtmlPage getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
         HtmlPage retval = super.getPage(request); 
+        
         for (FrameWindow frame : retval.getFrames()) {
-            String s = Utils.printElement(frame.getEnclosingPage().getDocumentElement());
-            System.out.println("------------------->" + s);
-            tec.getCurrentTest().pushHttpResponse(s);
+            tec.getCurrentTest().pushHttpResponse(Utils.printElement(frame.getEnclosingPage().getDocumentElement()));
         }
         
         return retval;

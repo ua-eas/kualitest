@@ -99,52 +99,70 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, 
         KualiTestWrapper testWrapper) throws TestException {
         TestExecutionContext tec = getTestExecutionContext();
-
         Checkpoint cp = getOperation().getCheckpointOperation();
-        List <CheckpointProperty> matchingProperties = null;
         String html = null;
-        if (cp.getCheckpointProperties() != null) {
-            HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
-            for (String curhtml : testWrapper.getRecentHttpResponseData()) {
-                if (StringUtils.isNotBlank(curhtml)) {
-                    Document doc = Utils.tidify(curhtml);
-                    HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
-                    matchingProperties = findCurrentProperties(cp, dominfo);
-                    if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
-                        html = curhtml;
-                        writeHtmlIfRequired(cp, configuration, platform, doc);
-                        break;
-                    }
-                }
-            }
-        }
-            
-        if (matchingProperties != null) {
-            CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
-            if (matchingProperties.size() == properties.length) {
-                boolean success = true;
-                for (int i = 0; i < properties.length; ++i) {
-                    if (i < matchingProperties.size()) {
-                        properties[i].setActualValue(matchingProperties.get(i).getPropertyValue());
-                        if (!evaluateCheckpointProperty(testWrapper, properties[i])) {
-                            success = false;
+
+        // try this a few time to account for asynchronous page loading
+        for(int i = 0; i < Constants.HTML_TEST_RETRY_COUNT; i++) {
+            try {
+                List <CheckpointProperty> matchingProperties = null;
+                if (cp.getCheckpointProperties() != null) {
+                    HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
+                    for (String curhtml : testWrapper.getRecentHttpResponseData()) {
+                        if (StringUtils.isNotBlank(curhtml)) {
+                            Document doc = Utils.tidify(curhtml);
+                            HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
+                            matchingProperties = findCurrentProperties(cp, dominfo);
+                            if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
+                                html = curhtml;
+                                break;
+                            }
                         }
                     }
                 }
 
-                if (!success) {
-                    throw new TestException("Current web document values do not match test criteria", getOperation());
+                if (matchingProperties != null) {
+                    CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
+                    if (matchingProperties.size() == properties.length) {
+                        boolean success = true;
+                        for (int j = 0; j < properties.length; ++j) {
+                            if (j < matchingProperties.size()) {
+                                properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
+                                if (!evaluateCheckpointProperty(testWrapper, properties[j], (i == (Constants.HTML_TEST_RETRY_COUNT-1)))) {
+                                    success = false;
+                                }
+                            }
+                        }
+
+                        if (!success) {
+                            throw new TestException("Current web document values do not match test criteria", getOperation());
+                        } else {
+                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
+                            break;
+                        }
+                    } else {
+                        throw new TestException("Expected checkpoint property count mismatch: expected " 
+                            + properties.length 
+                            + " found " 
+                            + matchingProperties.size(), getOperation());
+                    }
+                } else {
+                    throw new TestException("No matching properties found", getOperation());
                 }
-            } else {
-                testWrapper.incrementErrorCount();
-                throw new TestException("Expected checkpoint property count mismatch: expected " 
-                    + properties.length 
-                    + " found " 
-                    + matchingProperties.size(), getOperation());
             }
-        } else {
-            testWrapper.incrementErrorCount();
-            throw new TestException("No matching properties found", getOperation());
+            
+            catch (TestException ex) {
+                if (i > Constants.HTML_TEST_RETRY_COUNT) {
+                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
+                    throw ex;
+                } else {
+                    try {
+                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                    } catch (InterruptedException ex1) {
+                        LOG.warn(ex.toString(), ex1);
+                    }
+                }
+            }
         }
     }
     

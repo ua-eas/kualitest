@@ -78,4 +78,24 @@ public class TestException extends Exception {
     public FailureAction.Enum getFailureAction() {
         return failureAction;
     }
+    
+    public boolean isError() {
+        boolean retval = false;
+        
+        if (failureAction != null) {
+            retval = (failureAction.equals(FailureAction.ERROR_CONTINUE) || failureAction.equals(FailureAction.ERROR_HALT_TEST));
+        }
+        
+        return retval;
+    }
+
+    public boolean isWarning() {
+        boolean retval = false;
+        
+        if (failureAction != null) {
+            retval = failureAction.equals(FailureAction.WARNING);
+        }
+        
+        return retval;
+    }
 }
