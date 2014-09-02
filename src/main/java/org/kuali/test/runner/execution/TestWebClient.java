@@ -18,12 +18,15 @@ package org.kuali.test.runner.execution;
 
 import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.html.FrameWindow;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
@@ -147,6 +150,20 @@ public class TestWebClient extends WebClient {
             }
         };
     }
+
+    @Override
+    public HtmlPage getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
+        HtmlPage retval = super.getPage(request); 
+        for (FrameWindow frame : retval.getFrames()) {
+            String s = Utils.printElement(frame.getEnclosingPage().getDocumentElement());
+            System.out.println("------------------->" + s);
+            tec.getCurrentTest().pushHttpResponse(s);
+        }
+        
+        return retval;
+    }
+    
+    
     
     private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);

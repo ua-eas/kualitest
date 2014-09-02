@@ -16,8 +16,6 @@
 
 package org.kuali.test.runner.execution;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
@@ -56,9 +54,6 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         String key = Utils.buildCheckpointPropertyKey(getOperation().getTestExecutionParameter().getValueProperty());
         if (StringUtils.isNotBlank(key)) {
             for (String h : testWrapper.getHttpResponseStack()) {
-                if (getOperation().getTestExecutionParameter().getName().contains("contract mngr doc")) {
-                    System.out.println(h);
-                }
                 HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.tidify(h));
 
                 for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
