@@ -39,6 +39,7 @@
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
                 <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
+                <xs:element name="referrers-to-ignore" type="referrers-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
                 <xs:element name="date-replace-format" type="xs:string"/>
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
@@ -67,6 +68,12 @@
     <xs:complexType name="urls-to-ignore">
         <xs:sequence>
             <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="referrers-to-ignore">
+        <xs:sequence>
+            <xs:element name="referrer" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

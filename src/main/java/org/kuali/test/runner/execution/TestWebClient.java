@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -43,6 +42,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
@@ -115,7 +115,6 @@ public class TestWebClient extends WebClient {
                             handleUrlParameters(request);
                         }
                     }
-
                     replaceJsessionId(request);
                 } 
                 
@@ -129,14 +128,21 @@ public class TestWebClient extends WebClient {
                         LOG.error(ex.toString(), ex);
                     }
                 }
+
+                WebResponse retval = super.getResponse(request);
                 
-                String indx = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
+                if (!jscall && !csscall) {
+                    if ((retval.getStatusCode() == HttpStatus.OK_200) 
+                        && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                        String html = retval.getContentAsString();
+                        
+                        if (StringUtils.isNotBlank(html)) {
+                            tec.getCurrentTest().pushHttpResponse(html);
+                            tec.updateAutoReplaceMap(tec.getCurrentTest());
+                        }
+                    }
+                }
                 
-                WebResponse retval  = super.getResponse(request);
-                
-//                         if (!jscall && !csscall) {
-  //     System.out.println("------------------status=" + retval.getStatusCode() + ", method=" + request.getHttpMethod() + ", indx=" + request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX) + ": " + request.getUrl().toExternalForm());
-    //                     }
                 return retval;
             }
         };

@@ -3340,10 +3340,14 @@ public class Utils {
             while (st1.hasMoreTokens()) {
                 StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.SEPARATOR_EQUALS);
                 if (st2.countTokens() > 0) {
-                    String name = st2.nextToken();
+                    String name = st2.nextToken().trim();
                     String value = "";
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
+                        
+                        if (StringUtils.isNotBlank(value)) {
+                            value = value.trim();
+                        }
                     }
                     
                     retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
@@ -3363,14 +3367,14 @@ public class Utils {
             while (st1.hasMoreTokens()) {
                 StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.MULTIPART_NAME_VALUE_SEPARATOR);
                 if (st2.countTokens() > 0) {
-                    String name = st2.nextToken();
+                    String name = st2.nextToken().trim();
                     String value = "";
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
                     }
 
                     if (StringUtils.isNotBlank(value)) {
-                        retval.add(new NameValuePair(name, value));
+                        retval.add(new NameValuePair(name, value.trim()));
                     } else {
                         retval.add(new NameValuePair(name, ""));
                     }
@@ -3390,7 +3394,6 @@ public class Utils {
             retval.append(paramSeparator);
             retval.append(nvp.getName());
             retval.append(Constants.SEPARATOR_EQUALS);
-            
             if (nvp.getValue() == null) {
                 retval.append("");
             } else {
@@ -3399,7 +3402,6 @@ public class Utils {
             
             paramSeparator = Constants.SEPARATOR_AMPERSTAND;
         }
-        
         return retval.toString();
     }
 

@@ -76,11 +76,11 @@ public class TestProxyServer {
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
     private List <String> urlsToIgnore = new ArrayList<String>();
+    private List <String> referrersToIgnore = new ArrayList<String>();
     private Set <String> hostsRequiringHttps = new HashSet<String>();
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
-    private String previousGetRequest;
 
-    private List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
+    private final List<TestOperation> testOperations = Collections.synchronizedList(new ArrayList<TestOperation>() {
         @Override
         public boolean add(TestOperation op) {
             boolean retval = super.add(op);
@@ -146,8 +146,7 @@ public class TestProxyServer {
                         if (httpObject instanceof HttpResponse) {
                             HttpResponse response = (HttpResponse)httpObject;
                             if (Utils.isRedirectResponse(response.getStatus().code()) 
-                                || (response.getStatus().code() == HttpStatus.OK_200)
-                                || Utils.isRedirectResponse(response.getStatus().code())) {
+                                || (response.getStatus().code() == HttpStatus.OK_200)) {
                                 imap.put(originalRequest, response);
                                 httpStatus.push(Integer.valueOf(response.getStatus().code()));
                             }
@@ -210,6 +209,10 @@ public class TestProxyServer {
             urlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore().getUrlArray()));
         }
         
+        if (webTestPanel.getMainframe().getConfiguration().getReferrersToIgnore() != null) {
+            referrersToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getReferrersToIgnore().getReferrerArray()));
+        }
+
         if (webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps() != null) {
             hostsRequiringHttps.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps().getHostArray()));
         }
@@ -283,32 +286,26 @@ public class TestProxyServer {
      */
     protected boolean isValidTestRequest(HttpRequest request) {
         boolean retval = false;
-        try {
-            String method = request.getMethod().toString();
-            if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-                if (!Utils.isGetImageRequest(method, request.getUri())
-                    && !Utils.isGetJavascriptRequest(method, request.getUri())
-                    && !Utils.isGetCssRequest(method, request.getUri())
-                    && !isDuplicateGetRequest(request)) {
-                    int status = HttpStatus.OK_200;
-                    
-                    if (!httpStatus.isEmpty()) {
-                        status = httpStatus.pop().intValue();
-                    }
-                    
-                    retval = (status == HttpStatus.OK_200);
+        String method = request.getMethod().toString();
+        if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
+           String s = request.getUri();
+           
+            if (!Utils.isGetImageRequest(method, request.getUri())
+                && !Utils.isGetJavascriptRequest(method, request.getUri())
+                && !Utils.isGetCssRequest(method, request.getUri())) {
+                int status = HttpStatus.OK_200;
+
+                if (!httpStatus.isEmpty()) {
+                    status = httpStatus.pop().intValue();
                 }
+                retval = (status == HttpStatus.OK_200);
 
                 if (retval) {
-                    retval = isIgnoreUrl(request.getUri());
+                    retval = (!isIgnoreUrl(request.getUri()) 
+                        && !isIgnoredReferrer(request.getUri(), request.headers().get(HttpHeaders.REFERER)));
                 }
             }
         }
-        
-        catch (IOException ex) {
-            LOG.error(ex.toString(), ex);
-        }
-        
         return retval;
     }
     
@@ -440,19 +437,9 @@ public class TestProxyServer {
                         }
                     }
                 }
-            } else {
-                previousGetRequest = url;
-            }
+            } 
         }
         
-        return retval;
-    }
-
-    private boolean isDuplicateGetRequest(HttpRequest request) throws IOException {
-        boolean retval = false;
-        if (Constants.HTTP_REQUEST_METHOD_GET.equals(request.getMethod().name())) {
-            retval = buildFullUrl(request).equals(previousGetRequest);
-        }
         return retval;
     }
 
@@ -473,7 +460,7 @@ public class TestProxyServer {
         
         if (StringUtils.isNotBlank(contentType)) {
             if (Utils.isUrlFormEncoded(contentType)) {
-                String s = encryptFormUrlEncodedParameters(configuration, input);
+                String s = handleFormUrlEncodedParameters(configuration, input);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
                 } else {
@@ -492,7 +479,7 @@ public class TestProxyServer {
         return retval.toString();
     }    
     
-    private String encryptFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+    private String handleFormUrlEncodedParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         String parameterString) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
 
@@ -583,4 +570,19 @@ public class TestProxyServer {
         return retval;
     }
 
+    private boolean isIgnoredReferrer(String url, String referrer) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(referrer)) {
+            for (String compareString : referrersToIgnore) {
+                if (isStringMatch(compareString, referrer)) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        
+        return retval;
+    }
 }
