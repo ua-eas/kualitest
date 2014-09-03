@@ -152,7 +152,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             }
             
             catch (TestException ex) {
-                if (i > Constants.HTML_TEST_RETRY_COUNT) {
+                if (i >= Constants.HTML_TEST_RETRY_COUNT) {
                     writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
                     throw ex;
                 } else {

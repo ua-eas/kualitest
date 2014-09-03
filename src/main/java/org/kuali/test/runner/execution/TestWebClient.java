@@ -164,11 +164,14 @@ public class TestWebClient extends WebClient {
     }
 
     @Override
-    public HtmlPage getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
-        HtmlPage retval = super.getPage(request); 
+    public Page getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
+        Page retval = super.getPage(request); 
         
-        for (FrameWindow frame : retval.getFrames()) {
-            tec.getCurrentTest().pushHttpResponse(Utils.printElement(frame.getEnclosingPage().getDocumentElement()));
+        if (retval instanceof HtmlPage) {
+            HtmlPage pg = (HtmlPage)retval;
+            for (FrameWindow frame : pg.getFrames()) {
+                tec.getCurrentTest().pushHttpResponse(Utils.printElement(frame.getEnclosingPage().getDocumentElement()));
+            }
         }
         
         return retval;

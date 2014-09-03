@@ -2731,16 +2731,17 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param password
      * @param input
      * @return
+     * @throws UnsupportedEncodingException 
      */
     public static String decrypt(String password, String input) throws UnsupportedEncodingException {
         String retval = input;
 
         if (StringUtils.isNotBlank(password) && StringUtils.isNotBlank(input)) {
-            // use StrongTextEncryptor with JCE installed for more secutity
+            // use StrongTextEncryptor here with JCE installed for more security
             BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
             textEncryptor.setPassword(password);
             retval = URLDecoder.decode(textEncryptor.decrypt(input), CharEncoding.UTF_8);
@@ -3347,6 +3348,11 @@ public class Utils {
                         
                         if (StringUtils.isNotBlank(value)) {
                             value = value.trim();
+                            
+                            // hack to handle % used for search wild cards in some kuali apps
+                            if (Constants.PERCENT_CHARACTER.equals(value)) {
+                                value = Constants.URL_ENCODED_PERCENT_CHARACTER;
+                            }
                         }
                     }
                     

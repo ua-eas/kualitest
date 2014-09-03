@@ -324,15 +324,15 @@ public class TestExecutionContext extends Thread {
                 } catch (TestException ex) {
                     throw ex;
                 } catch (Exception ex) {
+                    testWrapper.incrementErrorCount();
                     LOG.error(ex.toString(), ex);
                     throw new TestException(ex.toString(), op.getOperation(), ex);
                 }
             }
-        } catch (TestException ex) {
-            if (configuration.getOutputIgnoredResults() 
-                    || !FailureAction.IGNORE.equals(ex.getFailureAction())) {
-                retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
-            }
+        } 
+        
+        catch (TestException ex) {
+            retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
         }
 
         return retval;

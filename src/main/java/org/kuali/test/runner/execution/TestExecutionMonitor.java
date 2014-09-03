@@ -173,6 +173,9 @@ public class TestExecutionMonitor extends Thread {
             retval.append(getCurrentTestOperation().getOperationType().toString());
             retval.append("</td></tr>");
             if (getCurrentTestOperation().getOperationType().equals(TestOperationType.CHECKPOINT)) {
+                retval.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Checkpoint Type:</th><td style='padding: 0px 0px 0px 5px;'>");
+                retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getType().toString());
+                retval.append("</td></tr>");
                 retval.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Checkpoint Name:</th><td style='padding: 0px 0px 0px 5px;'>");
                 retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName());
                 retval.append("</td></tr>");

@@ -222,6 +222,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
      * 
      * @param testWrapper
      * @param cp
+     * @param updateCounts
      * @return
      * @throws TestException 
      */
@@ -236,10 +237,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
             } else if ((value == null) || (comparisonValue == null)) {
-                if (updateCounts) {
-                    testWrapper.updateCounts(cp.getOnFailure());
-                }
-                throw new TestException("input value is null, comparison value = " + comparisonValue, op);
+                retval = ((value == null) && (comparisonValue == null));
             } else {
                 ValueType.Enum type = cp.getValueType();
                 

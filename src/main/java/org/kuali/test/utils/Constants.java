@@ -110,6 +110,8 @@ public class Constants {
     public static final String COLOR_DARK_BLUE = "#000099";
     public static final String COLOR_DARK_GREEN = "#006600";
     public static final String CONTENT_TYPE_KEY = "Content-Type";
+    public static final String PERCENT_CHARACTER = "%";
+    public static final String URL_ENCODED_PERCENT_CHARACTER = "%25";
     
     
     public static final int DEFAULT_DIALOG_LEFT = 300;
@@ -233,7 +235,7 @@ public class Constants {
     public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
     public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
-    public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 15;
+    public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 2;
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
     public static final String HTTP_HEADER_COOKIE = "Cookie";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";

@@ -62,13 +62,19 @@ public class TestException extends Exception {
         super(message, cause);
         this.op = op;
         this.message = message;
+        if (cause instanceof TestException) {
+            TestException tex = (TestException)cause;
+            this.failureAction = tex.getFailureAction();
+        } else {
+            this.failureAction = FailureAction.ERROR_HALT_TEST;
+        }
+        
     }
 
     @Override
     public String toString() {
         return message; 
     }
-
 
     @Override
     public String getMessage() {
