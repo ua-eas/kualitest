@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
@@ -108,7 +109,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 List <CheckpointProperty> matchingProperties = null;
                 if (cp.getCheckpointProperties() != null) {
                     HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
-                    for (String curhtml : testWrapper.getRecentHttpResponseData()) {
+                    for (String curhtml : testWrapper.getHttpResponseStack()) {
                         if (StringUtils.isNotBlank(curhtml)) {
                             Document doc = Utils.tidify(curhtml);
                             HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
@@ -128,14 +129,15 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         for (int j = 0; j < properties.length; ++j) {
                             if (j < matchingProperties.size()) {
                                 properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
-                                if (!evaluateCheckpointProperty(testWrapper, properties[j], (i == (Constants.HTML_TEST_RETRY_COUNT-1)))) {
+                                if (!evaluateCheckpointProperty(testWrapper, properties[j])) {
                                     success = false;
+                                    break;
                                 }
                             }
                         }
 
                         if (!success) {
-                            throw new TestException("Current web document values do not match test criteria", getOperation());
+                            throw new TestException("Current web document values do not match test criteria", getOperation(), FailureAction.ERROR_HALT_TEST);
                         } else {
                             writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
                             break;
@@ -144,15 +146,15 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         throw new TestException("Expected checkpoint property count mismatch: expected " 
                             + properties.length 
                             + " found " 
-                            + matchingProperties.size(), getOperation());
+                            + matchingProperties.size(), getOperation(), FailureAction.ERROR_HALT_TEST);
                     }
                 } else {
-                    throw new TestException("No matching properties found", getOperation());
+                    throw new TestException("No matching properties found", getOperation(), FailureAction.ERROR_HALT_TEST);
                 }
             }
             
             catch (TestException ex) {
-                if (i >= Constants.HTML_TEST_RETRY_COUNT) {
+                if (i == (Constants.HTML_TEST_RETRY_COUNT-1)) {
                     writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
                     throw ex;
                 } else {

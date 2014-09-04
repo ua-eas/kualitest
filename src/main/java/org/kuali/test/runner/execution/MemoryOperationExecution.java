@@ -83,10 +83,10 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
                     Double usedMemoryPercent = new Double((used/committed) * 100.0);
                     cp.setActualValue("" + usedMemoryPercent.intValue());
                 
-                    if (!evaluateCheckpointProperty(testWrapper, cp, true)) {
+                    if (!evaluateCheckpointProperty(testWrapper, cp)) {
                         throw new TestException("memory usage of " 
                             + cp.getActualValue() 
-                            + "% is outside of specified range", getOperation());
+                            + "% is outside of specified range", getOperation(), cp.getOnFailure());
                     } 
                 }
             }

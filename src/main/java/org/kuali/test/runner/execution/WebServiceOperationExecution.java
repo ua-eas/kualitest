@@ -69,20 +69,16 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
         try {
             String poll = getTestExecutionContext().getKualiTest().getTestHeader().getAdditionalParameters();
             Object[] result = executeWebServiceCall(configuration, platform, getOperation().getCheckpointOperation(), "true".equalsIgnoreCase(poll));
-            if ((result == null) || (result.length == 0)) {
-                testWrapper.incrementErrorCount();
-                throw new TestException("no web service result", getOperation());
-            }
         }
 
-        catch (TestException ex) {
-            throw ex;
-        }
-        
         catch (Exception ex) {
             LOG.error(ex.toString(), ex);
-            testWrapper.incrementErrorCount();
-            throw new TestException("web service error - " + ex.toString(), getOperation());
+            if (ex instanceof TestException) {
+                testWrapper.updateCounts(((TestException)ex).getFailureAction());
+            } else {
+                testWrapper.incrementErrorCount();
+                throw new TestException("web service error - " + ex.toString(), getOperation(), ex);
+            }
         }
     }
     
@@ -173,6 +169,8 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
             if (cp != null) {
                 cp.setActualValue("" + ((System.currentTimeMillis() - start)/1000));
             }
+        } else {
+            throw new TestException("no web service result", getOperation(), cp.getOnFailure());
         }
         
         return retval;

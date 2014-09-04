@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -72,13 +73,16 @@ public class FileOperationExecution extends AbstractOperationExecution {
             }
         }
         
+        CheckpointProperty cp = null;
         if ((fileDoesNotExist != null) && (targetFiles != null) && (targetFiles.length > 0)) {
-            throw new TestException("file with name pattern '" + fileNamePattern + "' exists", getOperation());
+            throw new TestException("file with name pattern '" + fileNamePattern + "' exists", getOperation(), fileDoesNotExist.getOnFailure());
         } else {
             String errorMessage = null;
-            
             List <File> filteredFiles = new ArrayList<File>();
-            if (getProperty(Constants.FILE_CREATED_TODAY.toLowerCase().replace(" ", "-")) != null) {
+            
+            CheckpointProperty cp1 = getProperty(Constants.FILE_CREATED_TODAY.toLowerCase().replace(" ", "-"));
+            CheckpointProperty cp2 = getProperty(Constants.FILE_CREATED_YESTERDAY.toLowerCase().replace(" ", "-"));
+            if (cp1 != null) {
                 filteredFiles.addAll(getFilesCreatedToday(targetFiles));
                 if (filteredFiles.isEmpty()) {
                     errorMessage = "no file with name pattern '" 
@@ -87,7 +91,7 @@ public class FileOperationExecution extends AbstractOperationExecution {
                         + Constants.DEFAULT_DATE_FORMAT.format(new Date()) 
                         + " found";
                 }
-            } else if (getProperty(Constants.FILE_CREATED_YESTERDAY.toLowerCase().replace(" ", "-")) != null) {
+            } else if (cp2 != null) {
                 filteredFiles.addAll(getFilesCreatedYesterday(targetFiles));
 
                 if (filteredFiles.isEmpty()) {
@@ -101,8 +105,9 @@ public class FileOperationExecution extends AbstractOperationExecution {
                 }
             }
             
+            CheckpointProperty cp3 = getProperty(Constants.FILE_SIZE_GREATER_THAN_ZERO.toLowerCase().replace(" ", "-"));
             if (StringUtils.isBlank(errorMessage)) {
-                if (getProperty(Constants.FILE_SIZE_GREATER_THAN_ZERO.toLowerCase().replace(" ", "-")) != null) {
+                if (cp3 != null) {
                     Iterator <File> it = filteredFiles.iterator();
 
                     while (it.hasNext()) {
@@ -118,10 +123,9 @@ public class FileOperationExecution extends AbstractOperationExecution {
                 }
             }
             
+            CheckpointProperty cp4 = getProperty(Constants.CONTAINING_TEXT);
             if (StringUtils.isBlank(errorMessage)) {
-                CheckpointProperty cp = getProperty(Constants.CONTAINING_TEXT);
-
-                if (cp != null) {
+                if (cp4 != null) {
                     String txt = cp.getPropertyValue();
 
                     if (StringUtils.isNotEmpty(txt)) {
@@ -135,7 +139,19 @@ public class FileOperationExecution extends AbstractOperationExecution {
             }
             
             if (StringUtils.isNotBlank(errorMessage)) {
-                throw new TestException(errorMessage, getOperation());
+                FailureAction.Enum failureAction = null;
+                
+                if (cp1 != null) {
+                    failureAction = cp1.getOnFailure();
+                } else if (cp2 != null) {
+                    failureAction = cp2.getOnFailure();
+                } else if (cp3 != null) {
+                    failureAction = cp3.getOnFailure();
+                } else if (cp4 != null) {
+                    failureAction = cp4.getOnFailure();
+                }
+                
+                throw new TestException(errorMessage, getOperation(), failureAction);
             }
         }
     }

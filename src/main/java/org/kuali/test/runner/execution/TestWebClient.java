@@ -52,6 +52,7 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
 
 
@@ -135,29 +136,37 @@ public class TestWebClient extends WebClient {
                 }
 
                 WebResponse retval = super.getResponse(request);
-                
                 if (!jscall && !csscall) {
-                    String testIndex = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
-                    if ((retval.getStatusCode() == HttpStatus.OK_200) 
+                    if ((retval.getStatusCode() == HttpStatus.OK_200)
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         String html = retval.getContentAsString();
-                        
                         if (StringUtils.isNotBlank(html)) {
                             tec.getCurrentTest().pushHttpResponse(html);
-                            tec.updateAutoReplaceMap(tec.getCurrentTest());
+                            tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(html));
                         }
-                    } else if (!Utils.isRedirectResponse(retval.getStatusCode()) 
-                        && tec.getConfiguration().getOutputIgnoredResults()
-                        && StringUtils.isNotBlank(testIndex)) {
-                        TestException tex = new TestException("server returned bad status - " 
-                            + retval.getStatusCode() 
-                            + ", url=" 
-                            + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                    } else {
+                        if (tec.getConfiguration().getOutputIgnoredResults()) {
+                            TestException tex = new TestException("server returned bad status - " 
+                                + retval.getStatusCode()
+                                + ", url=" 
+                                + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                        }
                         
-                        tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+                        if (LOG.isDebugEnabled()) {
+                            String indx = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
+                            LOG.debug("========================================= operation: " + indx + " =============================================");
+                            LOG.debug("url=" + request.getUrl().toExternalForm());
+                            LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
+                            
+                            for (NameValuePair nvp : request.getRequestParameters()) {
+                                LOG.debug(nvp.getName() + "=" + nvp.getValue());
+                            }
+                            LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
+                            LOG.debug(retval.getContentAsString());
+                        }
                     }
                 }
-                
+
                 return retval;
             }
         };
@@ -168,8 +177,7 @@ public class TestWebClient extends WebClient {
         Page retval = super.getPage(request); 
         
         if (retval instanceof HtmlPage) {
-            HtmlPage pg = (HtmlPage)retval;
-            for (FrameWindow frame : pg.getFrames()) {
+            for (FrameWindow frame : ((HtmlPage)retval).getFrames()) {
                 tec.getCurrentTest().pushHttpResponse(Utils.printElement(frame.getEnclosingPage().getDocumentElement()));
             }
         }

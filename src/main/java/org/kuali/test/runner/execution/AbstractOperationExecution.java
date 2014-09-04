@@ -222,11 +222,10 @@ public abstract class AbstractOperationExecution implements OperationExecution {
      * 
      * @param testWrapper
      * @param cp
-     * @param updateCounts
      * @return
      * @throws TestException 
      */
-    protected boolean evaluateCheckpointProperty(KualiTestWrapper testWrapper, CheckpointProperty cp, boolean updateCounts) throws TestException {
+    protected boolean evaluateCheckpointProperty(KualiTestWrapper testWrapper, CheckpointProperty cp) throws TestException {
         boolean retval = false;
         
         try {
@@ -237,7 +236,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
             } else if ((value == null) || (comparisonValue == null)) {
-                retval = ((value == null) && (comparisonValue == null));
+                throw new TestException("input value is null, comparison value = " + comparisonValue, op, cp.getOnFailure());
             } else {
                 ValueType.Enum type = cp.getValueType();
                 
@@ -296,24 +295,15 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                         }
                     }
                 } else {
-                    if (updateCounts) {
-                        testWrapper.updateCounts(cp.getOnFailure());
-                    }
-                    throw new TestException("input type (" + inputType + ") comparison type (" + type + ") mismatch" + comparisonValue, op);
+                    throw new TestException("input type (" + inputType + ") comparison type (" + type + ") mismatch" + comparisonValue, op, cp.getOnFailure());
                 }
             }
         }
         
         catch (ParseException ex) {
-            if (updateCounts) {
-                testWrapper.updateCounts(cp.getOnFailure());
-            }
             throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
         }
 
-        if(!retval && updateCounts) {
-            testWrapper.updateCounts(cp.getOnFailure());
-        }
         
         return retval;
     }

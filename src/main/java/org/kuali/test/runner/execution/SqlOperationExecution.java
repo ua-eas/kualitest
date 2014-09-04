@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
@@ -77,7 +78,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                 DatabaseConnection dbconn = Utils.findDatabaseConnectionByName(configuration, platform.getDatabaseConnectionName());
                 
                 if (dbconn == null) {
-                    throw new TestException("cannot find database connection information for platform", getOperation());
+                    throw new TestException("cannot find database connection information for platform", getOperation(), FailureAction.ERROR_HALT_TEST);
                 } else {
                     conn = Utils.getDatabaseConnection(Utils.getEncryptionPassword(configuration), dbconn);
                     stmt = conn.createStatement();
@@ -106,10 +107,10 @@ public class SqlOperationExecution extends AbstractOperationExecution {
                     
                     CheckpointProperty cp = getProperty(Constants.ROW_COUNT_PROPERTY);
                     cp.setActualValue("" + rowcount);
-                    if (!evaluateCheckpointProperty(testWrapper, cp, true)) {
+                    if (!evaluateCheckpointProperty(testWrapper, cp)) {
                         throw new TestException("row count of " 
                             + rowcount 
-                            + " does not match comparison value", getOperation());
+                            + " does not match comparison value", getOperation(), cp.getOnFailure());
                     } 
                 }
             }

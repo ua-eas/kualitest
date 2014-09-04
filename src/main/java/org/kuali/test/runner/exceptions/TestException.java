@@ -29,17 +29,6 @@ public class TestException extends Exception {
     private FailureAction.Enum failureAction;
     
     /**
-     *
-     * @param message
-     * @param op
-     */
-    public TestException(String message, Operation op) {
-        super(message);
-        this.op = op;
-        this.message = message;
-    }
-
-    /**
      * 
      * @param message
      * @param op

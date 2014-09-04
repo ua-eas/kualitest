@@ -111,7 +111,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
             
-            tec.getWebClient().getPage(request); //.getWebResponse();
+            tec.getWebClient().getPage(request);
         } 
 
         catch (IOException ex) {

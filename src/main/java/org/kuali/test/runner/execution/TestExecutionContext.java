@@ -317,14 +317,14 @@ public class TestExecutionContext extends Thread {
             if (opExec != null) {
                 try {
                     opExec.execute(configuration, platform, testWrapper);
-                    if (op.getOperation().getCheckpointOperation() != null) {
+                    
+                    if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
                         testWrapper.incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
                     }
                 } catch (TestException ex) {
                     throw ex;
                 } catch (Exception ex) {
-                    testWrapper.incrementErrorCount();
                     LOG.error(ex.toString(), ex);
                     throw new TestException(ex.toString(), op.getOperation(), ex);
                 }
@@ -332,7 +332,11 @@ public class TestExecutionContext extends Thread {
         } 
         
         catch (TestException ex) {
-            retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
+            if (configuration.getOutputIgnoredResults() 
+                    || !FailureAction.IGNORE.equals(ex.getFailureAction())) {
+                testWrapper.updateCounts(ex.getFailureAction());
+                retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
+            }
         }
 
         return retval;
@@ -531,9 +535,8 @@ public class TestExecutionContext extends Thread {
     }
     
     
-    public void updateAutoReplaceMap(KualiTestWrapper testWrapper) {
-        if ((configuration.getAutoReplaceParameters() != null) && !testWrapper.getHttpResponseStack().isEmpty()) {
-            Element element = HtmlDomProcessor.getInstance().getDomDocumentElement(testWrapper.getHttpResponseStack().peek());
+    public void updateAutoReplaceMap(Element element) {
+        if (configuration.getAutoReplaceParameters() != null) {
             for (AutoReplaceParameter param : configuration.getAutoReplaceParameters().getAutoReplaceParameterArray()) {
                 String value = Utils.findAutoReplaceParameterInDom(param, element);
                 if (!autoReplaceParameterMap.containsKey(param.getParameterName()) && StringUtils.isNotBlank(value)) {

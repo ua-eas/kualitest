@@ -162,7 +162,7 @@ public class TestExecutionMonitor extends Thread {
         retval.append("<html>&nbsp;&nbsp;<span style='text-decoration: underline;'>Executing test operation ");
         if ((getCurrentTestOperation() != null)
             && (getCurrentTestOperation().getOperation() != null)) {
-            retval.append(getCurrentTestOperation().getOperation().getIndex()+1);
+            retval.append(getCurrentTestOperation().getOperation().getIndex());
             retval.append(" of ");
             if (getTestOperationCount() > 0) {
                 retval.append(getTestOperationCount());

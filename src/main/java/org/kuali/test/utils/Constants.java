@@ -242,6 +242,7 @@ public class Constants {
     public static final String TEST_OPERATION_INDEX = "test-operation-index";
     public static final int HTML_TEST_RETRY_COUNT = 3;
     public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 5000;
+    public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
     
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
@@ -456,9 +457,7 @@ public class Constants {
         "link",
         "img",
         "meta",
-        "input.type=image",
-        "input.type=hidden,value=CLOSE",
-        "input.type=hidden,value=OPEN"
+        "input.type=image"
     };
     
     public static final Map <String, Class> XML_SCHEMA_TYPE_TO_JAVA_CLASS = new HashMap<String, Class>();

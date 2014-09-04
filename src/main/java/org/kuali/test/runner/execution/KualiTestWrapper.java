@@ -16,8 +16,6 @@
 
 package org.kuali.test.runner.execution;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
@@ -51,18 +49,6 @@ public class KualiTestWrapper {
         if (httpResponseStack.size() > Constants.LAST_RESPONSE_STACK_SIZE) {
             httpResponseStack.remove(0);
         }
-    }
-
-    /**
-     * 
-     * @return 
-     */
-    public List<String> getRecentHttpResponseData() {
-        List<String> retval = new ArrayList<String>();
-        while (!httpResponseStack.empty()) {
-            retval.add(httpResponseStack.pop());
-        }
-        return retval;
     }
 
     public Stack<String> getHttpResponseStack() {

@@ -2873,7 +2873,7 @@ public class Utils {
 
     public static String findAutoReplaceParameterInDom(AutoReplaceParameter param, Node node) {
         String retval = null;
-
+        
         if (isAutoReplaceParameterMatch(param, node)) {
             retval = getNodeValue(node);
         } else {
@@ -3204,7 +3204,7 @@ public class Utils {
 
     public static String getMessageDigestString(String input) throws NoSuchAlgorithmException {
         if (messageDigest == null) {
-            messageDigest = MessageDigest.getInstance("SHA");
+            messageDigest = MessageDigest.getInstance(Constants.DEFAULT_MESSAGE_DIGEST_ALGORITHM);
         }
 
         messageDigest.update(input.getBytes());
