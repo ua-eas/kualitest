@@ -75,16 +75,16 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             catch (InterruptedException ex) {};
             
             TestExecutionContext tec = getTestExecutionContext();
-
-            tec.setCurrentOperationIndex(getOperation().getIndex());
-            tec.setCurrentTest(testWrapper);
             
+            tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+            tec.setCurrentTest(testWrapper);
+
             WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
             request.setAdditionalHeader(Constants.TEST_OPERATION_INDEX, "" + getOperation().getIndex());
-            
+
             boolean multiPart = Utils.isMultipart(reqop);
             boolean urlFormEncoded = Utils.isUrlFormEncoded(reqop);
-            
+
             if (reqop.getRequestHeaders() != null) {
                 for (RequestHeader hdr : reqop.getRequestHeaders().getHeaderArray()) {
                     if (HttpHeaders.CONTENT_TYPE.equals(hdr.getName())) {
@@ -96,7 +96,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             }
-            
+
             if (request.getHttpMethod().equals(HttpMethod.POST)) {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
 
@@ -110,20 +110,26 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             }
-            
+
             tec.getWebClient().getPage(request);
         } 
 
         catch (IOException ex) {
-            String uri = Constants.UNKNOWN;
-            if (reqop != null) {
-              uri = reqop.getUrl();
+            Throwable t = ex.getCause();
+            
+            if ((t != null) && (t instanceof TestException)) {
+                throw (TestException)t;
+            } else {
+                String uri = Constants.UNKNOWN;
+                if (reqop != null) {
+                  uri = reqop.getUrl();
+                }
+
+                LOG.error(ex.toString(), ex);
+
+                throw new TestException("An IOException occured while processing http request: " 
+                    + uri + ", error: " +  ex.toString(), getOperation(), ex);
             }
-
-            LOG.error(ex.toString(), ex);
-
-            throw new TestException("An IOException occured while processing http request: " 
-                + uri + ", error: " +  ex.toString(), getOperation(), ex);
         }
 
         finally {
@@ -132,4 +138,5 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
         }
     }
+    
 }

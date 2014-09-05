@@ -340,6 +340,7 @@ public class Constants {
     public static final String HTML_SUFFIX = ".html";
     public static final String DWR_SUFFIX = ".dwr";
     public static final String PDF_SUFFIX = ".pdf";
+    public static final String TXT_SUFFIX = ".txt";
     
     public static final String SQL_ORDER_BY_DESC = "DESC";
     public static final String AND = "AND";

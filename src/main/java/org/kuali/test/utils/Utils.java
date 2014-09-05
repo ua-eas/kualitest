@@ -3517,4 +3517,19 @@ public class Utils {
     public static boolean isTextHtmlContentType(String input) {
         return (StringUtils.isNotBlank(input) && input.toLowerCase().startsWith(Constants.MIME_TYPE_HTML));
     }
+
+    public static boolean isIgnoreUrl(List <String> urlsToIgnore, String url) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(url)) {
+            for (String compareString : urlsToIgnore) {
+                if (isStringMatch(compareString, url)) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
 }

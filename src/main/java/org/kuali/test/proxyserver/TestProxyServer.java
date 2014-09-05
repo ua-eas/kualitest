@@ -301,7 +301,7 @@ public class TestProxyServer {
                 retval = (status == HttpStatus.OK_200);
 
                 if (retval) {
-                    retval = (!isIgnoreUrl(request.getUri()) 
+                    retval = (!Utils.isIgnoreUrl(urlsToIgnore, request.getUri()) 
                         && !isIgnoredReferrer(request.getUri(), request.headers().get(HttpHeaders.REFERER)));
                 }
             }
@@ -553,21 +553,6 @@ public class TestProxyServer {
         }
 
         return retval.toString();
-    }
-
-    private boolean isIgnoreUrl(String url) {
-        boolean retval = false;
-        
-        if (StringUtils.isNotBlank(url)) {
-            for (String compareString : urlsToIgnore) {
-                if (isStringMatch(compareString, url)) {
-                    retval = true;
-                    break;
-                }
-            }
-        }
-        
-        return retval;
     }
 
     private boolean isIgnoredReferrer(String url, String referrer) {

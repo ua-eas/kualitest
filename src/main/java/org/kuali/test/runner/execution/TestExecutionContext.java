@@ -83,7 +83,7 @@ public class TestExecutionContext extends Thread {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private KualiTestWrapper currentTest;
     private PoiHelper poiHelper;
-    private int currentOperationIndex;
+    private Integer currentOperationIndex;
     
     public TestExecutionContext() {
         init();
@@ -611,7 +611,7 @@ public class TestExecutionContext extends Thread {
 
         for (TestOperation top : currentTest.getOperations()) {
             if (top.getOperation().getTestExecutionParameter() != null) {
-                if (top.getOperation().getIndex() > currentOperationIndex) {
+                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
                     break;
                 }
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
@@ -640,11 +640,11 @@ public class TestExecutionContext extends Thread {
         this.currentTest = currentTest;
     }
 
-    public int getCurrentOperationIndex() {
+    public Integer getCurrentOperationIndex() {
         return currentOperationIndex;
     }
 
-    public void setCurrentOperationIndex(int currentOperationIndex) {
+    public void setCurrentOperationIndex(Integer currentOperationIndex) {
         this.currentOperationIndex = currentOperationIndex;
     }
     
