@@ -30,6 +30,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -38,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -59,10 +62,11 @@ import org.kuali.test.utils.Utils;
 public class TestWebClient extends WebClient {
     private static final Logger LOG = Logger.getLogger(TestWebClient.class);
     private TestExecutionContext tec;
+    private Set<String> errorIndicators = new HashSet<String>();
     private List<String> parametersToIgnore = new ArrayList<String>();
     private List<HttpRequestProcessor> requestProcessors = new ArrayList<HttpRequestProcessor>();
     private SimpleDateFormat dateReplaceFormat;
-
+    
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.CHROME);
         this.tec = tec;
@@ -71,8 +75,12 @@ public class TestWebClient extends WebClient {
             parametersToIgnore.addAll(Arrays.asList(tec.getConfiguration().getParametersToIgnore().getParameterNameArray()));
         }
         
+        if (tec.getConfiguration().getErrorIndicators() != null) {
+            errorIndicators.addAll(Arrays.asList(tec.getConfiguration().getErrorIndicators().getIndicatorArray()));
+        }
+
         if (tec.getConfiguration().getHttpRequestProcessors() != null) {
-            for (String clazz : tec.getConfiguration().getHttpRequestProcessors().getRequestProcessorArray()) {
+            for (String clazz : tec.getConfiguration().getHttpRequestProcessors().getProcessorArray()) {
                 try {
                     requestProcessors.add((HttpRequestProcessor)Class.forName(clazz).newInstance());
                 } 
@@ -108,9 +116,11 @@ public class TestWebClient extends WebClient {
         new WebConnectionWrapper(this) {
             @Override
             public WebResponse getResponse(WebRequest request) throws IOException {
+                WebResponse retval = null;
+                
                 boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
                 boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
-                
+
                 if (!jscall && !csscall) {
                     if (!request.getRequestParameters().isEmpty()) {
                         List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
@@ -123,19 +133,22 @@ public class TestWebClient extends WebClient {
                     }
                     replaceJsessionId(request);
                 } 
-                
+
                 // allow custom requst pocessing if desired
                 for (HttpRequestProcessor p : requestProcessors) {
                     try {
                         p.process(TestWebClient.this, tec, request);
                     } 
-                    
+
                     catch (HttpRequestProcessorException ex) {
                         LOG.error(ex.toString(), ex);
                     }
                 }
 
-                WebResponse retval = super.getResponse(request);
+                Integer indx = tec.getCurrentOperationIndex();
+
+                retval = super.getResponse(request);
+
                 if (!jscall && !csscall) {
                     if ((retval.getStatusCode() == HttpStatus.OK_200)
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
@@ -144,29 +157,44 @@ public class TestWebClient extends WebClient {
                             tec.getCurrentTest().pushHttpResponse(html);
                             tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(html));
                         }
-                    } else {
-                        if (tec.getConfiguration().getOutputIgnoredResults()) {
-                            TestException tex = new TestException("server returned bad status - " 
-                                + retval.getStatusCode()
-                                + ", url=" 
-                                + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
-                        }
-                        
+                    } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
+                        String results = retval.getContentAsString();
+
                         if (LOG.isDebugEnabled()) {
-                            String indx = request.getAdditionalHeaders().get(Constants.TEST_OPERATION_INDEX);
-                            LOG.debug("========================================= operation: " + indx + " =============================================");
+                            LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                             LOG.debug("url=" + request.getUrl().toExternalForm());
+                            LOG.debug("status=" + retval.getStatusCode());
                             LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
-                            
+
                             for (NameValuePair nvp : request.getRequestParameters()) {
                                 LOG.debug(nvp.getName() + "=" + nvp.getValue());
                             }
                             LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
-                            LOG.debug(retval.getContentAsString());
+                            LOG.debug(results);
+                        }
+                        if (isErrorResult(results)) {
+                            TestException tex = new TestException("server returned error - see attached error page" 
+                                + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST);
+                            writeErrorFile(request.getUrl().toExternalForm(), results);
+                            throw new IOException(tex);
+                        } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                            if (tec.getConfiguration().getOutputIgnoredResults()) {
+                                TestException tex = new TestException("server returned bad status - " 
+                                    + retval.getStatusCode()
+                                    + ", url=" 
+                                    + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                                tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+                            }
+                        }
+                    } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("redirect to: " + request.getUrl().toExternalForm());
                         }
                     }
-                }
 
+                    tec.getCurrentTest().setOperationExecuted(indx);
+                }
+                
                 return retval;
             }
         };
@@ -184,9 +212,7 @@ public class TestWebClient extends WebClient {
         
         return retval;
     }
-    
-    
-    
+
     private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
         
@@ -340,5 +366,72 @@ public class TestWebClient extends WebClient {
 
     public Set <Cookie> getCookies() {
         return getCookieManager().getCookies();
+    }
+
+    private void writeErrorFile(String url, String results) {
+        File f = new File(getErrorFileName());
+
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            String s = "test operation=" + tec.getCurrentOperationIndex();
+            fos.write(s.getBytes());
+            s = "url=" + url;
+            fos.write(s.getBytes());
+            fos.write("\r\n----------------------------------------------------------------------------------------\r\n".getBytes());
+            fos.write(results.getBytes());
+            tec.getGeneratedCheckpointFiles().add(f);
+        }
+
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+        }
+
+        finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+
+            catch (Exception ex) {};
+        }
+    }
+
+   private String getErrorFileName() {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(tec.getConfiguration().getTestResultLocation());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(tec.getCurrentTest().getTestHeader().getPlatformName());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.SCREEN_CAPTURE_DIR);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(tec.getCurrentTest().getTestName().toLowerCase().replace(" ", "-"));
+        retval.append("_erroroutput_");
+        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        retval.append("_");
+        retval.append(tec.getTestRun());
+        retval.append(Constants.TXT_SUFFIX);
+        
+        return retval.toString();
+    }
+   
+    private boolean isErrorResult(String input) {
+        boolean retval = false;
+        for (String s : errorIndicators) {
+            if (input.contains(s)) {
+                retval = true;
+                break;
+            }
+        }
+        
+        return retval;
     }
 }
