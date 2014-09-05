@@ -173,8 +173,8 @@ public class TestWebClient extends WebClient {
                             LOG.debug(results);
                         }
                         if (isErrorResult(results)) {
-                            TestException tex = new TestException("server returned error - see attached error page" 
-                                + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST);
+                            TestException tex = new TestException("server returned error - see attached error output page" ,
+                                tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST);
                             writeErrorFile(request.getUrl().toExternalForm(), results);
                             throw new IOException(tex);
                         } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
@@ -380,7 +380,7 @@ public class TestWebClient extends WebClient {
             fos = new FileOutputStream(f);
             String s = "test operation=" + tec.getCurrentOperationIndex();
             fos.write(s.getBytes());
-            s = "url=" + url;
+            s = "\r\nurl=" + url;
             fos.write(s.getBytes());
             fos.write("\r\n----------------------------------------------------------------------------------------\r\n".getBytes());
             fos.write(results.getBytes());
@@ -414,7 +414,7 @@ public class TestWebClient extends WebClient {
         retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
         retval.append(Constants.FORWARD_SLASH);
         retval.append(tec.getCurrentTest().getTestName().toLowerCase().replace(" ", "-"));
-        retval.append("_erroroutput_");
+        retval.append("_error_output_");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
         retval.append("_");
         retval.append(tec.getTestRun());
