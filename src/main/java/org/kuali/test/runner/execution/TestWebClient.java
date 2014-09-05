@@ -414,7 +414,7 @@ public class TestWebClient extends WebClient {
         retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
         retval.append(Constants.FORWARD_SLASH);
         retval.append(tec.getCurrentTest().getTestName().toLowerCase().replace(" ", "-"));
-        retval.append("_error_output_");
+        retval.append("_error-output_");
         retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
         retval.append("_");
         retval.append(tec.getTestRun());
