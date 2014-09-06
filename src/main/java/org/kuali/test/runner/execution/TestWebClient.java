@@ -97,6 +97,10 @@ public class TestWebClient extends WebClient {
         getOptions().setThrowExceptionOnScriptError(false);
         getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
         getOptions().setRedirectEnabled(true);
+        getOptions().setCssEnabled(true);
+        
+        getCache().setMaxSize(1000);
+        
         setAjaxController(new NicelyResynchronizingAjaxController());
         
         setAlertHandler(new AlertHandler() {
@@ -117,7 +121,6 @@ public class TestWebClient extends WebClient {
             @Override
             public WebResponse getResponse(WebRequest request) throws IOException {
                 WebResponse retval = null;
-                
                 boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
                 boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
 
@@ -146,32 +149,31 @@ public class TestWebClient extends WebClient {
                 }
 
                 Integer indx = tec.getCurrentOperationIndex();
-
                 retval = super.getResponse(request);
 
                 if (!jscall && !csscall) {
+                    String results = retval.getContentAsString();
+
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
+                        LOG.debug("url=" + request.getUrl().toExternalForm());
+                        LOG.debug("status=" + retval.getStatusCode());
+                        LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
+
+                        for (NameValuePair nvp : request.getRequestParameters()) {
+                            LOG.debug(nvp.getName() + "=" + nvp.getValue());
+                        }
+                        LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
+                        LOG.debug(results);
+                    }
+
                     if ((retval.getStatusCode() == HttpStatus.OK_200)
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                        String html = retval.getContentAsString();
-                        if (StringUtils.isNotBlank(html)) {
-                            tec.getCurrentTest().pushHttpResponse(html);
-                            tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(html));
+                        if (StringUtils.isNotBlank(results)) {
+                            tec.getCurrentTest().pushHttpResponse(results);
+                            tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
                         }
                     } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
-                        String results = retval.getContentAsString();
-
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
-                            LOG.debug("url=" + request.getUrl().toExternalForm());
-                            LOG.debug("status=" + retval.getStatusCode());
-                            LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
-
-                            for (NameValuePair nvp : request.getRequestParameters()) {
-                                LOG.debug(nvp.getName() + "=" + nvp.getValue());
-                            }
-                            LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
-                            LOG.debug(results);
-                        }
                         if (isErrorResult(results)) {
                             TestException tex = new TestException("server returned error - see attached error output page" ,
                                 tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST);
@@ -191,8 +193,6 @@ public class TestWebClient extends WebClient {
                             LOG.debug("redirect to: " + request.getUrl().toExternalForm());
                         }
                     }
-
-                    tec.getCurrentTest().setOperationExecuted(indx);
                 }
                 
                 return retval;

@@ -16,8 +16,6 @@
 
 package org.kuali.test.runner.execution;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Stack;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
@@ -32,7 +30,6 @@ import org.kuali.test.utils.Constants;
 public class KualiTestWrapper {
     public Stack<String> httpResponseStack = new Stack<String>();
     public KualiTest test;
-    private Set <Integer> opIndexSet = new HashSet<Integer>();
     private int warningCount = 0;
     private int successCount = 0;
     private int errorCount = 0;
@@ -134,15 +131,6 @@ public class KualiTestWrapper {
 
     public String getPlatformName() {
         return test.getTestHeader().getPlatformName();
-    }
-    
-    public void setOperationExecuted(Integer indx) {
-        opIndexSet.add(indx);
-    }
-    
-    public boolean isOperationExecuted(Integer indx) {
-        // we will ignore nulls by traeting as already executed
-        return ((indx == null) || opIndexSet.contains(indx));
     }
     
     public HtmlRequestOperation getNextHttpRequestOperation(int curop) {
