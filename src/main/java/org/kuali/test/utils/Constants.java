@@ -145,6 +145,7 @@ public class Constants {
     public static final String CANCEL_TEST_ACTION = "Cancel";
     public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
     public static final String ADD_ACTION = "Add";
+    public static final String COPY_ACTION = "Copy";
     public static final String DELETE_ACTION = "Delete";
     public static final String REFRESH_BROWSER_ACTION = "Refresh";
     public static final String SAVE_TEST_ACTION = "Save";

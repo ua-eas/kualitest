@@ -89,6 +89,6 @@ public class TestExecutionParametersPanel extends BasePanel {
         
         parametersTable = new BaseTable(config);
         
-       return new TablePanel(parametersTable);
+        return new TablePanel(parametersTable);
     }
 }

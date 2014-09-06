@@ -17,11 +17,20 @@
 package org.kuali.test.ui.base;
 
 import java.awt.Component;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.prefs.Preferences;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -38,7 +47,9 @@ import org.kuali.test.utils.Constants;
  */
 public class BaseTable extends JTable {
     private boolean initializing = true;
-
+    private JPopupMenu popupMenu;
+    private String celldata;
+    
     /**
      *
      * @param config
@@ -56,6 +67,47 @@ public class BaseTable extends JTable {
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
         setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        
+        popupMenu = new JPopupMenu();
+        JMenuItem m;
+        popupMenu.add(m = new JMenuItem(Constants.COPY_ACTION)) ;
+        m.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(new StringSelection(celldata), null);
+                celldata = null;
+            }
+        });
+        
+        MouseAdapter ma = new MouseAdapter() {
+            private void myPopupEvent(MouseEvent e) {
+                int col = BaseTable.this.columnAtPoint(e.getPoint());
+                int row = BaseTable.this.rowAtPoint(e.getPoint());
+                if ((col > -1) && (row > -1)) {
+                    if (BaseTable.this.getValueAt(row, col) != null) {
+                        celldata = BaseTable.this.getValueAt(row, col).toString();
+                        popupMenu.show(BaseTable.this.getComponentAt(e.getX(), e.getY()), e.getX(), e.getY());
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    myPopupEvent(e);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    myPopupEvent(e);
+                }
+            }
+        };
+
+        addMouseListener(ma);
 
         initializing = false;
     }
@@ -237,8 +289,9 @@ public class BaseTable extends JTable {
     }
 
     /**
-     *
-     * @param data
+     * 
+     * @param row
+     * @return 
      */
     public Object getRowData(int row) {
         Object retval = null;
