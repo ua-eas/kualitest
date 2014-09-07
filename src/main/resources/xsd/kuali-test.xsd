@@ -117,6 +117,7 @@
             <xs:element name="remove" type="xs:boolean"/>
             <xs:element name="value-property" type="checkpoint-property"/>
             <xs:element name="treat-as-date" type="xs:boolean" default="false"/>
+            <xs:element name="auto-replace" type="xs:boolean" default="false"/>
         </xs:sequence>
     </xs:complexType>
 

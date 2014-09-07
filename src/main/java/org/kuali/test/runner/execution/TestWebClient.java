@@ -153,7 +153,6 @@ public class TestWebClient extends WebClient {
 
                 if (!jscall && !csscall) {
                     String results = retval.getContentAsString();
-
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                         LOG.debug("url=" + request.getUrl().toExternalForm());
@@ -267,7 +266,7 @@ public class TestWebClient extends WebClient {
 
             for (NameValuePair nvp : work) {
                 TestExecutionParameter tep = map.get(nvp.getValue());
-                if (tep != null) {
+                if ((tep != null) && tep.getAutoReplace()) {
                     if (tep.getTreatAsDate()) {
                         retval.add(new NameValuePair(nvp.getName(), dateReplaceFormat.format(new Date())));
                     } else {

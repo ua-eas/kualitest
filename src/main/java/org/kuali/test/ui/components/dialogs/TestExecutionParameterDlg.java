@@ -49,6 +49,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     private JTextField name;
     private JTextField filters;
     private JCheckBox treatAsDate;
+    private JCheckBox autoReplace;
     private TestExecutionParameter testExecutionParameter;
 
     /**
@@ -68,6 +69,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         String[] labels = new String[]{
             "Name",
             "Filters",
+            "",
             ""
         };
 
@@ -75,11 +77,14 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         name.getDocument().addDocumentListener(this);
         filters = new JTextField(30);
         treatAsDate = new JCheckBox("Treat value as date - replace with current date");
+        autoReplace = new JCheckBox("Use for auto replace");
+        autoReplace.setSelected(true);
         
         JComponent[] components = new JComponent[]{
             name,
             filters,
-            treatAsDate
+            treatAsDate,
+            autoReplace
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -130,6 +135,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         
         testExecutionParameter.setValueProperty(cp);
         testExecutionParameter.setTreatAsDate(treatAsDate.isSelected());
+        testExecutionParameter.setAutoReplace(autoReplace.isSelected());
         
         setSaved(true);
         dispose();
