@@ -86,7 +86,6 @@ import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
-import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.webservicetree.WebServiceTree;
 import org.kuali.test.ui.utils.Spinner;
@@ -1115,12 +1114,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (JOptionPane.showConfirmDialog(TestCreator.this, "Exit Test Application?", "Exit", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    new SplashDisplay(TestCreator.this, "Application Closing", "Shutting down test application...") {
-                        @Override
-                        protected void runProcess() {
-                            handleExit();
-                        }
-                    };
+                    startSpinner("Shutting down application...");
+                    handleExit();
                 }
             }
         });
