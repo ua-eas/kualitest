@@ -137,7 +137,7 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
                 if ((retval.length > 0) && (retval[0] != null)) {
                     if ((retval.length > 0) && StringUtils.equalsIgnoreCase(retval[0].toString(), "false")) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("sleeping betwen poll - elapsed time: " + (System.currentTimeMillis() - start)/1000 + " seconds" );
+                            LOG.debug("sleeping between poll - elapsed time: " + (System.currentTimeMillis() - start)/1000 + " seconds" );
                         }
                         try {
                             Thread.sleep(Constants.WEB_SERVICE_SLEEP_TIME);

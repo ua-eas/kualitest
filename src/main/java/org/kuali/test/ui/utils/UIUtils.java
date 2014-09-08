@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.creator.TestCreator;
 
 /**
  *
@@ -33,6 +34,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class UIUtils {
 
+    /**
+     *
+     * @param c
+     * @return
+     */
+    public static Window findMainframe(Component c) {
+        if (c instanceof TestCreator) {
+            return (Window) c;
+        } else {
+            return findMainframe(c.getParent());
+        }
+    }
+    
     /**
      *
      * @param c

@@ -113,7 +113,7 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         } else if (COPY_SQL_ACTION.equals(e.getActionCommand())) {
             String sql = getDbPanel().getSqlQueryString(DatabasePanel.SQL_FORMAT_CLIPBOARD);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(new StringSelection(sql), null);
+            clipboard.setContents(new StringSelection(sql), getMainframe());
         }
     }
 }

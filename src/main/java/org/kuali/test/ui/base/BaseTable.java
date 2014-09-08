@@ -19,6 +19,7 @@ package org.kuali.test.ui.base;
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,6 +40,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
 /**
@@ -75,7 +77,7 @@ public class BaseTable extends JTable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(new StringSelection(celldata), null);
+                clipboard.setContents(new StringSelection(celldata), (ClipboardOwner)UIUtils.findMainframe(BaseTable.this.getParent()));
                 celldata = null;
             }
         });
