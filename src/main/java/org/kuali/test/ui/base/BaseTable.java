@@ -21,6 +21,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -40,14 +41,13 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.apache.commons.lang3.StringUtils;
-import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
-public class BaseTable extends JTable {
+public class BaseTable extends JTable implements ClipboardOwner {
     private boolean initializing = true;
     private JPopupMenu popupMenu;
     private String celldata;
@@ -77,7 +77,7 @@ public class BaseTable extends JTable {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(new StringSelection(celldata), (ClipboardOwner)UIUtils.findMainframe(BaseTable.this.getParent()));
+                clipboard.setContents(new StringSelection(celldata), BaseTable.this);
                 celldata = null;
             }
         });
@@ -305,5 +305,9 @@ public class BaseTable extends JTable {
         }
         
         return retval;
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
     }
 }

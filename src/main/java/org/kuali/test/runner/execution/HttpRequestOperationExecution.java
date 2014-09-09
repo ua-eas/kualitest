@@ -61,6 +61,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
         WebResponse response = null;
         HtmlRequestOperation reqop = getOperation().getHtmlRequestOperation();
+        
+        
+        
         try {
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
@@ -73,7 +76,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             } 
             
             catch (InterruptedException ex) {};
-            
+          
+           
             TestExecutionContext tec = getTestExecutionContext();
             
             tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
@@ -138,5 +142,5 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
         }
     }
-    
+  
 }

@@ -273,7 +273,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                             
                             @Override
                             protected void processUpdate(long runtime) {
-                                String txt = (runtime / 1000) + "sec.";
+                                String txt = "  Elapsed Time: " + (runtime / 1000) + "sec.";
                                 if (runtime >= Constants.MILLIS_PER_MINUTE) {
                                     txt = ("  Elapsed Time: " + (runtime / Constants.MILLIS_PER_MINUTE) + "min. " + ((runtime / 1000) % 60) + "sec.");
                                 }

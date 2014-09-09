@@ -19,7 +19,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,7 +40,7 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class SqlDisplayPanel extends BaseSqlPanel {
+public class SqlDisplayPanel extends BaseSqlPanel implements ClipboardOwner {
     private static final Logger LOG = Logger.getLogger(SqlDisplayPanel.class);
     private static final String CHECK_GENERATED_SQL_ACTION = "Check Generated SQL";
     private static final String COPY_SQL_ACTION = "Copy SQL";
@@ -113,7 +115,11 @@ public class SqlDisplayPanel extends BaseSqlPanel {
         } else if (COPY_SQL_ACTION.equals(e.getActionCommand())) {
             String sql = getDbPanel().getSqlQueryString(DatabasePanel.SQL_FORMAT_CLIPBOARD);
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            clipboard.setContents(new StringSelection(sql), getMainframe());
+            clipboard.setContents(new StringSelection(sql), this);
         }
+    }
+
+    @Override
+    public void lostOwnership(Clipboard clipboard, Transferable contents) {
     }
 }

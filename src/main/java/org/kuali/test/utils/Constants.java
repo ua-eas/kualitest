@@ -32,8 +32,7 @@ public class Constants {
     public static final String SELECT_DATETIME_FORMAT_STRING = "MM/dd/yyyy HH:mm";
     
     public static final String DEFAULT_USER_AGENT = "Mozilla/5.0";
-    public static final int MILLIS_PER_SECOND = 1000 * 60;
-    public static final int MILLIS_PER_MINUTE = MILLIS_PER_SECOND * 60;
+    public static final int MILLIS_PER_MINUTE = 1000 * 60;
     
     public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
@@ -201,7 +200,7 @@ public class Constants {
     public static final String SAVE_SCREEN = "save-screen";
     public static final int ELAPSED_TIME_UPDATE_INTERVAL = 5;
     public static final String MULTIPART_BOUNDARY_IDENTIFIER = "boundary=";
-    public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 30 * MILLIS_PER_SECOND;
+    public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 30 * 1000;
     public static final int DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT = MILLIS_PER_MINUTE;
     public static final String SCREEN_CAPTURE_DIR = "screen-captures";
     public static final String HELP_FILE_PATH = "/help/kuali-test.pdf";

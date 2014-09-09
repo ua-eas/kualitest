@@ -250,7 +250,7 @@ public class PlatformTestsPanel extends BasePanel
                             updateElapsedTime(monitor.buildDisplayMessage(startTime));
                         }
                     } else {
-                        UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
+                        UIUtils.showError(this.getDlg(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
                     }
                 }
             };
