@@ -94,7 +94,7 @@ public class PlatformTestsPanel extends BasePanel
 
     private void initComponents() {
         JPanel p = new JPanel(new BorderLayout());
-        p.add(new JLabel("Available Tests"), BorderLayout.NORTH);
+        p.add(new JLabel("Available Platform Tests"), BorderLayout.NORTH);
 
         add(p, BorderLayout.NORTH);
         add(new JScrollPane(testList = new JList(new DefaultListModel())), BorderLayout.CENTER);

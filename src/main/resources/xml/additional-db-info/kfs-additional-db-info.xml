@@ -38577,6 +38577,14 @@
                     <column-name>FIN_COA_CD</column-name>
                     <sql>select fin_coa_cd, fin_coa_cd from ca_chart_t order by 1</sql>
                 </lookup>
+                <lookup>
+                    <column-name>REQS_STAT_CD</column-name>
+                    <sql>select REQS_STAT_CD, REQS_STAT_DESC from pur_reqs_stat_t order by 2</sql>
+                </lookup>
+                <lookup>
+                    <column-name>ACCTG_CTGRY_CD</column-name>
+                    <sql>select ACCTG_CTGRY_CD, ACCTG_CTGRY_SHRT_NM from ca_acctg_ctgry_t order by 2</sql>
+                </lookup>
             </lookups>
     </application>
 </additional-database-info>

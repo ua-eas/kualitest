@@ -54,6 +54,7 @@ import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
 import org.kuali.test.JmxConnection;
@@ -1142,7 +1143,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         if (Desktop.isDesktopSupported()) {
             try {
                 File file = new File(getConfiguration().getRepositoryLocation() + Constants.HELP_FILE_PATH);
-                Desktop.getDesktop().open(file);
+                
+                if (StringUtils.isNotBlank(getConfiguration().getPdfViewerPath())) {
+                    Runtime.getRuntime().exec(getConfiguration().getPdfViewerPath() + " "  + file.getPath());
+                } else {
+                    Desktop.getDesktop().open(file);
+                }
             } 
 
             catch (Exception ex) {
