@@ -2659,20 +2659,27 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param input
-     * @return
+     * @param removeSelectedTags
+     * @return 
      */
-    public static Document tidify(String input) {
+    public static Document tidify(String input, boolean removeSelectedTags) {
         Document retval = null;
 
         if (StringUtils.isNotBlank(input)) {
             retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
          //   remove tags we do not want
-            removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+            if (removeSelectedTags) {
+                removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+            }
         }
         
         return retval;
+    }
+
+    public static Document tidify(String input) {
+        return tidify(input, true);
     }
 
     /**

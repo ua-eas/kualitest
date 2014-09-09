@@ -141,7 +141,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         if (!success) {
                             throw new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
                         } else {
-                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
+                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html, false));
                             break;
                         }
                     } else {
@@ -157,7 +157,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             
             catch (TestException ex) {
                 if (i == (Constants.HTML_TEST_RETRY_COUNT-1)) {
-                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html));
+                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html, false));
                     throw ex;
                 } else {
                     try {
