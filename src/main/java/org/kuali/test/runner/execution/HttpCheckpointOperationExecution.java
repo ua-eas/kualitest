@@ -141,7 +141,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         if (!success) {
                             throw new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
                         } else {
-                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html, false));
+                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(formatForPdf(html), false));
                             break;
                         }
                     } else {
@@ -157,7 +157,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             
             catch (TestException ex) {
                 if (i == (Constants.HTML_TEST_RETRY_COUNT-1)) {
-                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(html, false));
+                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(formatForPdf(html), false));
                     throw ex;
                 } else {
                     try {
@@ -214,5 +214,22 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 catch (Exception ex) {};
             }
         }
+    }
+    
+    private String formatForPdf(String html) {
+        String retval = html;
+        StringBuilder buf = new StringBuilder(html.length());
+        
+        int pos = html.indexOf("</head>");
+        
+        if (pos > -1) {
+            // add this css lanscape tab to ensure page is not truncated on right
+            buf.append(html.substring(0, pos));
+            buf.append("<style> @page {size: landscape;} </style>");
+            buf.append(html.substring(pos));
+            retval = buf.toString();
+        }
+        
+        return retval;
     }
 }
