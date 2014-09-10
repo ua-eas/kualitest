@@ -96,9 +96,11 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         
         testSuites = new JList(new DefaultListModel());
         testSuites.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
-
+        testSuites.addListSelectionListener(this);
+        
         platformTests = new JList(new DefaultListModel());
         platformTests.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        platformTests.addListSelectionListener(this);
         
         JPanel p = new JPanel(new GridLayout(1, 2));
         JPanel p2 = new JPanel(new BorderLayout());
@@ -254,13 +256,9 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     @Override
     public void valueChanged(ListSelectionEvent e) {
         if (e.getSource() == testSuites) {
-            if (testSuites.getSelectedIndex() > -1) {
-                platformTests.clearSelection();
-            }
+            platformTests.clearSelection();
         } else if (e.getSource() == platformTests) {
-            if (platformTests.getSelectedIndex() > -1) {
-                testSuites.clearSelection();
-            }
+            testSuites.clearSelection();
         }
     }
 
