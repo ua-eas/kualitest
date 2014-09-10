@@ -26,6 +26,11 @@ public class Spinner extends JLabel {
         setVisible(false);
     }
     
+    public Spinner(String msg) {
+        this();
+        startSpinner(msg);
+    }
+
     public void startSpinner(final String msg) {
         setText(msg);
         setVisible(true);

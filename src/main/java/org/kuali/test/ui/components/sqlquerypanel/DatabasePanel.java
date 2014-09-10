@@ -70,6 +70,7 @@ import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
+import org.kuali.test.ui.utils.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -91,7 +92,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     private SqlQueryTree sqlQueryTree;
     private SqlSelectPanel sqlSelectPanel;
     private SqlWherePanel sqlWherePanel;
-
+    private Spinner spinner;
     private SqlDisplayPanel sqlDisplayPanel;
     private boolean forCheckpoint = false;
     private JTabbedPane tabbedPane;
@@ -155,9 +156,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         p.add(new JLabel("Base Table:", JLabel.RIGHT));
         p.add(tableDropdown = new JComboBox());
-
-        getMainframe().startSpinner("Loading available database tables...");
         
+        p.add(spinner = new Spinner("Loading available database tables..."));
+
         new SwingWorker() {
             @Override
             protected Object doInBackground() throws Exception {
@@ -167,7 +168,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
             @Override
             protected void done() {
-                getMainframe().stopSpinner();
+                spinner.stopSpinner();
                 tableDropdown.addActionListener(DatabasePanel.this);
             }
         }.execute();
@@ -1227,7 +1228,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
             if (StringUtils.isNotBlank(td.getName())) {
 
-                getMainframe().startSpinner("Loading table relationships...");
+                spinner.startSpinner("Loading table relationships...");
                 new SwingWorker() {
                     @Override
                     protected Object doInBackground() throws Exception {
@@ -1246,7 +1247,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
 
                     @Override
                     protected void done() {
-                        getMainframe().stopSpinner();
+                        spinner.stopSpinner();
                         try {
                             Object result = get();
                             
