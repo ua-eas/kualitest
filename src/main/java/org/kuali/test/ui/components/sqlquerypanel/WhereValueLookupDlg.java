@@ -147,4 +147,9 @@ public class WhereValueLookupDlg extends BaseSetupDlg implements ListSelectionLi
     protected boolean save() {
         return true;
     }
+    
+    @Override
+    public boolean isResizable() {
+        return true;
+    }
 }
