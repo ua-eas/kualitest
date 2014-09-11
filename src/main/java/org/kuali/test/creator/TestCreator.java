@@ -578,9 +578,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return createTestPanel;
     }
 
-    /**
-     *
-     */
     public void handleExit() {
         savePreferences();
         System.exit(0);

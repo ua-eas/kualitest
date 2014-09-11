@@ -19,7 +19,6 @@ package org.kuali.test.ui.components.panels;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -102,7 +101,7 @@ public class TestOperationsPanel extends BasePanel {
                     TestOperation op = (TestOperation)getRowData(row);
                     switch (op.getOperationType().intValue()) {
                         case TestOperationType.INT_CHECKPOINT:
-                            retval = op.getOperation().getCheckpointOperation().getName();
+                            retval = (op.getOperation().getCheckpointOperation().getName() + " [" + op.getOperation().getCheckpointOperation().getType().toString() + "]");
                             break;
                         case 
                             TestOperationType.INT_HTTP_REQUEST:
