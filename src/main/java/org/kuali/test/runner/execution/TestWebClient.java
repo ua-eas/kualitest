@@ -95,8 +95,9 @@ public class TestWebClient extends WebClient {
         getOptions().setJavaScriptEnabled(true);
         getOptions().setThrowExceptionOnFailingStatusCode(false);
         getOptions().setThrowExceptionOnScriptError(false);
-        getOptions().setTimeout(Constants.DEFAULT_HTTP_CONNECT_TIMEOUT);
+        getOptions().setTimeout(Constants.DEFAULT_HTTP_READ_TIMEOUT);
         getOptions().setRedirectEnabled(true);
+        getOptions().setCssEnabled(true);
         getOptions().setCssEnabled(true);
         
         getCache().setMaxSize(1000);
@@ -283,7 +284,7 @@ public class TestWebClient extends WebClient {
         return retval;
     }
     
-    private List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
+    public List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         Iterator <NameValuePair> it = nvplist.iterator();
         while (it.hasNext()) {
             if (isIgnoreParameter(it.next().getName())) {

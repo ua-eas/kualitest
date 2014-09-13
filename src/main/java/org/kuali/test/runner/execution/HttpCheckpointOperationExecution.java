@@ -108,6 +108,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             try {
                 List <CheckpointProperty> matchingProperties = null;
                 if (cp.getCheckpointProperties() != null) {
+                    html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString();
                     HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
                     for (String curhtml : testWrapper.getHttpResponseStack()) {
                         if (StringUtils.isNotBlank(curhtml)) {

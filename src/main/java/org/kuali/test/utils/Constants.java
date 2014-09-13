@@ -202,6 +202,7 @@ public class Constants {
     public static final String MULTIPART_BOUNDARY_IDENTIFIER = "boundary=";
     public static final int DEFAULT_HTTP_CONNECT_TIMEOUT = 30 * 1000;
     public static final int DEFAULT_HTTP_CONNECTION_REQUEST_TIMEOUT = MILLIS_PER_MINUTE;
+    public static final int DEFAULT_HTTP_READ_TIMEOUT = MILLIS_PER_MINUTE * 5;
     public static final String SCREEN_CAPTURE_DIR = "screen-captures";
     public static final String HELP_FILE_PATH = "/help/kuali-test.pdf";
     public static final String SAVE_QUERY_RESULTS_DIR = "save-query-results";
