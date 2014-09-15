@@ -437,14 +437,15 @@ public class PoiHelper {
                 cell.setCellStyle(cellStyleWarning);
                 break;
             case FailureAction.INT_ERROR_CONTINUE:
+                cell.setCellStyle(cellStyleError);
+                break;
             case FailureAction.INT_ERROR_HALT_TEST:
                 cell.setCellStyle(cellStyleError);
-                retval = (failureAction.intValue() ==  FailureAction.INT_ERROR_CONTINUE);
+                retval = false;
                 break;
         }
 
         cell.setCellValue(failureAction.toString());
-
         cell = row.createCell(11);
         cell.setCellStyle(cellStyleNormal);
         cell.setCellValue(ex.getMessage());

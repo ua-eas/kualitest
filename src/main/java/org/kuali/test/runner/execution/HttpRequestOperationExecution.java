@@ -114,8 +114,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }
 
-            boolean ispost = false;
-            if (request.getHttpMethod().equals(HttpMethod.POST)) {
+            boolean ispost = request.getHttpMethod().equals(HttpMethod.POST);
+            if (ispost) {
                 ispost = true;
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
 
@@ -129,10 +129,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             } 
-
+            
             if (ispost && (tec.getConfiguration().getFormSubmitElementNames() != null)) {
                 HtmlElement submit = getFormSubmitElement(request.getRequestParameters());
-               
                 if (submit != null) {
                     submit.click();
                 } else {
@@ -145,6 +144,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
         catch (IOException ex) {
             Throwable t = ex.getCause();
+            LOG.error(ex.toString(), ex);
             
             if ((t != null) && (t instanceof TestException)) {
                 throw (TestException)t;
@@ -154,16 +154,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                   uri = reqop.getUrl();
                 }
 
-                LOG.error(ex.toString(), ex);
-
                 throw new TestException("An IOException occured while processing http request: " 
                     + uri + ", error: " +  ex.toString(), getOperation(), ex);
-            }
-        }
-
-        finally {
-            if (response != null) {
-                response.cleanUp();
             }
         }
     }
@@ -190,18 +182,18 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         
         if (StringUtils.isNotBlank(elementName)) {
             int cnt = 0;
-            while ((retval == null) && (cnt < (Constants.HTML_TEST_RETRY_COUNT * 5))) {
+            while ((retval == null) && (cnt < (Constants.HTML_TEST_RETRY_COUNT))) {
                 retval = findHtmlElement(page, elementName);
             
                 if (retval == null) {
+                    page.getWebResponse().cleanUp();
                     page = tec.getWebClient().getPage(window.getEnclosedPage().getWebResponse().getWebRequest());
                 }
                 
                 cnt++;
-           }
+            }
         }    
              
-        
         if ((retval != null) && page.isHtmlPage()) {
             HtmlPage hpage = (HtmlPage)page;
             // update parameter elements
@@ -244,7 +236,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 catch (ElementNotFoundException ex) {};
             }
         }
-       
+        
         return retval;
     }
     
@@ -269,8 +261,12 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         catch (ElementNotFoundException ex) {};
                         
                         if (retval == null) {
-                            break;
+                            retval = findHtmlElement(pg, elementName);
                         }
+                    }
+                    
+                    if (retval != null) {
+                        break;
                     }
                 }
             }

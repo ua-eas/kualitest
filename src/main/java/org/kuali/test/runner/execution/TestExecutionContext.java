@@ -76,6 +76,7 @@ public class TestExecutionContext extends Thread {
     private int testRun = 1;
     private int testRuns = 1;
     private boolean completed = false;
+    private boolean haltTest = false;
     private String repeatInterval;
     private int testOperationCount = 0;
     private TestOperation currentTestOperation;
@@ -185,6 +186,10 @@ public class TestExecutionContext extends Thread {
                         poiHelper.writeTestHeader(test);
                         runTest(new KualiTestWrapper(test), poiHelper);
                     }
+                    
+                    if (haltTest) {
+                        break;
+                    }
                 }
             } else if (kualiTest != null) {
                 runTest(new KualiTestWrapper(kualiTest), poiHelper);
@@ -197,6 +202,7 @@ public class TestExecutionContext extends Thread {
         } finally {
             cleanup();
             completed = true;
+            haltTest = false;
         }
     }
 
@@ -249,6 +255,10 @@ public class TestExecutionContext extends Thread {
             
             // if executeTestOperation returns false we want to halt test
             if (!executeTestOperation(testWrapper, op, poiHelper)) {
+                break;
+            }
+            
+            if (haltTest) {
                 break;
             }
         }
@@ -326,7 +336,12 @@ public class TestExecutionContext extends Thread {
                     throw ex;
                 } catch (Exception ex) {
                     LOG.error(ex.toString(), ex);
-                    throw new TestException(ex.toString(), op.getOperation(), ex);
+                    Throwable t = ex.getCause();
+                    if ((t != null) && (t instanceof TestException)) {
+                        throw (TestException)t;
+                    } else {
+                        throw new TestException(ex.toString(), op.getOperation(), ex);
+                    }
                 }
             }
         } 
@@ -654,5 +669,11 @@ public class TestExecutionContext extends Thread {
         } else {
             return false;
         }
+    }
+
+    public synchronized void haltTest(TestException ex) {
+        haltTest = true;
+        getCurrentTest().incrementErrorCount();
+        poiHelper.writeFailureEntry(getCurrentTestOperation(), new Date(), ex);
     }
 }
