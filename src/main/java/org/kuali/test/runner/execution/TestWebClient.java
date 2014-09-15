@@ -175,10 +175,8 @@ public class TestWebClient extends WebClient {
                         }
                     } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
                         if (isErrorResult(results)) {
-                            TestException tex = new TestException("server returned error - see attached error output page" ,
-                                tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST);
-                            writeErrorFile(request.getUrl().toExternalForm(), results);
-                            throw new IOException(tex);
+                            writeErrorFile(request.getUrl().toExternalForm(), indx, results);
+                            tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
                         } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                             if (tec.getConfiguration().getOutputIgnoredResults()) {
                                 TestException tex = new TestException("server returned bad status - " 
@@ -368,7 +366,7 @@ public class TestWebClient extends WebClient {
         return getCookieManager().getCookies();
     }
 
-    private void writeErrorFile(String url, String results) {
+    private void writeErrorFile(String url, int indx, String results) {
         File f = new File(getErrorFileName());
 
         if (!f.getParentFile().exists()) {
@@ -378,7 +376,7 @@ public class TestWebClient extends WebClient {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(f);
-            String s = "test operation=" + tec.getCurrentOperationIndex();
+            String s = "test operation=" + indx;
             fos.write(s.getBytes());
             s = "\r\nurl=" + url;
             fos.write(s.getBytes());
