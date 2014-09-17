@@ -20,7 +20,6 @@ import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.WebWindow;
 import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.FrameWindow;
@@ -74,7 +73,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
-        WebResponse response = null;
         HtmlRequestOperation reqop = getOperation().getHtmlRequestOperation();
         
         try {
@@ -189,7 +187,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     page.getWebResponse().cleanUp();
                     page = tec.getWebClient().getPage(window.getEnclosedPage().getWebResponse().getWebRequest());
                 }
-                
+
                 cnt++;
             }
         }    

@@ -26,6 +26,7 @@ import org.kuali.test.Operation;
 public class TestException extends Exception {
     private Operation op;
     private String message;
+    private String additionalInfo;
     private FailureAction.Enum failureAction;
     
     /**
@@ -92,5 +93,13 @@ public class TestException extends Exception {
         }
         
         return retval;
+    }
+
+    public String getAdditionalInfo() {
+        return additionalInfo;
+    }
+
+    public void setAdditionalInfo(String additionalInfo) {
+        this.additionalInfo = additionalInfo;
     }
 }

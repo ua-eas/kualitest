@@ -45,7 +45,8 @@
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
                 <xs:element name="hosts-requiring-https" type="hosts-requiring-https" minOccurs="0"/>
                 <xs:element name="output-ignored-results" type="xs:boolean" minOccurs="0"/>
-                <xs:element name="http-request-processors" type="http-request-processors" minOccurs="0"/>
+                <xs:element name="http-pre-submit-processors" type="http-pre-submit-processors" minOccurs="0"/>
+                <xs:element name="http-post-submit-processors" type="http-post-submit-processors" minOccurs="0"/>
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
                 <xs:element name="form-submit-element-names" type="form-submit-element-names" minOccurs="0"/>
@@ -80,12 +81,17 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="http-request-processors">
+    <xs:complexType name="http-pre-submit-processors">
         <xs:sequence>
             <xs:element name="processor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="http-post-submit-processors">
+        <xs:sequence>
+            <xs:element name="processor" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="error-indicators">
         <xs:sequence>

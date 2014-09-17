@@ -64,7 +64,8 @@ public class TestWebClient extends WebClient {
     private TestExecutionContext tec;
     private Set<String> errorIndicators = new HashSet<String>();
     private List<String> parametersToIgnore = new ArrayList<String>();
-    private List<HttpRequestProcessor> requestProcessors = new ArrayList<HttpRequestProcessor>();
+    private List<HttpRequestProcessor> preSubmitProcessors = new ArrayList<HttpRequestProcessor>();
+    private List<HttpRequestProcessor> postSubmitProcessors = new ArrayList<HttpRequestProcessor>();
     private SimpleDateFormat dateReplaceFormat;
     
     public TestWebClient(final TestExecutionContext tec) {
@@ -79,10 +80,10 @@ public class TestWebClient extends WebClient {
             errorIndicators.addAll(Arrays.asList(tec.getConfiguration().getErrorIndicators().getIndicatorArray()));
         }
 
-        if (tec.getConfiguration().getHttpRequestProcessors() != null) {
-            for (String clazz : tec.getConfiguration().getHttpRequestProcessors().getProcessorArray()) {
+        if (tec.getConfiguration().getHttpPreSubmitProcessors() != null) {
+            for (String clazz : tec.getConfiguration().getHttpPreSubmitProcessors().getProcessorArray()) {
                 try {
-                    requestProcessors.add((HttpRequestProcessor)Class.forName(clazz).newInstance());
+                    preSubmitProcessors.add((HttpRequestProcessor)Class.forName(clazz).newInstance());
                 } 
 
                 catch (Exception ex) {
@@ -91,6 +92,19 @@ public class TestWebClient extends WebClient {
             }
         }
         
+        if (tec.getConfiguration().getHttpPostSubmitProcessors() != null) {
+            for (String clazz : tec.getConfiguration().getHttpPostSubmitProcessors().getProcessorArray()) {
+                try {
+                    postSubmitProcessors.add((HttpRequestProcessor)Class.forName(clazz).newInstance());
+                } 
+
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        }
+        
+
         dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
         getOptions().setJavaScriptEnabled(true);
         getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -135,29 +149,24 @@ public class TestWebClient extends WebClient {
                             handleUrlParameters(request);
                         }
                     }
+                    
                     replaceJsessionId(request);
                 } 
 
-                // allow custom requst pocessing if desired
-                for (HttpRequestProcessor p : requestProcessors) {
-                    try {
-                        p.process(TestWebClient.this, tec, request);
-                    } 
-
-                    catch (HttpRequestProcessorException ex) {
-                        LOG.error(ex.toString(), ex);
-                    }
-                }
-
+                runPreSubmitProcessing(request);
+                
                 Integer indx = tec.getCurrentOperationIndex();
-                retval = super.getResponse(request);
+                
+                retval = runPostSubmitProcessing(request, super.getResponse(request));
+                int status = retval.getStatusCode();
+                
 
                 if (!jscall && !csscall) {
                     String results = retval.getContentAsString();
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                         LOG.debug("url=" + request.getUrl().toExternalForm());
-                        LOG.debug("status=" + retval.getStatusCode());
+                        LOG.debug("status=" + status);
                         LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
 
                         for (NameValuePair nvp : request.getRequestParameters()) {
@@ -180,7 +189,7 @@ public class TestWebClient extends WebClient {
                         } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                             if (tec.getConfiguration().getOutputIgnoredResults()) {
                                 TestException tex = new TestException("server returned bad status - " 
-                                    + retval.getStatusCode()
+                                    + status
                                     + ", url=" 
                                     + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
                                 tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
@@ -196,6 +205,35 @@ public class TestWebClient extends WebClient {
                 return retval;
             }
         };
+    }
+    
+    private void runPreSubmitProcessing(WebRequest request) {
+        // allow custom requst pocessing if desired
+        for (HttpRequestProcessor p : preSubmitProcessors) {
+            try {
+                p.preProcess(this, tec, request);
+            } 
+
+            catch (HttpRequestProcessorException ex) {
+                LOG.error(ex.toString(), ex);
+            }
+        }
+    }
+
+    private WebResponse runPostSubmitProcessing(WebRequest request, WebResponse response) {
+        WebResponse retval = response;
+        // allow custom requst pocessing if desired
+        for (HttpRequestProcessor p : postSubmitProcessors) {
+            try {
+                retval = p.postProcess(this, tec, request, response);
+            } 
+
+            catch (HttpRequestProcessorException ex) {
+                LOG.error(ex.toString(), ex);
+            }
+        }
+        
+        return retval;
     }
 
     @Override
@@ -247,7 +285,6 @@ public class TestWebClient extends WebClient {
         List  <NameValuePair> retval = new ArrayList<NameValuePair>();
         List  <NameValuePair> work = new ArrayList<NameValuePair>();
         
-        boolean test = false;
         if ((nvplist != null) && !nvplist.isEmpty()) {
             for (NameValuePair nvp : nvplist) {
                 String replacement = paramMap.get(nvp.getName());
@@ -366,6 +403,7 @@ public class TestWebClient extends WebClient {
         return getCookieManager().getCookies();
     }
 
+    @SuppressWarnings("empty-statement")
     private void writeErrorFile(String url, int indx, String results) {
         File f = new File(getErrorFileName());
 

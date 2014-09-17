@@ -202,7 +202,6 @@ public class TestExecutionContext extends Thread {
         } finally {
             cleanup();
             completed = true;
-            haltTest = false;
         }
     }
 

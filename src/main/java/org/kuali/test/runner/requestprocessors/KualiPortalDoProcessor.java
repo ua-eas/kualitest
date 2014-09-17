@@ -16,19 +16,17 @@
 
 package org.kuali.test.runner.requestprocessors;
 
+import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.WebResponse;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.runner.execution.TestWebClient;
 
-/**
- *
- * @author rbtucker
- */
-public interface HttpRequestProcessor {
-    public void preProcess(TestWebClient webClient, 
-        TestExecutionContext tec, WebRequest request) throws HttpRequestProcessorException;
 
-    public WebResponse postProcess(TestWebClient webClient, 
-        TestExecutionContext tec, WebRequest request, WebResponse response) throws HttpRequestProcessorException;
+public class KualiPortalDoProcessor extends AbstractRequestProcessor {
+    @Override
+    public void preProcess(TestWebClient webClient, TestExecutionContext tec, WebRequest request) throws HttpRequestProcessorException {
+        if (HttpMethod.GET.equals(request.getHttpMethod())) {
+            String surl = request.getUrl().toExternalForm();
+        }
+    }
 }

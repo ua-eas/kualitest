@@ -17,9 +17,12 @@
 package org.kuali.test.runner.requestprocessors;
 
 import com.gargoylesoftware.htmlunit.WebRequest;
+import com.gargoylesoftware.htmlunit.WebResponse;
+import org.apache.log4j.Logger;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
+import org.kuali.test.runner.execution.AbstractOperationExecution;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.runner.execution.TestWebClient;
 import org.kuali.test.utils.Utils;
@@ -29,10 +32,8 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public abstract class AbstractRequestProcessor implements HttpRequestProcessor {
-    @Override
-    public abstract void process(TestWebClient webClient, TestExecutionContext tec, 
-            WebRequest request) throws HttpRequestProcessorException;
-    
+    private static final Logger LOG = Logger.getLogger(AbstractOperationExecution.class);
+
     protected TestOperation getCurrentTestOperation(TestExecutionContext tec) {
         return tec.getCurrentTest().getTest().getOperations().getOperationArray()[tec.getCurrentOperationIndex()];
     }
@@ -60,4 +61,15 @@ public abstract class AbstractRequestProcessor implements HttpRequestProcessor {
         
         return retval; 
     }
+    
+    public Logger getLogger() {
+        return LOG;
+    }
+    
+    @Override
+    public WebResponse postProcess(TestWebClient webClient, TestExecutionContext tec, 
+        WebRequest request, WebResponse response) throws HttpRequestProcessorException {
+        return response;
+    }
+
 }
