@@ -43,6 +43,8 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -78,8 +80,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         try {
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
-                
-                if (testWrapper.getUseTestEntryTimes()) {
+                // we will always use user entry times for pre-checkpoint request - trying to
+                // ensure everything has completed on backend prior to checkpoint
+                if (testWrapper.getUseTestEntryTimes() || isNextOperationCheckpoint(testWrapper)) {
                     delay = reqop.getDelay();
                 }
                 
@@ -156,6 +159,17 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     + uri + ", error: " +  ex.toString(), getOperation(), ex);
             }
         }
+    }
+    
+    private boolean isNextOperationCheckpoint(KualiTestWrapper testWrapper) {
+        boolean retval = false;
+        TestOperation op = testWrapper.getNextTestOperation(getOperation().getIndex());
+        
+        if ((op != null) && TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
+            retval = true;
+        }
+        
+        return retval;
     }
     
     private HtmlElement getFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
