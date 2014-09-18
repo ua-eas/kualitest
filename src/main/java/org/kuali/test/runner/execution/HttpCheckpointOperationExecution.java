@@ -186,6 +186,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             if (op != null) {
                 if (HttpMethod.GET.toString().equalsIgnoreCase(op.getHtmlRequestOperation().getMethod())
                     || isSearch(op.getHtmlRequestOperation())) {
+System.out.println("--------------------------->" + op.getHtmlRequestOperation().getUrl());
                     new HttpRequestOperationExecution(tec, op).execute(tec.getConfiguration(), tec.getPlatform(), testWrapper);
                 }
             }

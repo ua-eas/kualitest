@@ -133,17 +133,27 @@ public class KualiTestWrapper {
         return test.getTestHeader().getPlatformName();
     }
     
-    public Operation getNextHttpRequestOperation(int curop) {
-        Operation retval = null;
+    private int getOperationIndex(int curindx) {
+        int retval = -1;
         TestOperation[] testOperations = test.getOperations().getOperationArray();
-        int start = -1;
         for (int i = 0; i < testOperations.length; ++i) {
-            if (testOperations[i].getOperation().getIndex() == curop) {
-                start = i+1;
+            if (testOperations[i].getOperation().getIndex() == curindx) {
+                retval = i;
+                break;
             }
         }
         
-        if (start > -1) {
+        return retval;
+    }
+    
+    public Operation getNextHttpRequestOperation(int curop) {
+        Operation retval = null;
+        
+        int curindx =  getOperationIndex(curop);
+        
+        if (curindx > -1) {
+            int start = curindx+1;
+            TestOperation[] testOperations = test.getOperations().getOperationArray();
             for (int i = start; i < testOperations.length; ++i) {
                 if (TestOperationType.HTTP_REQUEST.equals(testOperations[i].getOperationType())) {
                     retval = testOperations[i].getOperation();
@@ -157,15 +167,11 @@ public class KualiTestWrapper {
 
     public Operation getPrevHttpRequestOperation(int curop) {
         Operation retval = null;
-        TestOperation[] testOperations = test.getOperations().getOperationArray();
-        int start = -1;
-        for (int i = 0; i < testOperations.length; ++i) {
-            if (testOperations[i].getOperation().getIndex() == curop) {
-                start = i-11;
-            }
-        }
+        int curindx =  getOperationIndex(curop);
         
-        if (start > -1) {
+        if (curindx > -1) {
+            int start = curindx- 1;
+            TestOperation[] testOperations = test.getOperations().getOperationArray();
             for (int i = start; i > -1; --i) {
                 if (TestOperationType.HTTP_REQUEST.equals(testOperations[i].getOperationType())) {
                     retval = testOperations[i].getOperation();
@@ -176,4 +182,20 @@ public class KualiTestWrapper {
         
         return retval;
     }
+    
+    public TestOperation getNextTestOperation(int curop) {
+        TestOperation retval = null;
+        int curindx =  getOperationIndex(curop);
+        
+        if (curindx > -1) {
+            int indx = curindx + 1;
+            TestOperation[] testOperations = test.getOperations().getOperationArray();
+            if (indx < (testOperations.length)) {
+                retval = testOperations[indx];
+            }
+        }
+        
+        return retval;
+    }
+    
 }
