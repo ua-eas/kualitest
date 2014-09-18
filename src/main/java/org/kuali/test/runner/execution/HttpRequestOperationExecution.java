@@ -90,7 +90,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
           
            
             TestExecutionContext tec = getTestExecutionContext();
-            
+
             tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
             tec.setCurrentTest(testWrapper);
 
@@ -127,7 +127,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
             } 
-            
+
             if (ispost && (tec.getConfiguration().getFormSubmitElementNames() != null)) {
                 HtmlElement submit = getFormSubmitElement(request.getRequestParameters());
                 if (submit != null) {

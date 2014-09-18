@@ -60,9 +60,9 @@ public class PoiHelper {
     int currentReportRow = 0;
 
     private static final String[] HEADER_NAMES = {
-        "Op Number",
-        "Op Name",
-        "Op Type",
+        "Operation Number",
+        "Operation Name",
+        "Operation Type",
         "Group",
         "Section",
         "Start Time",
@@ -266,7 +266,7 @@ public class PoiHelper {
         String retval = "";
         switch (op.getOperationType().intValue()) {
             case TestOperationType.INT_CHECKPOINT:
-                retval = op.getOperation().getCheckpointOperation().getType().toString();
+                retval = "checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "]";
                 break;
             case TestOperationType.INT_HTTP_REQUEST:
                 retval = TestOperationType.HTTP_REQUEST.toString();

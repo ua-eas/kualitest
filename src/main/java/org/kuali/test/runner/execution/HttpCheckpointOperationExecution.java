@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import com.gargoylesoftware.htmlunit.HttpMethod;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
@@ -166,9 +168,53 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                     } catch (InterruptedException ex1) {
                         LOG.warn(ex.toString(), ex1);
                     }
+
+                    // if we did not find matching checkpoint and if the last http request 
+                    // we will try reloading the page if possible to account for asynchronous 
+                    // processing
+                    resubmitHttpRequestIfPossible(testWrapper);
                 }
             }
         }
+    }
+    
+    private void resubmitHttpRequestIfPossible(KualiTestWrapper testWrapper) {
+        try {
+            TestExecutionContext tec = getTestExecutionContext();
+            Operation op = testWrapper.getPrevHttpRequestOperation(getOperation().getIndex());
+
+            if (op != null) {
+                if (HttpMethod.GET.toString().equalsIgnoreCase(op.getHtmlRequestOperation().getMethod())
+                    || isSearch(op.getHtmlRequestOperation())) {
+                    new HttpRequestOperationExecution(tec, op).execute(tec.getConfiguration(), tec.getPlatform(), testWrapper);
+                }
+            }
+        }
+        
+        catch (TestException ex) {
+            LOG.warn(ex.toString(), ex);
+        }
+    }
+    
+    private boolean isSearch(HtmlRequestOperation reqop) {
+        boolean retval = false;
+
+        String params = Utils.getContentParameterFromRequestOperation(reqop);
+        if (StringUtils.isNotBlank(params)) {
+            TestExecutionContext tec = getTestExecutionContext();
+            
+            if (tec.getConfiguration().getSearchSubmitElementNames() != null) {
+                for (String ename : tec.getConfiguration().getSearchSubmitElementNames().getElementNameArray()) {
+                    if (params.contains(ename)) {
+                        retval = true;
+                        break;
+                    }
+                }
+            }
+            
+        }
+        
+        return retval;
     }
     
     private void writeHtmlIfRequired(Checkpoint cp, 

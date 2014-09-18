@@ -18,8 +18,8 @@ package org.kuali.test.runner.execution;
 
 import java.util.Stack;
 import org.kuali.test.FailureAction;
-import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.Operation;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -133,8 +133,8 @@ public class KualiTestWrapper {
         return test.getTestHeader().getPlatformName();
     }
     
-    public HtmlRequestOperation getNextHttpRequestOperation(int curop) {
-        HtmlRequestOperation retval = null;
+    public Operation getNextHttpRequestOperation(int curop) {
+        Operation retval = null;
         TestOperation[] testOperations = test.getOperations().getOperationArray();
         int start = -1;
         for (int i = 0; i < testOperations.length; ++i) {
@@ -146,7 +146,29 @@ public class KualiTestWrapper {
         if (start > -1) {
             for (int i = start; i < testOperations.length; ++i) {
                 if (TestOperationType.HTTP_REQUEST.equals(testOperations[i].getOperationType())) {
-                    retval = testOperations[i].getOperation().getHtmlRequestOperation();
+                    retval = testOperations[i].getOperation();
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public Operation getPrevHttpRequestOperation(int curop) {
+        Operation retval = null;
+        TestOperation[] testOperations = test.getOperations().getOperationArray();
+        int start = -1;
+        for (int i = 0; i < testOperations.length; ++i) {
+            if (testOperations[i].getOperation().getIndex() == curop) {
+                start = i-11;
+            }
+        }
+        
+        if (start > -1) {
+            for (int i = start; i > -1; --i) {
+                if (TestOperationType.HTTP_REQUEST.equals(testOperations[i].getOperationType())) {
+                    retval = testOperations[i].getOperation();
                     break;
                 }
             }

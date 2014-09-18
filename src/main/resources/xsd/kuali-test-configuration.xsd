@@ -50,6 +50,7 @@
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
                 <xs:element name="form-submit-element-names" type="form-submit-element-names" minOccurs="0"/>
+                <xs:element name="search-submit-element-names" type="search-submit-element-names" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -124,6 +125,12 @@
     </xs:complexType>
 
     <xs:complexType name="form-submit-element-names">
+        <xs:sequence>
+            <xs:element name="element-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="search-submit-element-names">
         <xs:sequence>
             <xs:element name="element-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
