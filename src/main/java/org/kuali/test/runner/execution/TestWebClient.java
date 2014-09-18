@@ -255,18 +255,19 @@ public class TestWebClient extends WebClient {
         // hack to handle urls with multiple question marks in the parameter list
         int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
         if (pos > -1) {
-            retval.append(input.substring(0, pos+1));
-            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(input), Constants.SEPARATOR_QUESTION);
-            String seperator = "";
+            String params = input.substring(0, pos+1);
+            retval.append(params);
+            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(params), Constants.SEPARATOR_QUESTION);
+            String separator = "";
         
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
-                retval.append(seperator);
+                retval.append(separator);
                 List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(token);
                 if ((npvlist != null) && !npvlist.isEmpty()) {
                     npvlist = getUpdatedParameterList(npvlist);
                     retval.append(Utils.buildUrlEncodedParameterString(npvlist));
-                    seperator = Constants.SEPARATOR_QUESTION;
+                    separator = Constants.SEPARATOR_QUESTION;
                 }
             }
         }
@@ -403,7 +404,6 @@ public class TestWebClient extends WebClient {
         return getCookieManager().getCookies();
     }
 
-    @SuppressWarnings("empty-statement")
     private void writeErrorFile(String url, int indx, String results) {
         File f = new File(getErrorFileName());
 

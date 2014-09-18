@@ -116,6 +116,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             boolean ispost = request.getHttpMethod().equals(HttpMethod.POST);
+
             if (ispost) {
                 ispost = true;
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
@@ -129,8 +130,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         request.setRequestParameters(Utils.getNameValuePairsFromMultipartParams(params));
                     }
                 }
-            } 
-
+            }             
             if (ispost && (tec.getConfiguration().getFormSubmitElementNames() != null)) {
                 HtmlElement submit = getFormSubmitElement(request.getRequestParameters());
                 if (submit != null) {
@@ -161,6 +161,21 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
     }
     
+    private boolean isPortalDoUrl(WebRequest request) {
+        return request.getUrl().toExternalForm().contains("/portal.do?channelTitle=");
+    }
+    
+    private String getPortalDoRelativeUrl(WebRequest request) {
+        String retval = null;
+        int pos = request.getUrl().toExternalForm().indexOf("/portal.do?channelTitle=");
+        
+        if (pos > -1) {
+            retval =  request.getUrl().toExternalForm().substring(pos+1);
+        }
+        
+        return retval;
+    }
+
     private boolean isNextOperationCheckpoint(KualiTestWrapper testWrapper) {
         boolean retval = false;
         TestOperation op = testWrapper.getNextTestOperation(getOperation().getIndex());
@@ -195,7 +210,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         if (StringUtils.isNotBlank(elementName)) {
             int cnt = 0;
             while ((retval == null) && (cnt < (Constants.HTML_TEST_RETRY_COUNT))) {
-                retval = findHtmlElement(page, elementName);
+                retval = findHtmlElementByName(page, elementName);
             
                 if (retval == null) {
                     page.getWebResponse().cleanUp();
@@ -252,7 +267,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         return retval;
     }
     
-    private HtmlElement findHtmlElement(Page page, String elementName) {
+    private HtmlElement findHtmlElementByName(Page page, String elementName) {
         HtmlElement retval = null;
         
         if (page.isHtmlPage()) {
@@ -273,7 +288,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         catch (ElementNotFoundException ex) {};
                         
                         if (retval == null) {
-                            retval = findHtmlElement(pg, elementName);
+                            retval = findHtmlElementByName(pg, elementName);
                         }
                     }
                     
@@ -286,7 +301,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         
         return retval;
     }
-    
+
     private String getUpdatedUrl(String url) throws UnsupportedEncodingException {
         String retval = url;
         String params = Utils.getParametersFromUrl(url);
