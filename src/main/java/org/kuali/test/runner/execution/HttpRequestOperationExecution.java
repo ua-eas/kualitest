@@ -32,7 +32,6 @@ import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -97,7 +96,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
             tec.setCurrentTest(testWrapper);
 
-            WebRequest request = new WebRequest(new URL(getUpdatedUrl(reqop.getUrl())), HttpMethod.valueOf(reqop.getMethod()));
+            WebRequest request = new WebRequest(new URL(reqop.getUrl()), HttpMethod.valueOf(reqop.getMethod()));
             request.setAdditionalHeader(Constants.TEST_OPERATION_INDEX, "" + getOperation().getIndex());
 
             boolean multiPart = Utils.isMultipart(reqop);
@@ -130,7 +129,9 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         request.setRequestParameters(Utils.getNameValuePairsFromMultipartParams(params));
                     }
                 }
-            }             
+            }    
+            
+            
             if (ispost && (tec.getConfiguration().getFormSubmitElementNames() != null)) {
                 HtmlElement submit = getFormSubmitElement(request.getRequestParameters());
                 if (submit != null) {
@@ -161,21 +162,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         }
     }
     
-    private boolean isPortalDoUrl(WebRequest request) {
-        return request.getUrl().toExternalForm().contains("/portal.do?channelTitle=");
-    }
-    
-    private String getPortalDoRelativeUrl(WebRequest request) {
-        String retval = null;
-        int pos = request.getUrl().toExternalForm().indexOf("/portal.do?channelTitle=");
-        
-        if (pos > -1) {
-            retval =  request.getUrl().toExternalForm().substring(pos+1);
-        }
-        
-        return retval;
-    }
-
     private boolean isNextOperationCheckpoint(KualiTestWrapper testWrapper) {
         boolean retval = false;
         TestOperation op = testWrapper.getNextTestOperation(getOperation().getIndex());
@@ -301,19 +287,5 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         
         return retval;
     }
-
-    private String getUpdatedUrl(String url) throws UnsupportedEncodingException {
-        String retval = url;
-        String params = Utils.getParametersFromUrl(url);
-
-        if (StringUtils.isNotBlank(params)) {
-            List <NameValuePair> paramList = getTestExecutionContext().getWebClient().getUpdatedParameterList(Utils.getNameValuePairsFromUrlEncodedParams(params));
-            
-            int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
-            
-            retval = url.substring(0, pos + 1) + Utils.buildUrlEncodedParameterString(paramList);
-        }
-        
-        return retval;
-    }
 }
+

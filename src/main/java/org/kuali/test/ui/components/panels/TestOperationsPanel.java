@@ -97,11 +97,19 @@ public class TestOperationsPanel extends BasePanel {
             @Override
             public Object getValueAt(int row, int column) {
                 Object retval = "";
-                if (column == 2) {
+                if (column == 1) {
+                    TestOperation op = (TestOperation)getRowData(row);
+                    if (op.getOperationType().intValue() == TestOperationType.INT_CHECKPOINT) {
+                        retval = ("checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "]");
+                    } else {
+                        retval = super.getValueAt(row, column);
+                    }
+                    
+                } else if  (column == 2) {
                     TestOperation op = (TestOperation)getRowData(row);
                     switch (op.getOperationType().intValue()) {
                         case TestOperationType.INT_CHECKPOINT:
-                            retval = (op.getOperation().getCheckpointOperation().getName() + " [" + op.getOperation().getCheckpointOperation().getType().toString() + "]");
+                            retval = op.getOperation().getCheckpointOperation().getName();
                             break;
                         case 
                             TestOperationType.INT_HTTP_REQUEST:
@@ -112,7 +120,7 @@ public class TestOperationsPanel extends BasePanel {
                             break;
                     }
                 } else {
-                    return super.getValueAt(row, column);
+                    retval = super.getValueAt(row, column);
                 }
                 
                 return retval;

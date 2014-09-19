@@ -129,14 +129,19 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                     CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
                     if (matchingProperties.size() == properties.length) {
                         boolean success = true;
+                        
                         FailureAction.Enum failureAction = FailureAction.IGNORE;
+                        
                         for (int j = 0; j < properties.length; ++j) {
                             if (j < matchingProperties.size()) {
                                 properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
                                 if (!evaluateCheckpointProperty(testWrapper, properties[j])) {
                                     success = false;
-                                    failureAction = properties[j].getOnFailure();
-                                    break;
+                                    
+                                    // use the most severe action in the group
+                                    if (properties[j].getOnFailure().intValue() > failureAction.intValue()) {
+                                        failureAction = properties[j].getOnFailure();
+                                    }
                                 }
                             }
                         }

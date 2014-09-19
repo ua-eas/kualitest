@@ -144,10 +144,10 @@ public class TestWebClient extends WebClient {
                         List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
                         request.getRequestParameters().clear();
                         request.getRequestParameters().addAll(params);
-                    } else {
-                        if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
-                            handleUrlParameters(request);
-                        }
+                    } 
+                    
+                    if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
+                        handleUrlParameters(request);
                     }
                     
                     replaceJsessionId(request);
@@ -249,6 +249,50 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
+    public String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
+        StringBuilder retval = new StringBuilder(512);
+        
+        if (StringUtils.isNotBlank(input)) {
+            // hack to handle urls with multiple question marks in the parameter list
+            int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
+            if (pos > -1) {
+                retval.append(input.substring(0, pos+1));
+                String params = Utils.getParametersFromUrl(input);
+
+                StringBuilder buf = new StringBuilder(params.length());
+                
+                // handle parameter list that contains question marks
+                if (params.contains(Constants.SEPARATOR_QUESTION)) {
+                    StringTokenizer st = new StringTokenizer(params, Constants.SEPARATOR_QUESTION);
+                    String separator = "";
+
+                    while (st.hasMoreTokens()) {
+                        String token = st.nextToken();
+                        buf.append(separator);
+                        List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(token);
+                        if ((npvlist != null) && !npvlist.isEmpty()) {
+                            npvlist = getUpdatedParameterList(npvlist);
+                            buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+                            separator = Constants.SEPARATOR_QUESTION;
+                        }
+                    }
+                } else {
+                    List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(params);
+                    if ((npvlist != null) && !npvlist.isEmpty()) {
+                        npvlist = getUpdatedParameterList(npvlist);
+                        buf.append(Utils.buildUrlEncodedParameterString(npvlist));
+                    }
+                }
+                
+                retval.append(buf.toString());
+            } else {
+                retval.append(input);
+            }
+        }
+        
+        return retval.toString();
+    }
+/*
     private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
         
@@ -257,7 +301,7 @@ public class TestWebClient extends WebClient {
         if (pos > -1) {
             String params = input.substring(0, pos+1);
             retval.append(params);
-            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(params), Constants.SEPARATOR_QUESTION);
+            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(input), Constants.SEPARATOR_QUESTION);
             String separator = "";
         
             while (st.hasMoreTokens()) {
@@ -274,7 +318,8 @@ public class TestWebClient extends WebClient {
         
         return retval.toString();
     }
-    
+*/
+
     private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
         String updatedUrl = getUpdatedUrlParameters(request.getUrl().toExternalForm());
         if (StringUtils.isNotBlank(updatedUrl)) {
