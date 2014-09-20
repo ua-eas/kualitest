@@ -32,6 +32,7 @@
             <xs:enumeration value="http request"/>
             <xs:enumeration value="checkpoint"/>
             <xs:enumeration value="test execution parameter"/>
+            <xs:enumeration value="comment"/>
         </xs:restriction>
     </xs:simpleType>
     
@@ -48,6 +49,12 @@
             <xs:element name="delay" type="xs:int" default="5000"/>
             <xs:element name="request-headers" type="request-headers"/>
             <xs:element name="request-parameters" type="request-parameters"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="comment-operation">
+        <xs:sequence>
+            <xs:element name="comment" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
     
@@ -106,6 +113,7 @@
             <xs:element name="checkpoint-operation" type="checkpoint"/>
             <xs:element name="test-execution-parameter" type="test-execution-parameter"/>
             <xs:element name="html-request-operation" type="html-request-operation"/>
+            <xs:element name="comment-operation" type="comment-operation"/>
         </xs:choice>  
         <xs:attribute name="index" type="xs:int"/> 
     </xs:complexType>      

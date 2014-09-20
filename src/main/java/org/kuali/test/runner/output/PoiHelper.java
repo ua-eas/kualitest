@@ -44,6 +44,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
+import org.kuali.test.Operation;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
@@ -407,6 +408,27 @@ public class PoiHelper {
             cell.setCellValue("success");
             cell.setCellStyle(cellStyleSuccess);
         }
+    }
+
+    /**
+     * 
+     * @param op
+     * @param comment 
+     */
+    public void writeCommentEntry(Operation op) {
+        Sheet sheet = wb.getSheetAt(0);
+        Row retval = sheet.createRow(++currentReportRow);
+
+        // operation nmber
+        Cell cell = retval.createCell(0);
+        cell.setCellValue(op.getIndex());
+        cell.setCellStyle(cellStyleNormal);
+
+        sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 1, HEADER_NAMES.length - 1));
+
+        cell = retval.createCell(1);
+        cell.setCellValue(op.getCommentOperation().getComment());
+        cell.setCellStyle(cellStyleNormal);
     }
 
     /**

@@ -670,6 +670,12 @@ public class TestExecutionContext extends Thread {
         }
     }
 
+    public void writeCommentEntry(Operation op) {
+        if (poiHelper != null) {
+            poiHelper.writeCommentEntry(op);
+        } 
+    }
+    
     public synchronized void haltTest(TestException ex) {
         haltTest = true;
         getCurrentTest().incrementErrorCount();
