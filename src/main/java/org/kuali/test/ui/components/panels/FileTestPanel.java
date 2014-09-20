@@ -33,11 +33,9 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
-import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.components.buttons.FileSearchButton;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
@@ -159,7 +157,7 @@ public class FileTestPanel extends BaseCreateTestPanel {
             FileCheckPointDlg dlg = new FileCheckPointDlg(getMainframe(), getTestHeader(), this);
             
             if (dlg.isSaved()) {
-                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+                addCheckpoint(testOperations, (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
                 getSaveTest().setEnabled(true);
             }
         }
@@ -199,15 +197,6 @@ public class FileTestPanel extends BaseCreateTestPanel {
         return retval;
     }
     
-    private void addCheckpoint(Checkpoint checkpoint) {
-        TestOperation testOp = TestOperation.Factory.newInstance();
-        testOp.setOperationType(TestOperationType.CHECKPOINT);
-        Operation op = testOp.addNewOperation();
-        op.addNewCheckpointOperation();
-        op.setCheckpointOperation(checkpoint);
-        testOperations.add(testOp);
-    }
-
     /**
      *
      * @return

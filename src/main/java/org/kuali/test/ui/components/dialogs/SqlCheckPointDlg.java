@@ -35,7 +35,6 @@ import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -46,8 +45,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class SqlCheckPointDlg extends BaseSetupDlg {
-
+public class SqlCheckPointDlg extends BaseCheckpointDlg {
     private static final Logger LOG = Logger.getLogger(SqlCheckPointDlg.class);
     private final TestHeader testHeader;
     private Checkpoint checkpoint;

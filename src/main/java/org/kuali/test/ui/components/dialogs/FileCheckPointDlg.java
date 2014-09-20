@@ -34,7 +34,6 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.FileTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -44,8 +43,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class FileCheckPointDlg extends BaseSetupDlg {
-
+public class FileCheckPointDlg extends BaseCheckpointDlg {
     private static final Logger LOG = Logger.getLogger(FileCheckPointDlg.class);
     private final TestHeader testHeader;
     private Checkpoint checkpoint;

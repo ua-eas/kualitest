@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.CommentOperation;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
@@ -189,15 +190,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
     }
 
-    private void addCheckpoint(Checkpoint checkpoint) {
-        TestOperation testOp = TestOperation.Factory.newInstance();
-        testOp.setOperationType(TestOperationType.CHECKPOINT);
-        Operation op = testOp.addNewOperation();
-        op.addNewCheckpointOperation();
-        op.setCheckpointOperation(checkpoint);
-        testProxyServer.getTestOperations().add(testOp);
-    }
-    
     private void addTestExecutionParameter(TestExecutionParameter param) {
         TestOperation testOp = TestOperation.Factory.newInstance();
         testOp.setOperationType(TestOperationType.TEST_EXECUTION_PARAMETER);
@@ -212,7 +204,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
 
         if (dlg.isSaved()) {
-            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
         }
     }
     
@@ -220,7 +212,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         MemoryCheckPointDlg dlg = new MemoryCheckPointDlg(getMainframe(), getTestHeader());
 
         if (dlg.isSaved()) {
-            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
         }
     }
     
@@ -228,7 +220,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), null, testProxyServer);
 
         if (dlg.isSaved()) {
-            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
         }
     }
     
@@ -236,7 +228,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         FileCheckPointDlg dlg = new FileCheckPointDlg(getMainframe(), getTestHeader(), null);
 
         if (dlg.isSaved()) {
-            addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
         }
     }
 
@@ -245,7 +237,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         if (dlg.isSaved()) {
             final Checkpoint cp = (Checkpoint)dlg.getNewRepositoryObject();
-            addCheckpoint(cp);
+            addCheckpoint(testProxyServer.getTestOperations(), cp, dlg.getComment());
             if (dlg.isRunWebService()) {
                 String opname = "unknown";
                 final boolean poll = dlg.isPoll();

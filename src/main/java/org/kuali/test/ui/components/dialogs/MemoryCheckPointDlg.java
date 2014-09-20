@@ -31,7 +31,6 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -41,7 +40,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class MemoryCheckPointDlg extends BaseSetupDlg {
+public class MemoryCheckPointDlg extends BaseCheckpointDlg {
 
     private static final Logger LOG = Logger.getLogger(MemoryCheckPointDlg.class);
     private final TestHeader testHeader;

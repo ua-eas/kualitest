@@ -31,13 +31,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
+import org.kuali.test.CommentOperation;
 import org.kuali.test.KualiTestDocument;
+import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.PlatformTests;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.TestOperations;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
@@ -374,4 +378,29 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @param e
      */
     protected void handleUnprocessedActionEvent(ActionEvent e) {};
+    
+    protected void addCheckpoint(List<TestOperation> testOperations, Checkpoint checkpoint, String comment) {
+        if (StringUtils.isNotBlank(comment)) {
+            addComment(testOperations, comment);
+        }
+        
+        TestOperation testOp = TestOperation.Factory.newInstance();
+        testOp.setOperationType(TestOperationType.CHECKPOINT);
+        Operation op = testOp.addNewOperation();
+        op.addNewCheckpointOperation();
+        op.setCheckpointOperation(checkpoint);
+        testOperations.add(testOp);
+    }
+    
+    protected void addComment(List<TestOperation> testOperations, String comment) {
+        TestOperation testOp = TestOperation.Factory.newInstance();
+        testOp.setOperationType(TestOperationType.COMMENT);
+        Operation op = testOp.addNewOperation();
+        CommentOperation cop = op.addNewCommentOperation();
+        cop.setComment(comment);
+        testOperations.add(testOp);
+    }
+    
+
+
 }

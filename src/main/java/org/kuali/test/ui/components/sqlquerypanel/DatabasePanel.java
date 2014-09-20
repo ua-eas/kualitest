@@ -605,19 +605,10 @@ public class DatabasePanel extends BaseCreateTestPanel  {
             SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), this, null);
 
             if (dlg.isSaved()) {
-                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+                addCheckpoint(testOperations, (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
                 getSaveTest().setEnabled(true);
             }
         }
-    }
-    
-    private void addCheckpoint(Checkpoint checkpoint) {
-        TestOperation testOp = TestOperation.Factory.newInstance();
-        testOp.setOperationType(TestOperationType.CHECKPOINT);
-        Operation op = testOp.addNewOperation();
-        op.addNewCheckpointOperation();
-        op.setCheckpointOperation(checkpoint);
-        testOperations.add(testOp);
     }
 
     /**

@@ -37,7 +37,6 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -48,8 +47,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class WebServiceCheckPointDlg extends BaseSetupDlg {
-
+public class WebServiceCheckPointDlg extends BaseCheckpointDlg {
     private static final Logger LOG = Logger.getLogger(WebServiceCheckPointDlg.class);
     private final TestHeader testHeader;
     private Checkpoint checkpoint;
@@ -104,17 +102,21 @@ public class WebServiceCheckPointDlg extends BaseSetupDlg {
 
         String[] labels = new String[]{
             "Checkpoint Name",
+            "Comment",
             "Max Run Time (sec)",
             "On Failure"
         };
 
         name = new JTextField(checkpoint.getName(), 20);
         name.setEditable(!isEditmode());
+        
+        comment = new JTextField(40);
         wsFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         maxRunTime = new IntegerTextField();
         
         JComponent[] components = new JComponent[]{
             name,
+            comment,
             maxRunTime,
             wsFailure
         };

@@ -272,7 +272,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
             WebServiceCheckPointDlg dlg = new WebServiceCheckPointDlg(getMainframe(), getTestHeader(), this);
 
             if (dlg.isSaved()) {
-                addCheckpoint((Checkpoint)dlg.getNewRepositoryObject());
+                addCheckpoint(testOperations, (Checkpoint)dlg.getNewRepositoryObject(), dlg.getComment());
                 getSaveTest().setEnabled(true);
             }
         } 
@@ -307,14 +307,6 @@ public class WebServicePanel extends BaseCreateTestPanel {
         return retval;
     }
     
-    private void addCheckpoint(Checkpoint checkpoint) {
-        TestOperation testOp = TestOperation.Factory.newInstance();
-        testOp.setOperationType(TestOperationType.CHECKPOINT);
-        Operation op = testOp.addNewOperation();
-        op.setCheckpointOperation(checkpoint);
-        testOperations.add(testOp);
-    }
-
     /**
      *
      * @return

@@ -33,7 +33,6 @@ import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -42,8 +41,7 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class HtmlCheckPointDlg extends BaseSetupDlg {
-
+public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     private static final Logger LOG = Logger.getLogger(HtmlCheckPointDlg.class);
     private final TestHeader testHeader;
     private Checkpoint checkpoint;
@@ -78,16 +76,19 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     private void initComponents(JWebBrowser webBrowser, String html) {
         String[] labels = new String[]{
             "Checkpoint Name",
+            "Comment",
             ""
         };
 
         name = new JTextField(checkpoint.getName(), 30);
         name.setEditable(!isEditmode());
 
+        comment = new JTextField();
+        
         saveScreen = new JCheckBox("Save screen with checkpoint");
         
         JComponent[] components = new JComponent[]{
-            name, saveScreen};
+            name, comment, saveScreen};
 
         JPanel p = new BasePanel(getMainframe());
 
@@ -179,4 +180,5 @@ public class HtmlCheckPointDlg extends BaseSetupDlg {
     public boolean isResizable() {
         return true;
     }
+    
 }
