@@ -83,12 +83,10 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
         name = new JTextField(checkpoint.getName(), 30);
         name.setEditable(!isEditmode());
 
-        comment = new JTextField();
-        
         saveScreen = new JCheckBox("Save screen with checkpoint");
         
         JComponent[] components = new JComponent[]{
-            name, comment, saveScreen};
+            name, createCommentField(), saveScreen};
 
         JPanel p = new BasePanel(getMainframe());
 

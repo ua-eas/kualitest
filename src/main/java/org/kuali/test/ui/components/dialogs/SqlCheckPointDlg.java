@@ -104,6 +104,7 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
 
         String[] labels = new String[]{
             "Checkpoint Name",
+            "Comment",
             "Checkpoint Property",
             "On Failure",
             "Max Run Time (sec)",
@@ -119,6 +120,7 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
         
         JComponent[] components = new JComponent[]{
             name,
+            createCommentField(),
             checkpointProperty,
             sqlFailure,
             maxRunTime,

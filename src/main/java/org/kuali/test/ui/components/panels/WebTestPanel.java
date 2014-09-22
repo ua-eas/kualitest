@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
-import org.kuali.test.CommentOperation;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
 import org.kuali.test.Platform;

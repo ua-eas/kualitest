@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Window;
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -144,15 +145,15 @@ public class UIUtils {
      * @return
      */
     public static JPanel buildLabelGridPanel(String[] labels) {
-        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 2));
+        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 0));
+        
         for (int i = 0; i < labels.length; ++i) {
             String colon = ":";
             if (StringUtils.isBlank(labels[i])) {
                 colon = "";
             }
-            JLabel l = new JLabel(labels[i] + colon, JLabel.RIGHT);
-            l.setVerticalAlignment(JLabel.CENTER);
-            retval.add(l);
+            
+            retval.add(new JLabel(labels[i] + colon, JLabel.RIGHT));
         }
         
         return retval;
@@ -164,10 +165,13 @@ public class UIUtils {
      * @return
      */
     public static JPanel buildComponentGridPanel(JComponent[] components) {
-        JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 2));
+        Box right = Box.createVerticalBox();
+        JPanel retval = new JPanel();
         for (JComponent c : components) {
-            retval.add(wrapPanel(c));
+            right.add(wrapPanel(c));
         }
+        
+        retval.add(right);
         
         return retval;
     }
@@ -180,10 +184,10 @@ public class UIUtils {
      */
     public static JPanel buildEntryPanel(String[] labels, JComponent[] components) {
         JPanel retval = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JPanel entryPanel = new JPanel(new BorderLayout(2, 1));
-        entryPanel.add(buildLabelGridPanel(labels), BorderLayout.WEST);
-        entryPanel.add(buildComponentGridPanel(components), BorderLayout.CENTER);
         
+        JPanel entryPanel = new JPanel(new BorderLayout());
+        entryPanel.add(buildComponentGridPanel(components), BorderLayout.CENTER);
+        entryPanel.add(buildLabelGridPanel(labels), BorderLayout.WEST);
         retval.add(entryPanel);
         
         return retval;

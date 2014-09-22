@@ -29,7 +29,6 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
@@ -53,7 +52,6 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     private TestCreator mainframe;
     private boolean saved = false;
     private boolean editmode = false;
-    protected JTextField comment;
     
     /**
      *
@@ -377,15 +375,6 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     protected String getCancelText() {
         return Constants.CANCEL_ACTION;
     }
-    
-    public String getComment() {
-        String retval = null;
-        if (comment != null) {
-            retval = comment.getText();
-        }
-        return retval;
-    }
-
     
     protected void addAdditionalButtons(JPanel p) {};
 }

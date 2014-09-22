@@ -110,13 +110,12 @@ public class WebServiceCheckPointDlg extends BaseCheckpointDlg {
         name = new JTextField(checkpoint.getName(), 20);
         name.setEditable(!isEditmode());
         
-        comment = new JTextField(40);
         wsFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         maxRunTime = new IntegerTextField();
         
         JComponent[] components = new JComponent[]{
             name,
-            comment,
+            createCommentField(),
             maxRunTime,
             wsFailure
         };

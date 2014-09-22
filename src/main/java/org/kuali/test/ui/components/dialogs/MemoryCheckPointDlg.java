@@ -74,6 +74,7 @@ public class MemoryCheckPointDlg extends BaseCheckpointDlg {
     private void initComponents() {
         String[] labels = new String[]{
             "Checkpoint Name",
+            "Comment",
             "Max Memory Usage (percent)",
             "On Max Memory Failure"
         };
@@ -85,6 +86,7 @@ public class MemoryCheckPointDlg extends BaseCheckpointDlg {
         
         JComponent[] components = new JComponent[]{
             name,
+            createCommentField(),
             maxMemoryPercent,
             maxMemoryFailure
         };
@@ -157,7 +159,7 @@ public class MemoryCheckPointDlg extends BaseCheckpointDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(500, 200);
+        return new Dimension(600, 300);
     }
 
     /**

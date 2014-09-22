@@ -103,9 +103,9 @@ public class TestWebClient extends WebClient {
                 }
             }
         }
-        
 
         dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
+        
         getOptions().setJavaScriptEnabled(true);
         getOptions().setThrowExceptionOnFailingStatusCode(false);
         getOptions().setThrowExceptionOnScriptError(false);
@@ -163,6 +163,14 @@ public class TestWebClient extends WebClient {
 
                 if (!jscall && !csscall) {
                     String results = retval.getContentAsString();
+                    if (indx > 30) {
+                        System.out.println("========================================= operation: " + indx.toString() + " =============================================");
+                        System.out.println("url=" + request.getUrl().toExternalForm());
+                        System.out.println("status=" + status);
+                        System.out.println(results);
+                    }
+                    
+                    
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                         LOG.debug("url=" + request.getUrl().toExternalForm());

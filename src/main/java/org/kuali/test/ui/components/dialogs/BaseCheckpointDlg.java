@@ -16,17 +16,19 @@
 
 package org.kuali.test.ui.components.dialogs;
 
-import org.kuali.test.ui.base.*;
 import javax.swing.JDialog;
-import javax.swing.JTextField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.BaseSetupDlg;
 
 /**
  *
  * @author rbtucker
  */
 public abstract class BaseCheckpointDlg extends BaseSetupDlg {
-    protected JTextField comment;
+    protected JTextArea commentField;
     
     /**
      *
@@ -45,12 +47,22 @@ public abstract class BaseCheckpointDlg extends BaseSetupDlg {
         super(mainframe, parent);
     }
 
+    public JTextArea getCommentField() {
+        return commentField;
+    }
     
     public String getComment() {
         String retval = null;
-        if (comment != null) {
-            retval = comment.getText();
+        if (commentField != null) {
+            retval = commentField.getText();
         }
         return retval;
+    }
+    
+    
+    protected JScrollPane createCommentField() {
+        commentField = new JTextArea(3, 30);
+        commentField.setWrapStyleWord(true);
+        return new JScrollPane(commentField, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     }
 }

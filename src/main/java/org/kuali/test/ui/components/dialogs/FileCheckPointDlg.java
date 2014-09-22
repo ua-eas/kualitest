@@ -95,6 +95,7 @@ public class FileCheckPointDlg extends BaseCheckpointDlg {
 
         String[] labels = new String[]{
             "Checkpoint Name",
+            "Comment",
             "On Failure"
         };
 
@@ -104,6 +105,7 @@ public class FileCheckPointDlg extends BaseCheckpointDlg {
         
         JComponent[] components = new JComponent[]{
             name,
+            createCommentField(),
             fileFailure,
         };
 
