@@ -63,6 +63,7 @@ public abstract class BaseCheckpointDlg extends BaseSetupDlg {
     protected JScrollPane createCommentField() {
         commentField = new JTextArea(3, 30);
         commentField.setWrapStyleWord(true);
+        commentField.setLineWrap(true);
         return new JScrollPane(commentField, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
     }
 }
