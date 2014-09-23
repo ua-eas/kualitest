@@ -77,6 +77,7 @@ import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.eclipse.jetty.http.HttpHeaders;
 import org.jasypt.util.text.BasicTextEncryptor;
+import org.jsoup.Jsoup;
 import org.kuali.test.AutoReplaceParameter;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
@@ -3535,6 +3536,16 @@ public class Utils {
                     break;
                 }
             }
+        }
+        
+        return retval;
+    }
+    
+    public static String formatHtmlForComparisonProperty(String html) {
+        String retval = "";
+        
+        if (StringUtils.isNotBlank(html)) {
+            retval = Jsoup.parse(html).text().replace(" ", "-").toLowerCase();
         }
         
         return retval;

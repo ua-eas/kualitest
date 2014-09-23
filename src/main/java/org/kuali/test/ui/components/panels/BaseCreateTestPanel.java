@@ -36,6 +36,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CommentOperation;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
@@ -111,31 +112,29 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
             startTest.addActionListener(this);
             retval.add(startTest);
-            retval.addSeparator();
         } else {
             ToolbarButton tb = new ToolbarButton(Constants.CANCEL_TEST_ACTION, Constants.CANCEL_TEST_ICON);
             tb.addActionListener(this);
             retval.add(tb);
-            retval.addSeparator();
         }
+        
+        retval.addSeparator();
         
         operation = new ToolbarButton(Constants.OPERATION_ACTION, Constants.CREATE_CHECKPOINT_ICON);
         
         operation.addActionListener(this);
         operation.setEnabled(false);
         retval.add(operation);
-        retval.addSeparator();
         
         List <JComponent> customButtons = getCustomButtons();
 
         if (customButtons != null) {
             for (JComponent tb : customButtons) {
                 retval.add(tb);
-                retval.addSeparator();
             }
-        } else {
-            retval.addSeparator();
         }
+        
+        retval.addSeparator();
         
         saveTest = new ToolbarButton(Constants.SAVE_TEST_ACTION, Constants.SAVE_TEST_ICON);
         saveTest.addActionListener(this);
@@ -395,6 +394,13 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         testOp.setOperationType(TestOperationType.CHECKPOINT);
         Operation op = testOp.addNewOperation();
         op.addNewCheckpointOperation();
+
+        for (CheckpointProperty p : checkpoint.getCheckpointProperties().getCheckpointPropertyArray()) {
+            if (StringUtils.isNotBlank(p.getPropertySection())) {
+                p.setPropertySection(Utils.formatHtmlForComparisonProperty(p.getPropertySection()));
+            }
+        }
+        
         op.setCheckpointOperation(checkpoint);
         testOperations.add(testOp);
     }

@@ -68,6 +68,7 @@ public class SimpleInputDlg2 extends JDialog implements ActionListener {
     }
 
     private void initComponents(String labelTxt) {
+        setTitle(labelTxt);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(new JLabel(labelTxt + ":"), BorderLayout.NORTH);
         value = new JTextArea(5, 40);

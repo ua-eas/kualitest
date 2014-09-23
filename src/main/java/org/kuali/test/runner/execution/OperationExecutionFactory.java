@@ -80,6 +80,8 @@ public class OperationExecutionFactory {
             retval = new HttpRequestOperationExecution(testContext, op.getOperation());
         } else if (TestOperationType.TEST_EXECUTION_PARAMETER.equals(op.getOperationType())) {
             retval = new TestExecutionParameterOperationExecution(testContext, op.getOperation());
+        } else if (TestOperationType.COMMENT.equals(op.getOperationType())) {
+            retval = new CommentOperationExecution(testContext, op.getOperation());
         }
         
         return retval;

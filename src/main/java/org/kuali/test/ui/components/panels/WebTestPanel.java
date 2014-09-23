@@ -22,7 +22,6 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
@@ -397,18 +396,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return (StringUtils.isNotBlank(input) && input.contains("<html>"));
     }
 
-    /**
-     *
-     * @param e
-     */
     @Override
-    protected void handleUnprocessedActionEvent(ActionEvent e) {
-        if (Constants.CREATE_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            handleAddExecutionParameter();
-        }
-    }
-    
-    private void handleAddExecutionParameter() {
+   protected void handleCreateParameter() {
         TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
             getCurrentBrowser(), getTestHeader(), lastProxyHtmlResponse);
         

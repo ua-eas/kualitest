@@ -58,6 +58,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
         for (CheckpointProperty originalProperty : cp.getCheckpointProperties().getCheckpointPropertyArray()) {
             for (CheckpointProperty currentProperty : dominfo.getCheckpointProperties()) {
+                currentProperty.setPropertySection(Utils.formatHtmlForComparisonProperty(currentProperty.getPropertySection()));
                 if (Utils.isCheckPointPropertyMatch(currentProperty, originalProperty)) {
                     retval.add(currentProperty);
                 }
