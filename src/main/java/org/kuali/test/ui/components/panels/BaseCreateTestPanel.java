@@ -27,8 +27,10 @@ import java.util.Calendar;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,16 +41,18 @@ import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.PlatformTests;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestOperations;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.components.buttons.ExtraInfoToolbarButton;
 import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
 import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.TestCheckpointsDlg;
+import org.kuali.test.ui.components.dialogs.TestCommentsDlg;
+import org.kuali.test.ui.components.dialogs.TestExecutionParametersDlg;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -63,9 +67,10 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private final Platform platform;
     private final TestHeader testHeader;
     private ToggleToolbarButton startTest;
-    private ExtraInfoToolbarButton createCheckpoint;
+    private ToolbarButton operation;
     private ToolbarButton saveTest;
-    
+    private JPopupMenu popup;
+
     /**
      *
      * @param mainframe
@@ -77,6 +82,8 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         this.platform = platform;
         this.testHeader = testHeader;
     
+        popup = new JPopupMenu();
+            
         if (LOG.isDebugEnabled()) {
             LOG.debug("creating " + testHeader.getTestType() + " test for platform: " + platform.getName());
         }
@@ -112,16 +119,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             retval.addSeparator();
         }
         
-        createCheckpoint = new ExtraInfoToolbarButton(Constants.CREATE_CHECKPOINT_ACTION, Constants.CREATE_CHECKPOINT_ICON) {
-            @Override
-            public void showExtraInfo() {
-                new TestCheckpointsDlg(getMainframe(), getCheckpoints());
-            }
-        };
+        operation = new ToolbarButton(Constants.OPERATION_ACTION, Constants.CREATE_CHECKPOINT_ICON);
         
-        createCheckpoint.addActionListener(this);
-        createCheckpoint.setEnabled(false);
-        retval.add(createCheckpoint);
+        operation.addActionListener(this);
+        operation.setEnabled(false);
+        retval.add(operation);
         retval.addSeparator();
         
         List <JComponent> customButtons = getCustomButtons();
@@ -169,8 +171,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         return null;
     }
     
-    protected abstract List <Checkpoint> getCheckpoints();
-    
     /**
      *
      * @return
@@ -199,7 +199,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             startTest.setText(Constants.CANCEL_TEST_ACTION);
             startTest.setIcon(Constants.CANCEL_TEST_ICON);
             startTest.setActionCommand(Constants.CANCEL_TEST_ACTION);
-            createCheckpoint.setEnabled(true);
+            operation.setEnabled(true);
             saveTest.setEnabled(true);
         } else if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
             if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
@@ -209,12 +209,24 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
                     startTest.setText(Constants.START_TEST_ACTION);
                     startTest.setIcon(Constants.START_TEST_ICON);
                     startTest.setActionCommand(Constants.START_TEST_ACTION);
-                    createCheckpoint.setEnabled(false);
+                    operation.setEnabled(false);
                     saveTest.setEnabled(false);
                 }
             }
+        } else if (e.getActionCommand().equals(Constants.OPERATION_ACTION)) {
+            showPopup();
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
+        } else if (e.getActionCommand().equals(Constants.VIEW_CHECKPOINTS_ACTION)) {
+            handleViewCheckpoints();
+        } else if (e.getActionCommand().equals(Constants.CREATE_PARAMETER_ACTION)) {
+            handleCreateParameter();
+        } else if (e.getActionCommand().equals(Constants.VIEW_PARAMETERS_ACTION)) {
+            handleViewParameters();
+        } else if (e.getActionCommand().equals(Constants.CREATE_COMMENT_ACTION)) {
+            handleCreateComment();
+        } else if (e.getActionCommand().equals(Constants.VIEW_COMMENTS_ACTION)) {
+            handleViewComments();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
             if (handleSaveTest()) {
                 getMainframe().getPlatformTestsPanel().populateList(platform);
@@ -224,6 +236,8 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
 
+    protected abstract void handleShowPopup(JPopupMenu popup);
+    
     /**
      *
      * @return
@@ -238,22 +252,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      */
     public void setStartTest(ToggleToolbarButton startTest) {
         this.startTest = startTest;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public ExtraInfoToolbarButton getCreateCheckpoint() {
-        return createCheckpoint;
-    }
-
-    /**
-     *
-     * @param createCheckpoint
-     */
-    public void setCreateCheckpoint(ExtraInfoToolbarButton createCheckpoint) {
-        this.createCheckpoint = createCheckpoint;
     }
 
     /**
@@ -342,7 +340,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         startTest.setSelected(false);
         startTest.setText(Constants.START_TEST_ACTION);
         startTest.setIcon(Constants.START_TEST_ICON);
-        createCheckpoint.setEnabled(false);
+        operation.setEnabled(false);
         saveTest.setEnabled(false);
     }
 
@@ -352,21 +350,30 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      */
     protected boolean isStartTestRequired() { return false; }
 
-    /**
-     *
-     */
     protected abstract void handleStartTest();
-
-    /**
-     *
-     */
     protected abstract void handleCancelTest();
-
-    /**
-     *
-     */
     protected abstract void handleCreateCheckpoint();
+    protected abstract void handleCreateComment();
+    protected abstract List <Checkpoint> getCheckpoints();
+    protected abstract List <String> getComments();
 
+    protected List <TestExecutionParameter> getParameters() {
+        return null;
+    }
+
+    protected void handleCreateParameter() {}
+    protected void handleViewParameters() {
+        new TestExecutionParametersDlg(getMainframe(), getParameters());
+    }
+
+    protected void handleViewCheckpoints() {
+        new TestCheckpointsDlg(getMainframe(), getCheckpoints());
+    };
+
+    protected void handleViewComments() {
+        new TestCommentsDlg(getMainframe(), getComments());
+    };
+    
     /**
      *
      * @return
@@ -400,7 +407,24 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         cop.setComment(comment);
         testOperations.add(testOp);
     }
+
+    public ToolbarButton getOperation() {
+        return operation;
+    }
     
-
-
+    private void showPopup() {
+        popup.removeAll();
+        JMenuItem mi;
+        popup.add(mi = new JMenuItem(Constants.CREATE_CHECKPOINT_ACTION));
+        mi.addActionListener(this);
+        popup.add(mi = new JMenuItem(Constants.VIEW_CHECKPOINTS_ACTION));
+        mi.addActionListener(this);
+        popup.addSeparator();
+        popup.add(mi = new JMenuItem(Constants.CREATE_COMMENT_ACTION));
+        mi.addActionListener(this);
+        popup.add(mi = new JMenuItem(Constants.VIEW_COMMENTS_ACTION));
+        mi.addActionListener(this);
+        
+        handleShowPopup(popup);
+    }
 }

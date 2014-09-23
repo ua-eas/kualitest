@@ -27,8 +27,10 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.WindowConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -39,10 +41,10 @@ import org.kuali.test.utils.Constants;
  *
  * @author rbtucker
  */
-public class SimpleInputDlg extends JDialog implements ActionListener {
-    private static final Logger LOG = Logger.getLogger(SimpleInputDlg.class);
+public class SimpleInputDlg2 extends JDialog implements ActionListener {
+    private static final Logger LOG = Logger.getLogger(SimpleInputDlg2.class);
     private boolean saved = false;
-    private JTextField value;
+    private JTextArea value;
     private String enteredValue;
     
     /**
@@ -50,7 +52,7 @@ public class SimpleInputDlg extends JDialog implements ActionListener {
      * @param frame
      * @param labelTxt
      */
-    public SimpleInputDlg(JFrame frame, String labelTxt) {
+    public SimpleInputDlg2(JFrame frame, String labelTxt) {
         super(frame, true);
         initComponents(labelTxt);
     }
@@ -60,7 +62,7 @@ public class SimpleInputDlg extends JDialog implements ActionListener {
      * @param dlg
      * @param labelTxt
      */
-    public SimpleInputDlg(JDialog dlg, String labelTxt) {
+    public SimpleInputDlg2(JDialog dlg, String labelTxt) {
         super(dlg, true);
         initComponents(labelTxt);
     }
@@ -68,8 +70,11 @@ public class SimpleInputDlg extends JDialog implements ActionListener {
     private void initComponents(String labelTxt) {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(new JLabel(labelTxt + ":"), BorderLayout.NORTH);
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        p.add(value = new JTextField(30));
+        value = new JTextArea(5, 40);
+        value.setWrapStyleWord(true);
+        value.setLineWrap(true);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
+        p.add(new JScrollPane(value, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
         getContentPane().add(p, BorderLayout.CENTER);
         addStandardButtons();
         setDefaultBehavior();
@@ -111,12 +116,12 @@ public class SimpleInputDlg extends JDialog implements ActionListener {
     
     @Override
     public Insets getInsets() {
-        return new Insets(20, 5, 5, 5);
+        return new Insets(25, 5, 5, 5);
     }
     
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(350, 100);
+        return new Dimension(500, 175);
     }
     
     @Override

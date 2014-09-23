@@ -91,7 +91,8 @@ public class TestOperationsPanel extends BasePanel {
         operationsTable = new BaseTable(config) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return (column == 3);
+                TestOperation op = (TestOperation)getRowData(row);
+                return ((column == 3) && !TestOperationType.COMMENT.equals(op.getOperationType()));
             }
 
             @Override
@@ -117,6 +118,9 @@ public class TestOperationsPanel extends BasePanel {
                             break;
                         case TestOperationType.INT_TEST_EXECUTION_PARAMETER:
                             retval = op.getOperation().getTestExecutionParameter().getName();
+                            break;
+                        case TestOperationType.INT_COMMENT:
+                            retval = op.getOperation().getCommentOperation().getComment();
                             break;
                     }
                 } else {

@@ -38,6 +38,7 @@ import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -55,15 +56,14 @@ import org.kuali.test.DatabaseConnection;
 import org.kuali.test.DatabaseType;
 import org.kuali.test.ForeignKeyColumnPair;
 import org.kuali.test.Lookup;
-import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.Table;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.comparators.SqlHierarchyComparator;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
+import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
@@ -1246,8 +1246,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                                 UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + result.toString());
                             } else {
                                 DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-                                if (getCreateCheckpoint() != null) {
-                                    getCreateCheckpoint().setEnabled(rootNode.getChildCount() > 0);
+                                if (getOperation() != null) {
+                                    getOperation().setEnabled(rootNode.getChildCount() > 0);
                                 }
                                 sqlQueryTree.getModel().nodeStructureChanged(rootNode);
                                 sqlQueryTree.expandNode(rootNode, 1);
@@ -1356,5 +1356,33 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
         
         return retval;
+    }
+
+    @Override
+    protected void handleCreateComment() {
+        SimpleInputDlg2 dlg = new SimpleInputDlg2(getMainframe(), "Add Comment");
+        
+        String comment = dlg.getEnteredValue();
+        if (StringUtils.isNotBlank(comment)) {
+            addComment(testOperations, comment);
+        }
+    }
+    
+    @Override
+    protected List<String> getComments() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op :  testOperations) {
+            if (op.getOperation().getCommentOperation() != null) {
+                retval.add(op.getOperation().getCommentOperation().getComment());
+            }
+        }
+        
+        return retval;
+    }
+
+    @Override
+    protected void handleShowPopup(JPopupMenu popup) {
+        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }

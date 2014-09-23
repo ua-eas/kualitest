@@ -16,17 +16,11 @@
 
 package org.kuali.test.runner.execution;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.kuali.test.CheckpointProperty;
-import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
-import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.HtmlDomProcessor;
-import org.kuali.test.utils.Utils;
 
 /**
  *

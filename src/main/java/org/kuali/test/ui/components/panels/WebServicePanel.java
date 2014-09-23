@@ -30,6 +30,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -54,10 +55,12 @@ import org.kuali.test.ValueType;
 import org.kuali.test.WebService;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -261,9 +264,6 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
     }
     
-    /**
-     *
-     */
     @Override
     protected void handleCreateCheckpoint() {
         if (isValidWebServiceSetup()) {
@@ -332,7 +332,7 @@ public class WebServicePanel extends BaseCreateTestPanel {
     protected boolean isStartTestRequired() { 
         return true; 
     }
-    
+
     private class OperationWrapper implements Comparable <OperationWrapper> {
         private final AxisOperation operation;
         
@@ -597,5 +597,33 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
         
         return retval;
+    }
+
+    @Override
+    protected void handleCreateComment() {
+        SimpleInputDlg2 dlg = new SimpleInputDlg2(getMainframe(), "Add Comment");
+        
+        String comment = dlg.getEnteredValue();
+        if (StringUtils.isNotBlank(comment)) {
+            addComment(testOperations, comment);
+        }
+    }
+
+    @Override
+    protected List<String> getComments() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op :  testOperations) {
+            if (op.getOperation().getCommentOperation() != null) {
+                retval.add(op.getOperation().getCommentOperation().getComment());
+            }
+        }
+        
+        return retval;
+    }
+    
+        @Override
+    protected void handleShowPopup(JPopupMenu popup) {
+        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }

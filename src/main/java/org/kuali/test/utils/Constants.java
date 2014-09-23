@@ -90,6 +90,8 @@ public class Constants {
     public static final int MAINFRAME_DEFAULT_TOP = 100;
     public static final int MAINFRAME_DEFAULT_WIDTH = 800;
     public static final int MAINFRAME_DEFAULT_HEIGHT = 600;
+    public static final int TEST_OPERATION_POPUP_X = 150;
+    public static final int TEST_OPERATION_POPUP_Y= 75;
 
     public static final int MAX_TABLE_RELATIONSHIP_DEPTH = 6;
     
@@ -142,8 +144,14 @@ public class Constants {
     public static final String START_TEST_ACTION = "Start";
     public static final String SELECT_ACTION = "Select";
     public static final String CANCEL_TEST_ACTION = "Cancel";
-    public static final String CREATE_CHECKPOINT_ACTION = "Checkpoint";
+    public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
+    public static final String VIEW_CHECKPOINTS_ACTION = "View Checkpoints";
+    public static final String CREATE_PARAMETER_ACTION = "Create Parameter";
+    public static final String VIEW_PARAMETERS_ACTION = "View Parameters";
+    public static final String CREATE_COMMENT_ACTION = "Create Comment";
+    public static final String VIEW_COMMENTS_ACTION = "View Comments";
     public static final String ADD_ACTION = "Add";
+    public static final String OPERATION_ACTION = "Operation";
     public static final String COPY_ACTION = "Copy";
     public static final String DELETE_ACTION = "Delete";
     public static final String REFRESH_BROWSER_ACTION = "Refresh";

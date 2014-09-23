@@ -27,6 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
@@ -37,17 +38,17 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.components.buttons.FileSearchButton;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.utils.UIUtils;
-import org.kuali.test.utils.Constants;
+import  org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
 public class FileTestPanel extends BaseCreateTestPanel {
-
     private static final Logger LOG = Logger.getLogger(FileTestPanel.class);
     private List<TestOperation> testOperations = new ArrayList<TestOperation>();
     private JTextField fileDirectory;
@@ -133,7 +134,7 @@ public class FileTestPanel extends BaseCreateTestPanel {
         add(p, BorderLayout.CENTER);
         
         if (!forCheckpoint) {
-            getCreateCheckpoint().setEnabled(true);
+            getOperation().setEnabled(true);
         }
     }
 
@@ -357,4 +358,31 @@ public class FileTestPanel extends BaseCreateTestPanel {
         return retval;
     }
 
+    @Override
+    protected void handleCreateComment() {
+        SimpleInputDlg2 dlg = new SimpleInputDlg2(getMainframe(), "Add Comment");
+        
+        String comment = dlg.getEnteredValue();
+        if (StringUtils.isNotBlank(comment)) {
+            addComment(testOperations, comment);
+        }
+    }
+
+    @Override
+    protected List<String> getComments() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op :  testOperations) {
+            if (op.getOperation().getCommentOperation() != null) {
+                retval.add(op.getOperation().getCommentOperation().getComment());
+            }
+        }
+        
+        return retval;
+    }
+
+    @Override
+    protected void handleShowPopup(JPopupMenu popup) {
+        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
+    }
 }

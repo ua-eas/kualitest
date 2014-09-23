@@ -27,7 +27,8 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -45,16 +46,14 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.runner.execution.WebServiceOperationExecution;
+import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.components.buttons.CloseTabIcon;
-import org.kuali.test.ui.components.buttons.ExtraInfoToolbarButton;
-import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
-import org.kuali.test.ui.components.dialogs.TestExecutionParametersDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
@@ -71,9 +70,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
-    private ExtraInfoToolbarButton addParam;
-    private ToolbarButton refresh;
-
     /**
      *
      * @param mainframe
@@ -294,9 +290,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
-        addParam.setEnabled(false);
-        refresh.setEnabled(false);
-
         closeProxyServer();
     }
 
@@ -326,10 +319,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
         getMainframe().getCreateTestButton().setEnabled(false);
         getMainframe().getCreateTestMenuItem().setEnabled(false);
-        
-         
-        addParam.setEnabled(true);
-        refresh.setEnabled(true);
     }
 
     public JWebBrowser getCurrentBrowser() {
@@ -410,39 +399,12 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     /**
      *
-     * @return
-     */
-    @Override
-    protected List <JComponent> getCustomButtons() {
-        List <JComponent> retval = new ArrayList<JComponent>();
-        retval.add(addParam = new ExtraInfoToolbarButton(Constants.ADD_PARAM_ACTION, Constants.ADD_PARAM_ICON) {
-            @Override
-            public void showExtraInfo() {
-                new TestExecutionParametersDlg(getMainframe(), getTestExecutionParameters());
-            }
-        });
-        
-        addParam.addActionListener(this);
-        addParam.setToolTipText("add test execution parameter");
-        addParam.setEnabled(false);
-
-        retval.add(refresh = new ToolbarButton(Constants.REFRESH_BROWSER_ACTION, Constants.REFRESH_BROWSER_ICON));
-        refresh.setToolTipText("refresh browser");
-        refresh.setEnabled(false);
-
-        return retval;
-    }
-
-    /**
-     *
      * @param e
      */
     @Override
     protected void handleUnprocessedActionEvent(ActionEvent e) {
-        if (Constants.ADD_PARAM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+        if (Constants.CREATE_PARAMETER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             handleAddExecutionParameter();
-        } else if (Constants.REFRESH_BROWSER_ACTION.equalsIgnoreCase(e.getActionCommand())) {
-            getCurrentBrowser().reloadPage();
         }
     }
     
@@ -471,8 +433,32 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         return retval;
     }
+    
+    @Override
+    protected List<String> getComments() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation op :  testProxyServer.getTestOperations()) {
+            if (op.getOperation().getCommentOperation() != null) {
+                retval.add(op.getOperation().getCommentOperation().getComment());
+            }
+        }
+        
+        return retval;
+    }
 
-    private List<TestExecutionParameter> getTestExecutionParameters() {
+    @Override
+    protected void handleCreateComment() {
+        SimpleInputDlg2 dlg = new SimpleInputDlg2(getMainframe(), "Add Comment");
+        
+        String comment = dlg.getEnteredValue();
+        if (StringUtils.isNotBlank(comment)) {
+            addComment(testProxyServer.getTestOperations(), comment);
+        }
+    }
+
+    @Override
+    protected List<TestExecutionParameter> getParameters() {
         List <TestExecutionParameter> retval = new ArrayList<TestExecutionParameter>();
         
         for (TestOperation op :  testProxyServer.getTestOperations()) {
@@ -482,5 +468,16 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         }
         
         return retval;
+    }
+
+    @Override
+    protected void handleShowPopup(JPopupMenu popup) {
+        popup.addSeparator();
+        JMenuItem mi;
+        popup.add(mi = new JMenuItem(Constants.CREATE_PARAMETER_ACTION));
+        mi.addActionListener(this);
+        popup.add(mi = new JMenuItem(Constants.VIEW_PARAMETERS_ACTION));
+        mi.addActionListener(this);
+        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }
