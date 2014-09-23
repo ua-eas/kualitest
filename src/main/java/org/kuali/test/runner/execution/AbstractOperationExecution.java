@@ -301,7 +301,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         }
         
         catch (ParseException ex) {
-            throw new TestException("Exception occurrred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
+            throw new TestException("Exception occurred while parsing data for checkpoint comparison - " + ex.toString(), op, ex);
         }
 
         
