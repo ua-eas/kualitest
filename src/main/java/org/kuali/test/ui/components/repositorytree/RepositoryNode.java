@@ -44,7 +44,6 @@ public class RepositoryNode extends DefaultMutableTreeNode {
         public RepositoryNode(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Object userObject) {
         super(userObject);
         this.configuration = configuration;
-        
         try {
             if (isRoot()) {
                 if (configuration.getPlatforms() != null) {

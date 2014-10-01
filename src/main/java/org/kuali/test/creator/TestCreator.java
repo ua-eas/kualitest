@@ -130,7 +130,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         if (LOG.isDebugEnabled()) {
             LOG.debug("input configuration file name: " + configFileName);
         }
-        
+
         setIconImage(Constants.KUALI_TEST_ICON.getImage());
         setTitle(Constants.KUALI_TEST_TITLE);
         initComponents();

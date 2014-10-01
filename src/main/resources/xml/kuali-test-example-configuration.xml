@@ -1,88 +1,90 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kuali-test-configuration xmlns="test.kuali.org">
-   <repository-location>/home/rbtucker/tmp/kuali-test-repository</repository-location>
-   <test-result-location>/home/rbtucker/tmp/kuali-test-results</test-result-location>
-   <tag-handlers-location>/home/rbtucker/env/test/kualitest/src/main/resources/xml/htmlhandlers</tag-handlers-location>
+   <repository-location>/mypath/kuali-test-repository</repository-location>
+   <test-result-location>/mypath/kuali-test-repository/kuali-test-results</test-result-location>
+   <tag-handlers-location>/mypath/kuali-test-repository/kuali-test-repository/xml/htmlhandlers</tag-handlers-location>
    <default-test-wait-interval>2</default-test-wait-interval>
-   <additional-db-info-location>/home/rbtucker/env/test/kualitest/src/main/resources/xml/additional-db-info</additional-db-info-location>
+   <additional-db-info-location>/mypath/kuali-test-repository/kuali-test-repository/xml/additional-db-info</additional-db-info-location>
    <database-connections>
       <database-connection>
          <type>Oracle</type>
-         <name>mydatabase</name>
+         <name>kfs dev</name>
          <jdbc-url>myurl</jdbc-url>
-         <jdbc-driver>oracle.jdbc.OracleDriver</jdbc-driver>
+         <jdbc-driver>oracle.jdbc.driver.OracleDriver</jdbc-driver>
          <schema>myschema</schema>
-         <username>user</username>
-         <password>pass</password>
+         <username>myuser</username>
+         <password>mypassword</password>
          <configured-tables-only>true</configured-tables-only>
       </database-connection>
    </database-connections>
-   <web-services>
-       <web-service>
-           <name>my web service</name>
-           <wsdl-url>my wsdl url</wsdl-url>
-       </web-service>
-   </web-services>
+   <web-services/>
+   <jmx-connections/>
    <modified>false</modified>
    <email-setup>
-      <mail-host>mailhost</mail-host>
-      <subject>subject</subject>
-      <from-address>fromaddress</from-address>
-      <to-addresses>address1,address2,address3</to-addresses>
+      <mail-host>myemailhost</mail-host>
+      <subject>kuali test results</subject>
+      <from-address>myemail</from-address>
+      <to-addresses>myemail</to-addresses>
    </email-setup>
    <platforms>
       <platform>
-         <name>kfs-dev</name>
+         <name>kfs dev</name>
          <application>KFS</application>
-         <version>3.0</version>
-         <web-url>https://kf-tst.mosaic.arizona.edu/kfs-tst</web-url>
-         <web-service-url/>
-         <test-suites>
-            <test-suite>
-               <platform-name>kfs-dev</platform-name>
-               <name>test suite 1</name>
-               <email-addresses>email1</email-addresses>
-               <suite-tests/>
-               <max-run-time>0</max-run-time>
-            </test-suite>
-            <test-suite>
-               <platform-name>kfs-dev</platform-name>
-               <name>test suite 2</name>
-               <email-addresses>email2</email-addresses>
-               <suite-tests/>
-               <max-run-time>0</max-run-time>
-            </test-suite>
-         </test-suites>
-         <platform-tests>
-            <test-header>
-               <platform-name>kfs-dev</platform-name>
-               <test-suite-name>no-test-suit</test-suite-name>
-               <test-name>new test</test-name>
-               <test-file-name>/home/rbtucker/tmp/kuali-test-repository/kfs-dev/tests/new-test.xml</test-file-name>
-               <test-type>Web</test-type>
-               <created-by>rbtucker</created-by>
-               <date-created>2014-05-18-07:00</date-created>
-               <max-run-time>0</max-run-time>
-               <description>new test description</description>
-            </test-header>
-         </platform-tests>
-         <database-connection-name>KFS DEV Database</database-connection-name>
-      </platform>
-      <platform>
-         <name>kfs-test</name>
-         <application>KFS</application>
-         <version>3.0</version>
-         <web-url>https://kf-tst.mosaic.arizona.edu/kfs-tst</web-url>
-         <web-service-url/>
+         <version>3</version>
+         <web-url>myurl</web-url>
+         <web-service-name/>
          <test-suites/>
-         <platform-tests/>
+         <platform-tests>
+         </platform-tests>
       </platform>
    </platforms>
    <parameters-requiring-encryption>
-       <name>password</name>
+      <name>password</name>
    </parameters-requiring-encryption>
-   <parameters-to-remove>
-       <name>ticket</name>
-   </parameters-to-remove>
-   <encryption-password-file>/home/myname/mypasswordfile</encryption-password-file>
+   <encryption-password-file>/mypath/kuali-test-repository/pass.txt</encryption-password-file>
+   <auto-replace-parameters>
+      <auto-replace-parameter>
+         <parameter-name>lt</parameter-name>
+         <tag-name>input</tag-name>
+         <tag-attributes>
+            <attribute>
+               <name>type</name>
+               <value>hidden</value>
+            </attribute>
+         </tag-attributes>
+         <from-input-parameter>false</from-input-parameter>
+      </auto-replace-parameter>
+      <auto-replace-parameter>
+         <parameter-name>ticket</parameter-name>
+         <tag-name>ticket</tag-name>
+         <tag-attributes/>
+         <from-input-parameter>true</from-input-parameter>
+      </auto-replace-parameter>
+   </auto-replace-parameters>
+   <parameters-to-ignore/>
+   <urls-to-ignore>
+      <url>*/RouteLog.do?routeHeaderId=*</url>
+      <url>*.dwr</url>
+   </urls-to-ignore>
+   <referrers-to-ignore>
+      <referrer>*/portal.do?channelTitle=Contract%20Manager%20Assignment*</referrer>
+   </referrers-to-ignore>
+   <default-web-service-polling>true</default-web-service-polling>
+   <date-replace-format>MM/dd/yyyy</date-replace-format>
+   <auto-update-windows-registry-for-proxy>true</auto-update-windows-registry-for-proxy>
+   <hosts-requiring-https>
+       <host>somehost</host>
+   </hosts-requiring-https>
+   <output-ignored-results>true</output-ignored-results>
+   <http-pre-submit-processors/>
+   <http-post-submit-processors/>
+   <error-indicators>
+	   <indicator>Error</indicator>
+   </error-indicators>
+   <pdf-viewer-path>acroread</pdf-viewer-path>
+   <form-submit-element-names>
+	   <element-name>methodToCall.submit</element-name>
+	   <element-name>methodToCall.calculate</element-name>
+	   <element-name>methodToCall.reload</element-name>
+   </form-submit-element-names>
 </kuali-test-configuration>
