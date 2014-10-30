@@ -113,7 +113,7 @@ public class Constants {
     public static final String CONTENT_TYPE_KEY = "Content-Type";
     public static final String PERCENT_CHARACTER = "%";
     public static final String URL_ENCODED_PERCENT_CHARACTER = "%25";
-    
+    public static final String REPOSITORY_ROOT_REPLACE = "${repository-location}";
     
     public static final int DEFAULT_DIALOG_LEFT = 300;
     public static final int DEFAULT_DIALOG_TOP = 200;

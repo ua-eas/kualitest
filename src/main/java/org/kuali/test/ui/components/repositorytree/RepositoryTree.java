@@ -48,6 +48,7 @@ import org.kuali.test.ui.dnd.RepositoryDropTargetAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -197,12 +198,21 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                     LOG.debug(configuration.xmlText());
                     LOG.debug("repository-location: " + configuration.getRepositoryLocation());
                     LOG.debug("platform count:" + configuration.getPlatforms().getPlatformArray().length);
-
                 }
 
                 if (!xmlValidationErrorList.isEmpty()) {
                     throw new XmlException("invalid xml file: " + configFile.getPath());
                 }
+                
+                if (Constants.REPOSITORY_ROOT_REPLACE.equals(configuration.getRepositoryLocation())) {
+                    configuration.setRepositoryLocation(configFile.getParent());
+                }
+                
+                configuration.setRepositoryLocation(configFile.getParent());
+                configuration.setAdditionalDbInfoLocation(configuration.getAdditionalDbInfoLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
+                configuration.setEncryptionPasswordFile(configuration.getEncryptionPasswordFile().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
+                configuration.setTagHandlersLocation(configuration.getTagHandlersLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
+                configuration.setTestResultLocation(configuration.getTestResultLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
                 
                 Utils.initializeHtmlTagHandlers(configuration);
                 
