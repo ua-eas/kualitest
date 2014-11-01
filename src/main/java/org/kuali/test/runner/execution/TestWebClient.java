@@ -114,8 +114,6 @@ public class TestWebClient extends WebClient {
         getOptions().setRedirectEnabled(true);
         getOptions().setCssEnabled(true);
         
-        getCache().setMaxSize(1000);
-        
         setAjaxController(new NicelyResynchronizingAjaxController());
         
         setAlertHandler(new AlertHandler() {
@@ -177,7 +175,8 @@ public class TestWebClient extends WebClient {
                         LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
                         LOG.debug(results);
                     }
-
+System.out.println("--------------------------------------------------------------------");
+System.out.println(results);
                     if ((retval.getStatusCode() == HttpStatus.OK_200)
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         if (StringUtils.isNotBlank(results)) {
