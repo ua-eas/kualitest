@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
@@ -63,6 +64,8 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private RepositoryPopupMenu popupMenu;
     private Map<String, String> originalPathInfo = new HashMap<String, String>();
+    private long configurationLoadTime;
+    
     /**
      *
      * @param mainframe
@@ -130,16 +133,22 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         if (StringUtils.isNotBlank(getMainframe().getConfigFileName())) {
             File f = new File(getMainframe().getConfigFileName());
             if (f.exists() && f.isFile()) {
-                configuration.setModified(false);
-                try {
-                    KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();
-                    doc.setKualiTestConfiguration(getSaveConfiguration());
-                    doc.save(f, Utils.getSaveXmlOptions());
-                    getMainframe().getCreateTestButton().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
-                    getMainframe().getCreateTestMenuItem().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
-                } catch (IOException ex) {
-                    LOG.error(ex.toString(), ex);
-                    UIUtils.showError(this, "Configuration Save Error", "An error occured while trying to save configuration,");
+                if (f.lastModified() <= configurationLoadTime) {
+                    configuration.setModified(false);
+
+                    try {
+                        KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();
+                        doc.setKualiTestConfiguration(getSaveConfiguration());
+                        doc.save(f, Utils.getSaveXmlOptions());
+                        getMainframe().getCreateTestButton().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
+                        getMainframe().getCreateTestMenuItem().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
+                        configurationLoadTime = System.currentTimeMillis();
+                    } catch (IOException ex) {
+                        LOG.error(ex.toString(), ex);
+                        UIUtils.showError(this, "Configuration Save Error", "An error occured while trying to save configuration,");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(getMainframe(), "Test repository has been updated - please reload before saving new changes");
                 }
             }
         }
@@ -187,7 +196,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         } else {
             getMainframe().setConfigFileName(f.getPath());
         }
-
+        
         if (LOG.isDebugEnabled()) {
             LOG.debug("configFileName: " + getMainframe().getConfigFileName());
             LOG.debug("configFile: " + configFile);
@@ -195,7 +204,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
 
         if ((configFile != null) && configFile.exists() && configFile.isFile()) {
             List<XmlError> xmlValidationErrorList = new ArrayList<XmlError>();
-
+            configurationLoadTime = System.currentTimeMillis();
             try {
                 // Create an XmlOptions instance for load
                 XmlOptions loadOptions = new XmlOptions();

@@ -37,7 +37,6 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -49,9 +48,9 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -174,9 +173,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             setState(node.getInt(Constants.PREFS_MAINFRAME_WINDOW_STATE, Frame.NORMAL));
 
             setBounds(left, top, width, height);
-            hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
-            vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
-    
+
             node.flush();
         } 
         
@@ -216,11 +213,11 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         menu.setMnemonic('f');
         menu.setText("File");
 
-        JMenuItem m = new JMenuItem("Load Configuration...");
+        JMenuItem m = new JMenuItem("Reload Configuration");
         m.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                handleLoadConfiguation(evt);
+                handleReloadConfiguation(evt);
             }
         });
 
@@ -405,19 +402,34 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         desktopPane.setLayout(new java.awt.BorderLayout());
 
+        loadSplitPanes();
+
+        desktopPane.add(createToolBar(), BorderLayout.NORTH);
+
+        getContentPane().add(desktopPane);
+        
+        setCreateTestState();
+
+        pack();
+    }
+    
+    private void loadSplitPanes() {
+        if (hsplitPane != null) {
+            desktopPane.remove(hsplitPane);
+        }
+        
         hsplitPane = new JSplitPane();
-        hsplitPane.setDividerLocation(150);
-        hsplitPane.setOneTouchExpandable(true);
-
         vsplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        vsplitPane.setDividerLocation(250);
-
-        vsplitPane.setBottomComponent(platformTestsPanel = new PlatformTestsPanel(this));
 
         JPanel p = new JPanel(new BorderLayout());
         p.add(new JScrollPane(testRepositoryTree = new RepositoryTree(this)), BorderLayout.CENTER);
-        vsplitPane.setTopComponent(p);
+        hsplitPane.setDividerLocation(150);
+        hsplitPane.setOneTouchExpandable(true);
+        vsplitPane.setDividerLocation(250);
 
+        vsplitPane.setTopComponent(p);
+        vsplitPane.setBottomComponent(platformTestsPanel = new PlatformTestsPanel(this));
+        
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab(Constants.REPOSITORY, vsplitPane);
         tabbedPane.addTab(Constants.DATABASES, new JScrollPane(databaseTree = new DatabaseTree(this, getConfiguration())));
@@ -426,16 +438,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         hsplitPane.setLeftComponent(tabbedPane);
         hsplitPane.setRightComponent(createTestPanel = new CreateTestPanel(this));
-
-        desktopPane.add(createToolBar(), BorderLayout.NORTH);
-
-        desktopPane.add(hsplitPane, BorderLayout.CENTER);
-
-        getContentPane().add(desktopPane);
         
-        setCreateTestState();
-
-        pack();
+        Preferences proot = Preferences.userRoot();
+        Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+        hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
+        vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
+        desktopPane.add(hsplitPane, BorderLayout.CENTER);
     }
 
     private void setCreateTestState() {
@@ -829,13 +837,17 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
-    private void handleLoadConfiguation(ActionEvent evt) {
-        JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("XML files", "xml");
-        chooser.setFileFilter(filter);
-        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            testRepositoryTree.loadConfiguration(chooser.getSelectedFile());
-        }
+    private void handleReloadConfiguation(ActionEvent evt) {
+        startSpinner("Reloading configuration...");
+        
+         SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                loadSplitPanes();
+                desktopPane.validate();
+                stopSpinner();
+            }
+        });
     }
 
     private void handleScheduleTests(ActionEvent evt) {
