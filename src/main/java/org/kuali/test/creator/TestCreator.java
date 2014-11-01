@@ -932,8 +932,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     if (args.length > 0) {
                         filename = args[0];
                     }
+                    
                     try {
-                        new TestCreator(filename).setVisible(true);
+                        if (checkConfiguration(filename)) {
+                            new TestCreator(filename).setVisible(true);
+                        } else {
+                            System.exit(-1);
+                        }
                     }
                     
                     catch (Exception ex) {
@@ -946,6 +951,24 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    private static boolean checkConfiguration(String filename) {
+        String msg = null;
+        if (StringUtils.isBlank(filename)) {
+            msg = "Confiuration file name is required";
+        } else {
+            File f = new File(filename);
+            
+            if (!f.exists() || !f.isFile()) {
+                msg = "Invalid input configutaion file - " + filename;
+            }
+        }
+        
+        if (StringUtils.isNotBlank(msg)) {
+            JOptionPane.showMessageDialog(null, msg, "Invalid Input", JOptionPane.ERROR_MESSAGE);
+        }
+        
+        return StringUtils.isBlank(msg);
+    }
     /**
      *
      * @return

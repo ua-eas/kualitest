@@ -27,7 +27,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -2113,16 +2112,19 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param input
-     * @return
+     * @param width
+     * @return 
      */
-    public static String getLabelDataDisplay(String input) {
+    public static String getLabelDataDisplay(String input, int width) {
         StringBuilder retval = new StringBuilder(128);
         if (StringUtils.isNotBlank(input)) {
-            retval.append("<html><span style='font-weight: normal;'>");
+            retval.append("<html><div style='font-weight: normal; width: ");
+            retval.append(width);
+            retval.append("px;'>");
             retval.append(input);
-            retval.append("</span></html>");
+            retval.append("</div></html>");
         } else {
             retval.append("");
         }
@@ -2130,6 +2132,15 @@ public class Utils {
         return retval.toString();
     }
 
+    /**
+     *
+     * @param input
+     * @return
+     */
+    public static String getLabelDataDisplay(String input) {
+        return getLabelDataDisplay(input, Constants.DEFAULT_LABEL_WIDTH);
+    }
+    
     /**
      *
      * @param cal
@@ -2743,7 +2754,7 @@ public class Utils {
             // use StrongTextEncryptor with JCE installed for more secutity
             BasicTextEncryptor textEncryptor = new BasicTextEncryptor();
             textEncryptor.setPassword(password);
-            retval = URLEncoder.encode(textEncryptor.encrypt(input), CharEncoding.UTF_8);
+            retval = textEncryptor.encrypt(input);
         }
 
         return retval;

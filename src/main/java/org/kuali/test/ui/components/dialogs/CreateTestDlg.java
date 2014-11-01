@@ -26,6 +26,8 @@ import java.util.Calendar;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -49,7 +51,7 @@ public class CreateTestDlg extends BaseSetupDlg {
     private JComboBox platforms;
     private JTextField testName;
     private JComboBox testType;
-    private JTextField description;
+    private JTextArea description;
     private IntegerTextField maxRunTime;
     private JComboBox runtimeFailure;
     private JCheckBox useTestEntryTimes;
@@ -139,7 +141,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             useTestEntryTimes.setEnabled(false);
         }
         
-        description = new JTextField("new test description", 30);
+        description = new JTextArea("new test description", 3, 30);
         runtimeFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class, true));
         maxRunTime= new IntegerTextField();
         
@@ -147,7 +149,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             platforms,
             testName,
             testType,
-            description,
+            new JScrollPane(description),
             maxRunTime,
             runtimeFailure,
             useTestEntryTimes

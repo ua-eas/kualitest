@@ -99,7 +99,7 @@ public class TestInformationDlg extends BaseSetupDlg {
             new JLabel(Utils.getLabelDataDisplay(testHeader.getPlatformName())),
             new JLabel(Utils.getLabelDataDisplay(testHeader.getTestName())),
             new JLabel(Utils.getLabelDataDisplay(testHeader.getTestType().toString())),
-            new JLabel(Utils.getLabelDataDisplay(testHeader.getDescription())),
+            new JLabel(Utils.getLabelDataDisplay(testHeader.getDescription(), 450)),
             new JLabel(Utils.getLabelDataDisplay(nm.toString())),
             new JLabel(Utils.getLabelDataDisplay(maxTime)),
             new JLabel(Utils.getLabelDataDisplay(failureAction))

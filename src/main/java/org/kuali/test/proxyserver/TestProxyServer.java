@@ -196,7 +196,7 @@ public class TestProxyServer {
         
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
-            .withConnectTimeout(300000)
+            .withConnectTimeout(Constants.PROXY_CONNECTION_TIMEOUT)
             .withPort(Integer.parseInt(proxyPort))
             .withAddress(new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)))
             .withFiltersSource(getHttpFiltersSource())

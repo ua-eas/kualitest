@@ -92,6 +92,7 @@ public class Constants {
     public static final int MAINFRAME_DEFAULT_HEIGHT = 600;
     public static final int TEST_OPERATION_POPUP_X = 150;
     public static final int TEST_OPERATION_POPUP_Y= 75;
+    public static final int DEFAULT_LABEL_WIDTH = 300;
 
     public static final int MAX_TABLE_RELATIONSHIP_DEPTH = 6;
     
@@ -243,7 +244,7 @@ public class Constants {
     public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
     public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
-    public static final int DEFAULT_TREE_ROW_HEIGHT = 35;
+    public static final int DEFAULT_TREE_ROW_HEIGHT = 30;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
     public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 2;
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
@@ -253,7 +254,7 @@ public class Constants {
     public static final int HTML_TEST_RETRY_COUNT = 3;
     public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 10000;
     public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
-    
+    public static final int PROXY_CONNECTION_TIMEOUT = 2 * 300000;
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
