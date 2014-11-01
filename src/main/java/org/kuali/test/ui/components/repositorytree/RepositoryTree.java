@@ -74,7 +74,6 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         super(mainframe);
         popupMenu = new RepositoryPopupMenu(mainframe);
         init();
-        addTreeSelectionListener(mainframe.getPlatformTestsPanel());
         new RepositoryDropTargetAdapter(this);
         new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
     }

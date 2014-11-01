@@ -429,6 +429,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         vsplitPane.setTopComponent(p);
         vsplitPane.setBottomComponent(platformTestsPanel = new PlatformTestsPanel(this));
+        testRepositoryTree.addTreeSelectionListener(platformTestsPanel);
         
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.addTab(Constants.REPOSITORY, vsplitPane);

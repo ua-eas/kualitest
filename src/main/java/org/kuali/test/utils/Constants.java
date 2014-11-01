@@ -244,7 +244,7 @@ public class Constants {
     public static final String MAX_RUNTIME_PROPERTY_NAME = "max-runtime";
     public static final int LAST_RESPONSE_STACK_SIZE = 5;
     public static final int DEFAULT_TABLE_ROW_HEIGHT = 20;
-    public static final int DEFAULT_TREE_ROW_HEIGHT = 30;
+    public static final int DEFAULT_TREE_ROW_HEIGHT = 32;
     public static final int DEFAULT_WEB_SERVICE_WAIT_TIME = MILLIS_PER_MINUTE * 5;
     public static final int WEB_SERVICE_SLEEP_TIME = 1000 * 2;
     public static final int INITIAL_HTML_RESPONSE_BUFFER_SIZE = 1024;
