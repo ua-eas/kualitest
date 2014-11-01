@@ -31,10 +31,9 @@ public class Spinner extends JLabel {
         startSpinner(msg);
     }
 
-    public void startSpinner(final String msg) {
+    public void startSpinner( String msg) {
         setText(msg);
         setVisible(true);
-        getIcon().paintIcon(this, getGraphics(), 0, 0);
         repaint(0);
     }
     
