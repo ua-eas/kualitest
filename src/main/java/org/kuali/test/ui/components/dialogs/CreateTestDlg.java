@@ -210,6 +210,8 @@ public class CreateTestDlg extends BaseSetupDlg {
                 
                 if (StringUtils.isBlank(maxRunTime.getText())) {
                     testHeader.setMaxRunTime(0);
+                } else {
+                    testHeader.setMaxRunTime(maxRunTime.getInt());
                 }
                 
                 if (runtimeFailure.getSelectedIndex() > 0) {

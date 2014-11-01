@@ -413,6 +413,21 @@ public class TestRunner {
                 try {
                     configuration = KualiTestConfigurationDocument.Factory.parse(configFile).getKualiTestConfiguration();
 
+                    String s = configuration.getRepositoryLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                    configuration.setRepositoryLocation(s);
+
+                    s = configuration.getAdditionalDbInfoLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                    configuration.setAdditionalDbInfoLocation(s);
+
+                    s = configuration.getEncryptionPasswordFile().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                    configuration.setEncryptionPasswordFile(s);
+
+                    s = configuration.getTagHandlersLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                    configuration.setTagHandlersLocation(s);
+
+                    s = configuration.getTestResultLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                    configuration.setTestResultLocation(s);
+
                     // Create an XmlOptions instance and set the error listener.
                     XmlOptions validateOptions = new XmlOptions();
                     validateOptions.setErrorListener(xmlValidationErrorList);

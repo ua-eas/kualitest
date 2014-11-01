@@ -236,7 +236,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
             if (ComparisonOperator.NULL.equals(cp.getOperator())) {
                 retval = ((value == null) && (comparisonValue == null));
             } else if ((value == null) || (comparisonValue == null)) {
-                throw new TestException("input value is null, comparison value = " + comparisonValue, op, cp.getOnFailure());
+                if (((cp.getOperator() == null) || ComparisonOperator.EQUAL_TO.equals(cp.getOperator())) 
+                    && (value == null) && (comparisonValue == null)) {
+                    retval = true;
+                } else {
+                    throw new TestException("input value is null, comparison value = " + comparisonValue, op, cp.getOnFailure());
+                }
             } else {
                 ValueType.Enum type = cp.getValueType();
                 

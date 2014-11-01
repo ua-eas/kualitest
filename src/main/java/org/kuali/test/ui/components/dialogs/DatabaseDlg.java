@@ -18,7 +18,6 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.UnsupportedEncodingException;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -106,8 +105,9 @@ public class DatabaseDlg extends BaseSetupDlg {
                 pass = Utils.decrypt(getMainframe().getEncryptionPassword(), dbconnection.getPassword());
             }
 
-            catch (UnsupportedEncodingException ex) {
+            catch (Exception ex) {
                 UIUtils.showError(this, "Decrypt Exception", "Password decryption failed");
+                pass = "";
             }
         }
         

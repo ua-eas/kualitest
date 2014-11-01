@@ -302,7 +302,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             }
 
             if (f.getParentFile().exists()) {
-                header.setTestFileName(f.getPath());
+                header.setTestFileName(Utils.buildTestFileName(Constants.REPOSITORY_ROOT_REPLACE, header));
                 PlatformTests platformTests = platform.getPlatformTests();
                 if (platform.getPlatformTests() == null) {
                     platformTests = platform.addNewPlatformTests();

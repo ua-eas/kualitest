@@ -454,7 +454,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public void handleDeleteTest(TestHeader testHeader) {
         if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
             String platformName = testHeader.getPlatformName();
-            String testFileName = testHeader.getTestFileName();
+            String testFileName = Utils.getTestFilePath(getConfiguration(), testHeader);
             
             Platform p = Utils.findPlatform(getConfiguration(), platformName);
             

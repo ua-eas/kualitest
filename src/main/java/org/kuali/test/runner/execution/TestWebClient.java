@@ -30,6 +30,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
+import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -112,7 +113,6 @@ public class TestWebClient extends WebClient {
         getOptions().setTimeout(Constants.DEFAULT_HTTP_READ_TIMEOUT);
         getOptions().setRedirectEnabled(true);
         getOptions().setCssEnabled(true);
-        getOptions().setCssEnabled(true);
         
         getCache().setMaxSize(1000);
         
@@ -144,7 +144,7 @@ public class TestWebClient extends WebClient {
                         List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
                         request.getRequestParameters().clear();
                         request.getRequestParameters().addAll(params);
-                    } 
+                    }
                     
                     if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
                         handleUrlParameters(request);
@@ -156,8 +156,9 @@ public class TestWebClient extends WebClient {
                 runPreSubmitProcessing(request);
                 
                 Integer indx = tec.getCurrentOperationIndex();
-                
-                retval = runPostSubmitProcessing(request, super.getResponse(request));
+
+                WebResponse response =  super.getResponse(request);                
+                retval = runPostSubmitProcessing(request, response);
                 int status = retval.getStatusCode();
                 
 
@@ -172,6 +173,7 @@ public class TestWebClient extends WebClient {
                         for (NameValuePair nvp : request.getRequestParameters()) {
                             LOG.debug(nvp.getName() + "=" + nvp.getValue());
                         }
+                        
                         LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
                         LOG.debug(results);
                     }
@@ -197,7 +199,7 @@ public class TestWebClient extends WebClient {
                         }
                     } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("redirect to: " + request.getUrl().toExternalForm());
+                            LOG.debug("redirect to: " + retval.getResponseHeaderValue(HttpHeaders.LOCATION));
                         }
                     }
                 }
@@ -257,6 +259,7 @@ public class TestWebClient extends WebClient {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
                 retval.append(input.substring(0, pos+1));
+            //    String params = Utils.getParametersFromUrl(URLDecoder.decode(input, CharEncoding.UTF_8));
                 String params = Utils.getParametersFromUrl(input);
 
                 StringBuilder buf = new StringBuilder(params.length());
@@ -292,35 +295,10 @@ public class TestWebClient extends WebClient {
         
         return retval.toString();
     }
-/*
-    private String getUpdatedUrlParameters(String input) throws UnsupportedEncodingException {
-        StringBuilder retval = new StringBuilder(512);
-        
-        // hack to handle urls with multiple question marks in the parameter list
-        int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
-        if (pos > -1) {
-            String params = input.substring(0, pos+1);
-            retval.append(params);
-            StringTokenizer st = new StringTokenizer(Utils.getParametersFromUrl(input), Constants.SEPARATOR_QUESTION);
-            String separator = "";
-        
-            while (st.hasMoreTokens()) {
-                String token = st.nextToken();
-                retval.append(separator);
-                List <NameValuePair> npvlist = Utils.getNameValuePairsFromUrlEncodedParams(token);
-                if ((npvlist != null) && !npvlist.isEmpty()) {
-                    npvlist = getUpdatedParameterList(npvlist);
-                    retval.append(Utils.buildUrlEncodedParameterString(npvlist));
-                    separator = Constants.SEPARATOR_QUESTION;
-                }
-            }
-        }
-        
-        return retval.toString();
-    }
-*/
 
     private void handleUrlParameters(WebRequest request) throws UnsupportedEncodingException, MalformedURLException {
+        String s = request.getUrl().toExternalForm();
+        
         String updatedUrl = getUpdatedUrlParameters(request.getUrl().toExternalForm());
         if (StringUtils.isNotBlank(updatedUrl)) {
             request.setUrl(new URL(updatedUrl));

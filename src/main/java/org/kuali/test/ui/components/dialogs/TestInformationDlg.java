@@ -77,7 +77,7 @@ public class TestInformationDlg extends BaseSetupDlg {
             "On Max Time Failure"
         };
 
-        File f = new File(testHeader.getTestFileName());
+        File f = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
         StringBuilder nm = new StringBuilder(64);
         nm.append("[repository]/");
         nm.append(testHeader.getPlatformName());
@@ -134,7 +134,7 @@ public class TestInformationDlg extends BaseSetupDlg {
     
     private List <TestOperation> getTestOperations() {
         List <TestOperation> retval = new ArrayList<TestOperation>();
-        File f = new File(testHeader.getTestFileName());
+        File f = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
         
         if (f.exists() && f.isFile()) {
             try {

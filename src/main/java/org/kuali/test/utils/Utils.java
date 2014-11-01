@@ -827,17 +827,28 @@ public class Utils {
      * @return
      */
     public static File buildTestFile(String repositoryLocation, TestHeader header) {
-        StringBuilder nm = new StringBuilder(256);
-        nm.append(repositoryLocation);
-        nm.append(Constants.FORWARD_SLASH);
-        nm.append(header.getPlatformName());
-        nm.append(Constants.FORWARD_SLASH);
-        nm.append("tests");
-        nm.append(Constants.FORWARD_SLASH);
-        nm.append(getTestFileName(header));
-        nm.append(Constants.XML_SUFFIX);
+        return new File(buildTestFileName(repositoryLocation, header));
+    }
 
-        return new File(nm.toString());
+    /**
+     *
+     * @param repositoryLocation
+     * @param header
+     * @return
+     */
+    public static String buildTestFileName(String repositoryLocation, TestHeader header) {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(repositoryLocation);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(header.getPlatformName());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append("tests");
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(getTestFileName(header));
+        retval.append(Constants.XML_SUFFIX);
+
+        return retval.toString();
     }
 
     /**
@@ -3364,7 +3375,8 @@ public class Utils {
                         }
                     }
                     
-                    retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
+                    retval.add(new NameValuePair(name, value));
+//                    retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
                 }
             }
         }
@@ -3546,6 +3558,22 @@ public class Utils {
         
         if (StringUtils.isNotBlank(html)) {
             retval = Jsoup.parse(html).text().replace(" ", "-").toLowerCase();
+        }
+        
+        return retval;
+    }
+    
+    public static String getTestFilePath(KualiTestConfigurationDocument.KualiTestConfiguration configuration, TestHeader testHeader) {
+        return testHeader.getTestFileName().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation());
+    }
+
+    public static boolean isUrlEncodedString(String in) {
+        boolean retval = false;
+        
+        for (String s : Constants.URL_ENCODING_CHARACTERS) {
+            if (in.contains(s)) {
+                retval = true;
+            }
         }
         
         return retval;

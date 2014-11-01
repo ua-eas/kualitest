@@ -24,7 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
@@ -35,6 +37,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestConfigurationDocument.KualiTestConfiguration;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.SuiteTests;
@@ -59,7 +62,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
     private static final Logger LOG = Logger.getLogger(RepositoryTree.class);
     private KualiTestConfigurationDocument.KualiTestConfiguration configuration;
     private RepositoryPopupMenu popupMenu;
-    
+    private Map<String, String> originalPathInfo = new HashMap<String, String>();
     /**
      *
      * @param mainframe
@@ -130,7 +133,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 configuration.setModified(false);
                 try {
                     KualiTestConfigurationDocument doc = KualiTestConfigurationDocument.Factory.newInstance();
-                    doc.setKualiTestConfiguration(configuration);
+                    doc.setKualiTestConfiguration(getSaveConfiguration());
                     doc.save(f, Utils.getSaveXmlOptions());
                     getMainframe().getCreateTestButton().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
                     getMainframe().getCreateTestMenuItem().setEnabled(configuration.getPlatforms().sizeOfPlatformArray() > 0);
@@ -142,6 +145,16 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
         }
     }
 
+    private KualiTestConfiguration getSaveConfiguration() {
+        KualiTestConfiguration retval = (KualiTestConfiguration)configuration.copy();
+        retval.setRepositoryLocation(originalPathInfo.get("repositoryLocation"));
+        retval.setAdditionalDbInfoLocation(originalPathInfo.get("additionalDbInfoLocation"));
+        retval.setEncryptionPasswordFile(originalPathInfo.get("encryptionPasswordFile"));
+        retval.setTagHandlersLocation(originalPathInfo.get("tagHandlersLocation"));
+        retval.setTestResultLocation(originalPathInfo.get("testResultLocation"));
+        return retval;
+    }
+    
     /**
      *
      * @return
@@ -204,15 +217,27 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                     throw new XmlException("invalid xml file: " + configFile.getPath());
                 }
                 
-                if (Constants.REPOSITORY_ROOT_REPLACE.equals(configuration.getRepositoryLocation())) {
-                    configuration.setRepositoryLocation(configFile.getParent());
-                }
+                // logic below is to allow shared repository functionality
+                originalPathInfo.put("additionalDbInfoLocation", configuration.getAdditionalDbInfoLocation());
+                originalPathInfo.put("encryptionPasswordFile", configuration.getEncryptionPasswordFile());
+                originalPathInfo.put("tagHandlersLocation", configuration.getTagHandlersLocation());
+                originalPathInfo.put("testResultLocation", configuration.getTestResultLocation());
+                originalPathInfo.put("repositoryLocation", configuration.getRepositoryLocation());
                 
-                configuration.setRepositoryLocation(configFile.getParent());
-                configuration.setAdditionalDbInfoLocation(configuration.getAdditionalDbInfoLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
-                configuration.setEncryptionPasswordFile(configuration.getEncryptionPasswordFile().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
-                configuration.setTagHandlersLocation(configuration.getTagHandlersLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
-                configuration.setTestResultLocation(configuration.getTestResultLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configuration.getRepositoryLocation()));
+                String s = configuration.getRepositoryLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                configuration.setRepositoryLocation(s);
+                
+                s = configuration.getAdditionalDbInfoLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                configuration.setAdditionalDbInfoLocation(s);
+                
+                s = configuration.getEncryptionPasswordFile().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                configuration.setEncryptionPasswordFile(s);
+                
+                s = configuration.getTagHandlersLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                configuration.setTagHandlersLocation(s);
+                
+                s = configuration.getTestResultLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
+                configuration.setTestResultLocation(s);
                 
                 Utils.initializeHtmlTagHandlers(configuration);
                 

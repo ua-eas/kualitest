@@ -236,6 +236,7 @@ public class Constants {
     public static final String PARAMETER_NAME_PATH = "path";
     public static final String SEPARATOR_EQUALS = "=";
     public static final String SEPARATOR_AMPERSTAND = "&";
+    public static final String ENCODED_AMPERSTAND = "%26";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_COLON = ":";
     public static final String SEPARATOR_QUESTION = "?";
@@ -505,5 +506,28 @@ public class Constants {
         DAILY,
         WEEKLY,
         MONTHLY
+    };
+    
+    public static final String[] URL_ENCODING_CHARACTERS = {
+        "%08",
+        "%09",
+        "%0A",
+        "%0D",
+        "%20",
+        "%21",
+        "%22",
+        "%23",
+        "%24",
+        "%25",
+        "%26",
+        "%27",
+        "%28",
+        "%29",
+        "%2A",
+        "%2B",
+        "%2C",
+        "%2D",
+        "%2E",
+        "%2F"
     };
 }

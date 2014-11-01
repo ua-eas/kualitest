@@ -196,6 +196,7 @@ public class TestProxyServer {
         
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
+            .withConnectTimeout(300000)
             .withPort(Integer.parseInt(proxyPort))
             .withAddress(new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)))
             .withFiltersSource(getHttpFiltersSource())
@@ -420,7 +421,7 @@ public class TestProxyServer {
             
             String url = buildFullUrl(request);
             op.setUrl(url);
-
+            
             // if this is a post then try to get content
             if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(op.getMethod())) {
                 if (request instanceof FullHttpRequest) {
@@ -432,6 +433,7 @@ public class TestProxyServer {
                         if (data != null) {
                             RequestParameter param = op.getRequestParameters().addNewParameter();
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
+                            
                             param.setValue(processPostContent(webTestPanel.getMainframe().getConfiguration(), 
                                 op, new String(data), multipartBoundary));
                         }

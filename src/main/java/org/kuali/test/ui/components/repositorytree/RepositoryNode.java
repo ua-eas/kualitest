@@ -27,6 +27,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -64,7 +65,7 @@ public class RepositoryNode extends DefaultMutableTreeNode {
                 if (platform != null) {
                     if (testSuite.getSuiteTests() != null) {
                         for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
-                            File f = new File(suiteTest.getTestHeader().getTestFileName());
+                            File f = new File(Utils.getTestFilePath(configuration, suiteTest.getTestHeader()));
                             if (f.exists() && f.isFile()) {
                                 add(new RepositoryNode(configuration, suiteTest));
                             }
