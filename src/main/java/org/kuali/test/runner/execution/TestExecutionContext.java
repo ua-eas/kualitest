@@ -172,7 +172,7 @@ public class TestExecutionContext extends Thread {
 
                 for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
                     KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
-
+                    
                     if (test != null) {
                         // add pause between tests if configured
                         if (defaultTestWaitInterval > 0) {
@@ -238,6 +238,8 @@ public class TestExecutionContext extends Thread {
     private void runTest(KualiTestWrapper testWrapper, PoiHelper poiHelper) {
         long start = System.currentTimeMillis();
 
+        currentTest = testWrapper;
+        
         System.out.println("starting test '" + testWrapper.getTestName() + "[" + getTestRun() + "]' for platform " + testWrapper.getPlatformName());
 
         // if this is a web test then initialize the client

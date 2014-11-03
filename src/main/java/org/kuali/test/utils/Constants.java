@@ -92,7 +92,6 @@ public class Constants {
     public static final int MAINFRAME_DEFAULT_HEIGHT = 600;
     public static final int TEST_OPERATION_POPUP_X = 150;
     public static final int TEST_OPERATION_POPUP_Y= 75;
-    public static final int DEFAULT_LABEL_WIDTH = 300;
 
     public static final int MAX_TABLE_RELATIONSHIP_DEPTH = 6;
     

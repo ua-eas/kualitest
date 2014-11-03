@@ -159,7 +159,17 @@ public class TestExecutionMonitor extends Thread {
     public String buildDisplayMessage(long startTime) {
         StringBuilder retval = new StringBuilder(256);
         
-        retval.append("<html>&nbsp;&nbsp;<span style='text-decoration: underline;'>Executing test operation ");
+        retval.append("<html>&nbsp;&nbsp;");
+
+        TestExecutionContext tec = testExecutionList.get(0);
+
+        retval.append("<span>Test ");
+        
+        if ((tec.getTestSuite() != null) && (tec.getCurrentTest() != null)) {
+            retval.append(tec.getCurrentTest().getTestHeader().getTestName());
+            retval.append("<br />&nbsp;&nbsp;");
+        }
+        retval.append("operation ");
         if ((getCurrentTestOperation() != null)
             && (getCurrentTestOperation().getOperation() != null)) {
             retval.append(getCurrentTestOperation().getOperation().getIndex());

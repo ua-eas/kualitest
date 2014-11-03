@@ -162,6 +162,7 @@ public class TestWebClient extends WebClient {
 
                 if (!jscall && !csscall) {
                     String results = retval.getContentAsString();
+                    
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                         LOG.debug("url=" + request.getUrl().toExternalForm());
@@ -175,8 +176,6 @@ public class TestWebClient extends WebClient {
                         LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
                         LOG.debug(results);
                     }
-System.out.println("--------------------------------------------------------------------");
-System.out.println(results);
                     if ((retval.getStatusCode() == HttpStatus.OK_200)
                         && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         if (StringUtils.isNotBlank(results)) {

@@ -91,7 +91,7 @@ public class SplashDisplay {
                     dlg.setSize(Constants.DEFAULT_SPLASH_WIDTH, Constants.DEFAULT_SPLASH_HEIGHT);
                     dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                     dlg.setResizable(false);
-                    JPanel p = new JPanel(new BorderLayout(10, 10));
+                    JPanel p = new JPanel(new BorderLayout(10, 3));
                     p.add(label = new JLabel(getMessage(), getIcon(), JLabel.LEFT), BorderLayout.NORTH);
                     
                     if (showElapsedTime) {

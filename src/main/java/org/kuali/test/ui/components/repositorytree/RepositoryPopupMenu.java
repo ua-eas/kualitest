@@ -107,7 +107,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleAddEditTestSuite(actionNode);
         } else if (RUN_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
-            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite + "'...", true) {
+            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite.getName() + "'...", true) {
                 long startTime = System.currentTimeMillis();
                 
                 @Override

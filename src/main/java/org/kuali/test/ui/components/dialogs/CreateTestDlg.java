@@ -142,6 +142,9 @@ public class CreateTestDlg extends BaseSetupDlg {
         }
         
         description = new JTextArea("new test description", 3, 30);
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
+        
         runtimeFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class, true));
         maxRunTime= new IntegerTextField();
         

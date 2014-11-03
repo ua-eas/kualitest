@@ -488,7 +488,7 @@ public class TestProxyServer {
         // if we have a parameter string then convert to NameValuePair list and 
         // process parameters requiring encryption
         if (StringUtils.isNotBlank(parameterString)) {
-            List<NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(parameterString);
+            List<NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(parameterString, true);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);

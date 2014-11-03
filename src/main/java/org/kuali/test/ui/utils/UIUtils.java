@@ -145,7 +145,7 @@ public class UIUtils {
      * @return
      */
     public static JPanel buildLabelGridPanel(String[] labels) {
-        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 0));
+        JPanel retval = new JPanel(new GridLayout(labels.length, 1, 1, 1));
         
         for (int i = 0; i < labels.length; ++i) {
             String colon = ":";

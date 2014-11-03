@@ -25,6 +25,10 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -71,7 +75,6 @@ public class TestInformationDlg extends BaseSetupDlg {
             "Platform",
             "Test Name", 
             "Test Type",
-            "Description",
             "Test File Name",
             "Max Run Time (sec)",
             "On Max Time Failure"
@@ -99,16 +102,26 @@ public class TestInformationDlg extends BaseSetupDlg {
             new JLabel(Utils.getLabelDataDisplay(testHeader.getPlatformName())),
             new JLabel(Utils.getLabelDataDisplay(testHeader.getTestName())),
             new JLabel(Utils.getLabelDataDisplay(testHeader.getTestType().toString())),
-            new JLabel(Utils.getLabelDataDisplay(testHeader.getDescription(), 450)),
             new JLabel(Utils.getLabelDataDisplay(nm.toString())),
             new JLabel(Utils.getLabelDataDisplay(maxTime)),
             new JLabel(Utils.getLabelDataDisplay(failureAction))
         };
 
-        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-
-        getContentPane().add(new TestOperationsPanel(getMainframe(), this, getTestOperations()), BorderLayout.CENTER);
+        JTabbedPane tabs = new JTabbedPane();
         
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
+        p.add(new TestOperationsPanel(getMainframe(), this, getTestOperations()), BorderLayout.CENTER);
+
+        tabs.add(p, "Details");
+
+        p = new JPanel(new BorderLayout());
+        JTextArea ta = new JTextArea(testHeader.getDescription());
+        ta.setLineWrap(true);
+        ta.setWrapStyleWord(true);
+        tabs.add(new JScrollPane(ta), "Description");
+
+        getContentPane().add(tabs, BorderLayout.CENTER);
         addStandardButtons();
         
         getSaveButton().setVisible(false);

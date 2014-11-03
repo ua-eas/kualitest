@@ -60,6 +60,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -2117,29 +2118,21 @@ public class Utils {
      * @param width
      * @return 
      */
-    public static String getLabelDataDisplay(String input, int width) {
+    public static String getLabelDataDisplay(String input) {
         StringBuilder retval = new StringBuilder(128);
-        if (StringUtils.isNotBlank(input)) {
-            retval.append("<html><div style='font-weight: normal; width: ");
-            retval.append(width);
-            retval.append("px;'>");
-            retval.append(input);
-            retval.append("</div></html>");
+        retval.append("<html><span style='font-weight: normal; height: ");
+        retval.append(new JLabel().getPreferredSize().height + 2);
+        retval.append("px;'>");
+        if (StringUtils.isBlank(input)) {
+            retval.append("&nbsp;");
         } else {
-            retval.append("");
+            retval.append(input);
         }
-
+        retval.append("</span></html>");
+        
         return retval.toString();
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
-    public static String getLabelDataDisplay(String input) {
-        return getLabelDataDisplay(input, Constants.DEFAULT_LABEL_WIDTH);
-    }
     
     /**
      *
@@ -3339,7 +3332,7 @@ public class Utils {
         String paramString = getParametersFromUrl(url);
         
         if (StringUtils.isNotBlank(paramString)) {
-            retval = getNameValuePairsFromUrlEncodedParams(paramString);
+            retval = getNameValuePairsFromUrlEncodedParams(paramString, false);
         }
         
         return retval;
@@ -3363,6 +3356,10 @@ public class Utils {
     }
 
     public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString) throws UnsupportedEncodingException {
+        return getNameValuePairsFromUrlEncodedParams(paramString, false);
+    }
+    
+    public static List <NameValuePair> getNameValuePairsFromUrlEncodedParams(String paramString, boolean decode) throws UnsupportedEncodingException {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
         
         if (StringUtils.isNotBlank(paramString)) {
@@ -3386,8 +3383,11 @@ public class Utils {
                         }
                     }
                     
-                    retval.add(new NameValuePair(name, value));
-//                    retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
+                    if (decode) {
+                        retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
+                    } else {
+                        retval.add(new NameValuePair(name, value));
+                    }
                 }
             }
         }

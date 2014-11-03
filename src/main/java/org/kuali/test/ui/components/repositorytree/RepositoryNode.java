@@ -21,6 +21,7 @@ import java.io.IOException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Platform;
@@ -49,14 +50,14 @@ public class RepositoryNode extends DefaultMutableTreeNode {
             if (isRoot()) {
                 if (configuration.getPlatforms() != null) {
                     for (Platform platform : configuration.getPlatforms().getPlatformArray()) {
-                        addNode(getPlatformFilePath(platform), platform, true);
+                        addNode(getPlatformFilePath(platform), platform);
                     }
                 }
             } else if (userObject instanceof Platform) {
                 Platform platform = (Platform)userObject;
                 if (platform.getTestSuites() != null) {
                     for (TestSuite testSuite : platform.getTestSuites().getTestSuiteArray()) {
-                        addNode(getTestSuiteFilePath(testSuite), testSuite, true);
+                        addNode(null, testSuite);
                     }
                 }
             } else if (userObject instanceof TestSuite) {
@@ -91,15 +92,15 @@ public class RepositoryNode extends DefaultMutableTreeNode {
         return retval;
     }
     
-    private void addNode(String filepath, Object userObject, boolean createDirIfRequired) throws IOException {
-        File f = new File(filepath);
-        if (!f.exists()) {
-            FileUtils.forceMkdir(f);
-        } 
-
-        if (f.exists() && f.isDirectory()) {
-            add(new RepositoryNode(configuration, userObject));
+    private void addNode(String filepath, Object userObject) throws IOException {
+        if (StringUtils.isNotBlank(filepath)) {
+            File f = new File(filepath);
+            if (!f.exists()) {
+                FileUtils.forceMkdir(f);
+            } 
         }
+        
+        add(new RepositoryNode(configuration, userObject));
     }
     
     private String getPlatformFilePath(Platform platform) {

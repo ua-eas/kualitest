@@ -131,7 +131,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
             }    
             
-            
             if (ispost && (tec.getConfiguration().getFormSubmitElementNames() != null)) {
                 HtmlElement submit = getFormSubmitElement(request.getRequestParameters());
                 if (submit != null) {
