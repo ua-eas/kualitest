@@ -26,6 +26,8 @@ import java.util.Calendar;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -36,6 +38,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestType;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.utils.UIUtils;
@@ -81,7 +84,6 @@ public class CreateTestDlg extends BaseSetupDlg {
             "Platform",
             "Test Name", 
             "Test Type",
-            "Description",
             "Max Run Time (sec)",
             "On Max Time Failure",
             ""
@@ -141,10 +143,6 @@ public class CreateTestDlg extends BaseSetupDlg {
             useTestEntryTimes.setEnabled(false);
         }
         
-        description = new JTextArea("new test description", 3, 30);
-        description.setLineWrap(true);
-        description.setWrapStyleWord(true);
-        
         runtimeFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class, true));
         maxRunTime= new IntegerTextField();
         
@@ -152,14 +150,27 @@ public class CreateTestDlg extends BaseSetupDlg {
             platforms,
             testName,
             testType,
-            new JScrollPane(description),
             maxRunTime,
             runtimeFailure,
             useTestEntryTimes
         };
 
-        getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
-
+        description = new JTextArea("new test description", 6, 30);
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
+        
+        BasePanel p = new BasePanel(getMainframe());
+        p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
+        
+        JPanel p2 = new JPanel(new BorderLayout());
+        
+        p2.add(new JLabel("Test Description:"), BorderLayout.NORTH);
+        p2.add(new JScrollPane(description), BorderLayout.CENTER);
+        
+        p.add(p2, BorderLayout.CENTER);
+        
+        getContentPane().add(p);
+        
         platforms.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -284,6 +295,6 @@ public class CreateTestDlg extends BaseSetupDlg {
     
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(600, 400);
+        return new Dimension(600, 450);
     }
 }

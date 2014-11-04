@@ -170,7 +170,7 @@ public class Constants {
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);
     public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024);
     public static final int DEFAULT_SPLASH_WIDTH = 400;
-    public static final int DEFAULT_SPLASH_HEIGHT = 150;
+    public static final int DEFAULT_SPLASH_HEIGHT = 175;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
