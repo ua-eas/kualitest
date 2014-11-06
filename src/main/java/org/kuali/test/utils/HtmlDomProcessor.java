@@ -138,7 +138,8 @@ public class HtmlDomProcessor {
     }
 
     public Element getDomDocumentElement(String html) {
-        return Utils.tidify(html).getDocumentElement();
+      //  return Utils.tidify(html).getDocumentElement();
+        return Utils.cleanHtml(html).getDocumentElement();
     }
 
     private void processDocument(Document document, List<Element> labelNodes, DomInformation domInfo) {

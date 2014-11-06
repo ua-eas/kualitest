@@ -22,6 +22,7 @@ import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
@@ -34,6 +35,7 @@ import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -67,6 +69,7 @@ public class TestWebClient extends WebClient {
     private List<String> parametersToIgnore = new ArrayList<String>();
     private List<HttpRequestProcessor> preSubmitProcessors = new ArrayList<HttpRequestProcessor>();
     private List<HttpRequestProcessor> postSubmitProcessors = new ArrayList<HttpRequestProcessor>();
+    private List<String> testRunUrlsToIgnore = new ArrayList<String>();
     private SimpleDateFormat dateReplaceFormat;
     
     public TestWebClient(final TestExecutionContext tec) {
@@ -79,6 +82,10 @@ public class TestWebClient extends WebClient {
         
         if (tec.getConfiguration().getErrorIndicators() != null) {
             errorIndicators.addAll(Arrays.asList(tec.getConfiguration().getErrorIndicators().getIndicatorArray()));
+        }
+
+        if (tec.getConfiguration().getTestRunUrlsToIgnore() != null) {
+            testRunUrlsToIgnore.addAll(Arrays.asList(tec.getConfiguration().getTestRunUrlsToIgnore().getUrlArray()));
         }
 
         if (tec.getConfiguration().getHttpPreSubmitProcessors() != null) {
@@ -134,70 +141,96 @@ public class TestWebClient extends WebClient {
             @Override
             public WebResponse getResponse(WebRequest request) throws IOException {
                 WebResponse retval = null;
-                boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
-                boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
-
-                if (!jscall && !csscall) {
-                    if (!request.getRequestParameters().isEmpty()) {
-                        List <NameValuePair> params = getUpdatedParameterList(request.getRequestParameters());
-                        request.getRequestParameters().clear();
-                        request.getRequestParameters().addAll(params);
-                    }
-                    
-                    if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
-                        handleUrlParameters(request);
-                    }
-                    
-                    replaceJsessionId(request);
-                } 
-
-                runPreSubmitProcessing(request);
                 
-                Integer indx = tec.getCurrentOperationIndex();
-
-                WebResponse response =  super.getResponse(request);                
-                retval = runPostSubmitProcessing(request, response);
-                int status = retval.getStatusCode();
-                
-
-                if (!jscall && !csscall) {
-                    String results = retval.getContentAsString();
-                    
+                // ii this is in the ignore list the reurn an empty response
+                if (Utils.isIgnoreUrl(testRunUrlsToIgnore, request.getUrl().toExternalForm())) {
+                    retval = new StringWebResponse("", request.getUrl());
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
-                        LOG.debug("url=" + request.getUrl().toExternalForm());
-                        LOG.debug("status=" + status);
-                        LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
-
-                        for (NameValuePair nvp : request.getRequestParameters()) {
-                            LOG.debug(nvp.getName() + "=" + nvp.getValue());
-                        }
-                        
-                        LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
-                        LOG.debug(results);
+                        LOG.debug("ignored url: " + request.getUrl().toExternalForm());
                     }
-                    if ((retval.getStatusCode() == HttpStatus.OK_200)
-                        && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                        if (StringUtils.isNotBlank(results)) {
-                            tec.getCurrentTest().pushHttpResponse(results);
-                            tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                } else {
+                    boolean jscall = Utils.isGetJavascriptRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
+                    boolean csscall = Utils.isGetCssRequest(request.getHttpMethod().toString(), request.getUrl().toExternalForm());
+
+                    if (!jscall && !csscall) {
+                        if (request.getUrl().toExternalForm().contains(Constants.SEPARATOR_QUESTION)) {
+                            handleUrlParameters(request);
                         }
-                    } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
-                        if (isErrorResult(results)) {
-                            writeErrorFile(request.getUrl().toExternalForm(), indx, results);
-                            tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                        } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                            if (tec.getConfiguration().getOutputIgnoredResults()) {
-                                TestException tex = new TestException("server returned bad status - " 
-                                    + status
-                                    + ", url=" 
-                                    + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
-                                tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+
+                        replaceJsessionId(request);
+                    } 
+
+                    runPreSubmitProcessing(request);
+
+                    Integer indx = tec.getCurrentOperationIndex();
+
+                    WebResponse response =  super.getResponse(request);                
+
+                    retval = runPostSubmitProcessing(request, response);
+
+
+                    int status = retval.getStatusCode();
+
+                    if (!jscall && !csscall) {
+                        String results = retval.getContentAsString();
+
+                        if (results.length() > 1000) {
+                            PrintWriter pw = null;
+
+                            try {
+                                pw = new PrintWriter("/home/rbtucker/req-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
+                                pw.println(results);
+                            }
+
+                            catch (Exception ex) {}
+
+                            finally {
+                                try {
+                                    if (pw != null) {
+                                        pw.close();
+                                    }
+                                }
+
+                                catch (Exception ex) {};
                             }
                         }
-                    } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
+
                         if (LOG.isDebugEnabled()) {
-                            LOG.debug("redirect to: " + retval.getResponseHeaderValue(HttpHeaders.LOCATION));
+                            LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
+                            LOG.debug("url=" + request.getUrl().toExternalForm());
+                            LOG.debug("status=" + status);
+                            LOG.debug("------------------------------------------ parameters ---------------------------------------------------------");
+
+                            for (NameValuePair nvp : request.getRequestParameters()) {
+                                LOG.debug(nvp.getName() + "=" + nvp.getValue());
+                            }
+
+                            LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
+                            LOG.debug(results);
+                        }
+                        if ((retval.getStatusCode() == HttpStatus.OK_200)
+                            && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                            if (StringUtils.isNotBlank(results)) {
+                                tec.getCurrentTest().pushHttpResponse(results);
+                                tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                            }
+                        } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
+                            if (isErrorResult(results)) {
+                                writeErrorFile(request.getUrl().toExternalForm(), indx, results);
+                                tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                            } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                                if (tec.getConfiguration().getOutputIgnoredResults()) {
+                                    TestException tex = new TestException("server returned bad status - " 
+                                        + status
+                                        + ", url=" 
+                                        + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                                    tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+                                }
+                            }
+                        } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("redirect to: " + retval.getResponseHeaderValue(HttpHeaders.LOCATION));
+                            }
                         }
                     }
                 }
@@ -257,7 +290,6 @@ public class TestWebClient extends WebClient {
             int pos = input.indexOf(Constants.SEPARATOR_QUESTION);
             if (pos > -1) {
                 retval.append(input.substring(0, pos+1));
-            //    String params = Utils.getParametersFromUrl(URLDecoder.decode(input, CharEncoding.UTF_8));
                 String params = Utils.getParametersFromUrl(input);
 
                 StringBuilder buf = new StringBuilder(params.length());

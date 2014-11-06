@@ -20,32 +20,16 @@ package org.kuali.test.ui.components.editmasks;
  *
  * @author rbtucker
  */
-public class FloatTextField extends BaseEditMaskField {
-    public FloatTextField() {
-        super(BaseEditMaskField.FLOAT_MASK);
+public class FileNameField extends BaseEditMaskField {
+    public static final int DEFAULT_FIELD_LENGTH = 20;
+    
+    public FileNameField() {
+        super(BaseEditMaskField.FILE_NAME_MASK);
+        setColumns(DEFAULT_FIELD_LENGTH);
     }
 
-    /**
-     *
-     * @param in
-     */
-    public void setDouble(double in) {
-        setText("" + in);
-    }
-    
-    /**
-     *
-     * @return
-     */
-    public double getDouble() {
-        double retval = 0;
-        try {
-            retval = Double.parseDouble(getText());
-        }
-        
-        catch (Exception ex) {
-        }
-        
-        return retval;
+    public FileNameField(String nm) {
+        this();
+        setText(nm);
     }
 }

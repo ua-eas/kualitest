@@ -228,7 +228,7 @@ public class Constants {
     public static final String FILE_DIRECTORY = "file-directory";
     public static final String FILE_NAME_PATTERN = "file-name-pattern";
     public static final String IGNORE_TABLE_DATA_INDICATOR = "^";
-    public static final String MULTIPART_NAME_VALUE_SEPARATOR = "`";
+    public static final String MULTIPART_NAME_VALUE_SEPARATOR = "\u00A1";
     public static final String REPLACE_DATA_POSITION_HOLDER = IGNORE_TABLE_DATA_INDICATOR;
     public static final String MULTIPART_PARAMETER_SEPARATOR = "|";
     public static final String MAX_MEMORY_PERCENT = "max-memory-percent";
@@ -529,5 +529,10 @@ public class Constants {
         "%2D",
         "%2E",
         "%2F"
+    };
+    
+    public static String[] SUBMIT_INPUT_TYPES = {
+        "submit",
+        "image"
     };
 }

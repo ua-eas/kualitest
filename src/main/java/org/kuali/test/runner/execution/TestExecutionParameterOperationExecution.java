@@ -60,7 +60,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
             try {
                 if (StringUtils.isNotBlank(key)) {
                     for (String h : testWrapper.getHttpResponseStack()) {
-                        HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.tidify(h));
+                        HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
 
                         for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
                             String curkey = Utils.buildCheckpointPropertyKey(cp);

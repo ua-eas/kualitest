@@ -575,7 +575,7 @@ public class TestExecutionContext extends Thread {
         
         if (!map.isEmpty()) {
             for (String h : testWrapper.getHttpResponseStack()) {
-                DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.tidify(h));
+                DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
 
                 for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
                     String key = Utils.buildCheckpointPropertyKey(cp);

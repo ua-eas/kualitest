@@ -38,7 +38,8 @@
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
-                <xs:element name="urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
+                <xs:element name="test-create-urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
+                <xs:element name="test-run-urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
                 <xs:element name="referrers-to-ignore" type="referrers-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
                 <xs:element name="date-replace-format" type="xs:string"/>
@@ -49,8 +50,6 @@
                 <xs:element name="http-post-submit-processors" type="http-post-submit-processors" minOccurs="0"/>
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
-                <xs:element name="form-submit-element-names" type="form-submit-element-names" minOccurs="0"/>
-                <xs:element name="search-submit-element-names" type="search-submit-element-names" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

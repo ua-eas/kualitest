@@ -27,7 +27,6 @@ import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.FailureAction;
-import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
@@ -111,11 +110,11 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             try {
                 List <CheckpointProperty> matchingProperties = null;
                 if (cp.getCheckpointProperties() != null) {
-                    html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString();
+                    html = testWrapper.getHttpResponseStack().peek();
                     HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
                     for (String curhtml : testWrapper.getHttpResponseStack()) {
                         if (StringUtils.isNotBlank(curhtml)) {
-                            Document doc = Utils.tidify(curhtml);
+                            Document doc = Utils.cleanHtml(curhtml);
                             HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
                             matchingProperties = findCurrentProperties(cp, dominfo);
                             if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
@@ -150,7 +149,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         if (!success) {
                             throw new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
                         } else {
-                            writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(formatForPdf(html), false));
+                            writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
                             break;
                         }
                     } else {
@@ -166,7 +165,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             
             catch (TestException ex) {
                 if (i == (Constants.HTML_TEST_RETRY_COUNT-1)) {
-                    writeHtmlIfRequired(cp, configuration, platform,  Utils.tidify(formatForPdf(html), false));
+                    writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
                     throw ex;
                 } else {
                     try {
@@ -190,8 +189,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             Operation op = testWrapper.getPrevHttpRequestOperation(getOperation().getIndex());
 
             if (op != null) {
-                if (HttpMethod.GET.toString().equalsIgnoreCase(op.getHtmlRequestOperation().getMethod())
-                    || isSearch(op.getHtmlRequestOperation())) {
+                if (HttpMethod.GET.toString().equalsIgnoreCase(op.getHtmlRequestOperation().getMethod())) {
                     new HttpRequestOperationExecution(tec, op).execute(tec.getConfiguration(), tec.getPlatform(), testWrapper);
                 }
             }
@@ -200,27 +198,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         catch (TestException ex) {
             LOG.warn(ex.toString(), ex);
         }
-    }
-    
-    private boolean isSearch(HtmlRequestOperation reqop) {
-        boolean retval = false;
-
-        String params = Utils.getContentParameterFromRequestOperation(reqop);
-        if (StringUtils.isNotBlank(params)) {
-            TestExecutionContext tec = getTestExecutionContext();
-            
-            if (tec.getConfiguration().getSearchSubmitElementNames() != null) {
-                for (String ename : tec.getConfiguration().getSearchSubmitElementNames().getElementNameArray()) {
-                    if (params.contains(ename)) {
-                        retval = true;
-                        break;
-                    }
-                }
-            }
-            
-        }
-        
-        return retval;
     }
     
     private void writeHtmlIfRequired(Checkpoint cp, 

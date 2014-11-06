@@ -44,7 +44,7 @@ public class JWebBrowserDocumentGenerator {
         Document retval = null;
         Object o = webBrowser.executeJavascriptWithResult("return document.documentElement.innerHTML;");
         if (o != null) {
-            retval = Utils.tidify(o.toString());
+            retval = Utils.cleanHtml(o.toString());
             populateIframes(webBrowser, retval, retval.getDocumentElement());
         }
     
@@ -137,9 +137,9 @@ public class JWebBrowserDocumentGenerator {
                 Object o = webBrowser.executeJavascriptWithResult(iframeCall);
                 if (o != null) {
                     if (o.toString().contains("<html>")) {
-                        element.appendChild(Utils.tidify(o.toString()).getDocumentElement());
+                        element.appendChild(Utils.cleanHtml(o.toString()).getDocumentElement());
                     } else {
-                        element.appendChild(Utils.tidify("<html>" + o.toString() + "</html>").getDocumentElement());
+                        element.appendChild(Utils.cleanHtml("<html>" + o.toString() + "</html>").getDocumentElement());
                     }
                 }
             }

@@ -37,6 +37,7 @@ import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.buttons.TableCellIconButton;
+import org.kuali.test.ui.components.editmasks.FileNameField;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
@@ -87,7 +88,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Max Run Time(min)"
         };
         
-        name = new JTextField(testSuite.getName(), 20);
+        name = new FileNameField(testSuite.getName());
         name.setEditable(!isEditmode());
         
         platformName = new JTextField(testSuite.getPlatformName(), 20);

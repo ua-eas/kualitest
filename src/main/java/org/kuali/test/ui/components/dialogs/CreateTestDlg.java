@@ -40,6 +40,7 @@ import org.kuali.test.TestType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.components.editmasks.FileNameField;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -117,7 +118,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             }
         });
         
-        testName = new JTextField("new test", 20);
+        testName = new FileNameField("new test");
         
         Platform currentPlatform = Utils.findPlatform(getConfiguration(), (String)platforms.getSelectedItem());
         

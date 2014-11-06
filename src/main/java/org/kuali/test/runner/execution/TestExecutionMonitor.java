@@ -166,8 +166,9 @@ public class TestExecutionMonitor extends Thread {
         retval.append("<span>Test ");
         
         if ((tec.getTestSuite() != null) && (tec.getCurrentTest() != null)) {
+            retval.append("'");
             retval.append(tec.getCurrentTest().getTestHeader().getTestName());
-            retval.append("<br />&nbsp;&nbsp;");
+            retval.append("'<br />&nbsp;&nbsp;");
         }
         retval.append("operation ");
         if ((getCurrentTestOperation() != null)

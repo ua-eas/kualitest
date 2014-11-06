@@ -25,17 +25,10 @@ import javax.swing.JTextField;
  */
 public class BaseEditMaskField extends JTextField {
     private static final int DEFAULT_NUMERIC_COLUMNS = 10;
-
-    /**
-     *
-     */
-    public static final int INTEGER_MASK = 1;
-
-    /**
-     *
-     */
-    public static final int FLOAT_MASK = 2;
     private int maskType;
+    public static final int INTEGER_MASK = 1;
+    public static final int FLOAT_MASK = 2;
+    public static final int FILE_NAME_MASK = 3;
     
     /**
      *
@@ -80,6 +73,10 @@ public class BaseEditMaskField extends JTextField {
         return (isValidNumericEntry(c) && (c != '.'));
     }
     
+    private boolean isValidFileNameEntry(char c) {
+        return ((c == '.') || (c == '-') || (c == '_') || (c == ' ') || Character.isLetterOrDigit(c));
+    }
+
     @Override
     protected void processKeyEvent(KeyEvent e) {
         boolean process = true;
@@ -91,6 +88,9 @@ public class BaseEditMaskField extends JTextField {
                     break;
                 case FLOAT_MASK:
                     process = isValidNumericEntry(c);
+                    break;
+                case FILE_NAME_MASK:
+                    process = isValidFileNameEntry(c);
                     break;
             }
         } 

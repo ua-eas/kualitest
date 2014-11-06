@@ -2637,28 +2637,22 @@ public class Utils {
             NodeList l = doc.getDocumentElement().getElementsByTagName(tagname);
             for (int i = 0; i < l.getLength(); ++i) {
                 Element item = (Element) l.item(i);
-
                 // if attribute is specified check the node for matching attribute
-                if (attmap != null) {
-                    boolean canRemove = (attmap.size() > 0);
-
+                if ((attmap != null) && !attmap.isEmpty()) {
+                    int cnt = 0;
                     for (String key : attmap.keySet()) {
                         String checkValue = attmap.get(key);
                         String val = item.getAttribute(key);
-
-                        if (StringUtils.isNotBlank(val)) {
-                            if (!val.equalsIgnoreCase(checkValue)) {
-                                canRemove = false;
-                                break;
-                            }
+                        
+                        if (StringUtils.isNotBlank(val) && val.equals(checkValue)) {
+                            cnt++;
                         } else {
-                            canRemove = false;
                             break;
                         }
+                    }
 
-                        if (canRemove) {
-                            removeList.add(item);
-                        }
+                    if (cnt == attmap.size()) {
+                        removeList.add(item);
                     }
                 } else {
                     removeList.add(item);
@@ -2680,22 +2674,36 @@ public class Utils {
      * @param removeSelectedTags
      * @return 
      */
-    public static Document tidify(String input, boolean removeSelectedTags) {
+    public static Document cleanHtml(String input, boolean removeSelectedTags) {
+        if (removeSelectedTags){
+            return cleanHtml(input, Constants.DEFAULT_UNNECCESSARY_TAGS);
+        } else {
+            return cleanHtml(input, null);
+        }
+    }
+
+    /**
+     * 
+     * @param input
+     * @param tagsToRemove
+     * @return 
+     */
+    public static Document cleanHtml(String input, String[] tagsToRemove) {
         Document retval = null;
 
         if (StringUtils.isNotBlank(input)) {
             retval = getTidy().parseDOM(new StringReader(input), new StringWriter());
-         //   remove tags we do not want
-            if (removeSelectedTags) {
-                removeTagsFromDocument(retval, Constants.DEFAULT_UNNECCESSARY_TAGS);
+            //   remove tags we do not want
+            if (tagsToRemove != null) {
+                removeTagsFromDocument(retval, tagsToRemove);
             }
         }
         
         return retval;
     }
 
-    public static Document tidify(String input) {
-        return tidify(input, true);
+    public static Document cleanHtml(String input) {
+        return cleanHtml(input, true);
     }
 
     /**
@@ -3584,6 +3592,33 @@ public class Utils {
         for (String s : Constants.URL_ENCODING_CHARACTERS) {
             if (in.contains(s)) {
                 retval = true;
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static String stripXY(String in) {
+        String retval = in;
+        
+        if (StringUtils.isNotBlank(in)) {
+            String tmp = in.trim();
+            
+            if (tmp.toLowerCase().endsWith(".x") || tmp.toLowerCase().endsWith(".y")) {
+                retval = in.substring(0, tmp.length()-2);
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isSubmitInputType(String type) {
+        boolean retval = false;
+        
+        for (String s : Constants.SUBMIT_INPUT_TYPES) {
+            if (s.equalsIgnoreCase(type)) {
+                retval = true;
+                break;
             }
         }
         

@@ -75,7 +75,7 @@ public class TestProxyServer {
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
-    private List <String> urlsToIgnore = new ArrayList<String>();
+    private List <String> testCreateUrlsToIgnore = new ArrayList<String>();
     private List <String> referrersToIgnore = new ArrayList<String>();
     private Set <String> hostsRequiringHttps = new HashSet<String>();
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
@@ -206,8 +206,8 @@ public class TestProxyServer {
         
         proxyServerRunning = true;
         
-        if (webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore() != null) {
-            urlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlsToIgnore().getUrlArray()));
+        if (webTestPanel.getMainframe().getConfiguration().getTestCreateUrlsToIgnore() != null) {
+            testCreateUrlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getTestCreateUrlsToIgnore().getUrlArray()));
         }
         
         if (webTestPanel.getMainframe().getConfiguration().getReferrersToIgnore() != null) {
@@ -302,7 +302,7 @@ public class TestProxyServer {
                 retval = (status == HttpStatus.OK_200);
 
                 if (retval) {
-                    retval = (!Utils.isIgnoreUrl(urlsToIgnore, request.getUri()) 
+                    retval = (!Utils.isIgnoreUrl(testCreateUrlsToIgnore, request.getUri()) 
                         && !isIgnoredReferrer(request.getUri(), request.headers().get(HttpHeaders.REFERER)));
                 }
             }
