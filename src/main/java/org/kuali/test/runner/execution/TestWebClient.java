@@ -35,7 +35,6 @@ import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -173,28 +172,6 @@ public class TestWebClient extends WebClient {
 
                     if (!jscall && !csscall) {
                         String results = retval.getContentAsString();
-
-                        if (results.length() > 1000) {
-                            PrintWriter pw = null;
-
-                            try {
-                                pw = new PrintWriter("/home/rbtucker/req-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
-                                pw.println(results);
-                            }
-
-                            catch (Exception ex) {}
-
-                            finally {
-                                try {
-                                    if (pw != null) {
-                                        pw.close();
-                                    }
-                                }
-
-                                catch (Exception ex) {};
-                            }
-                        }
-
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                             LOG.debug("url=" + request.getUrl().toExternalForm());
