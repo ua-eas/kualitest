@@ -791,7 +791,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         if (dlg.isSaved()) {
             JOptionPane.showMessageDialog(this, "Successfully imported " + dlg.getImportedTestCount() + " tests");
-           getPlatformTestsPanel().populateList((Platform)actionNode.getUserObject());
+            getPlatformTestsPanel().populateList((Platform)actionNode.getUserObject());
         }
     }
 

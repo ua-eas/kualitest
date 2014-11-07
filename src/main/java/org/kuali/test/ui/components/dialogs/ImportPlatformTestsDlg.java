@@ -32,10 +32,13 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
@@ -54,10 +57,13 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public class ImportPlatformTestsDlg extends BaseSetupDlg {
+    private static final Logger LOG = Logger.getLogger(ImportPlatformTestsDlg.class);
     private Platform targetPlatform;
     private Set <String> existingTargetPlatformTestNames;
     private JList availableTests;
     private JComboBox platformCombo;
+    private JProgressBar progressBar;
+
     private int importedTestCount = 0;
     /**
      * 
@@ -66,7 +72,7 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
      */
     public ImportPlatformTestsDlg(TestCreator mainFrame, Platform targetPlatform) {
         super(mainFrame);
-        setTitle("Import Platform Tests to platform " + targetPlatform.getName());
+        setTitle("Import Platform Tests");
         this.targetPlatform = targetPlatform;
 
         existingTargetPlatformTestNames = new HashSet<String>();
@@ -82,7 +88,10 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
         
         for (Platform p : getMainframe().getConfiguration().getPlatforms().getPlatformArray()) {
             if (!p.getName().equals(targetPlatform.getName())) {
-                retval.add(p.getName());
+                if (p.getApplication().equals(targetPlatform.getApplication())
+                    && p.getVersion().equals(targetPlatform.getVersion())) {
+                    retval.add(p.getName());
+                }
             }
         }
         
@@ -92,12 +101,19 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
     }
 
     private void initComponents() {
-        JPanel p = new JPanel(new FlowLayout());
-        p.add(new JLabel("Available Platforms:", JLabel.RIGHT));
+        JPanel p = new JPanel(new BorderLayout());
+        JPanel p2 = new JPanel(new FlowLayout());
+        
+        p2.add(new JLabel("Available Platforms:", JLabel.RIGHT));
         
         String[] platforms = getAvailablePlatforms();
-        p.add(platformCombo = new JComboBox(platforms));
-
+        p2.add(platformCombo = new JComboBox(platforms));
+        
+        p.add(progressBar = new JProgressBar(), BorderLayout.CENTER);
+        progressBar.setIndeterminate(false);
+        
+        p.add(p2, BorderLayout.NORTH);
+        
         platformCombo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -171,22 +187,40 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
 
     @Override
     protected boolean save() {
-        boolean retval = importTests();
-        setSaved(retval);
-        if (retval) {
-            dispose();
-        }
+        new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                return importTests();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    Boolean b = (Boolean)get();
+                    setSaved(b);
+                    
+                    if (b) {
+                        dispose();
+                    }
+                } 
+                catch (Exception ex) {
+                   LOG.warn(ex.toString(), ex);
+                } 
+            }
+            
+        }.execute();
         
-        return retval;
+        return false;
     }
 
     private boolean importTests() {
         boolean retval = false;
-        
         Platform sourcePlatform = Utils.findPlatform(getMainframe().getConfiguration(), platformCombo.getSelectedItem().toString());
         
         if (sourcePlatform != null) {
+            progressBar.setMinimum(0);
             List <String> selectedTests = availableTests.getSelectedValuesList();
+            progressBar.setMaximum(selectedTests.size());
             
             for (String testName : selectedTests) {
                 KualiTest sourceTest = Utils.findKualiTest(getMainframe().getConfiguration(), sourcePlatform.getName(), testName);
@@ -204,6 +238,7 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
                 
                     if (Utils.saveKualiTest(getSaveButton(), getMainframe().getConfiguration().getRepositoryLocation(), targetPlatform, testHeader, operations)) {
                         importedTestCount++;
+                        progressBar.setValue(importedTestCount);
                     }
                 }
             }
