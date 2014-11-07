@@ -986,7 +986,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             File f = new File(filename);
             
             if (!f.exists() || !f.isFile()) {
-                msg = "Invalid input configutaion file - " + filename;
+                msg = "Invalid input configuration file - " + filename;
             }
         }
         
