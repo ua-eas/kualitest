@@ -838,6 +838,18 @@ public class Utils {
         return new File(buildTestFileName(repositoryLocation, header));
     }
 
+    public static String buildPlatformTestsDirectoryName(String repositoryLocation, String platformName) {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(repositoryLocation);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(platformName);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append("tests");
+        
+        return retval.toString();
+        
+    }
     /**
      *
      * @param repositoryLocation
@@ -847,11 +859,7 @@ public class Utils {
     public static String buildTestFileName(String repositoryLocation, TestHeader header) {
         StringBuilder retval = new StringBuilder(256);
         
-        retval.append(repositoryLocation);
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(header.getPlatformName());
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append("tests");
+        retval.append(buildPlatformTestsDirectoryName(repositoryLocation, header.getPlatformName()));
         retval.append(Constants.FORWARD_SLASH);
         retval.append(getTestFileName(header));
         retval.append(Constants.XML_SUFFIX);

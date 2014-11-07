@@ -39,6 +39,7 @@ import org.kuali.test.utils.Constants;
 public class RepositoryPopupMenu extends BaseTreePopupMenu {
     public static final String ADD_PLATFORM_ACTION = "Add Platform";
     public static final String EDIT_PLATFORM_ACTION = "Edit Platform";
+    public static final String DELETE_PLATFORM_ACTION = "Delete Platform";
     public static final String ADD_TEST_SUITE_ACTION = "Add Test Suite";
     public static final String IMPORT_PLATFORM_TESTS_ACTION = "Import Platform Tests";
     public static final String EDIT_TEST_SUITE_ACTION = "Edit Test Suite";
@@ -67,6 +68,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleAddPlatform(null);
         } else if (EDIT_PLATFORM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleEditPlatform((Platform)actionNode.getUserObject());
+        } else if (DELETE_PLATFORM_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleDeletePlatform(actionNode);
         } else if (ADD_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())
             || EDIT_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleAddEditTestSuite(actionNode);
@@ -127,6 +130,10 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             m.addActionListener(this);
             
             m = new JMenuItem(EDIT_PLATFORM_ACTION);
+            add(m);
+            m.addActionListener(this);
+
+            m = new JMenuItem(DELETE_PLATFORM_ACTION);
             add(m);
             m.addActionListener(this);
 
