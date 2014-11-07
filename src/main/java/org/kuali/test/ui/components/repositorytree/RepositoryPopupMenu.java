@@ -37,50 +37,15 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class RepositoryPopupMenu extends BaseTreePopupMenu {
-
-    /**
-     *
-     */
     public static final String ADD_PLATFORM_ACTION = "Add Platform";
-
-    /**
-     *
-     */
     public static final String EDIT_PLATFORM_ACTION = "Edit Platform";
-
-    /**
-     *
-     */
     public static final String ADD_TEST_SUITE_ACTION = "Add Test Suite";
-
-    /**
-     *
-     */
+    public static final String IMPORT_PLATFORM_TESTS_ACTION = "Import Platform Tests";
     public static final String EDIT_TEST_SUITE_ACTION = "Edit Test Suite";
-
-    /**
-     *
-     */
     public static final String DELETE_TEST_SUITE_ACTION = "Delete Test Suite";
-
-    /**
-     *
-     */
     public static final String ADD_TESTS_ACTION = "Add Test(s)";
-
-    /**
-     *
-     */
     public static final String EDIT_TEST_ACTION = "Edit Test";
-
-    /**
-     *
-     */
     public static final String RUN_TEST_SUITE_ACTION = "Run Test Suite";
-
-    /**
-     *
-     */
     public static final String REMOVE_TEST_ACTION = "Remove Test";
     
     /**
@@ -138,6 +103,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleRemoveTest(actionNode);
         } else if (Constants.SHOW_TEST_INFORMATION_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleShowTestInformation(actionNode);
+        } else if (IMPORT_PLATFORM_TESTS_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleImportPlatformTests(actionNode);
         }
         
     }
@@ -170,6 +137,11 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             
             add(new JSeparator());
             m = new JMenuItem(Constants.CREATE_TEST);
+            add(m);
+            m.addActionListener(this);
+        
+            add(new JSeparator());
+            m = new JMenuItem(IMPORT_PLATFORM_TESTS_ACTION);
             add(m);
             m.addActionListener(this);
         } else if (node.getUserObject() instanceof TestSuite) {

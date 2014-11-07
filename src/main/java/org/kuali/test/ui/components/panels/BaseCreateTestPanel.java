@@ -21,32 +21,24 @@ import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CommentOperation;
-import org.kuali.test.KualiTestDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
-import org.kuali.test.PlatformTests;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
-import org.kuali.test.TestOperations;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
@@ -277,59 +269,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @return
      */
     protected boolean saveTest(String repositoryLocation, TestHeader header, List <TestOperation> testOperations) {
-        boolean retval = false;
-        KualiTestDocument.KualiTest test = KualiTestDocument.KualiTest.Factory.newInstance();
-        header.setDateCreated(Calendar.getInstance());
-        TestOperations ops = test.addNewOperations();
-        if ((testOperations != null) && !testOperations.isEmpty()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("testOperations.size(): " + testOperations.size());
-            }
-            
-            ops.setOperationArray(testOperations.toArray(new TestOperation[testOperations.size()]));
-
-            File f = Utils.buildTestFile(repositoryLocation, header);
-            
-            if (!f.getParentFile().exists()) {
-                try {
-                    FileUtils.forceMkdir(f.getParentFile());
-                } 
-                
-                catch (IOException ex) {
-                    UIUtils.showError(this, "Error creating test file", "An error occured while attempting to create test file parent directory - " + ex.toString());
-                    LOG.error(ex.toString(), ex);
-                }
-            }
-
-            if (f.getParentFile().exists()) {
-                header.setTestFileName(Utils.buildTestFileName(Constants.REPOSITORY_ROOT_REPLACE, header));
-                PlatformTests platformTests = platform.getPlatformTests();
-                if (platform.getPlatformTests() == null) {
-                    platformTests = platform.addNewPlatformTests();
-                }
-                
-                KualiTestDocument doc = KualiTestDocument.Factory.newInstance();
-                doc.setKualiTest(test);
-                
-                try {
-                    doc.save(f, Utils.getSaveXmlOptions());
-                    platformTests.addNewTestHeader();
-                    platformTests.setTestHeaderArray(platformTests.getTestHeaderArray().length-1, testHeader);
-                    retval = true;
-                    
-                } 
-                
-                catch (IOException ex) {
-                    UIUtils.showError(this, "Error creating test file", "An error occured while attempting to create test file - " + ex.toString());
-                    LOG.error(ex.toString(), ex);
-                }
-                
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "No test operations - test will not be saved");
-        }
-        
-        return retval;
+        return Utils.saveKualiTest(this, repositoryLocation, platform, header, testOperations);
     }
 
     /**

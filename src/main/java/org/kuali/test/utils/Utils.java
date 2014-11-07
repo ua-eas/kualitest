@@ -19,6 +19,7 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -59,8 +60,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -69,6 +72,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -94,6 +98,7 @@ import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Parameter;
 import org.kuali.test.ParentTagMatch;
 import org.kuali.test.Platform;
+import org.kuali.test.PlatformTests;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.RequestParameter;
 import org.kuali.test.SuiteTest;
@@ -104,6 +109,8 @@ import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperations;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.ValueType;
@@ -111,6 +118,7 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.HtmlTagHandler;
+import org.kuali.test.ui.utils.UIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -3624,4 +3632,69 @@ public class Utils {
         
         return retval;
     }
+
+    /**
+     * 
+     * @param parent
+     * @param repositoryLocation
+     * @param platform
+     * @param testHeader
+     * @param testOperations
+     * @return 
+     */
+    public static boolean saveKualiTest(JComponent parent, String repositoryLocation, Platform platform, TestHeader testHeader, List <TestOperation> testOperations) {
+        boolean retval = false;
+        KualiTestDocument.KualiTest test = KualiTestDocument.KualiTest.Factory.newInstance();
+        testHeader.setDateCreated(Calendar.getInstance());
+        TestOperations ops = test.addNewOperations();
+        if ((testOperations != null) && !testOperations.isEmpty()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("testOperations.size(): " + testOperations.size());
+            }
+            
+            ops.setOperationArray(testOperations.toArray(new TestOperation[testOperations.size()]));
+
+            File f = Utils.buildTestFile(repositoryLocation, testHeader);
+            
+            if (!f.getParentFile().exists()) {
+                try {
+                    FileUtils.forceMkdir(f.getParentFile());
+                } 
+                
+                catch (IOException ex) {
+                    UIUtils.showError(parent, "Error creating test file", "An error occured while attempting to create test file parent directory - " + ex.toString());
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+
+            if (f.getParentFile().exists()) {
+                testHeader.setTestFileName(Utils.buildTestFileName(Constants.REPOSITORY_ROOT_REPLACE, testHeader));
+                PlatformTests platformTests = platform.getPlatformTests();
+                if (platform.getPlatformTests() == null) {
+                    platformTests = platform.addNewPlatformTests();
+                }
+                
+                KualiTestDocument doc = KualiTestDocument.Factory.newInstance();
+                doc.setKualiTest(test);
+                
+                try {
+                    doc.save(f, Utils.getSaveXmlOptions());
+                    platformTests.addNewTestHeader();
+                    platformTests.setTestHeaderArray(platformTests.getTestHeaderArray().length-1, testHeader);
+                    retval = true;
+                    
+                } 
+                
+                catch (IOException ex) {
+                    UIUtils.showError(parent, "Error creating test file", "An error occured while attempting to create test file - " + ex.toString());
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(parent, "No test operations - test will not be saved");
+        }
+        
+        return retval;
+    }
+
 }

@@ -73,6 +73,7 @@ import org.kuali.test.ui.components.dialogs.CreateTestDlg;
 import org.kuali.test.ui.components.dialogs.DatabaseDlg;
 import org.kuali.test.ui.components.dialogs.EmailDlg;
 import org.kuali.test.ui.components.dialogs.EncryptionRequiredParameterNamesDlg;
+import org.kuali.test.ui.components.dialogs.ImportPlatformTestsDlg;
 import org.kuali.test.ui.components.dialogs.JmxDlg;
 import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
@@ -785,6 +786,19 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      *
      * @param actionNode
      */
+    public void handleImportPlatformTests(DefaultMutableTreeNode actionNode) {
+        ImportPlatformTestsDlg dlg = new ImportPlatformTestsDlg(this, (Platform)actionNode.getUserObject());
+        
+        if (dlg.isSaved()) {
+            JOptionPane.showMessageDialog(this, "Successfully imported " + dlg.getImportedTestCount() + " tests");
+           getPlatformTestsPanel().populateList((Platform)actionNode.getUserObject());
+        }
+    }
+
+    /**
+     *
+     * @param actionNode
+     */
     public void handleRemoveTest(DefaultMutableTreeNode actionNode) {
         SuiteTest suiteTest = (SuiteTest) actionNode.getUserObject();
         if (UIUtils.promptForDelete(this, "Remove Test",
@@ -1123,9 +1137,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         saveConfigurationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                testRepositoryTree.saveConfiguration();
-                saveConfigurationButton.setEnabled(false);
-                saveConfigurationMenuItem.setEnabled(false);
+                handleSaveConfiguration();
             }
         });
 
@@ -1200,5 +1212,11 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void stopSpinner() {
         spinner.stopSpinner();
+    }
+    
+    public void handleSaveConfiguration() {
+        testRepositoryTree.saveConfiguration();
+        saveConfigurationButton.setEnabled(false);
+        saveConfigurationMenuItem.setEnabled(false);
     }
 }
