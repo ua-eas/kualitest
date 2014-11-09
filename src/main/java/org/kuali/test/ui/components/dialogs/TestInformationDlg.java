@@ -18,23 +18,31 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.TestOperationsPanel;
+import org.kuali.test.ui.utils.DataDisplayLabel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -45,6 +53,9 @@ import org.kuali.test.utils.Utils;
  */
 public class TestInformationDlg extends BaseSetupDlg {
     private TestHeader testHeader;
+    private JCheckBox useTestEntryTimes;
+    private IntegerTextField maxExecutionTime;
+    private JComboBox failureActions;
     
     /**
      * Creates new form TestInformationDlg
@@ -77,7 +88,8 @@ public class TestInformationDlg extends BaseSetupDlg {
             "Test Type",
             "Test File Name",
             "Max Run Time (sec)",
-            "On Max Time Failure"
+            "On Max Time Failure",
+            ""
         };
 
         File f = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
@@ -87,24 +99,57 @@ public class TestInformationDlg extends BaseSetupDlg {
         nm.append(Constants.FORWARD_SLASH);
         nm.append(f.getName());
         
-        String maxTime = "";
-        if (testHeader.getMaxRunTime() > 0) {
-            maxTime = ("" + testHeader.getMaxRunTime());
-        }
-        
-        String failureAction = "";
+        failureActions = new JComboBox(Utils.getXmlEnumerations(FailureAction.class, true));
+        failureActions.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                testUpdated();
+            }
+        });
 
         if (testHeader.getOnRuntimeFailure() != null) {
-            failureAction = testHeader.getOnRuntimeFailure().toString();
+            failureActions.setSelectedItem(testHeader.getOnRuntimeFailure().toString());
+        }
+        
+        useTestEntryTimes = new JCheckBox("Use test entry times during test execution");
+        useTestEntryTimes.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                testUpdated();
+            }
+        });
+        
+        maxExecutionTime = new IntegerTextField();
+        maxExecutionTime.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+        });
+
+        if (testHeader.getMaxRunTime() > 0) {
+            maxExecutionTime.setInt(testHeader.getMaxRunTime());
         }
         
         JComponent[] components = new JComponent[] {
-            new JLabel(Utils.getLabelDataDisplay(testHeader.getPlatformName())),
-            new JLabel(Utils.getLabelDataDisplay(testHeader.getTestName())),
-            new JLabel(Utils.getLabelDataDisplay(testHeader.getTestType().toString())),
-            new JLabel(Utils.getLabelDataDisplay(nm.toString())),
-            new JLabel(Utils.getLabelDataDisplay(maxTime)),
-            new JLabel(Utils.getLabelDataDisplay(failureAction))
+            new DataDisplayLabel(testHeader.getPlatformName()),
+            new DataDisplayLabel(testHeader.getTestName()),
+            new DataDisplayLabel(testHeader.getTestType().toString()),
+            new DataDisplayLabel(nm.toString()),
+            maxExecutionTime,
+            failureActions,
+            useTestEntryTimes
         };
 
         JTabbedPane tabs = new JTabbedPane();
@@ -123,11 +168,9 @@ public class TestInformationDlg extends BaseSetupDlg {
 
         getContentPane().add(tabs, BorderLayout.CENTER);
         addStandardButtons();
-        
-        getSaveButton().setVisible(false);
-        
         setDefaultBehavior();
         
+        getSaveButton().setEnabled(false);
     }
 
     @Override
@@ -135,6 +178,11 @@ public class TestInformationDlg extends BaseSetupDlg {
         return true;
     }
     
+    private void testUpdated() {
+        if (getSaveButton() != null) {
+            getSaveButton().setEnabled(true);
+        }
+    }
     
     /**
      *
@@ -143,6 +191,15 @@ public class TestInformationDlg extends BaseSetupDlg {
     @Override
     protected String getCancelText() {
         return Constants.CLOSE_ACTION;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    @Override
+    protected String getSaveText() {
+        return Constants.UPDATE_ACTION;
     }
     
     private List <TestOperation> getTestOperations() {

@@ -142,6 +142,7 @@ public class Constants {
     public static final String CLOSE_ACTION = "Close";
     public static final String CONTINUE_ACTION = "Continue";
     public static final String START_TEST_ACTION = "Start";
+    public static final String UPDATE_ACTION = "Update";
     public static final String SELECT_ACTION = "Select";
     public static final String CANCEL_TEST_ACTION = "Cancel";
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";

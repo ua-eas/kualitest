@@ -62,7 +62,6 @@ import javax.mail.internet.MimeMultipart;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.xml.transform.OutputKeys;
@@ -2128,28 +2127,6 @@ public class Utils {
         return style.replace("^", data);
     }
 
-    /**
-     * 
-     * @param input
-     * @param width
-     * @return 
-     */
-    public static String getLabelDataDisplay(String input) {
-        StringBuilder retval = new StringBuilder(128);
-        retval.append("<html><span style='font-weight: normal; height: ");
-        retval.append(new JLabel().getPreferredSize().height + 2);
-        retval.append("px;'>");
-        if (StringUtils.isBlank(input)) {
-            retval.append("&nbsp;");
-        } else {
-            retval.append(input);
-        }
-        retval.append("</span></html>");
-        
-        return retval.toString();
-    }
-
-    
     /**
      *
      * @param cal

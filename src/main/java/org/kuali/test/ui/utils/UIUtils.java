@@ -21,7 +21,6 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Window;
-import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -165,13 +164,10 @@ public class UIUtils {
      * @return
      */
     public static JPanel buildComponentGridPanel(JComponent[] components) {
-        Box right = Box.createVerticalBox();
-        JPanel retval = new JPanel();
+        JPanel retval = new JPanel(new GridLayout(components.length, 1, 1, 1));
         for (JComponent c : components) {
-            right.add(wrapPanel(c));
+           retval.add(wrapPanel(c));
         }
-        
-        retval.add(right);
         
         return retval;
     }
