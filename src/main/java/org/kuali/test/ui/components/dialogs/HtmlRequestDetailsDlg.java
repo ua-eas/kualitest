@@ -23,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -35,8 +36,10 @@ import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.ui.utils.DataDisplayLabel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.UpdateableNameValuePair;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -45,6 +48,8 @@ import org.kuali.test.utils.Utils;
  */
 public class HtmlRequestDetailsDlg extends BaseSetupDlg {
     private static final Logger LOG = Logger.getLogger(HtmlRequestDetailsDlg.class);
+    private List <NameValuePair> urlParameters = new ArrayList<NameValuePair>();
+
     /**
      * 
      * @param mainFrame
@@ -73,17 +78,52 @@ public class HtmlRequestDetailsDlg extends BaseSetupDlg {
             url = url.substring(0, pos);
         }
         
-        JLabel l1 = new JLabel(htmlRequestOperation.getMethod());
-        JLabel l2 = new JLabel(url);
-        
-        JComponent[] components = {l1, l2};
+        JComponent[] components = {
+            new DataDisplayLabel(htmlRequestOperation.getMethod()), 
+            new DataDisplayLabel(url)
+        };
 
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-        getContentPane().add(new TablePanel(getParametersTable(htmlRequestOperation, urlparams)), BorderLayout.CENTER);
+        
+        if (StringUtils.isNotBlank(urlparams)) {
+            try {
+                List <NameValuePair> l = Utils.getNameValuePairsFromUrlEncodedParams(urlparams);
+                for (NameValuePair p : l) {
+                    urlParameters.add(new UpdateableNameValuePair(p));
+                }
+            } 
+            
+            catch (UnsupportedEncodingException ex) {
+                LOG.warn(ex.toString(), ex);
+            }
+        }
+        
+        RequestParameter param = Utils.getContentParameter(htmlRequestOperation);
+        
+        if (param != null) {
+            List <NameValuePair> l = null;
+            
+            if (Utils.isMultipart(htmlRequestOperation)) {
+                l = Utils.getNameValuePairsFromMultipartParams(param.getValue());
+            } else {
+                try {
+                    l = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
+                } catch (UnsupportedEncodingException ex) {
+                    LOG.warn(ex.toString(), ex);
+                }
+            }
+            
+            if (l != null) {
+                for (NameValuePair p : l) {
+                    urlParameters.add(new UpdateableNameValuePair(p));
+                }
+            }
+        }
+        
+        getContentPane().add(new TablePanel(getParametersTable(htmlRequestOperation)), BorderLayout.CENTER);
 
         addStandardButtons();
-        getSaveButton().setVisible(false);
         setDefaultBehavior();
     }
 
@@ -97,7 +137,7 @@ public class HtmlRequestDetailsDlg extends BaseSetupDlg {
         return Constants.CLOSE_ACTION;
     }
     
-    private BaseTable getParametersTable(HtmlRequestOperation htmlRequestOperation, String urlparams) {
+    private BaseTable getParametersTable(HtmlRequestOperation htmlRequestOperations) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-request-parameters-table");
         config.setDisplayName("Input Parameters");
@@ -107,30 +147,7 @@ public class HtmlRequestDetailsDlg extends BaseSetupDlg {
             alignment[i] = JLabel.LEFT;
         }
             
-        ArrayList <NameValuePair> l = new ArrayList<NameValuePair>();
-        if (StringUtils.isNotBlank(urlparams)) {
-            try {
-                l.addAll(Utils.getNameValuePairsFromUrlEncodedParams(urlparams));
-            } catch (UnsupportedEncodingException ex) {
-                LOG.warn(ex.toString(), ex);
-            }
-        }
-        
-        RequestParameter param = Utils.getContentParameter(htmlRequestOperation);
-        
-        if (param != null) {
-            if (Utils.isMultipart(htmlRequestOperation)) {
-                l.addAll(Utils.getNameValuePairsFromMultipartParams(param.getValue()));
-            } else {
-                try {
-                    l.addAll(Utils.getNameValuePairsFromUrlEncodedParams(param.getValue()));
-                } catch (UnsupportedEncodingException ex) {
-                    LOG.warn(ex.toString(), ex);
-                }
-            }
-        }
-
-        Collections.sort(l, new Comparator<NameValuePair>() {
+        Collections.sort(urlParameters, new Comparator<NameValuePair>() {
             @Override
             public int compare(NameValuePair o1, NameValuePair o2) {
                 return o1.getName().compareTo(o2.getName());
@@ -159,9 +176,22 @@ public class HtmlRequestDetailsDlg extends BaseSetupDlg {
             30
         });
 
-        config.setData(l);
+        config.setData(urlParameters);
         
-        return new BaseTable(config);
+        return new BaseTable(config) {
+            @Override
+             public boolean isCellEditable(int row, int column) {
+                 return (column == 1);
+             }
+
+            @Override
+            public void setValueAt(Object aValue, int row, int column) {
+                getSaveButton().setEnabled(true);
+                UpdateableNameValuePair nvp = (UpdateableNameValuePair)urlParameters.get(row);
+                nvp.setValue((String)aValue);
+                getModel().fireTableRowsUpdated(row, row);
+            }
+         };
     }
     
     @Override
@@ -184,11 +214,27 @@ public class HtmlRequestDetailsDlg extends BaseSetupDlg {
      */
     @Override
     protected boolean save() {
-        return false;
+        setSaved(true);
+        dispose();
+        return true;
     }
 
     @Override
     public boolean isResizable() {
         return true;
+    }
+
+    @Override
+    protected String getSaveText() {
+        return Constants.UPDATE_ACTION;
+    }
+
+    @Override
+    protected boolean getInitialSavedState() {
+        return false;
+    }
+
+    public List<NameValuePair> getUrlParameters() {
+        return urlParameters;
     }
 }

@@ -348,7 +348,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      *
      * @return
      */
-    protected JButton getSaveButton() {
+    public JButton getSaveButton() {
         return saveButton;
     }
     
@@ -356,7 +356,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
      *
      * @return
      */
-    protected JButton getCancelButton() {
+    public JButton getCancelButton() {
         return cancelButton;
     }
 

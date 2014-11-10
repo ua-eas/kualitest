@@ -18,16 +18,28 @@ package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.Arrays;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.kuali.test.Checkpoint;
+import org.kuali.test.ComparisonOperator;
+import org.kuali.test.FailureAction;
+import org.kuali.test.ValueType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.editors.ComboBoxCellEditor;
 import org.kuali.test.ui.components.panels.TablePanel;
+import org.kuali.test.ui.components.renderers.ComboBoxTableCellRenderer;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -36,6 +48,7 @@ import org.kuali.test.utils.Constants;
 public class CheckpointDetailsDlg extends BaseSetupDlg {
     private Checkpoint checkpoint;
     private BaseTable checkpointTable;
+    private JTextField checkpointName;
     
     /**
      * Creates new form CheckpointDetailsDlg
@@ -45,18 +58,45 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
      */
     public CheckpointDetailsDlg(TestCreator mainFrame, JDialog parentDlg, Checkpoint checkpoint) {
         super(mainFrame, parentDlg);
-        this.checkpoint = checkpoint;
+        this.checkpoint = (Checkpoint)checkpoint.copy();
         setTitle("Checkpoint Details");
 
         initComponents();
     }
 
     private void initComponents() {
-        getContentPane().add(new TablePanel(buildPropertiesTable(), 5), BorderLayout.NORTH);
-        getContentPane().add(new TablePanel(buildParametersTable()), BorderLayout.CENTER);
+        JPanel p = new JPanel(new BorderLayout());
+        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        
+        p2.add(new JLabel("Checkpoint Name:", JLabel.RIGHT));
+        p2.add(checkpointName = new JTextField(30));
+        checkpointName.setText(checkpoint.getName());
+        
+        checkpointName.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                getSaveButton().setEnabled(true);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                getSaveButton().setEnabled(true);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                getSaveButton().setEnabled(true);
+            }
+            
+        });
+        
+        p.add(p2, BorderLayout.NORTH);
+        p.add(new TablePanel(buildPropertiesTable()), BorderLayout.CENTER);
+        p.add(new TablePanel(buildParametersTable(), ), BorderLayout.SOUTH);
+        getContentPane().add(p, BorderLayout.CENTER);
         
         addStandardButtons();
-        getSaveButton().setVisible(false);
         setDefaultBehavior();
     }
 
@@ -68,6 +108,11 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
     @Override
     protected String getCancelText() {
         return Constants.CLOSE_ACTION;
+    }
+
+    @Override
+    protected String getSaveText() {
+        return Constants.UPDATE_ACTION;
     }
     
     private BaseTable buildParametersTable() {
@@ -107,7 +152,20 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
             config.setData(Arrays.asList(checkpoint.getInputParameters().getParameterArray()));
         }
         
-        return new BaseTable(config);
+        return new BaseTable(config) {
+            
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return (column == 1);
+            }
+
+            @Override
+            public void setValueAt(Object aValue, int row, int column) {
+                super.setValueAt(aValue, row, column);
+                getSaveButton().setEnabled(true);
+            }
+            
+        };
     }
     
 
@@ -168,7 +226,35 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
             config.setData(Arrays.asList(checkpoint.getCheckpointProperties().getCheckpointPropertyArray()));
         }
         
-        return new BaseTable(config);
+        BaseTable retval = new BaseTable(config) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return ((column == 2) || (column > 3));
+            }
+
+            @Override
+            public void setValueAt(Object aValue, int row, int column) {
+                super.setValueAt(aValue, row, column); 
+                getSaveButton().setEnabled(true);
+            }
+        };
+
+        String[] valueTypes = Utils.getXmlEnumerations(ValueType.class, true);
+        JComboBox cb = new JComboBox(valueTypes);
+        retval.getColumnModel().getColumn(2).setCellEditor(new ComboBoxCellEditor(cb));
+        retval.getColumnModel().getColumn(2).setCellRenderer(new ComboBoxTableCellRenderer(valueTypes));
+
+        String[] comparisonOperators = Utils.getXmlEnumerations(ComparisonOperator.class, true);
+        cb = new JComboBox(comparisonOperators);
+        retval.getColumnModel().getColumn(4).setCellEditor(new ComboBoxCellEditor(cb));
+        retval.getColumnModel().getColumn(4).setCellRenderer(new ComboBoxTableCellRenderer(comparisonOperators));
+
+        String[] failureActions = Utils.getXmlEnumerations(FailureAction.class, true);
+        cb = new JComboBox(failureActions);
+        retval.getColumnModel().getColumn(6).setCellEditor(new ComboBoxCellEditor(cb));
+        retval.getColumnModel().getColumn(6).setCellRenderer(new ComboBoxTableCellRenderer(failureActions));
+        
+        return retval;
     }
     
     @Override
@@ -191,11 +277,28 @@ public class CheckpointDetailsDlg extends BaseSetupDlg {
      */
     @Override
     protected boolean save() {
-        return false;
+        checkpoint.setName(checkpointName.getText());
+        setSaved(true);
+        dispose();
+        return true;
     }
 
     @Override
     public boolean isResizable() {
         return true;
+    }
+
+    @Override
+    protected boolean getInitialSavedState() {
+        return false;
+    }
+
+    public Checkpoint getCheckpoint() {
+        return checkpoint;
+    }
+
+    @Override
+    protected void handleOtherActions(String actionCommand) {
+        getSaveButton().setEnabled(true);
     }
 }

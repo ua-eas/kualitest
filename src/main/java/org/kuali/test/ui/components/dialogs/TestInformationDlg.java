@@ -77,7 +77,7 @@ public class TestInformationDlg extends BaseSetupDlg {
      */
     public TestInformationDlg(TestCreator mainFrame, JDialog parentDlg, TestHeader testHeader) {
         super(mainFrame, parentDlg);
-        this.testHeader = testHeader;
+        this.testHeader = (TestHeader)testHeader.copy();
         initComponents();
     }
 
@@ -162,6 +162,24 @@ public class TestInformationDlg extends BaseSetupDlg {
 
         p = new JPanel(new BorderLayout());
         JTextArea ta = new JTextArea(testHeader.getDescription());
+        ta.getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                testUpdated();
+            }
+        });
+        
         ta.setLineWrap(true);
         ta.setWrapStyleWord(true);
         tabs.add(new JScrollPane(ta), "Description");
@@ -169,8 +187,6 @@ public class TestInformationDlg extends BaseSetupDlg {
         getContentPane().add(tabs, BorderLayout.CENTER);
         addStandardButtons();
         setDefaultBehavior();
-        
-        getSaveButton().setEnabled(false);
     }
 
     @Override
@@ -178,8 +194,8 @@ public class TestInformationDlg extends BaseSetupDlg {
         return true;
     }
     
-    private void testUpdated() {
-        if (getSaveButton() != null) {
+    public void testUpdated() {
+        if ((getSaveButton() != null) && isVisible()){
             getSaveButton().setEnabled(true);
         }
     }
@@ -246,4 +262,11 @@ public class TestInformationDlg extends BaseSetupDlg {
     protected boolean save() {
         return false;
     }
+
+    @Override
+    protected boolean getInitialSavedState() {
+        return false;
+    }
+    
+    
 }

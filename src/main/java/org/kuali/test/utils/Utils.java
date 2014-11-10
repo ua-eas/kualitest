@@ -3682,4 +3682,20 @@ public class Utils {
         return retval;
     }
 
+    public static boolean isPost(HtmlRequestOperation op) {
+        return Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(op.getMethod());
+    }
+    
+    public static String updateUrlParameters(String url, List <NameValuePair> params) throws UnsupportedEncodingException {
+        StringBuilder retval = new StringBuilder(url.length());
+        
+        int pos = url.indexOf(Constants.SEPARATOR_QUESTION);
+        
+        if (pos > -1) {
+            retval.append(url.substring(0, pos+1));
+            retval.append(Utils.buildUrlEncodedParameterString(params));
+        }
+        
+        return retval.toString();
+    }
 }

@@ -53,8 +53,27 @@ public class SimpleInputDlg2 extends JDialog implements ActionListener {
      * @param labelTxt
      */
     public SimpleInputDlg2(JFrame frame, String labelTxt) {
+        this(frame, labelTxt, null);
+    }
+
+    /**
+     *
+     * @param frame
+     * @param labelTxt
+     */
+    public SimpleInputDlg2(JFrame frame, String labelTxt, String txt) {
         super(frame, true);
-        initComponents(labelTxt);
+        initComponents(labelTxt, txt);
+    }
+
+    /**
+     *
+     * @param dlg
+     * @param labelTxt
+     */
+    public SimpleInputDlg2(JDialog dlg, String labelTxt, String txt) {
+        super(dlg, true);
+        initComponents(labelTxt, txt);
     }
 
     /**
@@ -63,20 +82,22 @@ public class SimpleInputDlg2 extends JDialog implements ActionListener {
      * @param labelTxt
      */
     public SimpleInputDlg2(JDialog dlg, String labelTxt) {
-        super(dlg, true);
-        initComponents(labelTxt);
+        this(dlg, labelTxt, null);
     }
 
-    private void initComponents(String labelTxt) {
+    private void initComponents(String labelTxt, String txt) {
         setTitle(labelTxt);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(new JLabel(labelTxt + ":"), BorderLayout.NORTH);
-        value = new JTextArea(5, 40);
+        value = new JTextArea();
         value.setWrapStyleWord(true);
         value.setLineWrap(true);
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 1, 1));
-        p.add(new JScrollPane(value, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER));
-        getContentPane().add(p, BorderLayout.CENTER);
+        
+        if (StringUtils.isNotBlank(txt)) {
+            value.setText(txt);
+        }
+        
+        getContentPane().add(new JScrollPane(value, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
         addStandardButtons();
         setDefaultBehavior();
     }

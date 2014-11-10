@@ -16,33 +16,48 @@
 
 package org.kuali.test.ui.components.panels;
 
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+import org.kuali.test.Checkpoint;
+import org.kuali.test.CommentOperation;
+import org.kuali.test.HtmlRequestOperation;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
+import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.buttons.TableCellIconButton;
 import org.kuali.test.ui.components.dialogs.CheckpointDetailsDlg;
 import org.kuali.test.ui.components.dialogs.HtmlRequestDetailsDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDetailsDlg;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 
 public class TestOperationsPanel extends BasePanel {
+    private static final Logger LOG = Logger.getLogger(TestOperationsPanel.class);
     private BaseTable operationsTable;
-    public TestOperationsPanel(TestCreator mainframe, JDialog parentDialog, List <TestOperation> operations) {
+    private BaseSetupDlg parentDialog;
+    private List <TestOperation> operations;
+    public TestOperationsPanel(TestCreator mainframe, BaseSetupDlg parentDialog, List <TestOperation> operations) {
         super(mainframe);
-        add(createCheckpointTable(parentDialog, operations), BorderLayout.CENTER);
+        this.operations = operations;
+        this.parentDialog = parentDialog;
+        add(createCheckpointTable(), BorderLayout.CENTER);
     }
     
-    private TablePanel createCheckpointTable(final JDialog parentDialog, List <TestOperation> operations) {
+    private TablePanel createCheckpointTable() {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("test-operations-table");
         config.setDisplayName("Test Opertions");
@@ -92,7 +107,7 @@ public class TestOperationsPanel extends BasePanel {
             @Override
             public boolean isCellEditable(int row, int column) {
                 TestOperation op = (TestOperation)getRowData(row);
-                return ((column == 3) && !TestOperationType.COMMENT.equals(op.getOperationType()));
+                return (column == 3);
             }
 
             @Override
@@ -129,8 +144,6 @@ public class TestOperationsPanel extends BasePanel {
                 
                 return retval;
             }
-            
-            
         };
         
         final TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
@@ -143,17 +156,19 @@ public class TestOperationsPanel extends BasePanel {
                     
                     switch (op.getOperationType().intValue()) {
                         case TestOperationType.INT_CHECKPOINT:
-                            new CheckpointDetailsDlg(getMainframe(), parentDialog, op.getOperation().getCheckpointOperation());
+                            handleCheckpointDetails(b.getCurrentRow(), op.getOperation().getCheckpointOperation());
                             break;
                         case 
                             TestOperationType.INT_HTTP_REQUEST:
-                            new HtmlRequestDetailsDlg(getMainframe(), parentDialog, op.getOperation().getHtmlRequestOperation());
+                            handleHtmlRequestDetails(op.getOperation().getHtmlRequestOperation());
                             break;
                         case TestOperationType.INT_TEST_EXECUTION_PARAMETER:
                             new TestExecutionParameterDetailsDlg(getMainframe(), parentDialog, op.getOperation().getTestExecutionParameter());
                             break;
+                        case TestOperationType.INT_COMMENT:
+                            handleCommentDetails(b.getCurrentRow(), op.getOperation().getCommentOperation());
+                            break;
                     }
-                    
                 }
                 
                 b.stopCellEditing();
@@ -166,5 +181,50 @@ public class TestOperationsPanel extends BasePanel {
         operationsTable.getColumnModel().getColumn(3).setCellEditor(b);
         
         return new TablePanel(operationsTable);
+    }
+    
+    private void handleHtmlRequestDetails(HtmlRequestOperation htmlRequestOperation) {
+        HtmlRequestDetailsDlg dlg = new HtmlRequestDetailsDlg(getMainframe(), parentDialog, htmlRequestOperation);
+        if (dlg.isSaved()) {
+            List <NameValuePair> params = dlg.getUrlParameters();
+
+            try {
+                if (Utils.isPost(htmlRequestOperation)) {
+                    RequestParameter param = Utils.getContentParameter(htmlRequestOperation);
+                    if (Utils.isMultipart(htmlRequestOperation)) {
+                        param.setValue(Utils.buildMultipartParameterString(params));
+                    } else {
+                        param.setValue(Utils.buildUrlEncodedParameterString(params));
+                    }
+                } else {
+                    htmlRequestOperation.setUrl(Utils.updateUrlParameters(htmlRequestOperation.getUrl(), params));
+                }
+                
+                parentDialog.getSaveButton().setEnabled(true);
+            }
+            
+            catch (UnsupportedEncodingException ex) {
+                LOG.warn(ex.toString(), ex);
+            }
+        }
+    }
+    
+    private void handleCheckpointDetails(int indx, Checkpoint checkpointOperation) {
+        CheckpointDetailsDlg dlg = new CheckpointDetailsDlg(getMainframe(), parentDialog, checkpointOperation);
+        
+        if (dlg.isSaved()) {
+            operations.get(indx).getOperation().setCheckpointOperation(dlg.getCheckpoint());
+            operationsTable.getModel().fireTableRowsUpdated(indx, indx);
+        }
+    }
+
+    private void handleCommentDetails(int indx, CommentOperation commentOperation) {
+        SimpleInputDlg2 dlg = new SimpleInputDlg2(parentDialog, "Edit Comment", commentOperation.getComment());
+        String comment = dlg.getEnteredValue();
+        if (StringUtils.isNotBlank(comment)) {
+            commentOperation.setComment(comment);
+            parentDialog.getSaveButton().setEnabled(true);
+            operationsTable.getModel().fireTableRowsUpdated(indx, indx);
+        }
     }
 }
