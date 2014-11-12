@@ -105,7 +105,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
 
             @Override
             public Insets getInsets() {
-                return new Insets(0, 5, 0, 200);
+                return new Insets(1, 5, 1, 200);
             }
             
         };
@@ -128,6 +128,8 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         viewComments = new JMenuItem(Constants.VIEW_COMMENTS_ACTION);
         viewParameters = new JMenuItem(Constants.VIEW_PARAMETERS_ACTION);
 
+        setAdditionalMenuStates(false);
+        
         if (isStartTestRequired()) {
             menu.add(startTest);
             cancelTest.setEnabled(false);
@@ -225,15 +227,13 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
             handleStartTest();
-            saveTest.setEnabled(true);
             startTest.setEnabled(false);
-            cancelTest.setEnabled(true);
+            setAdditionalMenuStates(true);
         } else if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
             if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
                 "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
-                saveTest.setEnabled(false);
-                cancelTest.setEnabled(false);
+                setAdditionalMenuStates(false);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
@@ -365,4 +365,15 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     }
     
     protected abstract boolean isForCheckpoint();
+    
+    private void setAdditionalMenuStates(boolean enable) {
+        cancelTest.setEnabled(enable);
+        saveTest.setEnabled(enable);
+        createCheckpoint.setEnabled(enable);
+        createComment.setEnabled(enable);
+        createParameter.setEnabled(enable);
+        viewCheckpoints.setEnabled(enable);
+        viewComments.setEnabled(enable);
+        viewParameters.setEnabled(enable);
+    }
 }
