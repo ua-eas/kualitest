@@ -30,10 +30,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.xml.namespace.QName;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.client.ServiceClient;
@@ -60,7 +58,6 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
-import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -80,21 +77,23 @@ public class WebServicePanel extends BaseCreateTestPanel {
     private boolean forCheckpoint;
     
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
+     * @param testDescription 
      */
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
         this (mainframe, platform, testHeader, testDescription, false);
     }
     
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
-     * @param forCheckpoint
+     * @param testDescription
+     * @param forCheckpoint 
      */
     public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription, boolean forCheckpoint) {
         super(mainframe, platform, testHeader, testDescription);
@@ -102,20 +101,6 @@ public class WebServicePanel extends BaseCreateTestPanel {
         initComponents();
     }
 
-    /**
-     *
-     * @return
-     */
-    @Override
-    protected JToolBar createToolbar() {
-        if (forCheckpoint) {
-            handleStartTest();
-            return null;
-        } else {
-            return super.createToolbar();
-        }
-    }
-    
     private BaseTable createInputParametersTable() {
         TableConfiguration tc = new TableConfiguration();
         tc.setHeaders(new String[] {
@@ -620,10 +605,5 @@ public class WebServicePanel extends BaseCreateTestPanel {
         }
         
         return retval;
-    }
-    
-        @Override
-    protected void handleShowPopup(JPopupMenu popup) {
-        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }

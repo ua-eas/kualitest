@@ -141,10 +141,10 @@ public class Constants {
     public static final String CANCEL_ACTION = "Cancel";
     public static final String CLOSE_ACTION = "Close";
     public static final String CONTINUE_ACTION = "Continue";
-    public static final String START_TEST_ACTION = "Start";
+    public static final String START_TEST_ACTION = "Start Test";
     public static final String UPDATE_ACTION = "Update";
     public static final String SELECT_ACTION = "Select";
-    public static final String CANCEL_TEST_ACTION = "Cancel";
+    public static final String CANCEL_TEST_ACTION = "Cancel Test";
     public static final String CREATE_CHECKPOINT_ACTION = "Create Checkpoint";
     public static final String VIEW_CHECKPOINTS_ACTION = "View Checkpoints";
     public static final String CREATE_PARAMETER_ACTION = "Create Parameter";
@@ -156,7 +156,7 @@ public class Constants {
     public static final String COPY_ACTION = "Copy";
     public static final String DELETE_ACTION = "Delete";
     public static final String REFRESH_BROWSER_ACTION = "Refresh";
-    public static final String SAVE_TEST_ACTION = "Save";
+    public static final String SAVE_TEST_ACTION = "Save Test";
     public static final String NEW_BROWSER_TAB_DEFAULT_TEXT = "new browser tab...";
     public static final String SCHEDULE_TEST_ACTION = "Schedule Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";

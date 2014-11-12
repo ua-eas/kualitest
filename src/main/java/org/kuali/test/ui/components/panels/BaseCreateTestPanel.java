@@ -17,17 +17,15 @@
 package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JToolBar;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -41,8 +39,6 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.components.buttons.ToggleToolbarButton;
-import org.kuali.test.ui.components.buttons.ToolbarButton;
 import org.kuali.test.ui.components.dialogs.TestCheckpointsDlg;
 import org.kuali.test.ui.components.dialogs.TestCommentsDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParametersDlg;
@@ -59,17 +55,23 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     
     private final Platform platform;
     private final TestHeader testHeader;
-    private ToggleToolbarButton startTest;
-    private ToolbarButton operation;
-    private ToolbarButton saveTest;
-    private JPopupMenu popup;
     private String testDescription;
-
+    private JMenuItem startTest;
+    private JMenuItem cancelTest;
+    private JMenuItem saveTest;
+    private JMenuItem createCheckpoint;
+    private JMenuItem createComment;
+    private JMenuItem createParameter;
+    private JMenuItem viewCheckpoints;
+    private JMenuItem viewComments;
+    private JMenuItem viewParameters;
+    
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
+     * @param testDescription 
      */
     public BaseCreateTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
         super(mainframe);
@@ -77,67 +79,98 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         this.testHeader = testHeader;
         this.testDescription = testDescription;
     
-        popup = new JPopupMenu();
-            
         if (LOG.isDebugEnabled()) {
             LOG.debug("creating " + testHeader.getTestType() + " test for platform: " + platform.getName());
         }
     }
 
     protected void initComponents() {
-        JToolBar tb = createToolbar();
-        
-        if (tb != null) {
-            JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-            p.add(tb);
-            add(p, BorderLayout.NORTH);
+        add(createOperationPanel(), BorderLayout.NORTH);
+        if (!isStartTestRequired()) {
+            handleStartTest();
         }
     }
-    
+
     /**
      *
      * @return
      */
-    protected JToolBar createToolbar() {
-        JToolBar retval = new JToolBar();
-        retval.setFloatable(false);
+    protected JMenuBar createOperationPanel() {
+        JMenuBar retval = new JMenuBar();
         
-        if (isStartTestRequired()) {
-            startTest = new ToggleToolbarButton(Constants.START_TEST_ACTION, Constants.START_TEST_ICON);
-            startTest.addActionListener(this);
-            retval.add(startTest);
-        } else {
-            ToolbarButton tb = new ToolbarButton(Constants.CANCEL_TEST_ACTION, Constants.CANCEL_TEST_ICON);
-            tb.addActionListener(this);
-            retval.add(tb);
-        }
-        
-        retval.addSeparator();
-        
-        operation = new ToolbarButton(Constants.OPERATION_ACTION, Constants.CREATE_CHECKPOINT_ICON);
-        
-        operation.addActionListener(this);
-        operation.setEnabled(false);
-        retval.add(operation);
-        
-        List <JComponent> customButtons = getCustomButtons();
+        JMenu menu = new JMenu(Constants.OPERATION_ACTION) {
 
-        if (customButtons != null) {
-            for (JComponent tb : customButtons) {
-                retval.add(tb);
+            @Override
+            public Insets getInsets() {
+                return new Insets(0, 5, 0, 200);
             }
+            
+        };
+        
+        menu.setMnemonic('o');
+        
+        startTest = new JMenuItem(Constants.START_TEST_ACTION);
+        startTest.setMnemonic('s');
+        
+        cancelTest = new JMenuItem(Constants.CANCEL_TEST_ACTION);
+        cancelTest.setMnemonic('c');
+        
+        saveTest = new JMenuItem(Constants.SAVE_TEST_ACTION);
+        
+        createCheckpoint = new JMenuItem(Constants.CREATE_CHECKPOINT_ACTION);
+        createComment = new JMenuItem(Constants.CREATE_COMMENT_ACTION);
+        createParameter = new JMenuItem(Constants.CREATE_PARAMETER_ACTION);
+        
+        viewCheckpoints = new JMenuItem(Constants.VIEW_CHECKPOINTS_ACTION);
+        viewComments = new JMenuItem(Constants.VIEW_COMMENTS_ACTION);
+        viewParameters = new JMenuItem(Constants.VIEW_PARAMETERS_ACTION);
+
+        if (isStartTestRequired()) {
+            menu.add(startTest);
+            cancelTest.setEnabled(false);
         }
         
-        retval.addSeparator();
+        menu.add(cancelTest);
+        menu.add(saveTest);
         
-        saveTest = new ToolbarButton(Constants.SAVE_TEST_ACTION, Constants.SAVE_TEST_ICON);
+        menu.addSeparator();
+        
+        menu.add(createCheckpoint);
+        menu.add(createComment);
+        if (isParameterOperationRequired()) {
+            menu.add(createParameter);
+        }
+        
+        menu.addSeparator();
+        
+        menu.add(viewCheckpoints);
+        menu.add(viewComments);
+        if (isParameterOperationRequired()) {
+            menu.add(viewParameters);
+        }
+        
+        if (this.isStartTestRequired()) {
+            startTest.addActionListener(this);
+        }
+        cancelTest.addActionListener(this);
         saveTest.addActionListener(this);
-        saveTest.setEnabled(false);
-        retval.add(saveTest);
+        createCheckpoint.addActionListener(this);
+        createComment.addActionListener(this);
+        if (isParameterOperationRequired()) {
+            createParameter.addActionListener(this);
+        }
+        viewCheckpoints.addActionListener(this);
+        viewComments.addActionListener(this);
+        if (isParameterOperationRequired()) {
+            viewParameters.addActionListener(this);
+        }
 
+        
+        retval.add(menu);
+        
         StringBuilder txt = new StringBuilder(128);
         
-        txt.append("<html><span style='font-weight: 700;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Platform: </span><span style='color: ");
+        txt.append("<html><span style='font-weight: 700;'>Platform: </span><span style='color: ");
         txt.append(Constants.COLOR_DARK_BLUE);
         txt.append(";  font-weight: normal;'>");
         txt.append(platform.getName());
@@ -189,25 +222,16 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     public void actionPerformed(ActionEvent e) {
         if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
             handleStartTest();
-            startTest.setText(Constants.CANCEL_TEST_ACTION);
-            startTest.setIcon(Constants.CANCEL_TEST_ICON);
-            startTest.setActionCommand(Constants.CANCEL_TEST_ACTION);
-            operation.setEnabled(true);
             saveTest.setEnabled(true);
+            startTest.setEnabled(false);
+            cancelTest.setEnabled(true);
         } else if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
             if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
                 "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
-                if (startTest != null) {
-                    startTest.setText(Constants.START_TEST_ACTION);
-                    startTest.setIcon(Constants.START_TEST_ICON);
-                    startTest.setActionCommand(Constants.START_TEST_ACTION);
-                    operation.setEnabled(false);
-                    saveTest.setEnabled(false);
-                }
+                saveTest.setEnabled(false);
+                cancelTest.setEnabled(false);
             }
-        } else if (e.getActionCommand().equals(Constants.OPERATION_ACTION)) {
-            showPopup();
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.VIEW_CHECKPOINTS_ACTION)) {
@@ -229,40 +253,22 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         }
     }
 
-    protected abstract void handleShowPopup(JPopupMenu popup);
-    
     /**
      *
      * @return
      */
-    public ToggleToolbarButton getStartTest() {
+    public JMenuItem getStartTest() {
         return startTest;
     }
 
     /**
      *
-     * @param startTest
-     */
-    public void setStartTest(ToggleToolbarButton startTest) {
-        this.startTest = startTest;
-    }
-
-    /**
-     *
      * @return
      */
-    public ToolbarButton getSaveTest() {
+    public JMenuItem getSaveTest() {
         return saveTest;
     }
 
-    /**
-     *
-     * @param saveTest
-     */
-    public void setSaveTest(ToolbarButton saveTest) {
-        this.saveTest = saveTest;
-    }
-    
     /**
      *
      * @param repositoryLocation
@@ -274,14 +280,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         return Utils.saveKualiTest(this, repositoryLocation, platform, header, testOperations, testDescription);
     }
 
-    /**
-     *
-     */
     protected void setInitialButtonState() {
-        startTest.setSelected(false);
-        startTest.setText(Constants.START_TEST_ACTION);
-        startTest.setIcon(Constants.START_TEST_ICON);
-        operation.setEnabled(false);
         saveTest.setEnabled(false);
     }
 
@@ -290,6 +289,12 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @return
      */
     protected boolean isStartTestRequired() { return false; }
+
+    /**
+     *
+     * @return
+     */
+    protected boolean isParameterOperationRequired() { return false; }
 
     protected abstract void handleStartTest();
     protected abstract void handleCancelTest();
@@ -354,25 +359,5 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         CommentOperation cop = op.addNewCommentOperation();
         cop.setComment(comment);
         testOperations.add(testOp);
-    }
-
-    public ToolbarButton getOperation() {
-        return operation;
-    }
-    
-    private void showPopup() {
-        popup.removeAll();
-        JMenuItem mi;
-        popup.add(mi = new JMenuItem(Constants.CREATE_CHECKPOINT_ACTION));
-        mi.addActionListener(this);
-        popup.add(mi = new JMenuItem(Constants.VIEW_CHECKPOINTS_ACTION));
-        mi.addActionListener(this);
-        popup.addSeparator();
-        popup.add(mi = new JMenuItem(Constants.CREATE_COMMENT_ACTION));
-        mi.addActionListener(this);
-        popup.add(mi = new JMenuItem(Constants.VIEW_COMMENTS_ACTION));
-        mi.addActionListener(this);
-        
-        handleShowPopup(popup);
     }
 }

@@ -26,8 +26,6 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -84,7 +82,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected void initComponents() {
         super.initComponents();
-        getStartTest().setEnabled(false);
         addContainerListener(this);
         tabbedPane = new JTabbedPane();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -460,13 +457,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     @Override
-    protected void handleShowPopup(JPopupMenu popup) {
-        popup.addSeparator();
-        JMenuItem mi;
-        popup.add(mi = new JMenuItem(Constants.CREATE_PARAMETER_ACTION));
-        mi.addActionListener(this);
-        popup.add(mi = new JMenuItem(Constants.VIEW_PARAMETERS_ACTION));
-        mi.addActionListener(this);
-        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
+    protected boolean isParameterOperationRequired() {
+        return true;
     }
+
+    
 }

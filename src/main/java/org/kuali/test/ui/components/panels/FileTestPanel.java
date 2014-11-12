@@ -27,9 +27,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
-import javax.swing.JToolBar;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -42,7 +40,7 @@ import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.components.buttons.FileSearchButton;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.utils.UIUtils;
-import  org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Constants;
 
 /**
  *
@@ -59,21 +57,23 @@ public class FileTestPanel extends BaseCreateTestPanel {
     private boolean forCheckpoint;
 
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
+     * @param testDescription 
      */
     public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
         this(mainframe, platform, testHeader, testDescription, false);
     }
 
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
-     * @param forCheckpoint
+     * @param testDescription
+     * @param forCheckpoint 
      */
     public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription, boolean forCheckpoint) {
         super(mainframe, platform, testHeader, testDescription);
@@ -81,19 +81,7 @@ public class FileTestPanel extends BaseCreateTestPanel {
         initComponents();
     }
 
-    /**
-     *
-     * @return
-     */
     @Override
-    protected JToolBar createToolbar() {
-        if (forCheckpoint) {
-            return null;
-        } else {
-            return super.createToolbar();
-        }
-    }
-
     protected void initComponents() {
         super.initComponents();
         
@@ -132,10 +120,6 @@ public class FileTestPanel extends BaseCreateTestPanel {
         p.add(UIUtils.buildEntryPanel(labels.toArray(new String[labels.size()]), 
             components.toArray(new JComponent[components.size()])), BorderLayout.NORTH);
         add(p, BorderLayout.CENTER);
-        
-        if (!forCheckpoint) {
-            getOperation().setEnabled(true);
-        }
     }
 
     /**
@@ -379,10 +363,5 @@ public class FileTestPanel extends BaseCreateTestPanel {
         }
         
         return retval;
-    }
-
-    @Override
-    protected void handleShowPopup(JPopupMenu popup) {
-        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }

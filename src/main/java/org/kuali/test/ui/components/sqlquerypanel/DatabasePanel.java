@@ -38,10 +38,8 @@ import java.util.StringTokenizer;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JToolBar;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.commons.lang3.StringUtils;
@@ -110,6 +108,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
      * @param mainframe
      * @param platform
      * @param testHeader
+     * @param testDescription
      * @param forCheckpoint
      * @param testProxyServer 
      */
@@ -123,31 +122,16 @@ public class DatabasePanel extends BaseCreateTestPanel  {
     }
 
     /**
-     *
+     * 
      * @param mainframe
      * @param platform
      * @param testHeader
+     * @param testDescription 
      */
     public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
         this(mainframe, platform, testHeader, testDescription, false, null);
     }
     
-    /**
-     *
-     * @return
-     */
-    @Override
-    protected JToolBar createToolbar() {
-        if (!forCheckpoint) {
-            return super.createToolbar();
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     *
-     */
     @Override
     protected void initComponents() {
         super.initComponents();
@@ -1246,9 +1230,6 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                                 UIUtils.showError(getMainframe(), "Error loading table relationships", "An error occured while loading table relationships - " + result.toString());
                             } else {
                                 DefaultMutableTreeNode rootNode = sqlQueryTree.getRootNode();
-                                if (getOperation() != null) {
-                                    getOperation().setEnabled(rootNode.getChildCount() > 0);
-                                }
                                 sqlQueryTree.getModel().nodeStructureChanged(rootNode);
                                 sqlQueryTree.expandNode(rootNode, 1);
                                 sqlSelectPanel.clear();
@@ -1379,10 +1360,5 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         }
         
         return retval;
-    }
-
-    @Override
-    protected void handleShowPopup(JPopupMenu popup) {
-        popup.show(this, Constants.TEST_OPERATION_POPUP_X, Constants.TEST_OPERATION_POPUP_Y);
     }
 }
