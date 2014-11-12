@@ -3626,6 +3626,7 @@ public class Utils {
      * @param platform
      * @param testHeader
      * @param testOperations
+     * @param testDescription
      * @return 
      */
     public static boolean saveKualiTest(JComponent parent, String repositoryLocation, Platform platform, 
@@ -3656,25 +3657,49 @@ public class Utils {
 
             if (f.getParentFile().exists()) {
                 testHeader.setTestFileName(Utils.buildTestFileName(Constants.REPOSITORY_ROOT_REPLACE, testHeader));
+                
                 PlatformTests platformTests = platform.getPlatformTests();
                 if (platform.getPlatformTests() == null) {
                     platformTests = platform.addNewPlatformTests();
-                }
+                } 
                 
                 KualiTestDocument doc = KualiTestDocument.Factory.newInstance();
                 doc.setKualiTest(test);
                 PrintWriter pw = null;
                 try {
                     doc.save(f, Utils.getSaveXmlOptions());
-                    platformTests.addNewTestHeader();
                     
+                    boolean existingTest = false;
+                    TestHeader[] testHeaders = platformTests.getTestHeaderArray();
+                    for (int i = 0; i < testHeaders.length; ++i) {
+                        if (testHeaders[i].getTestName().equals(testHeader.getTestName())) {
+                            platformTests.setTestHeaderArray(i, testHeader);
+                            existingTest = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!existingTest) {
+                        platformTests.addNewTestHeader();
+                        platformTests.setTestHeaderArray(platformTests.getTestHeaderArray().length-1, testHeader);
+                    } else if (platform.getTestSuites() != null) {
+                        for (TestSuite testSuite : platform.getTestSuites().getTestSuiteArray()) {
+                            if (testSuite.getSuiteTests() != null) {
+                                for (SuiteTest suiteTest : testSuite.getSuiteTests().getSuiteTestArray()) {
+                                    if (suiteTest.getTestHeader().getTestName().equals(testHeader.getTestName())) {
+                                        suiteTest.setTestHeader(testHeader);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // save the description
                     pw = new PrintWriter(f.getPath().substring(0, f.getPath().lastIndexOf(".") + 1) + "txt");
                     pw.print(testDescription);
-                    
-                    platformTests.setTestHeaderArray(platformTests.getTestHeaderArray().length-1, testHeader);
+
                     retval = true;
-                    
                 } 
                 
                 catch (IOException ex) {
