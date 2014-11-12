@@ -56,6 +56,8 @@ public class TestInformationDlg extends BaseSetupDlg {
     private JCheckBox useTestEntryTimes;
     private IntegerTextField maxExecutionTime;
     private JComboBox failureActions;
+    private TestOperationsPanel testOperationsPanel;
+    private JTextArea testDescription;
     
     /**
      * Creates new form TestInformationDlg
@@ -64,7 +66,7 @@ public class TestInformationDlg extends BaseSetupDlg {
      */
     public TestInformationDlg(TestCreator mainFrame, TestHeader testHeader) {
         super(mainFrame);
-        this.testHeader = testHeader;
+        this.testHeader = (TestHeader)testHeader.copy();
         setTitle("Test Information");
         initComponents();
     }
@@ -112,6 +114,7 @@ public class TestInformationDlg extends BaseSetupDlg {
         }
         
         useTestEntryTimes = new JCheckBox("Use test entry times during test execution");
+        useTestEntryTimes.setSelected(testHeader.getUseTestEntryTimes());
         useTestEntryTimes.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -156,13 +159,13 @@ public class TestInformationDlg extends BaseSetupDlg {
         
         JPanel p = new JPanel(new BorderLayout());
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-        p.add(new TestOperationsPanel(getMainframe(), this, getTestOperations()), BorderLayout.CENTER);
+        p.add(testOperationsPanel = new TestOperationsPanel(getMainframe(), this, getTestOperations()), BorderLayout.CENTER);
 
         tabs.add(p, "Details");
 
         p = new JPanel(new BorderLayout());
-        JTextArea ta = new JTextArea(Utils.getTestDescription(f));
-        ta.getDocument().addDocumentListener(new DocumentListener() {
+        testDescription = new JTextArea(Utils.getTestDescription(f));
+        testDescription.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -180,9 +183,9 @@ public class TestInformationDlg extends BaseSetupDlg {
             }
         });
         
-        ta.setLineWrap(true);
-        ta.setWrapStyleWord(true);
-        tabs.add(new JScrollPane(ta), "Description");
+        testDescription.setLineWrap(true);
+        testDescription.setWrapStyleWord(true);
+        tabs.add(new JScrollPane(testDescription), "Description");
 
         getContentPane().add(tabs, BorderLayout.CENTER);
         addStandardButtons();
@@ -260,7 +263,12 @@ public class TestInformationDlg extends BaseSetupDlg {
      */
     @Override
     protected boolean save() {
-        return false;
+        setSaved(true);
+        testHeader.setMaxRunTime(maxExecutionTime.getInt());
+        testHeader.setOnRuntimeFailure(FailureAction.Enum.forString(failureActions.getSelectedItem().toString()));
+        testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
+        dispose();
+        return true;
     }
 
     @Override
@@ -268,5 +276,15 @@ public class TestInformationDlg extends BaseSetupDlg {
         return false;
     }
     
+    public List<TestOperation> getOperations() {
+        return testOperationsPanel.getOperations();
+    }
+
+    public TestHeader getTestHeader() {
+        return testHeader;
+    }
     
+    public String getTestDescription() {
+        return testDescription.getText();
+    }
 }
