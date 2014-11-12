@@ -161,7 +161,7 @@ public class TestInformationDlg extends BaseSetupDlg {
         tabs.add(p, "Details");
 
         p = new JPanel(new BorderLayout());
-        JTextArea ta = new JTextArea(testHeader.getDescription());
+        JTextArea ta = new JTextArea(Utils.getTestDescription(f));
         ta.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override

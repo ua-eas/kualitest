@@ -235,8 +235,10 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
                         importOperation(sourcePlatform, newop);
                         operations.add(newop);
                     }
+                    
+                    String testDescription = Utils.getTestDescription(Utils.buildTestFile(getMainframe().getConfiguration().getRepositoryLocation(), testHeader));
                 
-                    if (Utils.saveKualiTest(getSaveButton(), getMainframe().getConfiguration().getRepositoryLocation(), targetPlatform, testHeader, operations)) {
+                    if (Utils.saveKualiTest(getSaveButton(), getMainframe().getConfiguration().getRepositoryLocation(), targetPlatform, testHeader, operations, testDescription)) {
                         importedTestCount++;
                         progressBar.setValue(importedTestCount);
                     }

@@ -86,7 +86,7 @@ public class WebServiceCheckPointDlg extends BaseCheckpointDlg {
     private void initComponents() {
         if (wsPanel == null) {
             wsPanel = new WebServicePanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
-                testHeader.getPlatformName()), testHeader, true);
+                testHeader.getPlatformName()), testHeader, null, true);
             getContentPane().add(getCheckpointPanel(), BorderLayout.NORTH);
             getContentPane().add(wsPanel, BorderLayout.CENTER);
         } else {

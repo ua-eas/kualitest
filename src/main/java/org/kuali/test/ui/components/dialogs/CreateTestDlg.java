@@ -216,7 +216,6 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader = TestHeader.Factory.newInstance();
                 testHeader.setTestName(testName.getText());
                 testHeader.setTestType(TestType.Enum.forString((String)testType.getSelectedItem()));
-                testHeader.setDescription(description.getText());
                 testHeader.setDateCreated(Calendar.getInstance());
                 testHeader.setPlatformName((String)platforms.getSelectedItem());
                 testHeader.setTestSuiteName(Constants.NO_TEST_SUITE_NAME);
@@ -297,5 +296,9 @@ public class CreateTestDlg extends BaseSetupDlg {
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(600, 450);
+    }
+    
+    public String getDescription() {
+        return description.getText();
     }
 }

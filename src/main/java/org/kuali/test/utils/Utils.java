@@ -20,6 +20,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -3627,7 +3628,8 @@ public class Utils {
      * @param testOperations
      * @return 
      */
-    public static boolean saveKualiTest(JComponent parent, String repositoryLocation, Platform platform, TestHeader testHeader, List <TestOperation> testOperations) {
+    public static boolean saveKualiTest(JComponent parent, String repositoryLocation, Platform platform, 
+        TestHeader testHeader, List <TestOperation> testOperations, String testDescription) {
         boolean retval = false;
         KualiTestDocument.KualiTest test = KualiTestDocument.KualiTest.Factory.newInstance();
         testHeader.setDateCreated(Calendar.getInstance());
@@ -3661,10 +3663,15 @@ public class Utils {
                 
                 KualiTestDocument doc = KualiTestDocument.Factory.newInstance();
                 doc.setKualiTest(test);
-                
+                PrintWriter pw = null;
                 try {
                     doc.save(f, Utils.getSaveXmlOptions());
                     platformTests.addNewTestHeader();
+                    
+                    // save the description
+                    pw = new PrintWriter(f.getPath().substring(0, f.getPath().lastIndexOf(".") + 1) + "txt");
+                    pw.print(testDescription);
+                    
                     platformTests.setTestHeaderArray(platformTests.getTestHeaderArray().length-1, testHeader);
                     retval = true;
                     
@@ -3673,6 +3680,16 @@ public class Utils {
                 catch (IOException ex) {
                     UIUtils.showError(parent, "Error creating test file", "An error occured while attempting to create test file - " + ex.toString());
                     LOG.error(ex.toString(), ex);
+                }
+                
+                finally {
+                    try {
+                        if (pw != null) {
+                            pw.close();
+                        }
+                    }
+                    
+                    catch (Exception ex) {}
                 }
             }
         } else {
@@ -3697,5 +3714,34 @@ public class Utils {
         }
         
         return retval.toString();
+    }
+    
+    public static String getTestDescription(File testFile) {
+        String retval = null;
+        
+        FileInputStream fis = null;
+        
+        try {
+            File f = new File(testFile.getPath().substring(0, testFile.getPath().lastIndexOf(".") + 1) + "txt");
+            byte[] buf = new byte[(int)f.length()];
+            fis = new FileInputStream(f);
+            fis.read(buf);
+            retval = new String(buf);
+        }
+        
+        catch (Exception ex) {
+            LOG.warn(ex.toString(), ex);
+        }
+        
+        finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            }
+                
+            catch (Exception ex) {};
+        }
+        return retval;
     }
 }

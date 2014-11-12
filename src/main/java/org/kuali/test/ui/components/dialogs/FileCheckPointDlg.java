@@ -80,7 +80,7 @@ public class FileCheckPointDlg extends BaseCheckpointDlg {
         if (filePanel == null) {
             getContentPane().add(getCheckpointPanel(), BorderLayout.NORTH);
             filePanel = new FileTestPanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
-                testHeader.getPlatformName()), testHeader, true);
+                testHeader.getPlatformName()), testHeader, null, true);
             getContentPane().add(filePanel, BorderLayout.CENTER);
         } else {
             getContentPane().add(getCheckpointPanel(), BorderLayout.CENTER);

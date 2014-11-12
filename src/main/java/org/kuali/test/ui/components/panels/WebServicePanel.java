@@ -85,8 +85,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
      * @param platform
      * @param testHeader
      */
-    public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
-        this (mainframe, platform, testHeader, false);
+    public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
+        this (mainframe, platform, testHeader, testDescription, false);
     }
     
     /**
@@ -96,8 +96,8 @@ public class WebServicePanel extends BaseCreateTestPanel {
      * @param testHeader
      * @param forCheckpoint
      */
-    public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
-        super(mainframe, platform, testHeader);
+    public WebServicePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription, boolean forCheckpoint) {
+        super(mainframe, platform, testHeader, testDescription);
         this.forCheckpoint = forCheckpoint;
         initComponents();
     }

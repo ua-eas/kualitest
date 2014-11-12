@@ -113,9 +113,9 @@ public class DatabasePanel extends BaseCreateTestPanel  {
      * @param forCheckpoint
      * @param testProxyServer 
      */
-    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, 
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription, 
         boolean forCheckpoint, TestProxyServer testProxyServer) {
-        super(mainframe, platform, testHeader);
+        super(mainframe, platform, testHeader, testDescription);
         this.forCheckpoint = forCheckpoint;
         this.testProxyServer = testProxyServer;
         
@@ -128,8 +128,8 @@ public class DatabasePanel extends BaseCreateTestPanel  {
      * @param platform
      * @param testHeader
      */
-    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
-        this(mainframe, platform, testHeader, false, null);
+    public DatabasePanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
+        this(mainframe, platform, testHeader, testDescription, false, null);
     }
     
     /**

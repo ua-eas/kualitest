@@ -507,6 +507,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                         FileUtils.forceDelete(f);
                     }
                     
+                    // delete the description file
+                    f = new File(f.getPath().substring(0, f.getPath().lastIndexOf(".")+1) + "txt");
+                    
+                    if (f.exists() && f.isFile()) {
+                        FileUtils.forceDelete(f);
+                    }
+                    
                     testRepositoryTree.saveConfiguration();
                     testRepositoryTree.selectPlatformByName(platformName);
                     platformTestsPanel.populateList(p);
@@ -559,20 +566,21 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             }
 
             TestHeader testHeader = dlg.getTestHeader();
+            String testDescription = dlg.getDescription();
             Platform testPlatform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
 
             switch (testHeader.getTestType().intValue()) {
                 case TestType.INT_WEB:
-                    createTestPanel.replaceCenterComponent(new WebTestPanel(this, testPlatform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebTestPanel(this, testPlatform, testHeader, testDescription));
                     break;
                 case TestType.INT_WEB_SERVICE:
-                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, testPlatform, testHeader));
+                    createTestPanel.replaceCenterComponent(new WebServicePanel(this, testPlatform, testHeader, testDescription));
                     break;
                 case TestType.INT_DATABASE:
-                    createTestPanel.replaceCenterComponent(new DatabasePanel(this, testPlatform, testHeader));
+                    createTestPanel.replaceCenterComponent(new DatabasePanel(this, testPlatform, testHeader, testDescription));
                     break;
                 case TestType.INT_FILE:
-                    createTestPanel.replaceCenterComponent(new FileTestPanel(this, testPlatform, testHeader));
+                    createTestPanel.replaceCenterComponent(new FileTestPanel(this, testPlatform, testHeader, testDescription));
                     break;
             }
         }

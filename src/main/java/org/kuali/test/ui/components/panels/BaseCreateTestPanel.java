@@ -63,6 +63,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private ToolbarButton operation;
     private ToolbarButton saveTest;
     private JPopupMenu popup;
+    private String testDescription;
 
     /**
      *
@@ -70,10 +71,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @param platform
      * @param testHeader
      */
-    public BaseCreateTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
+    public BaseCreateTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
         super(mainframe);
         this.platform = platform;
         this.testHeader = testHeader;
+        this.testDescription = testDescription;
     
         popup = new JPopupMenu();
             
@@ -269,7 +271,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @return
      */
     protected boolean saveTest(String repositoryLocation, TestHeader header, List <TestOperation> testOperations) {
-        return Utils.saveKualiTest(this, repositoryLocation, platform, header, testOperations);
+        return Utils.saveKualiTest(this, repositoryLocation, platform, header, testOperations, testDescription);
     }
 
     /**

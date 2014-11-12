@@ -156,7 +156,6 @@
             <xs:element name="date-created" type="xs:date"/>
             <xs:element name="max-run-time" type="xs:int" default="-1"/>
             <xs:element name="on-runtime-failure" type="failure-action" minOccurs="0"/>
-            <xs:element name="description" type="xs:string"/>
             <xs:element name="additional-parameters" type="xs:string" minOccurs="0"/>
             <xs:element name="use-test-entry-times" type="xs:boolean" default="false"/>
         </xs:sequence>

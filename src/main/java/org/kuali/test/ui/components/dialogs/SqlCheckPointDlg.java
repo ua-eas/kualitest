@@ -88,7 +88,7 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
     private void initComponents() {
         if (dbPanel == null) {
             dbPanel = new DatabasePanel(getMainframe(), Utils.findPlatform(getMainframe().getConfiguration(), 
-                testHeader.getPlatformName()), testHeader, true, testProxyServer);
+                testHeader.getPlatformName()), testHeader, null, true, testProxyServer);
             dbPanel.addTab("Checkpoint Configuration", getCheckpointPanel());
             getContentPane().add(dbPanel, BorderLayout.CENTER);
         } else {

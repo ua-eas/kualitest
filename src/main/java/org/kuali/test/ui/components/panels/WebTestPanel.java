@@ -75,8 +75,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      * @param platform
      * @param testHeader
      */
-    public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
-        super(mainframe, platform, testHeader);
+    public WebTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
+        super(mainframe, platform, testHeader, testDescription);
         initComponents();
         getStartTest().setEnabled(true);
     }

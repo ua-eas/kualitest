@@ -64,8 +64,8 @@ public class FileTestPanel extends BaseCreateTestPanel {
      * @param platform
      * @param testHeader
      */
-    public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader) {
-        this(mainframe, platform, testHeader, false);
+    public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription) {
+        this(mainframe, platform, testHeader, testDescription, false);
     }
 
     /**
@@ -75,8 +75,8 @@ public class FileTestPanel extends BaseCreateTestPanel {
      * @param testHeader
      * @param forCheckpoint
      */
-    public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, boolean forCheckpoint) {
-        super(mainframe, platform, testHeader);
+    public FileTestPanel(TestCreator mainframe, Platform platform, TestHeader testHeader, String testDescription, boolean forCheckpoint) {
+        super(mainframe, platform, testHeader, testDescription);
         this.forCheckpoint = forCheckpoint;
         initComponents();
     }
