@@ -85,9 +85,12 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     }
 
     protected void initComponents() {
-        add(createOperationPanel(), BorderLayout.NORTH);
-        if (!isStartTestRequired()) {
-            handleStartTest();
+        if (!isForCheckpoint()) {
+            add(createOperationPanel(), BorderLayout.NORTH);
+        
+            if (!isStartTestRequired()) {
+                handleStartTest();
+            }
         }
     }
 
@@ -360,4 +363,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         cop.setComment(comment);
         testOperations.add(testOp);
     }
+    
+    protected abstract boolean isForCheckpoint();
 }

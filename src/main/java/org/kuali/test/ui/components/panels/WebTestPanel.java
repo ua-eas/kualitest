@@ -461,5 +461,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return true;
     }
 
-    
+    @Override
+    protected boolean isForCheckpoint() {
+        return false;
+    }
 }
