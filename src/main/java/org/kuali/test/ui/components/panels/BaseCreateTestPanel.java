@@ -56,7 +56,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private final Platform platform;
     private final TestHeader testHeader;
     private String testDescription;
-    private JMenuItem startTest;
     private JMenuItem cancelTest;
     private JMenuItem saveTest;
     private JMenuItem createCheckpoint;
@@ -87,10 +86,8 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     protected void initComponents() {
         if (!isForCheckpoint()) {
             add(createOperationPanel(), BorderLayout.NORTH);
-        
-            if (!isStartTestRequired()) {
-                handleStartTest();
-            }
+            handleStartTest();
+            setMenuStates(true);
         }
     }
 
@@ -112,9 +109,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         
         menu.setMnemonic('o');
         
-        startTest = new JMenuItem(Constants.START_TEST_ACTION);
-        startTest.setMnemonic('s');
-        
         cancelTest = new JMenuItem(Constants.CANCEL_TEST_ACTION);
         cancelTest.setMnemonic('c');
         
@@ -128,13 +122,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         viewComments = new JMenuItem(Constants.VIEW_COMMENTS_ACTION);
         viewParameters = new JMenuItem(Constants.VIEW_PARAMETERS_ACTION);
 
-        setAdditionalMenuStates(false);
-        
-        if (isStartTestRequired()) {
-            menu.add(startTest);
-            cancelTest.setEnabled(false);
-        }
-        
         menu.add(cancelTest);
         menu.add(saveTest);
         
@@ -154,9 +141,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             menu.add(viewParameters);
         }
         
-        if (this.isStartTestRequired()) {
-            startTest.addActionListener(this);
-        }
         cancelTest.addActionListener(this);
         saveTest.addActionListener(this);
         createCheckpoint.addActionListener(this);
@@ -225,15 +209,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getActionCommand().equals(Constants.START_TEST_ACTION)) {
-            handleStartTest();
-            startTest.setEnabled(false);
-            setAdditionalMenuStates(true);
-        } else if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
+        if (e.getActionCommand().equals(Constants.CANCEL_TEST_ACTION)) {
             if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
                 "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
-                setAdditionalMenuStates(false);
+                setMenuStates(false);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
@@ -254,14 +234,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         } else {
             handleUnprocessedActionEvent(e);
         }
-    }
-
-    /**
-     *
-     * @return
-     */
-    public JMenuItem getStartTest() {
-        return startTest;
     }
 
     /**
@@ -366,7 +338,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     
     protected abstract boolean isForCheckpoint();
     
-    private void setAdditionalMenuStates(boolean enable) {
+    private void setMenuStates(boolean enable) {
         cancelTest.setEnabled(enable);
         saveTest.setEnabled(enable);
         createCheckpoint.setEnabled(enable);

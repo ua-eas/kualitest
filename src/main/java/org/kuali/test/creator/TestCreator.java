@@ -818,7 +818,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      * @param testHeader
      */
     public void handleShowTestInformation(TestHeader testHeader) {
-        new TestInformationDlg(this, testHeader);
+        TestInformationDlg dlg = new TestInformationDlg(this, testHeader);
+        
+        if (dlg.isSaved()) {
+            Platform platform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
+            Utils.saveKualiTest(desktopPane, getConfiguration().getRepositoryLocation(), platform, 
+                dlg.getTestHeader(), dlg.getOperations(), dlg.getTestDescription());
+        }
     }
 
     /**

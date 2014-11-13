@@ -227,4 +227,8 @@ public class TestOperationsPanel extends BasePanel {
             operationsTable.getModel().fireTableRowsUpdated(indx, indx);
         }
     }
+
+    public List<TestOperation> getOperations() {
+        return operations;
+    }
 }

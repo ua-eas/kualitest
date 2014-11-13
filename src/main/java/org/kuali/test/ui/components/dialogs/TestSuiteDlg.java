@@ -42,6 +42,7 @@ import org.kuali.test.ui.components.editmasks.IntegerTextField;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -191,7 +192,11 @@ public class TestSuiteDlg extends BaseSetupDlg {
                 TableCellIconButton b = (TableCellIconButton)e.getSource();
                 List <TestHeader> l = testTable.getTableData();
                 if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    new TestInformationDlg(getMainframe(), TestSuiteDlg.this, l.get(b.getCurrentRow()));
+                    TestInformationDlg dlg = new TestInformationDlg(getMainframe(), TestSuiteDlg.this, l.get(b.getCurrentRow()));
+                    if (dlg.isSaved()) {
+                        Utils.saveKualiTest(testTable, getConfiguration().getRepositoryLocation(), platform, 
+                            dlg.getTestHeader(), dlg.getOperations(), dlg.getTestDescription());
+                    }
                 }
             }
         });
