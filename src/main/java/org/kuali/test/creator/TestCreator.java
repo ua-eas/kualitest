@@ -183,6 +183,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    public String getLocalRunEmailAddress() {
+        return Preferences.userRoot().node(Constants.PREFS_ROOT_NODE).get(Constants.LOCAL_RUN_EMAIL, "");
+    }
+    
     private void savePreferences() {
         try {
             Preferences proot = Preferences.userRoot();
@@ -822,8 +826,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         if (dlg.isSaved()) {
             Platform platform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
-            Utils.saveKualiTest(desktopPane, getConfiguration().getRepositoryLocation(), platform, 
-                dlg.getTestHeader(), dlg.getOperations(), dlg.getTestDescription());
+            if (Utils.saveKualiTest(desktopPane, getConfiguration().getRepositoryLocation(), platform, 
+                dlg.getTestHeader(), dlg.getOperations(), dlg.getTestDescription())) {
+                handleSaveConfiguration();
+            }
         }
     }
 

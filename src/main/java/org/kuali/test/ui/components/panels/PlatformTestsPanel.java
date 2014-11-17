@@ -240,6 +240,7 @@ public class PlatformTestsPanel extends BasePanel
                     TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
 
                     if (monitor != null) {
+                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                         while (!monitor.testsCompleted()) {
                             try {
                                 Thread.sleep(2000);

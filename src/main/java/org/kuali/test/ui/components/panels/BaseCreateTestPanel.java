@@ -87,7 +87,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         if (!isForCheckpoint()) {
             add(createOperationPanel(), BorderLayout.NORTH);
             handleStartTest();
-            setMenuStates(true);
+            setMenuState(true);
         }
     }
 
@@ -213,7 +213,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             if (UIUtils.promptForCancel(this, "Cancel Test Creation", 
                 "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
-                setMenuStates(false);
+                setMenuState(false);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
@@ -338,7 +338,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     
     protected abstract boolean isForCheckpoint();
     
-    private void setMenuStates(boolean enable) {
+    private void setMenuState(boolean enable) {
         cancelTest.setEnabled(enable);
         saveTest.setEnabled(enable);
         createCheckpoint.setEnabled(enable);

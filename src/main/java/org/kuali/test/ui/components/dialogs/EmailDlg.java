@@ -17,24 +17,32 @@
 package org.kuali.test.ui.components.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.EmailSetup;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 
 /**
  *
  * @author rbtucker
  */
 public class EmailDlg extends BaseSetupDlg {
+    private static final Logger LOG = Logger.getLogger(EmailDlg.class);
+    
     private EmailSetup emailSetup;
     private JTextField mailHost;
     private JTextField fromAddress;
     private JTextField subject;
     private JTextField toAddresses;
+    private JTextField localRunAddress;
     
     /**
      * 
@@ -62,15 +70,16 @@ public class EmailDlg extends BaseSetupDlg {
             "Mail Host",
             "Subject",
             "From Address", 
-            "To Addresses"};
+            "To Addresses",
+            "Local To Address"
+        };
         
         mailHost = new JTextField(emailSetup.getMailHost(), 20);
         subject = new JTextField(emailSetup.getSubject(), 30);
         fromAddress = new JTextField(emailSetup.getFromAddress(), 20);
         toAddresses = new JTextField(emailSetup.getToAddresses(), 40);
-        
-        JComponent[] components = {mailHost, subject, fromAddress, toAddresses};
-
+        localRunAddress = new JTextField(getMainframe().getLocalRunEmailAddress(), 40);
+        JComponent[] components = {mailHost, subject, fromAddress, toAddresses, localRunAddress};
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
 
@@ -100,6 +109,17 @@ public class EmailDlg extends BaseSetupDlg {
             emailSetup.setSubject(subject.getText());
             emailSetup.setFromAddress(fromAddress.getText());
             emailSetup.setToAddresses(toAddresses.getText());
+            
+            Preferences proot = Preferences.userRoot();
+            Preferences node = proot.node(Constants.PREFS_ROOT_NODE);
+            node.put(Constants.LOCAL_RUN_EMAIL, localRunAddress.getText());
+            
+            try {
+                node.flush();
+            } catch (BackingStoreException ex) {
+                LOG.warn(ex.toString(), ex);
+            }
+            
             setSaved(true);
             getConfiguration().setModified(true);
             dispose();
@@ -119,4 +139,8 @@ public class EmailDlg extends BaseSetupDlg {
         return "email-setup";
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(700, 300);
+    }
 }

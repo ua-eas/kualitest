@@ -2243,6 +2243,7 @@ public class Utils {
      */
     public static void sendMail(
         KualiTestConfigurationDocument.KualiTestConfiguration configuration,
+        String overrideEmail,
         TestSuite testSuite, 
         TestHeader testHeader, 
         List<File> testResults,
@@ -2264,8 +2265,15 @@ public class Utils {
                     Message msg = new MimeMessage(session);
                     msg.setFrom(new InternetAddress(configuration.getEmailSetup().getFromAddress()));
 
-                    for (String recipient : toAddresses) {
-                        msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+                    if (StringUtils.isBlank(overrideEmail)) {
+                        for (String recipient : toAddresses) {
+                            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+                        }
+                    } else {
+                        StringTokenizer st = new StringTokenizer(overrideEmail, ",");
+                        while (st.hasMoreTokens()) {
+                            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(st.nextToken()));
+                        }
                     }
 
                     StringBuilder subject = new StringBuilder(configuration.getEmailSetup().getSubject());

@@ -16,7 +16,6 @@
 
 package org.kuali.test.runner.execution;
 
-import com.gargoylesoftware.htmlunit.HttpMethod;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -174,32 +173,18 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         LOG.warn(ex.toString(), ex1);
                     }
 
-                    // if we did not find matching checkpoint and if the last http request 
-                    // we will try reloading the page if possible to account for asynchronous 
-                    // processing
-                    resubmitHttpRequestIfPossible(testWrapper);
-                }
-            }
-        }
-    }
-    
-    private void resubmitHttpRequestIfPossible(KualiTestWrapper testWrapper) {
-        try {
-            TestExecutionContext tec = getTestExecutionContext();
-            Operation op = testWrapper.getPrevHttpRequestOperation(getOperation().getIndex());
+                    try {
+                         getTestExecutionContext().getWebClient().resubmitRequest();
+                    }
 
-            if (op != null) {
-                if (HttpMethod.GET.toString().equalsIgnoreCase(op.getHtmlRequestOperation().getMethod())) {
-                    new HttpRequestOperationExecution(tec, op).execute(tec.getConfiguration(), tec.getPlatform(), testWrapper);
+                    catch (Exception ex2) {
+                        LOG.warn(ex.toString(), ex);
+                    }                
                 }
             }
         }
-        
-        catch (TestException ex) {
-            LOG.warn(ex.toString(), ex);
-        }
     }
-    
+
     private void writeHtmlIfRequired(Checkpoint cp, 
         KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, Document doc) {
         boolean saveScreen = false;

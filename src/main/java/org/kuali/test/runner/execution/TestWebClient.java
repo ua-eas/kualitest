@@ -18,6 +18,7 @@ package org.kuali.test.runner.execution;
 
 import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
@@ -26,8 +27,17 @@ import com.gargoylesoftware.htmlunit.StringWebResponse;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.WebResponse;
+import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.FrameWindow;
+import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
+import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
+import com.gargoylesoftware.htmlunit.html.HtmlSelect;
+import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
+import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
@@ -120,6 +130,9 @@ public class TestWebClient extends WebClient {
         getOptions().setRedirectEnabled(true);
         getOptions().setCssEnabled(true);
         
+        // wait 30 seconds for javascript if required
+        waitForBackgroundJavaScript(30000);
+        
         setAjaxController(new NicelyResynchronizingAjaxController());
         
         setAlertHandler(new AlertHandler() {
@@ -141,7 +154,7 @@ public class TestWebClient extends WebClient {
             public WebResponse getResponse(WebRequest request) throws IOException {
                 WebResponse retval = null;
                 
-                // ii this is in the ignore list the reurn an empty response
+                // if this is in the ignore list the reurn an empty response
                 if (Utils.isIgnoreUrl(testRunUrlsToIgnore, request.getUrl().toExternalForm())) {
                     retval = new StringWebResponse("", request.getUrl());
                     if (LOG.isDebugEnabled()) {
@@ -166,7 +179,6 @@ public class TestWebClient extends WebClient {
                     WebResponse response =  super.getResponse(request);                
 
                     retval = runPostSubmitProcessing(request, response);
-
 
                     int status = retval.getStatusCode();
 
@@ -499,5 +511,141 @@ public class TestWebClient extends WebClient {
         }
         
         return retval;
+    }
+    
+    public Page resubmitRequest() throws IOException {
+        return super.getPage(getCurrentWindow().getEnclosedPage().getWebResponse().getWebRequest());
+    }
+    
+    public boolean isPageReady(List <NameValuePair> nvplist) throws IOException {
+        boolean retval = true;
+        Page page = getCurrentWindow().getEnclosedPage();
+        if (page.isHtmlPage()) {
+            for (int i = 0; i < Constants.HTML_TEST_RETRY_COUNT; ++i) {
+                boolean ok = true;
+                for (NameValuePair nvp : nvplist) {
+                    if (findHtmlElementByName(page, Utils.stripXY(nvp.getName())) == null) {
+                        ok = false;
+                        break;
+                    }
+                }
+
+                if (!ok) {
+                    try {
+                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                        page = resubmitRequest();
+                    } catch (InterruptedException ex) {}
+                } else {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public HtmlElement findHtmlElementByName(Page page, String elementName) {
+        HtmlElement retval = null;
+        
+        if (page.isHtmlPage()) {
+            try {
+                retval = ((HtmlPage)page).getElementByName(elementName);
+            }
+
+            catch (ElementNotFoundException ex) {};
+            
+            if (retval == null) {
+                for (FrameWindow window : ((HtmlPage)page).getFrames()) {
+                    Page pg = window.getFrameElement().getEnclosedPage();
+                    if (pg.isHtmlPage()) {
+                        try {
+                            retval = ((HtmlPage)pg).getElementByName(elementName);
+                        }
+                        
+                        catch (ElementNotFoundException ex) {};
+                        
+                        if (retval == null) {
+                            retval = findHtmlElementByName(pg, elementName);
+                        }
+                    }
+                    
+                    if (retval != null) {
+                        break;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public HtmlElement findFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
+        HtmlElement retval = null;
+        
+        if (nvplist != null) {
+            Page pg = getCurrentWindow().getEnclosedPage();
+            for (NameValuePair nvp : nvplist) {
+                HtmlElement element = findHtmlElementByName(pg, Utils.stripXY(nvp.getName()));
+                if (element != null) {
+                    if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
+                        if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
+                            retval = element;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public void populateFormElements(TestExecutionContext tec, List <NameValuePair> nvplist) throws UnsupportedEncodingException {
+        HtmlPage page = (HtmlPage)tec.getWebClient().getCurrentWindow().getEnclosedPage();
+        for (NameValuePair nvp : nvplist) {
+            try {
+                HtmlElement e = findHtmlElementByName(page, nvp.getName());
+
+                if (e instanceof HtmlTextInput) {
+                    HtmlTextInput ti = (HtmlTextInput)e;
+                    ti.setText(nvp.getValue());
+                } else if (e instanceof HtmlPasswordInput) {
+                    HtmlPasswordInput pi = (HtmlPasswordInput)e;
+                    pi.setText(nvp.getValue());
+                } else if (e instanceof HtmlRadioButtonInput) {
+                    for (DomElement de : page.getElementsByName(nvp.getName())) {
+                        HtmlRadioButtonInput rbi = (HtmlRadioButtonInput)de;
+                        if (rbi.getValueAttribute().equals(nvp.getValue())) {
+                            rbi.setChecked(true);
+                            break;
+                        }
+                    }
+                } else if (e instanceof HtmlCheckBoxInput) {
+                    for (DomElement de : page.getElementsByName(nvp.getName())) {
+                        HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)de;
+                        if (cbi.getValueAttribute().equals(nvp.getValue())) {
+                            cbi.setChecked(true);
+                            break;
+                        }
+                    }
+                } else if (e instanceof HtmlSelect) {
+                    for (DomElement de : page.getElementsByName(nvp.getName())) {
+                        HtmlSelect sel = (HtmlSelect)de;
+                        HtmlOption option = sel.getOptionByValue(nvp.getValue());
+
+                        if (option != null) {
+                            sel.setSelectedAttribute(option, true);
+                            break;
+                        }
+                    }
+                } else if (e instanceof HtmlTextArea) {
+                    HtmlTextArea ta = (HtmlTextArea)e;
+                    ta.setText(nvp.getValue());
+                }
+            }
+
+            catch (ElementNotFoundException ex) {};
+        }
     }
 }

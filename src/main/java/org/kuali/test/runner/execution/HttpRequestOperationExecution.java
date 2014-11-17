@@ -15,24 +15,13 @@
  */
 package org.kuali.test.runner.execution;
 
-import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.FrameWindow;
-import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlOption;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
-import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
-import com.gargoylesoftware.htmlunit.html.HtmlSelect;
-import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
-import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +106,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             }
 
             boolean requestSubmitted = false;
-            
+
+            Page page = null;
             if (request.getHttpMethod().equals(HttpMethod.POST)) {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
                 List <NameValuePair> nvplist = new ArrayList<NameValuePair>();
@@ -129,21 +119,42 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                         nvplist = tec.getWebClient().getUpdatedParameterList(Utils.getNameValuePairsFromMultipartParams(params));
                     }
                 }
+
                 
-                HtmlElement submit = findFormSubmitElement(nvplist);
-                
-                if (submit != null) {
-                    populateFormElements(tec, nvplist);
-                    submit.click();
-                    requestSubmitted = true;
-                } else {
-                    request.setRequestParameters(nvplist);
+                if (tec.getWebClient().isPageReady(nvplist)) {
+                    HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
+
+                    if (submit != null) {
+                        tec.getWebClient().populateFormElements(tec, nvplist);
+                        page = submit.click();
+                        requestSubmitted = true;
+                    } else {
+                        request.setRequestParameters(nvplist);
+                    }
                 }
             } 
             
             if (!requestSubmitted) {
-                tec.getWebClient().getPage(request);
+                page = tec.getWebClient().getPage(request);
             }   
+            
+            if (page != null) {
+                PrintWriter pw = null;
+                try {
+                    pw = new PrintWriter("/home/rbtucker/tmp/html-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
+                    pw.print(page.getWebResponse().getContentAsString());
+                }
+                
+                catch (Exception ex) {}
+                
+                finally {
+                    try {
+                        pw.close();
+                    }
+                    
+                    catch (Exception ex) {};
+                }
+            }
         } 
 
         catch (IOException ex) {
@@ -170,110 +181,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         
         if ((op != null) && TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             retval = true;
-        }
-        
-        return retval;
-    }
-    
-    private HtmlElement findFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
-        HtmlElement retval = null;
-        
-        if (nvplist != null) {
-            Page pg = this.getTestExecutionContext().getWebClient().getCurrentWindow().getEnclosedPage();
-            for (NameValuePair nvp : nvplist) {
-                HtmlElement element = findHtmlElementByName(pg, Utils.stripXY(nvp.getName()));
-                if (element != null) {
-                    if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
-                        if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
-                            retval = element;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        
-        return retval;
-    }
-    
-    private void populateFormElements(TestExecutionContext tec, List <NameValuePair> nvplist) throws UnsupportedEncodingException {
-        HtmlPage page = (HtmlPage)tec.getWebClient().getCurrentWindow().getEnclosedPage();
-        for (NameValuePair nvp : nvplist) {
-            try {
-                HtmlElement e = findHtmlElementByName(page, nvp.getName());
-
-                if (e instanceof HtmlTextInput) {
-                    HtmlTextInput ti = (HtmlTextInput)e;
-                    ti.setText(nvp.getValue());
-                } else if (e instanceof HtmlPasswordInput) {
-                    HtmlPasswordInput pi = (HtmlPasswordInput)e;
-                    pi.setText(nvp.getValue());
-                } else if (e instanceof HtmlRadioButtonInput) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlRadioButtonInput rbi = (HtmlRadioButtonInput)de;
-                        if (rbi.getValueAttribute().equals(nvp.getValue())) {
-                            rbi.setChecked(true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlCheckBoxInput) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)de;
-                        if (cbi.getValueAttribute().equals(nvp.getValue())) {
-                            cbi.setChecked(true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlSelect) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlSelect sel = (HtmlSelect)de;
-                        HtmlOption option = sel.getOptionByValue(nvp.getValue());
-
-                        if (option != null) {
-                            sel.setSelectedAttribute(option, true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlTextArea) {
-                    HtmlTextArea ta = (HtmlTextArea)e;
-                    ta.setText(nvp.getValue());
-                }
-            }
-
-            catch (ElementNotFoundException ex) {};
-        }
-    }
-
-    private HtmlElement findHtmlElementByName(Page page, String elementName) {
-        HtmlElement retval = null;
-        
-        if (page.isHtmlPage()) {
-            try {
-                retval = ((HtmlPage)page).getElementByName(elementName);
-            }
-
-            catch (ElementNotFoundException ex) {};
-            
-            if (retval == null) {
-                for (FrameWindow window : ((HtmlPage)page).getFrames()) {
-                    Page pg = window.getFrameElement().getEnclosedPage();
-                    if (pg.isHtmlPage()) {
-                        try {
-                            retval = ((HtmlPage)pg).getElementByName(elementName);
-                        }
-                        
-                        catch (ElementNotFoundException ex) {};
-                        
-                        if (retval == null) {
-                            retval = findHtmlElementByName(pg, elementName);
-                        }
-                    }
-                    
-                    if (retval != null) {
-                        break;
-                    }
-                }
-            }
         }
         
         return retval;

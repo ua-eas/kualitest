@@ -34,6 +34,7 @@ public class TestExecutionMonitor extends Thread {
     private List <TestExecutionContext> testExecutionList;
     private TestOperation currentTestOperation;
     private int testOperationCount = 0;
+    private String overrideEmail;
     
     /**
      *
@@ -89,7 +90,8 @@ public class TestExecutionMonitor extends Thread {
         }
         
         int[] count = getReportCounts();
-        Utils.sendMail(tec.getConfiguration(), tec.getTestSuite(), testHeader, getTestResultsFileList(), count[0], count[1], count[2]);
+        
+        Utils.sendMail(tec.getConfiguration(), overrideEmail, tec.getTestSuite(), testHeader, getTestResultsFileList(), count[0], count[1], count[2]);
     }
     
     private int[] getReportCounts() {
@@ -209,4 +211,14 @@ public class TestExecutionMonitor extends Thread {
 
         return retval.toString();
     }
+
+    public String getOverrideEmail() {
+        return overrideEmail;
+    }
+
+    public void setOverrideEmail(String overrideEmail) {
+        this.overrideEmail = overrideEmail;
+    }
+    
+    
 }

@@ -83,7 +83,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                     List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
                     testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), testSuite));
                     TestExecutionMonitor monitor = new TestExecutionMonitor(testExecutions);
-
+                    monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                     while (!monitor.testsCompleted()) {
                         try {
                             Thread.sleep(2000);

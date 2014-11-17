@@ -97,6 +97,7 @@ public class Constants {
     
     public static final String KUALI_TEST_TITLE = "Kuali Test Framework";
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
+    public static final String LOCAL_RUN_EMAIL = "local-run-email";
     public static final String PREFS_TABLE_NODE = "kualitest/tables";
     public static final String PREFS_DLG_NODE = "kualitest/dialogs";
     public static final String PREFS_FILES_NODE = "kualitest/files";
