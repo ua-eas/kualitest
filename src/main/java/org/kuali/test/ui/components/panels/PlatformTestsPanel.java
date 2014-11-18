@@ -46,7 +46,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.TestRunner;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BasePanel;
-import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.components.splash.RunningTestDisplay;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
@@ -232,26 +232,31 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            new SplashDisplay(getMainframe(), "Running Test", "Running test '" + currentTestHeader.getTestName() + "'...", true) {
+            new RunningTestDisplay(getMainframe(), "Running Test") {
                 private long startTime = System.currentTimeMillis();
                 
                 @Override
                 protected void runProcess() {
-                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
-
-                    if (monitor != null) {
+                    try {
+                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
+                        getProgressBar().setMaximum(monitor.getTestOperationCount());
                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                         while (!monitor.testsCompleted()) {
                             try {
-                                Thread.sleep(2000);
+                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
+                                if (isCancelTest()) {
+                                    break;
+                                }
                             } 
 
                             catch (InterruptedException ex) {};
-
-                            updateElapsedTime(monitor.buildDisplayMessage(startTime));
                         }
-                    } else {
-                        UIUtils.showError(this.getDlg(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
+                    } 
+                    
+                    catch (Exception ex) {
+                        getDlg().dispose();
+                        UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
                     }
                 }
             };

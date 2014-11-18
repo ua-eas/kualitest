@@ -692,7 +692,7 @@ public class TestExecutionContext extends Thread {
     }
     
     public void resubmitLastGetRequest() throws MalformedURLException, IOException {
-        TestOperation[] operations = kualiTest.getOperations().getOperationArray();
+        TestOperation[] operations = getCurrentTest().getTest().getOperations().getOperationArray();
         HtmlRequestOperation lastHtmlOp = null;
         int startpos = -1;
 

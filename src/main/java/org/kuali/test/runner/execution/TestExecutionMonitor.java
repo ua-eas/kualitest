@@ -158,14 +158,16 @@ public class TestExecutionMonitor extends Thread {
         return testOperationCount;
     }
 
-    public String buildDisplayMessage(long startTime) {
+    public String buildDisplayMessage(String header, long startTime) {
         StringBuilder retval = new StringBuilder(256);
         
-        retval.append("<html>&nbsp;&nbsp;");
+        retval.append("<html><div style='padding: 5px 0px 10px 5px;'>");
+        retval.append(header);
+        retval.append("</div>");
 
         TestExecutionContext tec = testExecutionList.get(0);
 
-        retval.append("<span>Test ");
+        retval.append("<span style='padding: 5px 0px 0px 5px;'>Test ");
         
         if ((tec.getTestSuite() != null) && (tec.getCurrentTest() != null)) {
             retval.append("'");

@@ -29,7 +29,8 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
-import org.kuali.test.ui.components.splash.SplashDisplay;
+import org.kuali.test.ui.components.splash.RunningTestDisplay;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
 /**
@@ -75,23 +76,38 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleAddEditTestSuite(actionNode);
         } else if (RUN_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
-            new SplashDisplay(getMainframe(), "Running Test Suite", "Running test suite '" + testSuite.getName() + "'...", true) {
+            new RunningTestDisplay(getMainframe(), "Running Test Suite") {
                 long startTime = System.currentTimeMillis();
                 
                 @Override
                 protected void runProcess() {
-                    List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
-                    testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), testSuite));
-                    TestExecutionMonitor monitor = new TestExecutionMonitor(testExecutions);
-                    monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
-                    while (!monitor.testsCompleted()) {
-                        try {
-                            Thread.sleep(2000);
-                        } 
+                    try {
+                        List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
+                        testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), testSuite));
+                        TestExecutionMonitor monitor = new TestExecutionMonitor(testExecutions);
+                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
 
-                        catch (InterruptedException ex) {};
+                        while (!monitor.testsCompleted()) {
+                            try {
+                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                if (monitor.getCurrentTestOperation() != null) {
+                                    getProgressBar().setValue(monitor.getCurrentTestOperation().getOperation().getIndex());
+                                }
 
-                        updateElapsedTime(monitor.buildDisplayMessage(startTime));
+                                updateDisplay(monitor.buildDisplayMessage("Running test suite '" + testSuite.getName() + "'..." , startTime));
+
+                                if (isCancelTest()) {
+                                    break;
+                                }
+                            } 
+
+                            catch (InterruptedException ex) {};
+                        }
+                    } 
+                    
+                    catch (Exception ex) {
+                        getDlg().dispose();
+                        UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test suite " + testSuite.getName());
                     }
                 }
             };

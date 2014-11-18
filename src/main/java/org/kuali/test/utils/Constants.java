@@ -171,8 +171,8 @@ public class Constants {
     public static final String DEFAULT_PROXY_PORT= "8888";
     public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);
     public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024);
-    public static final int DEFAULT_SPLASH_WIDTH = 400;
-    public static final int DEFAULT_SPLASH_HEIGHT = 175;
+    public static final int DEFAULT_SPLASH_WIDTH = 350;
+    public static final int DEFAULT_SPLASH_HEIGHT = 125;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
     public static final int MESSAGE_DISPLAY_WORDS_PER_LINE = 20;
     public static final int DEFAULT_DISPLAY_TABLE_ROWS = 10;
@@ -256,6 +256,7 @@ public class Constants {
     public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 5000;
     public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
     public static final int PROXY_CONNECTION_TIMEOUT = 2 * 300000;
+    public static final long LOCAL_TEST_RUN_SLEEP_TIME = 2000;
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
