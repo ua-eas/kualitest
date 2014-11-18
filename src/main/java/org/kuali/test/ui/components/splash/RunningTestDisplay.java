@@ -58,7 +58,7 @@ public class RunningTestDisplay {
                     dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                     dlg.setResizable(false);
                     JPanel p = new JPanel(new BorderLayout(10, 3));
-                    p.add(label = new JLabel("Initiating...", JLabel.LEFT), BorderLayout.CENTER);
+                    p.add(label = new JLabel("  Initializing test execution context...", JLabel.LEFT), BorderLayout.CENTER);
                     
 
                     JPanel p2 = new JPanel(new BorderLayout());

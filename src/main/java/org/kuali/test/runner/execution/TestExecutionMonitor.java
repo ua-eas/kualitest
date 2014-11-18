@@ -167,7 +167,7 @@ public class TestExecutionMonitor extends Thread {
 
         TestExecutionContext tec = testExecutionList.get(0);
 
-        retval.append("<span style='padding: 5px 0px 0px 5px;'>Test ");
+        retval.append("<div style='padding: 5px 0px 0px 5px;'>Test ");
         
         if ((tec.getTestSuite() != null) && (tec.getCurrentTest() != null)) {
             retval.append("'");
@@ -183,7 +183,7 @@ public class TestExecutionMonitor extends Thread {
                 retval.append(getTestOperationCount());
             }
 
-            retval.append("</span><table style='border-collapse: collapse; border-spacing: 0;'><tr>");
+            retval.append("</div><table style='border-collapse: collapse; border-spacing: 0;'><tr>");
             retval.append("<th style='text-align: right; padding: 0px 0px 0px 5px;'>Operation Type:</th><td style='padding: 0px 0px 0px 5px;'>");
             retval.append(getCurrentTestOperation().getOperationType().toString());
             retval.append("</td></tr>");
@@ -196,7 +196,7 @@ public class TestExecutionMonitor extends Thread {
                 retval.append("</td></tr>");
             }
         } else {
-            retval.append("- of -</span><table>");
+            retval.append("- of -</div><table>");
         }
 
         retval.append("<tr><th style='text-align: right; padding: 0px 0px 0px 5px;'>Elapsed Time:</th><td style='padding: 0px 0px 0px 5px;'>");

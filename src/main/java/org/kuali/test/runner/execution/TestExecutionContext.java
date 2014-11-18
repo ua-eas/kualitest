@@ -101,6 +101,7 @@ public class TestExecutionContext extends Thread {
     }
 
     private void initializeHttpClient() {
+        cleanup();
         webClient = new TestWebClient(this);
     }
 
@@ -181,6 +182,9 @@ public class TestExecutionContext extends Thread {
                     KualiTest test = Utils.findKualiTest(configuration, suiteTest.getTestHeader().getPlatformName(), suiteTest.getTestHeader().getTestName());
                     
                     if (test != null) {
+                        // reinitialize new web client for each test
+                        initializeHttpClient();
+                        
                         // add pause between tests if configured
                         if (defaultTestWaitInterval > 0) {
                             try {
@@ -204,7 +208,6 @@ public class TestExecutionContext extends Thread {
 
             endTime = new Date();
             testResultsFile = new File(buildTestReportFileName());
-
             poiHelper.writeFile(testResultsFile);
         } finally {
             cleanup();
@@ -213,8 +216,15 @@ public class TestExecutionContext extends Thread {
     }
 
     private void cleanup() {
+        autoReplaceParameterMap.clear();
+        
         if (webClient != null) {
-            webClient.closeAllWindows();
+            try {
+                webClient.closeAllWindows();
+                webClient = null;
+            }
+            
+            catch (Exception ex) {};
         }
     }
 
@@ -721,7 +731,7 @@ public class TestExecutionContext extends Thread {
                 }
             }
             
-            getWebClient().getPage(request);
+            webClient.getPage(request);
         }
     }
 }
