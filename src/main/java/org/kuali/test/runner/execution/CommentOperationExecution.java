@@ -47,6 +47,9 @@ public class CommentOperationExecution extends AbstractOperationExecution {
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
-        getTestExecutionContext().writeCommentEntry(getOperation());
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+        tec.writeCommentEntry(getOperation());
     }
 }

@@ -252,8 +252,8 @@ public class Constants {
     public static final String HTTP_HEADER_COOKIE = "Cookie";
     public static final String HTTP_HEADER_SET_COOKIE = "Set-Cookie";
     public static final String TEST_OPERATION_INDEX = "test-operation-index";
-    public static final int HTML_TEST_RETRY_COUNT = 3;
-    public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 10000;
+    public static final long HTML_TEST_RETRY_TIMESPAN = MILLIS_PER_MINUTE;
+    public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 5000;
     public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
     public static final int PROXY_CONNECTION_TIMEOUT = 2 * 300000;
     

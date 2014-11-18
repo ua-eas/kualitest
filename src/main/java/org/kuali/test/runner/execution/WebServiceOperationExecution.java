@@ -66,8 +66,12 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestWrapper testWrapper) throws TestException {
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+
         try {
-            String poll = getTestExecutionContext().getKualiTest().getTestHeader().getAdditionalParameters();
+            String poll = tec.getKualiTest().getTestHeader().getAdditionalParameters();
             Object[] result = executeWebServiceCall(configuration, platform, getOperation().getCheckpointOperation(), "true".equalsIgnoreCase(poll));
         }
 

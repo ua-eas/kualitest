@@ -104,84 +104,87 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         Checkpoint cp = getOperation().getCheckpointOperation();
         String html = null;
 
-        // try this a few time to account for asynchronous page loading
-        for(int i = 0; i < Constants.HTML_TEST_RETRY_COUNT; i++) {
-            try {
-                List <CheckpointProperty> matchingProperties = null;
-                if (cp.getCheckpointProperties() != null) {
-                    html = testWrapper.getHttpResponseStack().peek();
-                    HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
-                    for (String curhtml : testWrapper.getHttpResponseStack()) {
-                        if (StringUtils.isNotBlank(curhtml)) {
-                            Document doc = Utils.cleanHtml(curhtml);
-                            HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
-                            matchingProperties = findCurrentProperties(cp, dominfo);
-                            if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
-                                html = curhtml;
-                                break;
-                            }
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+        
+        TestException lastTestException = null;
+        long start = System.currentTimeMillis();
+        
+        // if the source page was loaded from a get request try reload a few times if required 
+        // to handle asynchronous processing that may affect checkpoint fields
+        while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
+            List <CheckpointProperty> matchingProperties = null;
+            if (cp.getCheckpointProperties() != null) {
+                html = testWrapper.getHttpResponseStack().peek();
+                HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
+                for (String curhtml : testWrapper.getHttpResponseStack()) {
+                    if (StringUtils.isNotBlank(curhtml)) {
+                        Document doc = Utils.cleanHtml(curhtml);
+                        HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
+                        matchingProperties = findCurrentProperties(cp, dominfo);
+                        if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
+                            html = curhtml;
+                            break;
                         }
                     }
                 }
+            }
 
-                if (matchingProperties != null) {
-                    CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
-                    if (matchingProperties.size() == properties.length) {
-                        boolean success = true;
-                        
-                        FailureAction.Enum failureAction = FailureAction.IGNORE;
-                        
-                        for (int j = 0; j < properties.length; ++j) {
-                            if (j < matchingProperties.size()) {
-                                properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
-                                if (!evaluateCheckpointProperty(testWrapper, properties[j])) {
-                                    success = false;
-                                    
-                                    // use the most severe action in the group
-                                    if (properties[j].getOnFailure().intValue() > failureAction.intValue()) {
-                                        failureAction = properties[j].getOnFailure();
-                                    }
+            if (matchingProperties != null) {
+                CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
+                if (matchingProperties.size() == properties.length) {
+                    boolean success = true;
+
+                    FailureAction.Enum failureAction = FailureAction.IGNORE;
+
+                    for (int j = 0; j < properties.length; ++j) {
+                        if (j < matchingProperties.size()) {
+                            properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
+                            if (!evaluateCheckpointProperty(testWrapper, properties[j])) {
+                                success = false;
+
+                                // use the most severe action in the group
+                                if (properties[j].getOnFailure().intValue() > failureAction.intValue()) {
+                                    failureAction = properties[j].getOnFailure();
                                 }
                             }
                         }
+                    }
 
-                        if (!success) {
-                            throw new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
-                        } else {
-                            writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
-                            break;
-                        }
+                    if (!success) {
+                        lastTestException = new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
                     } else {
-                        throw new TestException("Expected checkpoint property count mismatch: expected " 
-                            + properties.length 
-                            + " found " 
-                            + matchingProperties.size(), getOperation(), FailureAction.ERROR_HALT_TEST);
+                        lastTestException = null;
+                        break;
                     }
                 } else {
-                    throw new TestException("No matching properties found", getOperation(), FailureAction.ERROR_HALT_TEST);
+                    lastTestException = new TestException("Expected checkpoint property count mismatch: expected " 
+                        + properties.length 
+                        + " found " 
+                        + matchingProperties.size(), getOperation(), FailureAction.ERROR_HALT_TEST);
                 }
+            } else {
+                lastTestException =  new TestException("No matching properties found", getOperation(), FailureAction.ERROR_HALT_TEST);
+            }
+           
+            try {
+                Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+            } catch (InterruptedException ex) {}
+            
+            try {
+                tec.resubmitLastGetRequest();
             }
             
-            catch (TestException ex) {
-                if (i == (Constants.HTML_TEST_RETRY_COUNT-1)) {
-                    writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
-                    throw ex;
-                } else {
-                    try {
-                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
-                    } catch (InterruptedException ex1) {
-                        LOG.warn(ex.toString(), ex1);
-                    }
-
-                    try {
-                         getTestExecutionContext().getWebClient().resubmitRequest();
-                    }
-
-                    catch (Exception ex2) {
-                        LOG.warn(ex.toString(), ex);
-                    }                
-                }
+            catch (Exception ex) {
+                lastTestException = new TestException(ex.toString(), getOperation(), ex);
+                break;
             }
+        }
+        
+        writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
+
+        if (lastTestException != null) {
+            throw lastTestException;
         }
     }
 
@@ -238,7 +241,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         int pos = html.indexOf("</head>");
         
         if (pos > -1) {
-            // add this css lanscape tab to ensure page is not truncated on right
+            // add this css landscape to ensure page is not truncated on right
             buf.append(html.substring(0, pos));
             buf.append("<style> @page {size: landscape;} </style>");
             buf.append(html.substring(pos));

@@ -59,6 +59,10 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
      */
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, KualiTestWrapper testWrapper) throws TestException {
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+
         try {   
             JmxConnection jmx = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
             

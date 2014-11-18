@@ -513,32 +513,13 @@ public class TestWebClient extends WebClient {
         return retval;
     }
     
-    public Page resubmitRequest() throws IOException {
-        return super.getPage(getCurrentWindow().getEnclosedPage().getWebResponse().getWebRequest());
-    }
-    
-    public boolean isPageReady(List <NameValuePair> nvplist) throws IOException {
+    public boolean isPagePopulated(List <NameValuePair> nvplist) throws IOException {
         boolean retval = true;
         Page page = getCurrentWindow().getEnclosedPage();
-        if (page.isHtmlPage()) {
-            for (int i = 0; i < Constants.HTML_TEST_RETRY_COUNT; ++i) {
-                boolean ok = true;
-                for (NameValuePair nvp : nvplist) {
-                    if (findHtmlElementByName(page, Utils.stripXY(nvp.getName())) == null) {
-                        ok = false;
-                        break;
-                    }
-                }
-
-                if (!ok) {
-                    try {
-                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
-                        page = resubmitRequest();
-                    } catch (InterruptedException ex) {}
-                } else {
-                    retval = true;
-                    break;
-                }
+        for (NameValuePair nvp : nvplist) {
+            if (findHtmlElementByName(page, Utils.stripXY(nvp.getName())) == null) {
+                retval = false;
+                break;
             }
         }
         

@@ -16,12 +16,10 @@
 package org.kuali.test.runner.execution;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
-import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +31,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
-import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -70,9 +66,7 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         try {
             try {
                 int delay = configuration.getDefaultTestWaitInterval();
-                // we will always use user entry times for pre-checkpoint request - trying to
-                // ensure everything has completed on backend prior to checkpoint
-                if (testWrapper.getUseTestEntryTimes() || isNextOperationCheckpoint(testWrapper)) {
+                if (testWrapper.getUseTestEntryTimes()) {
                     delay = reqop.getDelay();
                 }
                 
@@ -107,7 +101,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
             boolean requestSubmitted = false;
 
-            Page page = null;
             if (request.getHttpMethod().equals(HttpMethod.POST)) {
                 String params = Utils.getContentParameterFromRequestOperation(reqop);
                 List <NameValuePair> nvplist = new ArrayList<NameValuePair>();
@@ -120,41 +113,37 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
 
+                long start = System.currentTimeMillis();
                 
-                if (tec.getWebClient().isPageReady(nvplist)) {
-                    HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
+                // if we want to post a page that was loaded with a get request - check to make sure
+                // the page is populated before we post, if not completely populated then try reload
+                // a few times to handle asynchronous processing that may affect page to be posted
+                while (((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) 
+                    && !tec.getWebClient().isPagePopulated(nvplist)) {
+                    try {
+                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                    } catch (InterruptedException ex) {}
 
-                    if (submit != null) {
-                        tec.getWebClient().populateFormElements(tec, nvplist);
-                        page = submit.click();
-                        requestSubmitted = true;
-                    } else {
-                        request.setRequestParameters(nvplist);
-                    }
+                    tec.resubmitLastGetRequest();
+                }
+
+                // see if we can find a submit element, if we can then use click() call
+                // to submit
+                HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
+
+                if (submit != null) {
+                    tec.getWebClient().populateFormElements(tec, nvplist);
+                    submit.click();
+                    requestSubmitted = true;
+                } else {
+                    request.setRequestParameters(nvplist);
                 }
             } 
-            
+
+            // if we have not loaded web request to this point - load now
             if (!requestSubmitted) {
-                page = tec.getWebClient().getPage(request);
+                tec.getWebClient().getPage(request);
             }   
-            
-            if (page != null) {
-                PrintWriter pw = null;
-                try {
-                    pw = new PrintWriter("/home/rbtucker/tmp/html-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
-                    pw.print(page.getWebResponse().getContentAsString());
-                }
-                
-                catch (Exception ex) {}
-                
-                finally {
-                    try {
-                        pw.close();
-                    }
-                    
-                    catch (Exception ex) {};
-                }
-            }
         } 
 
         catch (IOException ex) {
@@ -173,17 +162,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     + uri + ", error: " +  ex.toString(), getOperation(), ex);
             }
         }
-    }
-    
-    private boolean isNextOperationCheckpoint(KualiTestWrapper testWrapper) {
-        boolean retval = false;
-        TestOperation op = testWrapper.getNextTestOperation(getOperation().getIndex());
-        
-        if ((op != null) && TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
-            retval = true;
-        }
-        
-        return retval;
     }
 }
 

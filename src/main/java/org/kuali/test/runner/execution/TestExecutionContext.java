@@ -15,8 +15,13 @@
  */
 package org.kuali.test.runner.execution;
 
+import com.gargoylesoftware.htmlunit.HttpMethod;
+import com.gargoylesoftware.htmlunit.WebRequest;
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,10 +38,12 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestHeader;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
@@ -682,5 +689,39 @@ public class TestExecutionContext extends Thread {
         haltTest = true;
         getCurrentTest().incrementErrorCount();
         poiHelper.writeFailureEntry(getCurrentTestOperation(), new Date(), ex);
+    }
+    
+    public void resubmitLastGetRequest() throws MalformedURLException, IOException {
+        TestOperation[] operations = kualiTest.getOperations().getOperationArray();
+        HtmlRequestOperation lastHtmlOp = null;
+        int startpos = -1;
+
+        // find current operation
+        for (int i = 0; i < operations.length; ++i) {
+            if (operations[i].getOperation().getIndex() == currentOperationIndex) {
+                startpos = i;
+                break;
+            }
+        }        
+
+        // find previous html request if it exists
+        for (int i = startpos-1; i >= 0; --i) {
+            if (operations[i].getOperation().getHtmlRequestOperation() != null) {
+                lastHtmlOp = operations[i].getOperation().getHtmlRequestOperation();
+                break;
+            }
+        }
+        
+        // if the previous html request was a get then we will resubmit
+        if ((lastHtmlOp != null) && Constants.HTTP_REQUEST_METHOD_GET.equals(lastHtmlOp.getMethod())) {
+            WebRequest request = new WebRequest(new URL(lastHtmlOp.getUrl()), HttpMethod.valueOf(lastHtmlOp.getMethod()));
+            if (lastHtmlOp.getRequestHeaders() != null) {
+                for (RequestHeader hdr : lastHtmlOp.getRequestHeaders().getHeaderArray()) {
+                    request.setAdditionalHeader(hdr.getName(), hdr.getValue());
+                }
+            }
+            
+            getWebClient().getPage(request);
+        }
     }
 }

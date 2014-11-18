@@ -64,6 +64,11 @@ public class SqlOperationExecution extends AbstractOperationExecution {
     @Override
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
+
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+
         try {
             String sqlQuery = replaceTestExecutionParameters(getParameter(Constants.SQL_QUERY));
             

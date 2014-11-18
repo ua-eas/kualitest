@@ -64,6 +64,11 @@ public class FileOperationExecution extends AbstractOperationExecution {
         File dir = new File(getParameter(Constants.FILE_DIRECTORY));
         String fileNamePattern = getParameter(Constants.FILE_NAME_PATTERN);
         
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
+
+        
         CheckpointProperty fileDoesNotExist = getProperty(Constants.FILE_DOES_NOT_EXIST.toLowerCase().replace(" ", "-"));
         File[] targetFiles = null;
         

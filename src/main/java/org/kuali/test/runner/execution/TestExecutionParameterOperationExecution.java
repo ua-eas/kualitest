@@ -55,47 +55,62 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
         String key = Utils.buildCheckpointPropertyKey(getOperation().getTestExecutionParameter().getValueProperty());
         
-        // try this a few time to account for asynchronous page loading
-        for (int i = 0; i < Constants.HTML_TEST_RETRY_COUNT; ++ i) {
-            try {
-                if (StringUtils.isNotBlank(key)) {
-                    for (String h : testWrapper.getHttpResponseStack()) {
-                        HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
+        long start = System.currentTimeMillis();
+        
+        TestExecutionContext tec = getTestExecutionContext();
+        tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
+        tec.setCurrentTest(testWrapper);
 
-                        for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                            String curkey = Utils.buildCheckpointPropertyKey(cp);
-                            if (StringUtils.equals(key, curkey)) {
-                                if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                                    getOperation().getTestExecutionParameter().setValue(cp.getPropertyValue().trim());
-                                    break;
-                                }
+        TestException lastTestException = null;
+        
+        // if the source page was loaded from a get request try reload a few times if 
+        // required to handle asynchronous processing that may affect parameter fields
+        while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
+            if (StringUtils.isNotBlank(key)) {
+                for (String h : testWrapper.getHttpResponseStack()) {
+                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
+
+                    for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+                        String curkey = Utils.buildCheckpointPropertyKey(cp);
+                        if (StringUtils.equals(key, curkey)) {
+                            if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                                getOperation().getTestExecutionParameter().setValue(cp.getPropertyValue().trim());
+                                break;
                             }
                         }
                     }
-                    
-                    if (StringUtils.isNotBlank(getOperation().getTestExecutionParameter().getValue())) {
-                        break;
-                    }
                 }
 
-                if (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue())) {
-                    throw new TestException("failed to find test execution parameter for '" 
-                        + getOperation().getTestExecutionParameter().getName() 
-                        + "'", getOperation(), FailureAction.ERROR_HALT_TEST);
+                if (StringUtils.isNotBlank(getOperation().getTestExecutionParameter().getValue())) {
+                    lastTestException = null;
+                    break;
                 }
+            }
+
+            if (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue())) {
+                lastTestException = new TestException("failed to find test execution parameter for '" 
+                    + getOperation().getTestExecutionParameter().getName() 
+                    + "'", getOperation(), FailureAction.ERROR_HALT_TEST);
             }
             
-            catch (TestException ex) {
-                if (i > Constants.HTML_TEST_RETRY_COUNT) {
-                    throw ex;
-                } else {
-                    try {
-                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
-                    } catch (InterruptedException ex1) {
-                        LOG.warn(ex1.toString(), ex1);
-                    }
-                }
+            try {
+                Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+            } 
+            
+            catch (InterruptedException ex) {};
+                
+            try {
+                tec.resubmitLastGetRequest();
             }
+            
+            catch (Exception ex) {
+                lastTestException = new TestException(ex.toString(), getOperation(), ex);
+                break;
+            }
+        }
+        
+        if (lastTestException != null) {
+            throw lastTestException;
         }
     }
 }
