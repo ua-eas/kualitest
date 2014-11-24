@@ -18,7 +18,9 @@ package org.kuali.test.runner.execution;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -35,6 +37,7 @@ public class TestExecutionMonitor extends Thread {
     private TestOperation currentTestOperation;
     private int testOperationCount = 0;
     private String overrideEmail;
+    private Map<Integer, Boolean> runErrorFlags = new HashMap<Integer, Boolean>();
     
     /**
      *
@@ -92,7 +95,7 @@ public class TestExecutionMonitor extends Thread {
         }
         
         int[] count = getReportCounts();
-        
+
         Utils.sendMail(tec.getConfiguration(), overrideEmail, tec.getTestSuite(), testHeader, getTestResultsFileList(), count[0], count[1], count[2]);
     }
     
@@ -100,6 +103,10 @@ public class TestExecutionMonitor extends Thread {
         int[] retval = {0, 0, 0};
         for (TestExecutionContext tec : testExecutionList) {
             for (KualiTestWrapper test : tec.getCompletedTests()) {
+                if ((test.getErrorCount() > 0) || (test.getWarningCount() > 0)) {
+                    runErrorFlags.put(tec.getTestRun(), Boolean.TRUE);
+                }
+                
                 retval[0] += test.getErrorCount();
                 retval[1] += test.getWarningCount();
                 retval[2] += test.getSuccessCount();
@@ -138,8 +145,14 @@ public class TestExecutionMonitor extends Thread {
     private File getMergedResultFiles() {
         PoiHelper poiHelper = new PoiHelper(false);
         List <File> files = new ArrayList<File>();
+
+        boolean[] errorRuns = new boolean[testExecutionList.size()];
         
+
         for (TestExecutionContext tec : testExecutionList) {
+            if (runErrorFlags.containsKey(tec.getTestRun())) {
+                errorRuns[tec.getTestRun()-1] = runErrorFlags.get(tec.getTestRun());
+            }
             files.add(tec.getTestResultsFile());
         }
         
@@ -149,7 +162,7 @@ public class TestExecutionMonitor extends Thread {
         pos = fname.lastIndexOf("_", pos);
         
         fname = fname.substring(0, pos) + ".xlsx";
-        return poiHelper.mergeWorkbookFiles(fname, files, true);
+        return poiHelper.mergeWorkbookFiles(fname, files, errorRuns, true);
     }
 
     public TestOperation getCurrentTestOperation() {

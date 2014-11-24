@@ -561,17 +561,25 @@ public class PoiHelper {
      * @param deleteExistingFiles
      * @return
      */
-    public File mergeWorkbookFiles(String fileName, List<File> inputFiles, boolean deleteExistingFiles) {
+    public File mergeWorkbookFiles(String fileName, List<File> inputFiles, boolean[] errorRuns, boolean deleteExistingFiles) {
         File retval = new File(fileName);
         XSSFWorkbook wbmerged = new XSSFWorkbook();
         createPoiCellStyles(wbmerged);
-        int indx = 1;
+        int indx = 0;
         for (File f : inputFiles) {
             InputStream fs = null;
 
             try {
                 fs = new FileInputStream(f);
-                XSSFSheet newSheet = wbmerged.createSheet("run(" + indx++ + ")");
+                String nm = "";
+                
+                if (errorRuns[indx]) {
+                    nm = "*run(" + (++indx) + ")";
+                } else {
+                    nm = "run(" + (++indx) + ")";
+                }
+                
+                XSSFSheet newSheet = wbmerged.createSheet(nm);
                 copySheets(newSheet, new XSSFWorkbook(fs).getSheetAt(0));
                 
             } 
