@@ -86,9 +86,9 @@ public class RunningTestDisplay {
                     dlg.setVisible(true);
                 }
                 
-                catch(SecurityException ex) {
-                    dlg.dispose();
+                catch(Exception ex) {
                     LOG.error(ex.toString(), ex);
+                    dlg.dispose();
                 }
             }
         });

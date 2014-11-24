@@ -19,7 +19,9 @@ package org.kuali.test.ui.components.repositorytree;
 import java.awt.event.ActionEvent;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
+import org.apache.log4j.Logger;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
@@ -37,6 +39,8 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class RepositoryPopupMenu extends BaseTreePopupMenu {
+    private static final Logger LOG = Logger.getLogger(RepositoryPopupMenu.class);
+    
     public static final String ADD_PLATFORM_ACTION = "Add Platform";
     public static final String EDIT_PLATFORM_ACTION = "Edit Platform";
     public static final String DELETE_PLATFORM_ACTION = "Delete Platform";
@@ -83,29 +87,35 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                 protected void runProcess() {
                     try {
                         TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), 1);
-                        getProgressBar().setMaximum(monitor.getTestOperationCount());
-                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
 
-                        while (!monitor.testsCompleted()) {
-                            try {
-                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
-                                if (monitor.getCurrentTestOperation() != null) {
-                                    getProgressBar().setValue(monitor.getCurrentTestOperation().getOperation().getIndex());
-                                }
+                        if (monitor != null) {
+                            getProgressBar().setMaximum(monitor.getTestOperationCount());
+                            monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
 
-                                updateDisplay(monitor.buildDisplayMessage("Running test suite '" + testSuite.getName() + "'..." , startTime));
+                            while (!monitor.testsCompleted()) {
+                                try {
+                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                    if (monitor.getCurrentTestOperation() != null) {
+                                        getProgressBar().setValue(monitor.getCurrentTestOperation().getOperation().getIndex());
+                                    }
 
-                                if (isCancelTest()) {
-                                    break;
-                                }
-                            } 
+                                    updateDisplay(monitor.buildDisplayMessage("Running test suite '" + testSuite.getName() + "'..." , startTime));
 
-                            catch (InterruptedException ex) {};
+                                    if (isCancelTest()) {
+                                        break;
+                                    }
+                                } 
+
+                                catch (InterruptedException ex) {};
+                            }
                         }
                     } 
                     
                     catch (Exception ex) {
-                        getDlg().dispose();
+                        LOG.error(ex.toString(), ex);
+                        if ((getDlg() != null) && getDlg().isVisible()) {
+                            getDlg().dispose();
+                        }
                         UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test suite " + testSuite.getName());
                     }
                 }
@@ -113,9 +123,38 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
         } else if (RUN_TEST_SUITE_LOAD_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
             LoadTestDlg dlg = new LoadTestDlg(getMainframe(),testSuite.getName(), true);
-             
             if (dlg.isSaved()) {
-                new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), dlg.getTestRuns());
+                final int testRuns = dlg.getTestRuns();
+                
+                if (testRuns > 0) {
+                    getMainframe().startSpinner2("Running load test: test suite - " + testSuite.getName() + "[" + testRuns + "]");
+                    new SwingWorker() {
+                        @Override
+                        protected Object doInBackground() throws Exception {
+                            String retval = null;
+                            try {
+                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), testRuns);
+
+                                if (monitor != null) {
+                                    while(!monitor.testsCompleted()) {
+                                        Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                    }
+                                }
+                            } 
+
+                            catch (Exception ex) {
+                                LOG.error(ex.toString(), ex);
+                            }
+
+                            return retval;
+                        };
+
+                        @Override
+                        protected void done() {
+                            getMainframe().stopSpinner2();
+                        }
+                    }.execute();
+                }
             }
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);

@@ -35,6 +35,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -247,23 +248,28 @@ public class PlatformTestsPanel extends BasePanel
                 protected void runProcess() {
                     try {
                         TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
-                        getProgressBar().setMaximum(monitor.getTestOperationCount());
-                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
-                        while (!monitor.testsCompleted()) {
-                            try {
-                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
-                                updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
-                                if (isCancelTest()) {
-                                    break;
-                                }
-                            } 
+                        if (monitor != null) {
+                            getProgressBar().setMaximum(monitor.getTestOperationCount());
+                            monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
+                            while (!monitor.testsCompleted()) {
+                                try {
+                                    updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
+                                    if (isCancelTest()) {
+                                        break;
+                                    }
+                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                } 
 
-                            catch (InterruptedException ex) {};
+                                catch (InterruptedException ex) {};
+                            }
                         }
                     } 
                     
                     catch (Exception ex) {
-                        getDlg().dispose();
+                        LOG.error(ex.toString(), ex);
+                        if ((getDlg() != null) && getDlg().isVisible()) {
+                            getDlg().dispose();
+                        }
                         UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
                     }
                 }
@@ -272,7 +278,38 @@ public class PlatformTestsPanel extends BasePanel
              LoadTestDlg dlg = new LoadTestDlg(getMainframe(), currentTestHeader.getTestName(), false);
              
              if (dlg.isSaved()) {
-                new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), dlg.getTestRuns());
+                final int testRuns = dlg.getTestRuns();
+                String testName = currentTestHeader.getTestName();
+                
+                if (testRuns > 0) {
+                    getMainframe().startSpinner2("Running load test: test - " + testName + "[" + testRuns + "]");
+                    new SwingWorker() {
+                        @Override
+                        protected Object doInBackground() throws Exception {
+                            String retval = null;
+                            try {
+                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns);
+
+                                if (monitor != null) {
+                                    while(!monitor.testsCompleted()) {
+                                        Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                    }
+                                }
+                            } 
+
+                            catch (Exception ex) {
+                                LOG.error(ex.toString(), ex);
+                            }
+
+                            return retval;
+                        };
+
+                        @Override
+                        protected void done() {
+                            getMainframe().stopSpinner2();
+                        }
+                    }.execute();
+                }
              }
         }
     }

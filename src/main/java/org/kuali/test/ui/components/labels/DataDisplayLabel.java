@@ -14,31 +14,20 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.utils;
+package org.kuali.test.ui.components.labels;
 
+import java.awt.Font;
 import javax.swing.JLabel;
-import org.kuali.test.utils.Constants;
+import javax.swing.UIManager;
 
 
-public class Spinner extends JLabel {
-    public Spinner() {
-        super(Constants.LOADING_SPINNER_ICON);
-        setVisible(false);
-    }
-    
-    public Spinner(String msg) {
-        this();
-        startSpinner(msg);
+public class DataDisplayLabel extends JLabel {
+    public DataDisplayLabel(String text) {
+        super(text);
+        
+        Font labelFont = (Font)UIManager.get("Label.font");
+        
+        setFont(new Font(labelFont.getName(), Font.PLAIN, labelFont.getSize()+1));
     }
 
-    public void startSpinner( String msg) {
-        setText(msg);
-        setVisible(true);
-        repaint(0);
-    }
-    
-    public void stopSpinner() {
-        setText("");
-        setVisible(false);
-    }
 }

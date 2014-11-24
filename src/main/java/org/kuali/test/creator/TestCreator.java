@@ -87,9 +87,9 @@ import org.kuali.test.ui.components.panels.PlatformTestsPanel;
 import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
+import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.webservicetree.WebServiceTree;
-import org.kuali.test.ui.utils.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
@@ -120,6 +120,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     private JmxTree jmxTree;
     private PlatformTestsPanel platformTestsPanel;
     private Spinner spinner;
+    private Spinner spinner2;
     
     /**
      *
@@ -1220,6 +1221,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         toolbar.addSeparator();
         
         toolbar.add(spinner = new Spinner());
+        toolbar.add(spinner2 = new Spinner());
 
         retval.add(new JSeparator(), BorderLayout.NORTH);
         retval.add(toolbar, BorderLayout.CENTER);
@@ -1261,10 +1263,18 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         spinner.startSpinner(message);
     }
 
+    public void startSpinner2(String message) {
+        spinner2.startSpinner(message);
+    }
+
     public void stopSpinner() {
         spinner.stopSpinner();
     }
     
+    public void stopSpinner2() {
+        spinner2.stopSpinner();
+    }
+
     public void handleSaveConfiguration() {
         testRepositoryTree.saveConfiguration();
         saveConfigurationButton.setEnabled(false);

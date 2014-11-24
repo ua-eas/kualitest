@@ -82,6 +82,9 @@ public class TestRunner {
         }
     }
     
+    public TestRunner() {
+    }
+
     /**
      *
      * @param configuration
@@ -336,7 +339,8 @@ public class TestRunner {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
             
             for (int i = 0; i < testRuns; ++i) {
-                testExecutions.add(new TestExecutionContext(configuration, test));
+                TestExecutionContext tec = new TestExecutionContext(configuration, test);
+                testExecutions.add(tec);
             }
             
             retval = new TestExecutionMonitor(testExecutions);
@@ -344,6 +348,38 @@ public class TestRunner {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
         
+        return retval;
+    }
+
+    /**
+     * 
+     * @param configFileName
+     * @param platformName
+     * @param testSuiteName
+     * @param testRuns
+     * @return 
+     */
+    public TestExecutionMonitor runTestSuite(String configFileName, String platformName, String testSuiteName, int testRuns) {
+        TestExecutionMonitor retval = null;
+        if (loadConfiguration(configFileName)) {
+            retval = runTestSuite(platformName, testSuiteName, testRuns);
+        }
+        return retval;
+    }
+
+    /**
+     * 
+     * @param configFileName
+     * @param platformName
+     * @param testName
+     * @param testRuns
+     * @return 
+     */
+    public TestExecutionMonitor runTest(String configFileName, String platformName, String testName, int testRuns) {
+        TestExecutionMonitor retval = null;
+        if (loadConfiguration(configFileName)) {
+            retval = runTest(platformName, testName, testRuns);
+        }
         return retval;
     }
 
@@ -362,7 +398,8 @@ public class TestRunner {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
             
             for (int i = 0; i < testRuns; ++i) {
-                testExecutions.add(new TestExecutionContext(configuration, testSuite));
+                TestExecutionContext tec = new TestExecutionContext(configuration, testSuite);
+                testExecutions.add(tec);
             }
             
             retval = new TestExecutionMonitor(testExecutions);

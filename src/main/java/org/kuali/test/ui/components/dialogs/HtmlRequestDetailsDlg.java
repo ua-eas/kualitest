@@ -36,7 +36,7 @@ import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
-import org.kuali.test.ui.utils.DataDisplayLabel;
+import org.kuali.test.ui.components.labels.DataDisplayLabel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.UpdateableNameValuePair;

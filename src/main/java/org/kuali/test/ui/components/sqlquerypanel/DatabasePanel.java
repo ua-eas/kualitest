@@ -68,7 +68,7 @@ import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
-import org.kuali.test.ui.utils.Spinner;
+import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
