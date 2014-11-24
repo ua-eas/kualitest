@@ -31,6 +31,7 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
@@ -901,6 +902,27 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 saveConfigurationButton.setEnabled(true);
                 saveConfigurationMenuItem.setEnabled(true);
             }
+        }
+    }
+
+    /**
+     *
+     * @param actionNode
+     */
+    public void handleTestDatabaseConnection(DefaultMutableTreeNode actionNode) {
+        DatabaseConnection dbconn = (DatabaseConnection) actionNode.getUserObject();
+        Connection conn = null;
+        try {
+            conn = Utils.getDatabaseConnection(Utils.getEncryptionPassword(getConfiguration()), dbconn);
+            if (conn != null) {
+                JOptionPane.showMessageDialog(this, "Successfully connected to database " + dbconn.getName());
+            } else {
+                throw new Exception("Unknown connection error");
+            }
+        }
+        
+        catch (Exception ex) {
+            UIUtils.showError(this, "Database Connection Failed", "Database connection to " + dbconn.getName() + " failed - " + ex.toString());
         }
     }
 
