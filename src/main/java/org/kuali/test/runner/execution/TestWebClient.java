@@ -131,7 +131,7 @@ public class TestWebClient extends WebClient {
         getOptions().setCssEnabled(true);
         
         // wait 30 seconds for javascript if required
-        waitForBackgroundJavaScript(30000);
+        waitForBackgroundJavaScript(Constants.HTML_CLIENT_WAIT_FOR_BACKGROUND_JAVASCRIPT_TIME);
         
         setAjaxController(new NicelyResynchronizingAjaxController());
         

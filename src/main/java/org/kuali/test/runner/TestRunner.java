@@ -328,13 +328,17 @@ public class TestRunner {
      * @param testName
      * @return 
      */
-    public TestExecutionMonitor runTest(String platformName, String testName) {
+    public TestExecutionMonitor runTest(String platformName, String testName, int testRuns) {
         TestExecutionMonitor retval = null;
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
         if (test != null) {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
-            testExecutions.add(new TestExecutionContext(configuration, test));
+            
+            for (int i = 0; i < testRuns; ++i) {
+                testExecutions.add(new TestExecutionContext(configuration, test));
+            }
+            
             retval = new TestExecutionMonitor(testExecutions);
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
@@ -344,20 +348,29 @@ public class TestRunner {
     }
 
     /**
-     *
+     * 
      * @param platformName
      * @param testSuiteName
+     * @param testRuns
+     * @return 
      */
-    public void runTestSuite(String platformName, String testSuiteName) {
+    public TestExecutionMonitor runTestSuite(String platformName, String testSuiteName, int testRuns) {
+        TestExecutionMonitor retval = null;
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
         if (testSuite != null) {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
-            testExecutions.add(new TestExecutionContext(configuration, testSuite));
-            new TestExecutionMonitor(testExecutions);
+            
+            for (int i = 0; i < testRuns; ++i) {
+                testExecutions.add(new TestExecutionContext(configuration, testSuite));
+            }
+            
+            retval = new TestExecutionMonitor(testExecutions);
         } else {
             System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }
+        
+        return retval;
     }
 
     /**

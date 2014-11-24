@@ -600,9 +600,7 @@ public class PoiHelper {
                     FileUtils.forceDelete(f);
                 } 
                 
-                catch (IOException ex) {
-                    LOG.warn(ex.toString(), ex);
-                }
+                catch (IOException ex) {}
             }
         }
 

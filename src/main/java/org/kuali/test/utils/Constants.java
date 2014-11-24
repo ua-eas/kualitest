@@ -138,6 +138,7 @@ public class Constants {
     public static final String JMX = "JMX Connections";
     
     public static final String SAVE_ACTION = "Save";
+    public static final String RUN_ACTION = "Run";
     public static final String OK_ACTION = "Ok";
     public static final String CANCEL_ACTION = "Cancel";
     public static final String CLOSE_ACTION = "Close";
@@ -257,6 +258,7 @@ public class Constants {
     public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
     public static final int PROXY_CONNECTION_TIMEOUT = 2 * 300000;
     public static final long LOCAL_TEST_RUN_SLEEP_TIME = 2000;
+    public static final long HTML_CLIENT_WAIT_FOR_BACKGROUND_JAVASCRIPT_TIME = 30000;
     
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     

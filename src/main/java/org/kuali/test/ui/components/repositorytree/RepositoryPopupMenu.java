@@ -17,8 +17,6 @@
 package org.kuali.test.ui.components.repositorytree;
 
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -26,9 +24,10 @@ import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestSuite;
 import org.kuali.test.creator.TestCreator;
-import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.runner.TestRunner;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BaseTreePopupMenu;
+import org.kuali.test.ui.components.dialogs.LoadTestDlg;
 import org.kuali.test.ui.components.splash.RunningTestDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
@@ -48,6 +47,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
     public static final String ADD_TESTS_ACTION = "Add Test(s)";
     public static final String EDIT_TEST_ACTION = "Edit Test";
     public static final String RUN_TEST_SUITE_ACTION = "Run Test Suite";
+    public static final String RUN_TEST_SUITE_LOAD_TEST_ACTION = "Run Test Suite Load Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
     
     /**
@@ -82,9 +82,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                 @Override
                 protected void runProcess() {
                     try {
-                        List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
-                        testExecutions.add(new TestExecutionContext(getMainframe().getConfiguration(), testSuite));
-                        TestExecutionMonitor monitor = new TestExecutionMonitor(testExecutions);
+                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), 1);
+                        getProgressBar().setMaximum(monitor.getTestOperationCount());
                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
 
                         while (!monitor.testsCompleted()) {
@@ -111,7 +110,13 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                     }
                 }
             };
-
+        } else if (RUN_TEST_SUITE_LOAD_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            final TestSuite testSuite = (TestSuite)actionNode.getUserObject();
+            LoadTestDlg dlg = new LoadTestDlg(getMainframe(),testSuite.getName(), true);
+             
+            if (dlg.isSaved()) {
+                new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), dlg.getTestRuns());
+            }
         } else if (DELETE_TEST_SUITE_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleDeleteTestSuite(actionNode);
         } else if (Constants.CREATE_TEST.equalsIgnoreCase(e.getActionCommand())) {

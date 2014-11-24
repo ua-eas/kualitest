@@ -73,7 +73,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         String[] labels = {
             "Platform",
             "Start Date/Time",
-            "Test Runs",
+            "Test Runs (multi-threaded)",
             "Repeat Interval"
         };
         

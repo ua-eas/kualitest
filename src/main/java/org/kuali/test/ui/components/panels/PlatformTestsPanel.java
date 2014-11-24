@@ -46,6 +46,7 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.runner.TestRunner;
 import org.kuali.test.runner.execution.TestExecutionMonitor;
 import org.kuali.test.ui.base.BasePanel;
+import org.kuali.test.ui.components.dialogs.LoadTestDlg;
 import org.kuali.test.ui.components.splash.RunningTestDisplay;
 import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
@@ -64,6 +65,7 @@ public class PlatformTestsPanel extends BasePanel
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
     private static final String DELETE_TEST = "Delete test";
     private static final String RUN_TEST = "Run test";
+    private static final String RUN_TEST_LOAD_TEST = "Run test load test";
     
     private JList testList;
     private Platform currentPlatform;
@@ -104,9 +106,15 @@ public class PlatformTestsPanel extends BasePanel
         popupMenu.add(m);
         m.addActionListener(this);
         popupMenu.add(new JSeparator());
+
         m = new JMenuItem(RUN_TEST);
         popupMenu.add(m);
         m.addActionListener(this);
+
+        m = new JMenuItem(RUN_TEST_LOAD_TEST);
+        popupMenu.add(m);
+        m.addActionListener(this);
+
         popupMenu.add(new JSeparator());
         deleteTestMenuItem = new JMenuItem(DELETE_TEST);
         popupMenu.add(deleteTestMenuItem);
@@ -238,7 +246,7 @@ public class PlatformTestsPanel extends BasePanel
                 @Override
                 protected void runProcess() {
                     try {
-                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName());
+                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
                         getProgressBar().setMaximum(monitor.getTestOperationCount());
                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                         while (!monitor.testsCompleted()) {
@@ -260,6 +268,12 @@ public class PlatformTestsPanel extends BasePanel
                     }
                 }
             };
+        } else if (RUN_TEST_LOAD_TEST.equals(e.getActionCommand())) {
+             LoadTestDlg dlg = new LoadTestDlg(getMainframe(), currentTestHeader.getTestName(), false);
+             
+             if (dlg.isSaved()) {
+                new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), dlg.getTestRuns());
+             }
         }
     }
     
