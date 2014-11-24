@@ -42,8 +42,10 @@ public class TestExecutionMonitor extends Thread {
      */
     public TestExecutionMonitor(List <TestExecutionContext> testExecutionList) {
         this.testExecutionList = testExecutionList;
+        int i = 1;
         for (TestExecutionContext tec : testExecutionList) {
             tec.startTest();
+            tec.setTestRun(i++);
         }
         
         start();
