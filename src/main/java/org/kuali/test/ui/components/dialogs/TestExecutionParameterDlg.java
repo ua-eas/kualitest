@@ -38,6 +38,7 @@ import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -129,10 +130,12 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         testExecutionParameter = TestExecutionParameter.Factory.newInstance();
         testExecutionParameter.setName(name.getText());
         CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
+
         if (StringUtils.isNotBlank(filters.getText())) {
             cp.setPropertyGroup(filters.getText());
         }
         
+        cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
         testExecutionParameter.setValueProperty(cp);
         testExecutionParameter.setTreatAsDate(treatAsDate.isSelected());
         testExecutionParameter.setAutoReplace(autoReplace.isSelected());
