@@ -2838,7 +2838,7 @@ public class Utils {
     }
 
     public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
-        return buildCheckpointPropertyKey(cp.getPropertyGroup(), cp.getPropertySection(), cp.getDisplayName());
+        return buildCheckpointPropertyKey(cp.getPropertyGroup(), formatHtmlForComparisonProperty(cp.getPropertySection()), cp.getDisplayName());
     }
 
     public static String buildCheckpointPropertyKey(String group, String section, String name) {
