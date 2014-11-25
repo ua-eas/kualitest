@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
-import static org.kuali.test.handlers.DefaultHtmlTagHandler.LOG;
+import static org.kuali.test.handlers.htmltag.DefaultHtmlTagHandler.LOG;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;

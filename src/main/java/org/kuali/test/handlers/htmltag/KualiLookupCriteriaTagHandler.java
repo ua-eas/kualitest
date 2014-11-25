@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
 import org.w3c.dom.Element;
 
@@ -22,7 +22,7 @@ import org.w3c.dom.Element;
  *
  * @author rbtucker
  */
-public class KualiLookupResultsTagHandler extends DefaultHtmlTagHandler {
+public class KualiLookupCriteriaTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -41,6 +41,6 @@ public class KualiLookupResultsTagHandler extends DefaultHtmlTagHandler {
      */
     @Override
     public String getGroupName(Element node) {
-        return "lookup results";
+        return "lookup criteria";
     }
 }

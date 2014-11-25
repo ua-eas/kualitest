@@ -86,4 +86,10 @@
 	   <indicator>Error</indicator>
    </error-indicators>
    <pdf-viewer-path>acroread</pdf-viewer-path>
+   <parameter-handlers>
+      <parameter-handler>org.kuali.test.handlers.parameter.CurrentDateHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.FirstListItemHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.GeneratedIdHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.SaveValueHandler</parameter-handler>
+   </parameter-handlers>
 </kuali-test-configuration>

@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Platform;
-import org.kuali.test.handlers.HtmlTagHandler;
+import org.kuali.test.handlers.htmltag.HtmlTagHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

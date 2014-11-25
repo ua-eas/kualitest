@@ -14,33 +14,16 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.parameter;
 
-import org.w3c.dom.Element;
-
-/**
- *
- * @author rbtucker
- */
-public class KualiLookupCriteriaTagHandler extends DefaultHtmlTagHandler {
-
-    /**
-     *
-     * @param node
-     * @return
-     */
+public class FirstListItemHandler extends ListItemHandler {
+    public FirstListItemHandler() {
+        super(1);
+    }
+    
     @Override
-    public boolean isContainer(Element node) {
-        return true;
+    public String getDescription() {
+        return "This handler set the selected option for the field to the first item if it exists";
     }
 
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public String getGroupName(Element node) {
-        return "lookup criteria";
-    }
 }

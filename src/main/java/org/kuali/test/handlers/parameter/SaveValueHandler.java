@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.parameter;
 
-import org.kuali.test.CheckpointProperty;
-import org.w3c.dom.Element;
 
-/**
- *
- * @author rbtucker
- */
-public class SelectInputTagHandler extends DefaultHtmlTagHandler {
-
-    /**
-     *
-     * @param node
-     * @return
-     */
+public class SaveValueHandler extends AbstractParameterHandler {
+    public SaveValueHandler() {
+    }
     @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyValue(getSelectedOption(node));
-        return retval;
+    public String getDescription() {
+        return "This handler will save the current run value from this field which can be used as input for other actions (such a sql query) if desired.";
     }
 }

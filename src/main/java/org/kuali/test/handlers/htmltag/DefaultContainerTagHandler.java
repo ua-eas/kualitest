@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import javax.swing.JComponent;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiWorkareaTagHandler extends DefaultHtmlTagHandler {
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public JComponent getContainerComponent(Element node) {
-        return getNewTabbedPane();
-    }
+public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *

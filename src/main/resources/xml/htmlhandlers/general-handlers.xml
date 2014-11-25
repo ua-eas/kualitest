@@ -2,7 +2,7 @@
 <tag-handlers xmlns="test.kuali.org">
     <handler>
         <tag-name>input</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TextInputTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TextInputTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -19,7 +19,7 @@
     </handler>
     <handler>
         <tag-name>input</tag-name>
-        <handler-class-name>org.kuali.test.handlers.RadioInputTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.RadioInputTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -37,7 +37,7 @@
 
     <handler>
         <tag-name>input</tag-name>
-        <handler-class-name>org.kuali.test.handlers.CheckboxInputTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.CheckboxInputTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -55,13 +55,13 @@
 
     <handler>
         <tag-name>select</tag-name>
-        <handler-class-name>org.kuali.test.handlers.SelectInputTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.SelectInputTagHandler</handler-class-name>
         <handler-name>general4</handler-name>
     </handler>
 
     <handler>
         <tag-name>textarea</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TextareaTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TextareaTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>

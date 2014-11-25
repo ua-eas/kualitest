@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.labels;
+package org.kuali.test.handlers.htmltag;
 
-import java.awt.Font;
-import javax.swing.JLabel;
-import javax.swing.UIManager;
+import org.kuali.test.utils.Constants;
+import org.w3c.dom.Element;
 
-
-public class DataDisplayLabel extends JLabel {
-    public DataDisplayLabel(String text) {
-        super(text);
-        Font labelFont = (Font)UIManager.get("Label.font");
-        setFont(new Font(labelFont.getName(), Font.PLAIN, labelFont.getSize()+1));
-        this.setVerticalAlignment(JLabel.BOTTOM);
+/**
+ *
+ * @author rbtucker
+ */
+public class KualiHeaderInfoCellTagHandler extends TdTagHandler {
+    @Override
+    public String getSectionName(Element node) {
+        return Constants.HEADER_INFO_PANEL_NAME;
     }
 }

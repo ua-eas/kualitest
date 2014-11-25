@@ -124,8 +124,7 @@
             <xs:element name="value" type="xs:string"/>
             <xs:element name="remove" type="xs:boolean"/>
             <xs:element name="value-property" type="checkpoint-property"/>
-            <xs:element name="treat-as-date" type="xs:boolean" default="false"/>
-            <xs:element name="auto-replace" type="xs:boolean" default="false"/>
+            <xs:element name="parameter-handler" type="xs:string"/>
         </xs:sequence>
     </xs:complexType>
 

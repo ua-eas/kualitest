@@ -247,7 +247,7 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 s = configuration.getTestResultLocation().replace(Constants.REPOSITORY_ROOT_REPLACE, configFile.getParent());
                 configuration.setTestResultLocation(s);
                 
-                Utils.initializeHtmlTagHandlers(configuration);
+                Utils.initializeHandlers(configuration);
                 
             } catch (XmlException ex) {
                 UIUtils.showError(this, "Invalid input configuration", "Input configuration file failed validation");

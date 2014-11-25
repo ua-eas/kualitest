@@ -50,6 +50,7 @@
                 <xs:element name="http-post-submit-processors" type="http-post-submit-processors" minOccurs="0"/>
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
+                <xs:element name="parameter-handlers" type="parameter-handlers" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -72,6 +73,12 @@
     <xs:complexType name="urls-to-ignore">
         <xs:sequence>
             <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="parameter-handlers">
+        <xs:sequence>
+            <xs:element name="parameter-handler" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

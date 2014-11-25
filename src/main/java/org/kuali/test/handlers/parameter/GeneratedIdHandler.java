@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package org.kuali.test.ui.components.labels;
-
-import java.awt.Font;
-import javax.swing.JLabel;
-import javax.swing.UIManager;
+package org.kuali.test.handlers.parameter;
 
 
-public class DataDisplayLabel extends JLabel {
-    public DataDisplayLabel(String text) {
-        super(text);
-        Font labelFont = (Font)UIManager.get("Label.font");
-        setFont(new Font(labelFont.getName(), Font.PLAIN, labelFont.getSize()+1));
-        this.setVerticalAlignment(JLabel.BOTTOM);
+public class GeneratedIdHandler extends AbstractParameterHandler {
+    @Override
+    public boolean isAutoReplace() {
+        return true;
+    }
+    
+    @Override
+    public String getDescription() {
+        return "This handler will save the current value from this field and replace all instances of this value found in future test runs with the current run value";
     }
 }

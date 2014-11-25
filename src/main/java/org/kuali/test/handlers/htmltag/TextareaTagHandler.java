@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.utils.Constants;
+import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiHeaderInfoCellTagHandler extends TdTagHandler {
+public class TextareaTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
     @Override
-    public String getSectionName(Element node) {
-        return Constants.HEADER_INFO_PANEL_NAME;
+    public CheckpointProperty getCheckpointProperty(Element node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        return retval;
     }
 }

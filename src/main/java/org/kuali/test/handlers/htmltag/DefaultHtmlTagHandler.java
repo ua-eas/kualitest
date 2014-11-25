@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
 import java.util.ArrayList;
 import java.util.Collections;

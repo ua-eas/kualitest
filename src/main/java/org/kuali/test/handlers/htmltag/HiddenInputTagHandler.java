@@ -14,28 +14,11 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
-
-import org.kuali.test.CheckpointProperty;
-import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
-import org.w3c.dom.Element;
+package org.kuali.test.handlers.htmltag;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiDocumentNameTagHandler extends TdTagHandler {
-
-    @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = CheckpointProperty.Factory.newInstance();
-        
-        retval.setPropertyValue(Utils.cleanDisplayText(node));
-        retval.setPropertyName(Constants.DOCUMENT_NAME);
-        retval.setDisplayName(Constants.DOCUMENT_NAME);
-        
-        return retval;
-    }
-   
+public class HiddenInputTagHandler extends TextInputTagHandler {
 }

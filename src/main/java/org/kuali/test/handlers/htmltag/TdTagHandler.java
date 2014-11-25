@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;

@@ -19,9 +19,14 @@ package org.kuali.test.ui.components.dialogs;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -34,8 +39,12 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.handlers.parameter.ParameterHandler;
+import org.kuali.test.handlers.parameter.SaveValueHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
+import org.kuali.test.ui.components.labels.DataDisplayLabel;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
+import org.kuali.test.ui.components.renderers.ComboBoxTooltipRenderer;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -48,9 +57,8 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     implements ListSelectionListener, DocumentListener {
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
-    private JTextField filters;
-    private JCheckBox treatAsDate;
-    private JCheckBox autoReplace;
+    private JLabel autoReplace;
+    private JComboBox parameterHandlers;
     private TestExecutionParameter testExecutionParameter;
 
     /**
@@ -69,22 +77,40 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     private void initComponents(JWebBrowser wb, TestHeader testHeader, String html) {
         String[] labels = new String[]{
             "Name",
-            "Filters",
-            "",
-            ""
+            "Handler",
+            "Auto Replace"
         };
 
         name = new JTextField(30);
         name.getDocument().addDocumentListener(this);
-        filters = new JTextField(30);
-        treatAsDate = new JCheckBox("Treat value as date - replace with current date");
-        autoReplace = new JCheckBox("Use for auto replace");
-        autoReplace.setSelected(true);
+        
+        List <ParameterHandler> handlers = new ArrayList(Utils.PARAMETER_HANDLERS.values());
+        Collections.sort(handlers);
+        
+        parameterHandlers = new JComboBox(handlers.toArray(new ParameterHandler[handlers.size()]));
+        
+        List <String> tooltips = new ArrayList<String>();
+        
+        for (ParameterHandler ph: handlers) {
+            tooltips.add("<html><div style='width: 300px;'>" + ph.getDescription() + "</div></html>");
+        }
+        
+        parameterHandlers.setRenderer(new ComboBoxTooltipRenderer(tooltips));
+        
+        parameterHandlers.setSelectedItem(Utils.PARAMETER_HANDLERS.get(SaveValueHandler.class.getName()));
+        parameterHandlers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
+                autoReplace.setText("" + ph.isAutoReplace());
+            }
+        });
+        
+        autoReplace = new DataDisplayLabel("false");
         
         JComponent[] components = new JComponent[]{
             name,
-            filters,
-            treatAsDate,
+            parameterHandlers,
             autoReplace
         };
 
@@ -130,15 +156,9 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         testExecutionParameter = TestExecutionParameter.Factory.newInstance();
         testExecutionParameter.setName(name.getText());
         CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
-
-        if (StringUtils.isNotBlank(filters.getText())) {
-            cp.setPropertyGroup(filters.getText());
-        }
-        
         cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
         testExecutionParameter.setValueProperty(cp);
-        testExecutionParameter.setTreatAsDate(treatAsDate.isSelected());
-        testExecutionParameter.setAutoReplace(autoReplace.isSelected());
+        testExecutionParameter.setParameterHandler(parameterHandlers.getClass().getName());
         
         setSaved(true);
         dispose();
@@ -175,7 +195,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     
     private boolean canSave() {
         List <CheckpointProperty> l = valuesPanel.getSelectedProperties();
-        return ((l != null) && !l.isEmpty() && StringUtils.isNotBlank(name.getText()));
+        return ((l != null) && !l.isEmpty() && StringUtils.isNotBlank(name.getText()) && (parameterHandlers.getSelectedItem() != null));
     }
 
     @Override

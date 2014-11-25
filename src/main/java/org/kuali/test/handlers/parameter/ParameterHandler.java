@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.parameter;
 
-import org.kuali.test.CheckpointProperty;
-import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-/**
- *
- * @author rbtucker
- */
-public class TextareaTagHandler extends DefaultHtmlTagHandler {
 
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node);
-        return retval;
-    }
+public interface ParameterHandler extends Comparable<ParameterHandler> {
+    public String getValue(String currentValue);
+    public String getValue(Node currentNode);
+    public boolean isAutoReplace();
+    public String getDescription();
 }

@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class TextInputTagHandler extends DefaultHtmlTagHandler {
-
-    /**
-     *
-     * @param node
-     * @return
-     */
+public class KualiLookupTdTagHandler extends TdTagHandler {
     @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node);
+    public String getSectionName(Element node) {
+        return "lookup result";
+    }
+
+    @Override
+    public String getSubSectionName(Element node) {
+        String retval = null;
+        Element pnode = (Element)node.getParentNode();
+        
+        if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
+            retval = Utils.buildHtmlStyle(Constants.HTML_DARK_RED_STYLE, "row[" + (Utils.getChildNodeIndex(pnode)+1) + "]");
+        }
+
         return retval;
     }
 }

@@ -19,7 +19,7 @@ package org.kuali.test.comparators;
 import java.util.Comparator;
 import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatcher;
-import org.kuali.test.handlers.HtmlTagHandler;
+import org.kuali.test.handlers.htmltag.HtmlTagHandler;
 
 /**
  * this class is used to order the HtmlTagHandler classes to the most granular tag comparisons

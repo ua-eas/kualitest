@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Constants;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class RadioInputTagHandler extends DefaultHtmlTagHandler {
+public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -31,9 +31,19 @@ public class RadioInputTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyValue(getSelectedRadioValue(node, retval.getPropertyName()));
-        return retval;
+    public boolean isContainer(Element node) {
+        return true;
     }
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    @Override
+    public String getGroupName(Element node) {
+        return Constants.ROUTELOG_HTML_PROPERTY_GROUP;
+    }
+    
+    
 }

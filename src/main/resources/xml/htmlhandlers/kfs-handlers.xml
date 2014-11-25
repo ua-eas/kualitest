@@ -4,7 +4,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -78,7 +78,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -122,7 +122,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiCapitalAssetTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiCapitalAssetTagHandler</handler-class-name>
         <sort-index>1</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -211,7 +211,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiCapitalAssetTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiCapitalAssetTagHandler</handler-class-name>
         <sort-index>2</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -266,7 +266,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiCapitalAssetTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiCapitalAssetTagHandler</handler-class-name>
         <sort-index>3</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -310,7 +310,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -436,7 +436,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <sort-index>10</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -529,7 +529,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiItemAccountTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiItemAccountTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -739,7 +739,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiItemAccountTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiItemAccountTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -929,7 +929,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -1024,7 +1024,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>input</tag-name>
-        <handler-class-name>org.kuali.test.handlers.HiddenInputTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.HiddenInputTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -1049,7 +1049,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.NoopTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.NoopTagHandler</handler-class-name>
         <sort-index>5</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -1105,7 +1105,7 @@
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <sort-index>6</sort-index>
         <tag-matchers>
             <tag-matcher>

@@ -63,6 +63,7 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.FailureAction;
 import org.kuali.test.TestExecutionParameter;
+import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
@@ -345,11 +346,10 @@ public class TestWebClient extends WebClient {
 
             for (NameValuePair nvp : work) {
                 TestExecutionParameter tep = map.get(nvp.getValue());
-                if ((tep != null) && tep.getAutoReplace()) {
-                    if (tep.getTreatAsDate()) {
-                        retval.add(new NameValuePair(nvp.getName(), dateReplaceFormat.format(new Date())));
-                    } else {
-                        retval.add(new NameValuePair(nvp.getName(), tep.getValue()));
+                if (tep != null) {
+                    ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+                    if ((ph != null) && ph.isAutoReplace()) {
+                        retval.add(new NameValuePair(nvp.getName(), ph.getValue(tep.getValue())));
                     }
                 } else {
                     retval.add(nvp);

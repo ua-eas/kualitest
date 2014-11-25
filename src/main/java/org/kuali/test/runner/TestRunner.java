@@ -488,7 +488,7 @@ public class TestRunner {
                     }
                     
                     updateTestRunnerConfiguration();
-                    Utils.initializeHtmlTagHandlers(configuration);
+                    Utils.initializeHandlers(configuration);
                     retval = true;
                 } 
                 

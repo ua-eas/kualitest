@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class NoopTagHandler extends DefaultHtmlTagHandler {
+public class KualiLookupResultsTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -31,7 +30,17 @@ public class NoopTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        return null;
+    public boolean isContainer(Element node) {
+        return true;
+    }
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    @Override
+    public String getGroupName(Element node) {
+        return "lookup results";
     }
 }

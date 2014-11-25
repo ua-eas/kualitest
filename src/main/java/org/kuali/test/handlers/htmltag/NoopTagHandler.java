@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
+import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
+public class NoopTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -30,7 +31,7 @@ public class DefaultContainerTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public boolean isContainer(Element node) {
-        return true;
+    public CheckpointProperty getCheckpointProperty(Element node) {
+        return null;
     }
 }

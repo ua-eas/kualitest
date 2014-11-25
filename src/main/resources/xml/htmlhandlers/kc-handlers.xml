@@ -2,7 +2,7 @@
 <tag-handlers xmlns="test.kuali.org">
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>

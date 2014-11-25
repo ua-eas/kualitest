@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import javax.swing.JComponent;
-import org.kuali.test.utils.Constants;
+import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiHeaderAreaTagHandler extends DefaultHtmlTagHandler {
+public class RadioInputTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -32,27 +31,9 @@ public class KualiHeaderAreaTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public JComponent getContainerComponent(Element node) {
-        return getNewPanel(node);
-    }
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public boolean isContainer(Element node) {
-        return true;
-    }
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public String getGroupName(Element node) {
-        return Constants.HEADER_AREA;
+    public CheckpointProperty getCheckpointProperty(Element node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        retval.setPropertyValue(getSelectedRadioValue(node, retval.getPropertyName()));
+        return retval;
     }
 }

@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
+import javax.swing.JComponent;
 import org.kuali.test.utils.Constants;
 import org.w3c.dom.Element;
 
@@ -23,7 +24,17 @@ import org.w3c.dom.Element;
  *
  * @author rbtucker
  */
-public class KualiTabTagHandler extends DefaultHtmlTagHandler {
+public class KualiHeaderAreaTagHandler extends DefaultHtmlTagHandler {
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    @Override
+    public JComponent getContainerComponent(Element node) {
+        return getNewPanel(node);
+    }
 
     /**
      *
@@ -32,9 +43,6 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
      */
     @Override
     public boolean isContainer(Element node) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("tag: " + node.getNodeName() + ", id=" + node.getAttribute("id") + ", name=" + node.getAttribute("name"));
-        }
         return true;
     }
 
@@ -45,20 +53,6 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
      */
     @Override
     public String getGroupName(Element node) {
-        String id = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
-        String retval = id;
-        int pos1 = id.indexOf("-");
-        int pos2 = id.lastIndexOf("-");
-        
-        if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-            retval = id.substring(pos1+1, pos2);
-        }
-        
-        // hack to handle generated tab names in kuali
-        if (retval.startsWith("ID")) {
-            retval = null;
-        }
-        
-        return retval;
+        return Constants.HEADER_AREA;
     }
 }

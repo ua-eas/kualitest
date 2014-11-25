@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package org.kuali.test.handlers;
+package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.utils.Constants;
+import org.kuali.test.CheckpointProperty;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
+public class TextInputTagHandler extends DefaultHtmlTagHandler {
 
     /**
      *
@@ -31,19 +31,8 @@ public class KualiRouteLogIframeTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public boolean isContainer(Element node) {
-        return true;
+    public CheckpointProperty getCheckpointProperty(Element node) {
+        CheckpointProperty retval = super.getCheckpointProperty(node);
+        return retval;
     }
-
-    /**
-     *
-     * @param node
-     * @return
-     */
-    @Override
-    public String getGroupName(Element node) {
-        return Constants.ROUTELOG_HTML_PROPERTY_GROUP;
-    }
-    
-    
 }

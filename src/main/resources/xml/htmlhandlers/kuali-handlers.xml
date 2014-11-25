@@ -2,7 +2,7 @@
 <tag-handlers xmlns="test.kuali.org">
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -58,7 +58,7 @@
 
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -98,7 +98,7 @@
 
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -158,7 +158,7 @@
 
     <handler>
         <tag-name>div</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiHeaderAreaTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiHeaderAreaTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -180,7 +180,7 @@
 
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiHeaderInfoCellTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiHeaderInfoCellTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -213,7 +213,7 @@
 
     <handler>
         <tag-name>h1</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiDocumentNameTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiDocumentNameTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -247,7 +247,7 @@
 
     <handler>
         <tag-name>div</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiWorkareaTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiWorkareaTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -265,7 +265,7 @@
 
     <handler>
         <tag-name>div</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiTabTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiTabTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -282,7 +282,7 @@
     </handler>
     <handler>
         <tag-name>iframe</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiRouteLogIframeTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiRouteLogIframeTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -305,7 +305,7 @@
     <!-- lookup handlers -->    
     <handler>
         <tag-name>div</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiLookupCriteriaTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiLookupCriteriaTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -322,7 +322,7 @@
     </handler>
     <handler>
         <tag-name>table</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiLookupResultsTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiLookupResultsTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
@@ -344,7 +344,7 @@
     
     <handler>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.KualiLookupTdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiLookupTdTagHandler</handler-class-name>
         <tag-matchers>
             <tag-matcher>
                 <match-type>current</match-type>
