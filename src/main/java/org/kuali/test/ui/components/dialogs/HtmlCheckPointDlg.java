@@ -21,7 +21,9 @@ import java.awt.Dimension;
 import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -34,6 +36,7 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
+import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
@@ -48,6 +51,7 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     private JTextField name;
     private HtmlCheckpointPanel checkpointPanel;
     private JCheckBox saveScreen;
+    private Spinner spinner;
     /**
      * 
      * @param mainFrame
@@ -76,7 +80,6 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     private void initComponents(JWebBrowser webBrowser, String html) {
         String[] labels = new String[]{
             "Checkpoint Name",
-            "Comment",
             ""
         };
 
@@ -85,19 +88,21 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
 
         saveScreen = new JCheckBox("Save screen with checkpoint");
         
-        JComponent[] components = new JComponent[]{
-            name, createCommentField(), saveScreen};
+        JComponent[] components = new JComponent[]{name, saveScreen};
 
         JPanel p = new BasePanel(getMainframe());
-
-        addStandardButtons();
-
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
-
-        checkpointPanel = new HtmlCheckpointPanel(this, webBrowser, testHeader, html);
-        p.add(checkpointPanel, BorderLayout.CENTER);
-
-        getContentPane().add(p, BorderLayout.CENTER);
+        
+        JPanel p2 = new JPanel(new BorderLayout());
+        
+        p2.add(new JLabel("Comment:"), BorderLayout.NORTH);
+        p2.add(createCommentField(), BorderLayout.CENTER);
+        p.add(p2, BorderLayout.CENTER);
+        p.add(new JSeparator(), BorderLayout.SOUTH);
+        
+        getContentPane().add(p, BorderLayout.NORTH);
+        getContentPane().add(checkpointPanel = new HtmlCheckpointPanel(this, webBrowser, testHeader, html), BorderLayout.CENTER);
+        addStandardButtons();
 
         getSaveButton().setEnabled(!checkpointPanel.isEmpty());
 

@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -54,10 +53,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     implements ListSelectionListener, DocumentListener {
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
-    private JLabel autoReplace;
     private JComboBox parameterHandlers;
     private TestExecutionParameter testExecutionParameter;
-
+    
+    
     /**
      * 
      * @param mainframe
@@ -71,7 +70,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         initComponents(wb, testHeader, html);
     }
 
-    private void initComponents(JWebBrowser wb, TestHeader testHeader, String html) {
+    private void initComponents(final JWebBrowser wb, final TestHeader testHeader, String html) {
         String[] labels = new String[]{
             "Name",
             "Handler",
@@ -103,11 +102,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.CENTER);
         p.add(new JSeparator(), BorderLayout.SOUTH);
-        
         getContentPane().add(p, BorderLayout.NORTH);
-        
-        getContentPane().add(valuesPanel = new HtmlCheckpointPanel(this, wb, testHeader, true), BorderLayout.CENTER);
-        valuesPanel.addListSelectionListener(this);
+
+        getContentPane().add(valuesPanel = new HtmlCheckpointPanel(TestExecutionParameterDlg.this, wb, testHeader, true), BorderLayout.CENTER);
+        valuesPanel.addListSelectionListener(TestExecutionParameterDlg.this);
         
         addStandardButtons();
         getSaveButton().setEnabled(false);
@@ -143,7 +141,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
         cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
         testExecutionParameter.setValueProperty(cp);
-        testExecutionParameter.setParameterHandler(parameterHandlers.getClass().getName());
+        testExecutionParameter.setParameterHandler(parameterHandlers.getSelectedItem().getClass().getName());
         
         setSaved(true);
         dispose();

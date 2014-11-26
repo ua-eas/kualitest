@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
@@ -63,14 +62,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         this.singleSelectMode = singleSelectMode;
         this.parentDialog = parentDialog;
         this.webBrowser = webBrowser;
-        parentDialog.getMainframe().startSpinner("Loading available checkpoint properties...");
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                initComponents(loadDocumentInformation(testHeader));
-                parentDialog.getMainframe().stopSpinner();
-            }
-        });
+        initComponents(loadDocumentInformation(testHeader));
     }
 
     private HtmlDomProcessor.DomInformation loadDocumentInformation(TestHeader testHeader) {
@@ -142,6 +134,8 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         } else {
             UIUtils.showError(parentDialog, "HTML Parse Error", "Unable to parse web browser HTML");
         }
+        
+        parentDialog.validate();
     }
 
     private Map<String, List<CheckpointProperty>> loadCheckpointMap(List<CheckpointProperty> checkpointProperties) {

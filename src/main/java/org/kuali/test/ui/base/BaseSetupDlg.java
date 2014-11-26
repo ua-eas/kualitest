@@ -377,4 +377,7 @@ public abstract class BaseSetupDlg extends JDialog implements ActionListener {
     }
     
     protected void addAdditionalButtons(JPanel p) {};
+    
+    public void startSpinner(String message) {};
+    public void stopSpinner() {};
 }
