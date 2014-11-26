@@ -53,7 +53,6 @@ import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
-import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -246,31 +245,21 @@ public class PlatformTestsPanel extends BasePanel
                 
                 @Override
                 protected void runProcess() {
-                    try {
-                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
-                        if (monitor != null) {
-                            getProgressBar().setMaximum(monitor.getTestOperationCount());
-                            monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
-                            while (!monitor.testsCompleted()) {
-                                try {
-                                    updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
-                                    if (isCancelTest()) {
-                                        break;
-                                    }
-                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
-                                } 
+                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
+                    if (monitor != null) {
+                        getProgressBar().setMaximum(monitor.getTestOperationCount());
+                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
+                        while (!monitor.testsCompleted()) {
+                            try {
+                                updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
+                                if (isCancelTest()) {
+                                    break;
+                                }
+                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                            } 
 
-                                catch (InterruptedException ex) {};
-                            }
+                            catch (InterruptedException ex) {};
                         }
-                    } 
-                    
-                    catch (Exception ex) {
-                        LOG.error(ex.toString(), ex);
-                        if ((getDlg() != null) && getDlg().isVisible()) {
-                            getDlg().dispose();
-                        }
-                        UIUtils.showError(getMainframe(), "Error", "Error occured while attempting to run test " + currentTestHeader.getTestName());
                     }
                 }
             };
