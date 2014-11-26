@@ -19,8 +19,6 @@ package org.kuali.test.ui.components.dialogs;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +40,6 @@ import org.kuali.test.creator.TestCreator;
 import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.handlers.parameter.SaveValueHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
-import org.kuali.test.ui.components.labels.DataDisplayLabel;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
 import org.kuali.test.ui.components.renderers.ComboBoxTooltipRenderer;
 import org.kuali.test.ui.utils.UIUtils;
@@ -78,7 +75,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         String[] labels = new String[]{
             "Name",
             "Handler",
-            "Auto Replace"
         };
 
         name = new JTextField(30);
@@ -98,20 +94,9 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         parameterHandlers.setRenderer(new ComboBoxTooltipRenderer(tooltips));
         
         parameterHandlers.setSelectedItem(Utils.PARAMETER_HANDLERS.get(SaveValueHandler.class.getName()));
-        parameterHandlers.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
-                autoReplace.setText("" + ph.isAutoReplace());
-            }
-        });
-        
-        autoReplace = new DataDisplayLabel("false");
-        
         JComponent[] components = new JComponent[]{
             name,
             parameterHandlers,
-            autoReplace
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));

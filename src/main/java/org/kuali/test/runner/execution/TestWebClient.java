@@ -48,7 +48,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -63,7 +62,6 @@ import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
 import org.kuali.test.FailureAction;
 import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessor;
 import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
@@ -80,10 +78,9 @@ public class TestWebClient extends WebClient {
     private List<HttpRequestProcessor> preSubmitProcessors = new ArrayList<HttpRequestProcessor>();
     private List<HttpRequestProcessor> postSubmitProcessors = new ArrayList<HttpRequestProcessor>();
     private List<String> testRunUrlsToIgnore = new ArrayList<String>();
-    private SimpleDateFormat dateReplaceFormat;
     
     public TestWebClient(final TestExecutionContext tec) {
-        super(BrowserVersion.CHROME);
+        super(BrowserVersion.getDefault());
         this.tec = tec;
         
         if (tec.getConfiguration().getParametersToIgnore() != null) {
@@ -122,8 +119,6 @@ public class TestWebClient extends WebClient {
             }
         }
 
-        dateReplaceFormat = new SimpleDateFormat(tec.getConfiguration().getDateReplaceFormat());
-        
         getOptions().setJavaScriptEnabled(true);
         getOptions().setThrowExceptionOnFailingStatusCode(false);
         getOptions().setThrowExceptionOnScriptError(false);
@@ -342,15 +337,16 @@ public class TestWebClient extends WebClient {
         }
         
         if (tec.getCurrentTest() != null) {
-            Map<String, TestExecutionParameter> map = tec.getTestExecutionParameterMap(true);
+            Map<String, TestExecutionParameter> byValueMap = tec.getTestExecutionByValueParameterMap();
+            Map<String, TestExecutionParameter> byElementNameMap = tec.getTestExecutionByElementNameParameterMap();
 
             for (NameValuePair nvp : work) {
-                TestExecutionParameter tep = map.get(nvp.getValue());
-                if (tep != null) {
-                    ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
-                    if ((ph != null) && ph.isAutoReplace()) {
-                        retval.add(new NameValuePair(nvp.getName(), ph.getValue(tep.getValue())));
-                    }
+                TestExecutionParameter tep1 = byValueMap.get(nvp.getValue());
+                TestExecutionParameter tep2 = byElementNameMap.get(nvp.getName());
+                if (tep1 != null) {
+                    retval.add(new NameValuePair(nvp.getName(), tep1.getValue()));
+                } else if (tep2 != null) {
+                    retval.add(new NameValuePair(nvp.getName(), tep2.getValue()));
                 } else {
                     retval.add(nvp);
                 }
@@ -525,7 +521,11 @@ public class TestWebClient extends WebClient {
         
         return retval;
     }
-    
+
+    public HtmlElement findHtmlElementByName(String elementName) {
+        return findHtmlElementByName(getCurrentWindow().getEnclosedPage(), elementName);
+    }
+
     public HtmlElement findHtmlElementByName(Page page, String elementName) {
         HtmlElement retval = null;
         
@@ -587,46 +587,49 @@ public class TestWebClient extends WebClient {
         for (NameValuePair nvp : nvplist) {
             try {
                 HtmlElement e = findHtmlElementByName(page, nvp.getName());
-
-                if (e instanceof HtmlTextInput) {
-                    HtmlTextInput ti = (HtmlTextInput)e;
-                    ti.setText(nvp.getValue());
-                } else if (e instanceof HtmlPasswordInput) {
-                    HtmlPasswordInput pi = (HtmlPasswordInput)e;
-                    pi.setText(nvp.getValue());
-                } else if (e instanceof HtmlRadioButtonInput) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlRadioButtonInput rbi = (HtmlRadioButtonInput)de;
-                        if (rbi.getValueAttribute().equals(nvp.getValue())) {
-                            rbi.setChecked(true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlCheckBoxInput) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)de;
-                        if (cbi.getValueAttribute().equals(nvp.getValue())) {
-                            cbi.setChecked(true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlSelect) {
-                    for (DomElement de : page.getElementsByName(nvp.getName())) {
-                        HtmlSelect sel = (HtmlSelect)de;
-                        HtmlOption option = sel.getOptionByValue(nvp.getValue());
-
-                        if (option != null) {
-                            sel.setSelectedAttribute(option, true);
-                            break;
-                        }
-                    }
-                } else if (e instanceof HtmlTextArea) {
-                    HtmlTextArea ta = (HtmlTextArea)e;
-                    ta.setText(nvp.getValue());
-                }
+                populateFormElement(page, e, nvp.getName(), nvp.getValue());
             }
 
             catch (ElementNotFoundException ex) {};
+        }
+    }
+
+    private void populateFormElement(HtmlPage page, HtmlElement e, String name, String value) {
+        if (e instanceof HtmlTextInput) {
+            HtmlTextInput ti = (HtmlTextInput)e;
+            ti.setText(value);
+        } else if (e instanceof HtmlPasswordInput) {
+            HtmlPasswordInput pi = (HtmlPasswordInput)e;
+            pi.setText(value);
+        } else if (e instanceof HtmlRadioButtonInput) {
+            for (DomElement de : page.getElementsByName(name)) {
+                HtmlRadioButtonInput rbi = (HtmlRadioButtonInput)de;
+                if (rbi.getValueAttribute().equals(value)) {
+                    rbi.setChecked(true);
+                    break;
+                }
+            }
+        } else if (e instanceof HtmlCheckBoxInput) {
+            for (DomElement de : page.getElementsByName(name)) {
+                HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)de;
+                if (cbi.getValueAttribute().equals(name)) {
+                    cbi.setChecked(true);
+                    break;
+                }
+            }
+        } else if (e instanceof HtmlSelect) {
+            for (DomElement de : page.getElementsByName(name)) {
+                HtmlSelect sel = (HtmlSelect)de;
+                HtmlOption option = sel.getOptionByValue(value);
+
+                if (option != null) {
+                    sel.setSelectedAttribute(option, true);
+                    break;
+                }
+            }
+        } else if (e instanceof HtmlTextArea) {
+            HtmlTextArea ta = (HtmlTextArea)e;
+            ta.setText(value);
         }
     }
 }

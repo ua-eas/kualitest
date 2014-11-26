@@ -19,7 +19,6 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,6 +41,7 @@ import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
+import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.SuiteTest;
@@ -55,8 +55,6 @@ import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.HtmlDomProcessor;
-import org.kuali.test.utils.HtmlDomProcessor.DomInformation;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
@@ -579,34 +577,6 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public void updateTestExecutionParameters(KualiTestWrapper testWrapper, String html) throws UnsupportedEncodingException {
-        Map<String, TestExecutionParameter> map = new HashMap<String, TestExecutionParameter>();
-        
-        for (TestOperation top : testWrapper.getTest().getOperations().getOperationArray()) {
-            if (top.getOperation().getTestExecutionParameter() != null) {
-                CheckpointProperty cp = top.getOperation().getTestExecutionParameter().getValueProperty();
-                String key = Utils.buildCheckpointPropertyKey(cp);
-                map.put(key, top.getOperation().getTestExecutionParameter());
-            }
-        }
-        
-        if (!map.isEmpty()) {
-            for (String h : testWrapper.getHttpResponseStack()) {
-                DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
-
-                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                    String key = Utils.buildCheckpointPropertyKey(cp);
-                    TestExecutionParameter tep = map.get(key);
-                    if (tep != null) {
-                        if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                            tep.setValue(cp.getPropertyValue().trim());
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
     public TestWebClient getWebClient() {
         if (webClient == null) {
             initializeHttpClient();
@@ -639,7 +609,54 @@ public class TestExecutionContext extends Thread {
         return testOperationCount;
     }
     
-    public Map <String, TestExecutionParameter> getTestExecutionParameterMap(boolean byvalue) {
+    public Map <String, TestExecutionParameter> getTestExecutionByValueParameterMap() {
+        Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
+
+        for (TestOperation top : currentTest.getOperations()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
+                    break;
+                }
+                
+                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                
+                if (StringUtils.isNotBlank(tep.getValue())) {
+                    retval.put(tep.getValueProperty().getPropertyValue(), tep);
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    public Map <String, TestExecutionParameter> getTestExecutionByElementNameParameterMap() {
+        Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
+
+        for (TestOperation top : currentTest.getOperations()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
+                    break;
+                }
+                
+                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                
+                if (StringUtils.isNotBlank(tep.getValue())) {
+                    if (tep.getValueProperty().getTagInformation() != null) {
+                        for (Parameter p : tep.getValueProperty().getTagInformation().getParameterArray()) {
+                            if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
+                                retval.put(p.getValue(), tep);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+
+    public Map <String, TestExecutionParameter> getTestExecutionByParameterNameMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
         for (TestOperation top : currentTest.getOperations()) {
@@ -648,23 +665,16 @@ public class TestExecutionContext extends Thread {
                     break;
                 }
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                String key = tep.getValueProperty().getPropertyValue();
-                    
-                if (!byvalue) {
-                    key = tep.getName();
-                }
-                
+
                 if (StringUtils.isNotBlank(tep.getValue())) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("name=" + tep.getName() + ", key=" + key + ", value=" + tep.getValue());
-                    }
-                    retval.put(key, tep);
+                    retval.put(tep.getName(), tep);
                 }
             }
         }
         
         return retval;
     }
+
     public KualiTestWrapper getCurrentTest() {
         return currentTest;
     }

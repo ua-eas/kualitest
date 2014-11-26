@@ -23,6 +23,8 @@ import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
+import org.kuali.test.TestExecutionParameter;
+import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
@@ -62,6 +64,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         tec.setCurrentTest(testWrapper);
 
         TestException lastTestException = null;
+        CheckpointProperty cpmatch = null;
         
         // if the source page was loaded from a get request try reload a few times if 
         // required to handle asynchronous processing that may affect parameter fields
@@ -74,14 +77,18 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                         String curkey = Utils.buildCheckpointPropertyKey(cp);
                         if (StringUtils.equals(key, curkey)) {
                             if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                                getOperation().getTestExecutionParameter().setValue(cp.getPropertyValue().trim());
+                                cpmatch = cp;
                                 break;
                             }
                         }
                     }
                 }
 
-                if (StringUtils.isNotBlank(getOperation().getTestExecutionParameter().getValue())) {
+                // if we found a matching html element then set the parameter value
+                if (cpmatch != null) {
+                    TestExecutionParameter tep = getOperation().getTestExecutionParameter();
+                    ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+                    tep.setValue(ph.getValue(tec, cpmatch.getPropertyValue().trim()));
                     lastTestException = null;
                     break;
                 }

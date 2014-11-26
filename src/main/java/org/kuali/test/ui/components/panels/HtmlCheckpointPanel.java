@@ -31,6 +31,7 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
 import org.kuali.test.comparators.HtmlCheckpointTabComparator;
@@ -52,6 +53,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private boolean empty = false;
     private boolean singleSelectMode;
     private BaseSetupDlg parentDialog;
+    private JWebBrowser webBrowser;
     
     private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
 
@@ -59,18 +61,18 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         final TestHeader testHeader, boolean singleSelectMode) {
         this.singleSelectMode = singleSelectMode;
         this.parentDialog = parentDialog;
-        
+        this.webBrowser = webBrowser;
         parentDialog.getMainframe().startSpinner("Loading available checkpoint properties...");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                initComponents(loadDocumentInformation(webBrowser, testHeader), webBrowser);
+                initComponents(loadDocumentInformation(testHeader));
                 parentDialog.getMainframe().stopSpinner();
             }
         });
     }
 
-    private HtmlDomProcessor.DomInformation loadDocumentInformation(JWebBrowser webBrowser, TestHeader testHeader) {
+    private HtmlDomProcessor.DomInformation loadDocumentInformation(TestHeader testHeader) {
         HtmlDomProcessor.DomInformation retval = null;
         Document doc = JWebBrowserDocumentGenerator.getInstance().generate(webBrowser);
         if (doc != null) {
@@ -84,7 +86,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         this(parentDialog, webBrowser, testHeader, false);
     }
     
-    private void initComponents(HtmlDomProcessor.DomInformation dominfo, JWebBrowser webBrowser) {
+    private void initComponents(HtmlDomProcessor.DomInformation dominfo) {
         if (dominfo != null) {
             setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
@@ -150,7 +152,8 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
             if (l == null) {
                 retval.put(cp.getPropertyGroup(), l = new ArrayList<CheckpointProperty>());
             }
-            
+    
+            updatePropertyValue(cp);
             if (!singleSelectMode || StringUtils.isNotBlank(cp.getPropertyValue())) {
                 l.add(cp);
             }
@@ -166,6 +169,26 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
 
+    private void updatePropertyValue(CheckpointProperty cp) {
+        if (StringUtils.isBlank(cp.getPropertyValue())) {
+            if (cp.getTagInformation() != null) {
+                for (Parameter p : cp.getTagInformation().getParameterArray()) {
+                    Object o = null;
+                    if (Constants.HTML_TAG_ATTRIBUTE_ID.equals(p.getName())) {
+                        o = webBrowser.executeJavascriptWithResult("return getElementById('" + p.getValue() + "').value");
+                    } else if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
+                        o = webBrowser.executeJavascriptWithResult("return getElementsByName('" + p.getValue() + "')[0].value");
+                    }
+                    
+                    if ((o != null) && StringUtils.isNotBlank(o.toString())) {
+                        cp.setPropertyValue(o.toString());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
     private CheckpointTable buildParameterTableForSingleSelect(String groupName, List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties2");

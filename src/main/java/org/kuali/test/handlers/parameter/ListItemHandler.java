@@ -16,6 +16,7 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -28,8 +29,9 @@ public abstract class ListItemHandler extends AbstractParameterHandler {
     }
     
     @Override
-    public String getValue(Node node) {
+    public String getValue(TestExecutionContext tec, String elementName) {
         String retval = "";
+        Node node = tec.getWebClient().findHtmlElementByName(elementName);
         
         if ((node != null) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getNodeName())) {
             NodeList nodeList = node.getChildNodes();
@@ -57,6 +59,5 @@ public abstract class ListItemHandler extends AbstractParameterHandler {
     public void setItemToSelect(int itemToSelect) {
         this.itemToSelect = itemToSelect;
     }
-    
-    
+
 }

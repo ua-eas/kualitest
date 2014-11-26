@@ -200,7 +200,7 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         
         TestExecutionContext tec = getTestExecutionContext();
         
-        Map<String, TestExecutionParameter> map = tec.getTestExecutionParameterMap(false);
+        Map<String, TestExecutionParameter> map = tec.getTestExecutionByParameterNameMap();
         
         for (String nm : map.keySet()) {
             TestExecutionParameter tep = map.get(nm);

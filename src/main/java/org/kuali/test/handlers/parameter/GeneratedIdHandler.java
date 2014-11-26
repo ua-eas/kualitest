@@ -16,15 +16,17 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.runner.execution.TestExecutionContext;
+
 
 public class GeneratedIdHandler extends AbstractParameterHandler {
     @Override
-    public boolean isAutoReplace() {
-        return true;
-    }
-    
-    @Override
     public String getDescription() {
         return "This handler will save the current value from this field and replace all instances of this value found in future test runs with the current run value";
+    }
+
+    @Override
+    public String getValue(TestExecutionContext tec, String inputValue) {
+        return inputValue;
     }
 }

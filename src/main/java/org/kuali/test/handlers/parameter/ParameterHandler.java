@@ -16,12 +16,10 @@
 
 package org.kuali.test.handlers.parameter;
 
-import org.w3c.dom.Node;
+import org.kuali.test.runner.execution.TestExecutionContext;
 
 
 public interface ParameterHandler extends Comparable<ParameterHandler> {
-    public String getValue(String currentValue);
-    public String getValue(Node currentNode);
-    public boolean isAutoReplace();
+    public String getValue(TestExecutionContext tec, String inputValue);
     public String getDescription();
 }

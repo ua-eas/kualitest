@@ -256,6 +256,7 @@
             <xs:element name="on-failure" type="failure-action"/>
             <xs:element name="selected" type="xs:boolean"/>
             <xs:element name="actual-value" type="xs:string" minOccurs="0"/>
+            <xs:element name="tag-information" type="input-parameters" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

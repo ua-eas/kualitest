@@ -16,26 +16,18 @@
 
 package org.kuali.test.handlers.parameter;
 
-import org.w3c.dom.Node;
+import org.kuali.test.runner.execution.TestExecutionContext;
 
 
 public abstract class AbstractParameterHandler implements ParameterHandler {
-    public AbstractParameterHandler() {
-    }
+    
+    @Override
+    public abstract String getValue(TestExecutionContext tec, String inputValue);
 
     @Override
-    public boolean isAutoReplace() {
-        return false;
-    }
+    public abstract String getDescription();
 
-    public String getValue(String currentValue) {
-        return currentValue;
-    }
-
-    public String getValue(Node currentNode) {
-        return "";
-    }
-    
+    @Override
     public String toString() {
         String retval = getClass().getName();
         int pos1 = retval.lastIndexOf(".");
@@ -55,5 +47,4 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
         return toString().compareTo(o.toString());
     }
     
-    public abstract String getDescription();
 }

@@ -120,11 +120,11 @@ public class RunningTestDisplay {
                     LOG.error(ex.toString(), ex);
                 }
                     
-                if (errmsg != null) {
-                    UIUtils.showError(parentWindow, "Error", errmsg.toString());
-                }
                 dlg.dispose();
                 processCompleted();
+                if (errmsg != null) {
+                    UIUtils.showError(parentWindow, "Error", errmsg.toString());
+                } 
             }
         }.execute();
     }

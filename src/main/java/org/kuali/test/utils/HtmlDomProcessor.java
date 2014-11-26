@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
+import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
 import org.kuali.test.handlers.htmltag.HtmlTagHandler;
 import org.w3c.dom.Document;
@@ -100,6 +101,25 @@ public class HtmlDomProcessor {
                     }
 
                     if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
+                        cp.addNewTagInformation();
+                        Parameter p = cp.getTagInformation().addNewParameter();
+                        p.setName("tag-name");
+                        p.setValue(node.getTagName());
+                        
+                        String s = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+                        if (StringUtils.isNotBlank(s)) {
+                            p = cp.getTagInformation().addNewParameter();
+                            p.setName("id");
+                            p.setValue(s);
+                        }
+                        
+                        s = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
+                        if (StringUtils.isNotBlank(s)) {
+                            p = cp.getTagInformation().addNewParameter();
+                            p.setName("name");
+                            p.setValue(s);
+                        }
+                        
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }

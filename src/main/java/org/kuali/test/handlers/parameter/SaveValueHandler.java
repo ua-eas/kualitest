@@ -16,12 +16,18 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.runner.execution.TestExecutionContext;
+
 
 public class SaveValueHandler extends AbstractParameterHandler {
-    public SaveValueHandler() {
-    }
+    
     @Override
     public String getDescription() {
         return "This handler will save the current run value from this field which can be used as input for other actions (such a sql query) if desired.";
+    }
+
+    @Override
+    public String getValue(TestExecutionContext tec, String inputValue) {
+        return inputValue;
     }
 }
