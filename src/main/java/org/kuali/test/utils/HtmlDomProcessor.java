@@ -30,6 +30,7 @@ import org.kuali.test.Platform;
 import org.kuali.test.handlers.htmltag.HtmlTagHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class HtmlDomProcessor {
 
@@ -102,22 +103,38 @@ public class HtmlDomProcessor {
 
                     if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
                         cp.addNewTagInformation();
+
                         Parameter p = cp.getTagInformation().addNewParameter();
-                        p.setName("tag-name");
-                        p.setValue(node.getTagName());
                         
-                        String s = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+                        Element useNode = node;
+                        
+                        if (th.isInputWrapper(node)) {
+                            useNode = th.getInputElement(node);
+                        }
+                        
+                        p.setName("tag-name");
+                        p.setValue(useNode.getTagName());
+                        
+                        String s = useNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
                         if (StringUtils.isNotBlank(s)) {
                             p = cp.getTagInformation().addNewParameter();
                             p.setName("id");
                             p.setValue(s);
                         }
                         
-                        s = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
+                        s = useNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
                         if (StringUtils.isNotBlank(s)) {
                             p = cp.getTagInformation().addNewParameter();
                             p.setName("name");
                             p.setValue(s);
+                        }
+                        
+                        String iframeids = getIframeParentIds(node);
+                        
+                        if (StringUtils.isNotBlank(iframeids)) {
+                            p = cp.getTagInformation().addNewParameter();
+                            p.setName("iframe-ids");
+                            p.setValue(iframeids);
                         }
                         
                         domInformation.getCheckpointProperties().add(cp);
@@ -132,6 +149,38 @@ public class HtmlDomProcessor {
         }
     }
 
+    private String getIframeParentIds(Element node) {
+        String retval = null;
+        Node pnode = node.getParentNode();
+        List <String> ids = new ArrayList<String>();
+        
+        while (pnode != null) {
+            if (Constants.HTML_TAG_TYPE_IFRAME.equals(pnode.getNodeName())) {
+                Node idnode = pnode.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_ID);
+                
+                if (idnode != null) {
+                    ids.add(idnode.getNodeValue());
+                }
+            }
+            
+            pnode = pnode.getParentNode();
+        }
+        
+        if (!ids.isEmpty()) {
+            StringBuilder s = new StringBuilder(128);
+            String comma = "";
+            for (int i = ids.size() - 1; i >= 0; --i) {
+                s.append(comma);
+                s.append(ids.get(i));
+                comma = ",";
+            }
+            
+            retval = s.toString();
+        }
+        
+        return retval;
+    }
+    
     private boolean isValidSectionName(CheckpointProperty cp, HtmlTagHandler th) {
         boolean retval = true;
 

@@ -263,7 +263,47 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         return retval;
     }
     
+    @Override
+    public boolean isInputWrapper(Element node) {
+        return (!isInput(node) && (isTextInputWrapper(node) || isSelectWrapper(node) || isRadioWrapper(node) || isCheckboxWrapper(node)));
+    }
+    
+    @Override
+    public boolean isInput(Element node) {
+        return (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getTagName())
+            || Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getTagName())
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(node.getTagName())
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(node.getTagName()));
+    }
 
+    @Override
+    public Element getInputElement(Element node) {
+        Element retval = null;
+
+        if (isInput(node)) {
+            retval = node;
+        } else {
+            retval = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+                Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+            
+            if (retval == null) {
+                retval = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
+                
+                if (retval == null) {
+                    retval = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+                        Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO);
+                    
+                    if (retval == null) {
+                        retval = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
+                            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
     protected boolean isSelectWrapper(Element node) {
         return Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SELECT);
     }

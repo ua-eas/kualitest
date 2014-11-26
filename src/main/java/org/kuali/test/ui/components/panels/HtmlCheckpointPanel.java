@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -154,6 +155,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
             }
     
             updatePropertyValue(cp);
+            
             if (!singleSelectMode || StringUtils.isNotBlank(cp.getPropertyValue())) {
                 l.add(cp);
             }
@@ -168,23 +170,90 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
 
         return retval;
     }
-
+    
+    private String getCurrentDomValueById(String iframeIds, String id) {
+        String retval = null;
+        StringBuilder s = new StringBuilder(256);
+        
+        s.append("return document.getElementById('");
+        if (StringUtils.isNotBlank(iframeIds)) {
+            StringTokenizer st = new StringTokenizer(iframeIds, ",");
+            s.append(st.nextToken());
+            s.append("')");
+            while (st.hasMoreTokens()) {
+                s.append(".contentWindow.document.getElementById('");
+                s.append(st.nextToken());
+                s.append("')");
+            }
+            
+            s.append(".contentWindow.document.getElementById('");
+        } 
+        
+        s.append(id);
+        s.append("').value");
+        
+        Object o = webBrowser.executeJavascriptWithResult(s.toString());
+        
+        if ((o != null) && StringUtils.isNotBlank(o.toString())) {
+            retval = o.toString();
+        }
+        
+        return retval;
+    }
+         
+    private String getCurrentDomValueByName(String iframeIds, String name) {
+        String retval = null;
+        StringBuilder s = new StringBuilder(256);
+        
+        s.append("return document.getElementsById('");
+        if (StringUtils.isNotBlank(iframeIds)) {
+            StringTokenizer st = new StringTokenizer(iframeIds, ",");
+            s.append(st.nextToken());
+            s.append("')");
+            while (st.hasMoreTokens()) {
+                s.append(".contentWindow.document.getElementById('");
+                s.append(st.nextToken());
+                s.append("')");
+            }
+            
+            s.append(".contentWindow.document.getElementsByName('");
+        } 
+        
+        s.append(name);
+        s.append("')[0].value");
+        
+        Object o = webBrowser.executeJavascriptWithResult(s.toString());
+        
+        if ((o != null) && StringUtils.isNotBlank(o.toString())) {
+            retval = o.toString();
+        }
+        
+        return retval;
+    }
+    
     private void updatePropertyValue(CheckpointProperty cp) {
         if (StringUtils.isBlank(cp.getPropertyValue())) {
-            if (cp.getTagInformation() != null) {
-                for (Parameter p : cp.getTagInformation().getParameterArray()) {
-                    Object o = null;
-                    if (Constants.HTML_TAG_ATTRIBUTE_ID.equals(p.getName())) {
-                        o = webBrowser.executeJavascriptWithResult("return getElementById('" + p.getValue() + "').value");
-                    } else if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
-                        o = webBrowser.executeJavascriptWithResult("return getElementsByName('" + p.getValue() + "')[0].value");
-                    }
-                    
-                    if ((o != null) && StringUtils.isNotBlank(o.toString())) {
-                        cp.setPropertyValue(o.toString());
-                        break;
-                    }
+            Parameter nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
+            Parameter iframeIdParam = Utils.getCheckpointPropertyTagParameter(cp, "iframe-ids");
+            String iframeIds = null;
+            if (iframeIdParam != null) {
+                iframeIds = iframeIdParam.getValue();
+            }
+            
+            String currentValue = null;
+            
+            if (nameParam != null) {
+                currentValue = getCurrentDomValueById(iframeIds, nameParam.getValue());
+            } else {
+                nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
+                
+                if (nameParam != null) {
+                    currentValue = getCurrentDomValueByName(iframeIds, nameParam.getValue());
                 }
+            }
+
+            if (StringUtils.isNoneBlank(currentValue)) {
+                cp.setPropertyValue(currentValue);
             }
         }
     }

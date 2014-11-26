@@ -3790,4 +3790,20 @@ public class Utils {
     public static ParameterHandler getParameterHandler(String nm) {
         return PARAMETER_HANDLERS.get(nm);
     }
+    
+    public static Parameter getCheckpointPropertyTagParameter(CheckpointProperty cp, String parameterName) {
+        Parameter retval = null;
+        
+        if (cp.getTagInformation() != null) {
+            for (Parameter param : cp.getTagInformation().getParameterArray()) {
+                if (param.getName().equals(parameterName)) {
+                    retval = param;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+        
+    }
 }

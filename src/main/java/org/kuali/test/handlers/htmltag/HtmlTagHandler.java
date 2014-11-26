@@ -88,4 +88,7 @@ public interface HtmlTagHandler {
      */
     public void setTagHandler(TagHandler tagHandler);
 
+    public boolean isInputWrapper(Element node);
+    public boolean isInput(Element node);
+    public Element getInputElement(Element node);
 }
