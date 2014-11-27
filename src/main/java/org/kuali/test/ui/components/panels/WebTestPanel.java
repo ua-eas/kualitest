@@ -20,14 +20,18 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -54,6 +58,7 @@ import org.kuali.test.ui.components.dialogs.WebServiceCheckPointDlg;
 import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.UpdateableNameValuePair;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -95,7 +100,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      */
     public WebBrowserPanel addNewBrowserPanel(boolean initial) {
         WebBrowserPanel retval = new WebBrowserPanel(createWebBrowser(initial));
-        
+
         if (!initial) {
             tabbedPane.addTab(Constants.NEW_BROWSER_TAB_DEFAULT_TEXT, new CloseTabIcon(), retval);
         } else {
@@ -148,37 +153,39 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     @Override
     protected void handleCreateCheckpoint() {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("in handleCreateCheckpoint()");
-        }
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe(), getTestHeader().getTestType(), getPlatform());
 
-        CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe(), getTestHeader().getTestType(), getPlatform());
+                if (dlg.isSaved()) {
+                    int cptype = dlg.getCheckpointType().intValue();
 
-        if (dlg.isSaved()) {
-            int cptype = dlg.getCheckpointType().intValue();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("checkpoint type: " + dlg.getCheckpointType() + ", intval: " + cptype);
+                    }
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("checkpoint type: " + dlg.getCheckpointType() + ", intval: " + cptype);
+                    switch (cptype) {
+                        case CheckpointType.INT_HTTP:
+                            createHtmlCheckpoint();
+                            break;
+                        case CheckpointType.INT_MEMORY:
+                            createMemoryCheckpoint();
+                            break;
+                        case CheckpointType.INT_SQL:
+                            createSqlCheckpoint();
+                            break;
+                        case CheckpointType.INT_WEB_SERVICE:
+                            createWebServiceCheckpoint();
+                            break;
+                        case CheckpointType.INT_FILE:
+                            createFileCheckpoint();
+                            break;
+                    }
+                }
             }
+        });
 
-            switch (cptype) {
-                case CheckpointType.INT_HTTP:
-                    createHtmlCheckpoint();
-                    break;
-                case CheckpointType.INT_MEMORY:
-                    createMemoryCheckpoint();
-                    break;
-                case CheckpointType.INT_SQL:
-                    createSqlCheckpoint();
-                    break;
-                case CheckpointType.INT_WEB_SERVICE:
-                    createWebServiceCheckpoint();
-                    break;
-                case CheckpointType.INT_FILE:
-                    createFileCheckpoint();
-                    break;
-            }
-        }
     }
 
     private void addTestExecutionParameter(TestExecutionParameter param) {
@@ -328,18 +335,99 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
+    private boolean moveAttachmentFiles(List <TestOperation> testOperations) {
+        boolean retval = false;
+        
+        for (TestOperation op : testOperations) {
+            if (op.getOperation().getHtmlRequestOperation() != null) {
+                String contentParameter = Utils.getContentParameterFromRequestOperation(op.getOperation().getHtmlRequestOperation());
+                
+                if (StringUtils.isNotBlank(contentParameter) && contentParameter.contains(Constants.FILE_ATTACHMENT_MARKER)) {
+                    List <NameValuePair> params = null;
+                
+                    if (Utils.isMultipart(op.getOperation().getHtmlRequestOperation())) {
+                        params = Utils.getNameValuePairsFromMultipartParams(contentParameter);
+                    } else {
+                        try {
+                            params = Utils.getNameValuePairsFromUrlEncodedParams(contentParameter);
+                        } 
+                        
+                        catch (UnsupportedEncodingException ex) {
+                            LOG.error(ex.toString(), ex);
+                        }
+                    }
+                    
+                    if (params != null) {
+                        boolean ok = true;
+                        for (int i = 0; i < params.size(); ++i) {
+                            NameValuePair nvp = params.get(i);
+                            
+                            if (nvp.getName().contains(Constants.FILE_ATTACHMENT_MARKER)) {
+                                try {
+                                    File newFile=  buildAttachmentFileName(nvp.getValue());
+                                    FileUtils.moveFile(new File(nvp.getValue()), newFile);
+                                    params.add(i, new UpdateableNameValuePair(nvp.getName(), newFile.getPath()));
+                                }
+                                
+                                catch (Exception ex) {
+                                    ok = false;
+                                    LOG.error(ex.toString(), ex);
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        retval = ok;
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    private File buildAttachmentFileName(String tmpFileName) {
+        File retval = null;
+        
+        File f = new File(tmpFileName);
+        
+        int pos = f.getName().indexOf("_-");
+        
+        if (pos > -1) {
+            StringBuilder buf = new StringBuilder(128);
+            
+            buf.append(Utils.buildPlatformTestsDirectoryName(getMainframe().getConfiguration().getRepositoryLocation(), getPlatform().getName()));
+            buf.append(File.separator);
+            buf.append("attachments");
+            buf.append(File.separator);
+            buf.append(Utils.formatForFileName(getTestHeader().getTestName()));
+            buf.append(File.separator);
+            buf.append(f.getName().substring(0, pos));
+            
+            retval = new File(retval.toString());
+            
+            if (!retval.getParentFile().exists()) {
+                retval.getParentFile().mkdirs();
+            }
+        }
+        
+        return retval;
+    }
     /**
      *
      * @return
      */
     @Override
     protected boolean handleSaveTest() {
-        boolean retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
-            getTestHeader(), testProxyServer.getTestOperations());
+        boolean retval = false;
+        if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
+            retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
+                getTestHeader(), testProxyServer.getTestOperations());
 
-        if (retval) {
-            getMainframe().getTestRepositoryTree().saveConfiguration();
-            getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+            if (retval) {
+                getMainframe().getTestRepositoryTree().saveConfiguration();
+                getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+            }
         }
 
         closeProxyServer();
@@ -393,12 +481,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     @Override
     protected void handleCreateParameter() {
-        TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(),
-            getCurrentBrowser(), getTestHeader(), lastProxyHtmlResponse);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(),
+                    getCurrentBrowser(), getTestHeader(), lastProxyHtmlResponse);
 
-        if (dlg.isSaved()) {
-            addTestExecutionParameter(dlg.getTestExecutionParameter());
-        }
+                if (dlg.isSaved()) {
+                    addTestExecutionParameter(dlg.getTestExecutionParameter());
+                }
+            }
+        });
     }
 
     public TestProxyServer getTestProxyServer() {
