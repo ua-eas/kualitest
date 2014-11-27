@@ -63,6 +63,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         this.parentDialog = parentDialog;
         this.webBrowser = webBrowser;
         initComponents(loadDocumentInformation(testHeader));
+        parentDialog.stopSpinner();
     }
 
     private HtmlDomProcessor.DomInformation loadDocumentInformation(TestHeader testHeader) {
@@ -148,7 +149,9 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 retval.put(cp.getPropertyGroup(), l = new ArrayList<CheckpointProperty>());
             }
     
-            updatePropertyValue(cp);
+            if (Utils.isFormInputTag(cp)) {
+                updatePropertyValueIfRequired(cp);
+            }
             
             if (!singleSelectMode || StringUtils.isNotBlank(cp.getPropertyValue())) {
                 l.add(cp);
@@ -225,10 +228,10 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
     
-    private void updatePropertyValue(CheckpointProperty cp) {
+    private void updatePropertyValueIfRequired(CheckpointProperty cp) {
         if (StringUtils.isBlank(cp.getPropertyValue())) {
             Parameter nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
-            Parameter iframeIdParam = Utils.getCheckpointPropertyTagParameter(cp, "iframe-ids");
+            Parameter iframeIdParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.IFRAME_IDS);
             String iframeIds = null;
             if (iframeIdParam != null) {
                 iframeIds = iframeIdParam.getValue();

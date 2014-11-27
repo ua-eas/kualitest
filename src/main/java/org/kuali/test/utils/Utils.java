@@ -3806,4 +3806,24 @@ public class Utils {
         return retval;
         
     }
+    
+    public static boolean isFormInputTag(CheckpointProperty cp) {
+        boolean retval = false;
+        
+        Parameter param = getCheckpointPropertyTagParameter(cp, Constants.TAG_NAME);
+        
+        if (param != null) {
+            retval = isFormInputTag(param.getValue());
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isFormInputTag(String tagName) {
+        return (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(tagName)
+            || Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagName)
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(tagName)
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(tagName));
+
+    }
 }

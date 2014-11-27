@@ -25,7 +25,10 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -520,19 +523,27 @@ public class TestProxyServer {
         
         String nameValueSeparator = "";
         while (nextPart) {
-            MultiPartHeader mph = new MultiPartHeader(multipartStream.readHeaders());
+            MultiPartHeader mph = new MultiPartHeader(multipartStream);
             bos.reset();
             multipartStream.readBodyData(bos);
             
             String name = mph.getParameter("name");
-            if (StringUtils.isBlank(mph.getContentType()) && StringUtils.isNotBlank(name)) {
+            if (StringUtils.isNotBlank(name)) {
                 String value = bos.toString();
-
-                if (StringUtils.isNotBlank(name)) {
-                    if (StringUtils.isBlank(value)) {
-                        value = "";
+                if (StringUtils.isBlank(value)) {
+                    value = "";
+                }
+                
+                if (mph.isFileAttachment()) {
+                    File f = writeAttachmentFile(mph.getFilename(), value);
+                    if (f != null) {
+                        retval.append(name);
+                        retval.append(":");
+                        retval.append("fileAttachment");
+                        retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                        retval.append(f.getPath());
                     }
-
+                } else {
                     boolean senstiveParameter = hs.contains(name);
                     retval.append(nameValueSeparator);
 
@@ -557,6 +568,34 @@ public class TestProxyServer {
         return retval.toString();
     }
 
+    private File writeAttachmentFile(String fileName, String fileContents) {
+        File retval = null;
+        
+        PrintWriter pw = null;
+        try {
+            retval = File.createTempFile(fileName + "_-", ".tmp");
+            pw = new PrintWriter(new FileWriter(retval));
+            pw.println(fileContents);
+        }
+        
+        catch (Exception ex) {
+            retval = null;
+            LOG.error(ex.toString(), ex);
+        }
+        
+        finally {
+            try {
+                if (pw != null) {
+                    pw.close();
+                }
+            }
+            
+            catch (Exception ex) {};
+        }
+        
+        return retval;
+    }
+    
     private boolean isIgnoredReferrer(String url, String referrer) {
         boolean retval = false;
         

@@ -270,10 +270,7 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     
     @Override
     public boolean isInput(Element node) {
-        return (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(node.getTagName())
-            || Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getTagName())
-            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(node.getTagName())
-            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(node.getTagName()));
+        return Utils.isFormInputTag(node.getTagName());
     }
 
     @Override

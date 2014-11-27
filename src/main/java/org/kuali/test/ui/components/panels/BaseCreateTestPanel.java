@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -216,11 +217,24 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
                 setMenuState(false);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
-            handleCreateCheckpoint();
+            getMainframe().startSpinner("Loading available checkpoint parameters...");
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    handleCreateCheckpoint();
+                }
+            });
         } else if (e.getActionCommand().equals(Constants.VIEW_CHECKPOINTS_ACTION)) {
             handleViewCheckpoints();
-        } else if (e.getActionCommand().equals(Constants.CREATE_PARAMETER_ACTION)) {
-            handleCreateParameter();
+        } else if (e.getActionCommand().startsWith(Constants.CREATE_PARAMETER_ACTION)) {
+            getMainframe().startSpinner("Loading available test execution parameters...");
+
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    handleCreateParameter();
+                };
+            });
         } else if (e.getActionCommand().equals(Constants.VIEW_PARAMETERS_ACTION)) {
             handleViewParameters();
         } else if (e.getActionCommand().equals(Constants.CREATE_COMMENT_ACTION)) {

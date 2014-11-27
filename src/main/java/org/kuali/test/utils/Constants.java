@@ -314,6 +314,9 @@ public class Constants {
     public static final String HTML_TAG_TYPE_SELECT = "select";
     public static final String HTML_TAG_TYPE_BODY = "body";
     public static final String HTML_TAG_TYPE_TEXTAREA = "textarea";
+    public static final String TAG_NAME = "tag-name";
+    public static final String IFRAME_IDS = "iframe-ids";
+    public static final String FILE_ATTACHMENT_MARKER = ":fileAttachment";
 
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);

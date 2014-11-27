@@ -21,6 +21,8 @@ import java.io.LineNumberReader;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.fileupload.MultipartStream;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
 
 
@@ -33,11 +35,10 @@ public class MultiPartHeader {
     
     private String contentType;
     
-    public MultiPartHeader(String data) throws IOException {
+    public MultiPartHeader(MultipartStream multipartStream) throws IOException {
         LineNumberReader lnr = null;
-        
         try {
-            lnr = new LineNumberReader(new StringReader(data));
+            lnr = new LineNumberReader(new StringReader(multipartStream.readHeaders()));
             String line;
 
             while ((line = lnr.readLine()) != null) {
@@ -82,5 +83,13 @@ public class MultiPartHeader {
 
     public String getContentType() {
         return contentType;
+    }
+    
+    public boolean isFileAttachment() {
+        return StringUtils.isNotBlank(getFilename());
+    }
+    
+    public String getFilename() {
+        return getParameter("filename");
     }
 }
