@@ -16,6 +16,7 @@
 
 package org.kuali.test.proxyserver;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.LineNumberReader;
 import java.io.StringReader;
@@ -26,16 +27,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
 
 
-public class MultiPartHeader {
+public class MultiPartHandler {
     private Map <String, String> parameters = new HashMap<String, String>();
+    
     private String[] PARAMETER_NAMES = {
         "name",
         "filename"
     };
     
     private String contentType;
+    private byte[] bytes;
     
-    public MultiPartHeader(MultipartStream multipartStream) throws IOException {
+    public MultiPartHandler(MultipartStream multipartStream) throws IOException {
         LineNumberReader lnr = null;
         try {
             lnr = new LineNumberReader(new StringReader(multipartStream.readHeaders()));
@@ -64,6 +67,10 @@ public class MultiPartHeader {
                     }
                 }
             }
+            
+            ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
+            multipartStream.readBodyData(bos);
+            bytes = bos.toByteArray();
         }
         
         finally {
@@ -91,5 +98,9 @@ public class MultiPartHeader {
     
     public String getFilename() {
         return getParameter("filename");
+    }
+    
+    public byte[] getBytes() {
+        return bytes;
     }
 }

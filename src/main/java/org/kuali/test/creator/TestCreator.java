@@ -508,17 +508,20 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 try {
                     
                     File f = new File(testFileName);
-                    
-                    if (f.exists() && f.isFile()) {
-                        FileUtils.forceDelete(f);
-                    }
-                    
-                    // delete the description file
+                    FileUtils.deleteQuietly(f);
+
                     f = new File(f.getPath().substring(0, f.getPath().lastIndexOf(".")+1) + "txt");
+                    FileUtils.deleteQuietly(f);
                     
-                    if (f.exists() && f.isFile()) {
-                        FileUtils.forceDelete(f);
-                    }
+                    StringBuilder buf = new StringBuilder(128);
+            
+                    buf.append(Utils.buildPlatformTestsDirectoryName(getConfiguration().getRepositoryLocation(), testHeader.getPlatformName()));
+                    buf.append(File.separator);
+                    buf.append(Constants.ATTACHMENTS);
+                    buf.append(File.separator);
+                    buf.append(Utils.formatForFileName(testFileName));
+                    
+                    FileUtils.deleteDirectory(new File(buf.toString()));
                     
                     testRepositoryTree.saveConfiguration();
                     testRepositoryTree.selectPlatformByName(platformName);

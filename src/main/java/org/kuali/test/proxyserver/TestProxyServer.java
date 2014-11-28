@@ -527,7 +527,7 @@ public class TestProxyServer {
                 retval.append(nameValueSeparator);
 
                 if (mph.isFileAttachment()) {
-                    File f = writeAttachmentFile(mph.getFilename(), mph.getValue());
+                    File f = writeAttachmentFile(mph.getFilename(), mph.getBytes());
                     if (f != null) {
                         retval.append(name);
                         retval.append(Constants.FILE_ATTACHMENT_MARKER);
@@ -542,12 +542,18 @@ public class TestProxyServer {
                     retval.append(name);
                     retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
 
+                    String value = "";
+                    
+                    if (mph.getBytes() != null) {
+                        value = new String(mph.getBytes());
+                    }
+                    
                     if (senstiveParameter) {
-                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), mph.getValue()));
+                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
                     } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
                         retval.append(replaceParams.get(name));
                     } else {
-                        retval.append(mph.getValue());
+                        retval.append(value);
                     }
                 }
 
@@ -560,14 +566,16 @@ public class TestProxyServer {
         return retval.toString();
     }
 
-    private File writeAttachmentFile(String fileName, String fileContents) throws IOException {
+    private File writeAttachmentFile(String fileName, byte[] fileContents) throws IOException {
         File retval = null;
         
         FileOutputStream fos = null;
         try {
             retval = File.createTempFile(fileName + Constants.TMP_FILE_PREFIX_SEPARATOR, ".tmp");
             fos = new FileOutputStream(retval);
-            fos.write(fileContents.getBytes());
+            if (fileContents != null) {
+                fos.write(fileContents);
+            }
         }
         
         finally {

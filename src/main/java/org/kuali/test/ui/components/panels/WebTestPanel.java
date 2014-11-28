@@ -25,9 +25,10 @@ import java.awt.BorderLayout;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -36,9 +37,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointType;
+import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
 import org.kuali.test.Platform;
+import org.kuali.test.RequestParameter;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -335,55 +338,41 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
-    private boolean moveAttachmentFiles(List <TestOperation> testOperations) {
-        boolean retval = false;
-        
+    private boolean moveAttachmentFiles(List <TestOperation> testOperations) throws IOException {
         for (TestOperation op : testOperations) {
             if (op.getOperation().getHtmlRequestOperation() != null) {
-                String contentParameter = Utils.getContentParameterFromRequestOperation(op.getOperation().getHtmlRequestOperation());
-                
-                if (StringUtils.isNotBlank(contentParameter) && contentParameter.contains(Constants.FILE_ATTACHMENT_MARKER)) {
-                    List <NameValuePair> params = null;
-                
-                    if (Utils.isMultipart(op.getOperation().getHtmlRequestOperation())) {
-                        params = Utils.getNameValuePairsFromMultipartParams(contentParameter);
-                    } else {
-                        try {
-                            params = Utils.getNameValuePairsFromUrlEncodedParams(contentParameter);
-                        } 
-                        
-                        catch (UnsupportedEncodingException ex) {
-                            LOG.error(ex.toString(), ex);
-                        }
-                    }
+                HtmlRequestOperation hop = op.getOperation().getHtmlRequestOperation();
+                if (Utils.isMultipart(hop)) {
+                    RequestParameter contentParameter = Utils.getContentParameter(hop);
+
+                    if (StringUtils.isNotBlank(contentParameter.getValue()) && contentParameter.getValue().contains(Constants.FILE_ATTACHMENT_MARKER)) {
+                        List <NameValuePair> params = Utils.getNameValuePairsFromMultipartParams(contentParameter.getValue());
+
+                        if (params != null) {
+                            List <NameValuePair> newparams = new ArrayList<NameValuePair>();
                     
-                    if (params != null) {
-                        boolean ok = true;
-                        for (int i = 0; i < params.size(); ++i) {
-                            NameValuePair nvp = params.get(i);
-                            
-                            if (nvp.getName().contains(Constants.FILE_ATTACHMENT_MARKER)) {
-                                try {
+                            for (NameValuePair nvp : params) {
+                                if (nvp.getName().contains(Constants.FILE_ATTACHMENT_MARKER)) {
                                     File newFile=  buildAttachmentFileName(nvp.getValue());
-                                    FileUtils.moveFile(new File(nvp.getValue()), newFile);
-                                    params.add(i, new UpdateableNameValuePair(nvp.getName(), newFile.getPath()));
-                                }
-                                
-                                catch (Exception ex) {
-                                    ok = false;
-                                    LOG.error(ex.toString(), ex);
-                                    break;
+                                    StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
+                                    st.nextToken();
+                                    FileUtils.deleteQuietly(newFile);
+                                    FileUtils.copyFile(new File(st.nextToken()), newFile);
+                                    newparams.add(new UpdateableNameValuePair(nvp.getName(), newFile.getPath()));
+                                } else {
+                                    newparams.add(nvp);
                                 }
                             }
                         }
                         
-                        retval = ok;
-                    }
+                        contentParameter.setValue(Utils.buildMultipartParameterString(params));
+                    } 
                 }
             }
         }
         
-        return retval;
+        
+        return true;
     }
     
     private File buildAttachmentFileName(String tmpFileName) {
@@ -391,20 +380,20 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         
         File f = new File(tmpFileName);
         
-        int pos = f.getName().indexOf("_-");
+        int pos = f.getName().indexOf(Constants.TMP_FILE_PREFIX_SEPARATOR);
         
         if (pos > -1) {
             StringBuilder buf = new StringBuilder(128);
             
             buf.append(Utils.buildPlatformTestsDirectoryName(getMainframe().getConfiguration().getRepositoryLocation(), getPlatform().getName()));
             buf.append(File.separator);
-            buf.append("attachments");
+            buf.append(Constants.ATTACHMENTS);
             buf.append(File.separator);
             buf.append(Utils.formatForFileName(getTestHeader().getTestName()));
             buf.append(File.separator);
             buf.append(f.getName().substring(0, pos));
             
-            retval = new File(retval.toString());
+            retval = new File(buf.toString());
             
             if (!retval.getParentFile().exists()) {
                 retval.getParentFile().mkdirs();
@@ -419,20 +408,29 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      */
     @Override
     protected boolean handleSaveTest() {
-        
         boolean retval = false;
-        if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
-            retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
-                getTestHeader(), testProxyServer.getTestOperations());
-
-            if (retval) {
-                getMainframe().getTestRepositoryTree().saveConfiguration();
-                getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+        try {
+            if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
+                retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
+                    getTestHeader(), testProxyServer.getTestOperations());
+                
+                if (retval) {
+                    getMainframe().getTestRepositoryTree().saveConfiguration();
+                    getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+                }
             }
+        } 
+        
+        catch (IOException ex) {
+            LOG.error(ex.toString(), ex);
+            UIUtils.showError(this, "Save Error", "Error saving test - " + ex.toString());
+            retval = false;
         }
 
-        closeProxyServer();
-
+        finally {
+            closeProxyServer();
+        }
+        
         return retval;
     }
 

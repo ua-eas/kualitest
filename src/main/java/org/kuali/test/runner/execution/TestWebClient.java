@@ -39,6 +39,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlTextArea;
 import com.gargoylesoftware.htmlunit.html.HtmlTextInput;
 import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.gargoylesoftware.htmlunit.util.KeyDataPair;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
 import com.google.common.net.HttpHeaders;
@@ -57,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
@@ -347,6 +349,11 @@ public class TestWebClient extends WebClient {
                     retval.add(new NameValuePair(nvp.getName(), tep1.getValue()));
                 } else if (tep2 != null) {
                     retval.add(new NameValuePair(nvp.getName(), tep2.getValue()));
+                } else if (isFileAttachment(nvp.getName())) {
+                    StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
+                    String mimeType = st.nextToken();
+                    String fname = st.nextToken();
+                    retval.add(new KeyDataPair("file", new File(fname), mimeType, CharEncoding.UTF_8));
                 } else {
                     retval.add(nvp);
                 }
@@ -356,6 +363,10 @@ public class TestWebClient extends WebClient {
         }
         
         return retval;
+    }
+    
+    private boolean isFileAttachment(String nm) {
+        return nm.contains(Constants.FILE_ATTACHMENT_MARKER);
     }
     
     public List<NameValuePair> getUpdatedParameterList(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
