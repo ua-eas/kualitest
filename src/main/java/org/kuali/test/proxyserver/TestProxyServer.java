@@ -24,11 +24,9 @@ import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -519,43 +517,37 @@ public class TestProxyServer {
         Set <String> hs = new HashSet<String>(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
         MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
         boolean nextPart = multipartStream.skipPreamble();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(512);
         
         String nameValueSeparator = "";
         while (nextPart) {
-            MultiPartHeader mph = new MultiPartHeader(multipartStream);
-            bos.reset();
-            multipartStream.readBodyData(bos);
+            MultiPartHandler mph = new MultiPartHandler(multipartStream);
             
             String name = mph.getParameter("name");
             if (StringUtils.isNotBlank(name)) {
-                String value = bos.toString();
-                if (StringUtils.isBlank(value)) {
-                    value = "";
-                }
-                
+                retval.append(nameValueSeparator);
+
                 if (mph.isFileAttachment()) {
-                    File f = writeAttachmentFile(mph.getFilename(), value);
+                    File f = writeAttachmentFile(mph.getFilename(), mph.getValue());
                     if (f != null) {
                         retval.append(name);
-                        retval.append(":");
-                        retval.append("fileAttachment");
+                        retval.append(Constants.FILE_ATTACHMENT_MARKER);
                         retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
+                        retval.append(mph.getContentType());
+                        retval.append(Constants.SEPARATOR_COLON);
                         retval.append(f.getPath());
                     }
                 } else {
                     boolean senstiveParameter = hs.contains(name);
-                    retval.append(nameValueSeparator);
 
                     retval.append(name);
                     retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
 
                     if (senstiveParameter) {
-                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), value));
+                        retval.append(Utils.encrypt(Utils.getEncryptionPassword(configuration), mph.getValue()));
                     } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
                         retval.append(replaceParams.get(name));
                     } else {
-                        retval.append(value);
+                        retval.append(mph.getValue());
                     }
                 }
 
@@ -568,25 +560,20 @@ public class TestProxyServer {
         return retval.toString();
     }
 
-    private File writeAttachmentFile(String fileName, String fileContents) {
+    private File writeAttachmentFile(String fileName, String fileContents) throws IOException {
         File retval = null;
         
-        PrintWriter pw = null;
+        FileOutputStream fos = null;
         try {
-            retval = File.createTempFile(fileName + "_-", ".tmp");
-            pw = new PrintWriter(new FileWriter(retval));
-            pw.println(fileContents);
-        }
-        
-        catch (Exception ex) {
-            retval = null;
-            LOG.error(ex.toString(), ex);
+            retval = File.createTempFile(fileName + Constants.TMP_FILE_PREFIX_SEPARATOR, ".tmp");
+            fos = new FileOutputStream(retval);
+            fos.write(fileContents.getBytes());
         }
         
         finally {
             try {
-                if (pw != null) {
-                    pw.close();
+                if (fos != null) {
+                    fos.close();
                 }
             }
             
