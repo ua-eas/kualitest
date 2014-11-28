@@ -419,6 +419,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
      */
     @Override
     protected boolean handleSaveTest() {
+        
         boolean retval = false;
         if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
             retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),

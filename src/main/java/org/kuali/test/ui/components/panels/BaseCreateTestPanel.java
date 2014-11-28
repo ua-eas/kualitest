@@ -242,9 +242,11 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         } else if (e.getActionCommand().equals(Constants.VIEW_COMMENTS_ACTION)) {
             handleViewComments();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
+            getMainframe().startSpinner("Saving test...");
             if (handleSaveTest()) {
                 getMainframe().getPlatformTestsPanel().populateList(platform);
             }
+            getMainframe().stopSpinner();
         } else {
             handleUnprocessedActionEvent(e);
         }

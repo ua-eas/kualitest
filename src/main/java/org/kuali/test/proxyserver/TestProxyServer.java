@@ -557,9 +557,9 @@ public class TestProxyServer {
                     } else {
                         retval.append(value);
                     }
-
-                    nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
                 }
+
+                nameValueSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
             }
             
             nextPart = multipartStream.readBoundary();
