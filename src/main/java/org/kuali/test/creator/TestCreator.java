@@ -505,36 +505,35 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 }
                 
                 
-                try {
-                    
-                    File f = new File(testFileName);
-                    FileUtils.deleteQuietly(f);
+                File f = new File(testFileName);
+                FileUtils.deleteQuietly(f);
 
-                    f = new File(f.getPath().substring(0, f.getPath().lastIndexOf(".")+1) + "txt");
-                    FileUtils.deleteQuietly(f);
-                    
-                    StringBuilder buf = new StringBuilder(128);
-            
-                    buf.append(Utils.buildPlatformTestsDirectoryName(getConfiguration().getRepositoryLocation(), testHeader.getPlatformName()));
-                    buf.append(File.separator);
-                    buf.append(Constants.ATTACHMENTS);
-                    buf.append(File.separator);
-                    buf.append(Utils.formatForFileName(testFileName));
-                    
-                    FileUtils.deleteDirectory(new File(buf.toString()));
-                    
-                    testRepositoryTree.saveConfiguration();
-                    testRepositoryTree.selectPlatformByName(platformName);
-                    platformTestsPanel.populateList(p);
-                } 
-                
-                catch (IOException ex) {
-                    UIUtils.showError(this, "File Delete Error", "Error occurred while deleting test file - " + testFileName);
-                }
+                f = new File(f.getPath().substring(0, f.getPath().lastIndexOf(".")+1) + "txt");
+                FileUtils.deleteQuietly(f);
+
+                deleteAttachments(testHeader);
+                testRepositoryTree.saveConfiguration();
+                testRepositoryTree.selectPlatformByName(platformName);
+                platformTestsPanel.populateList(p);
             }
         }
     }
 
+    private void deleteAttachments(TestHeader testHeader) {
+        try {
+            StringBuilder buf = new StringBuilder(128);
+
+            buf.append(Utils.buildPlatformTestsDirectoryName(getConfiguration().getRepositoryLocation(), testHeader.getPlatformName()));
+            buf.append(File.separator);
+            buf.append(Constants.ATTACHMENTS);
+            buf.append(File.separator);
+            buf.append(Utils.formatForFileName(testHeader.getTestName()));
+
+            FileUtils.deleteDirectory(new File(buf.toString()));
+        }
+        
+        catch (Exception ex) {};
+    }
     /**
      *
      * @param testSuite

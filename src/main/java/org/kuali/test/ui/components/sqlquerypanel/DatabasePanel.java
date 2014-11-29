@@ -64,11 +64,11 @@ import org.kuali.test.proxyserver.TestProxyServer;
 import org.kuali.test.ui.base.SimpleInputDlg2;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.panels.BaseCreateTestPanel;
+import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.components.sqlquerytree.ColumnData;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryNode;
 import org.kuali.test.ui.components.sqlquerytree.SqlQueryTree;
 import org.kuali.test.ui.components.sqlquerytree.TableData;
-import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -607,6 +607,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         if (retval) {
             getMainframe().getTestRepositoryTree().saveConfiguration();
             getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+            getMainframe().getPlatformTestsPanel().populateList(getPlatform());
         }
 
         return retval;

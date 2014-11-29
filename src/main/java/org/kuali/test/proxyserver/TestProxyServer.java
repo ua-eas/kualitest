@@ -436,7 +436,7 @@ public class TestProxyServer {
                             param.setName(Constants.PARAMETER_NAME_CONTENT);
                             
                             param.setValue(processPostContent(webTestPanel.getMainframe().getConfiguration(), 
-                                op, new String(data), multipartBoundary));
+                                op, data, multipartBoundary));
                         }
                     }
                 }
@@ -456,13 +456,14 @@ public class TestProxyServer {
      * @throws IOException 
      */
     public String processPostContent(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-      HtmlRequestOperation reqop, String input, String multipartBoundary) throws IOException {
-        StringBuilder retval = new StringBuilder(input.length());
+      HtmlRequestOperation reqop, byte[] data, String multipartBoundary) throws IOException {
+        StringBuilder retval = new StringBuilder(data.length);
 
         String contentType = Utils.getRequestHeader(reqop, Constants.HTTP_RESPONSE_CONTENT_TYPE);
         
         if (StringUtils.isNotBlank(contentType)) {
             if (Utils.isUrlFormEncoded(contentType)) {
+                String input = new String(data);
                 String s = handleFormUrlEncodedParameters(configuration, input);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
@@ -470,11 +471,11 @@ public class TestProxyServer {
                     retval.append(input);
                 }
             } else if (Utils.isMultipart(contentType)) {
-                String s = handleMultipartRequestParameters(configuration, input, multipartBoundary, null);
+                String s = handleMultipartRequestParameters(configuration, data, multipartBoundary, null);
                 if (StringUtils.isNotBlank(s)) {
                     retval.append(s);
                 } else {
-                    retval.append(input);
+                    retval.append(new String(data));
                 }
             }
         }
@@ -511,11 +512,11 @@ public class TestProxyServer {
     }
 
     private String handleMultipartRequestParameters(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        String input, String boundary, Map<String, String> replaceParams) throws IOException {
+        byte[] data, String boundary, Map<String, String> replaceParams) throws IOException {
         StringBuilder retval = new StringBuilder(512);
         
         Set <String> hs = new HashSet<String>(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
-        MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(input.getBytes()), boundary.getBytes(), 512, null);
+        MultipartStream multipartStream = new MultipartStream(new ByteArrayInputStream(data), boundary.getBytes(), 512, null);
         boolean nextPart = multipartStream.skipPreamble();
         
         String nameValueSeparator = "";

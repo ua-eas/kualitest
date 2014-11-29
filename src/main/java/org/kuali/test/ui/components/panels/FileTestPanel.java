@@ -194,6 +194,7 @@ public class FileTestPanel extends BaseCreateTestPanel {
         if (retval) {
             getMainframe().getTestRepositoryTree().saveConfiguration();
             getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
+            getMainframe().getPlatformTestsPanel().populateList(getPlatform());
         }
 
         return retval;

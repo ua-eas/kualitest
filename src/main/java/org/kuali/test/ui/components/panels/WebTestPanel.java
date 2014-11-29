@@ -409,27 +409,45 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected boolean handleSaveTest() {
         boolean retval = false;
-        try {
-            if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
-                retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
-                    getTestHeader(), testProxyServer.getTestOperations());
+        
+         new SwingWorker() {
+            @Override
+            protected Object doInBackground() throws Exception {
+                Boolean retval = false;
+                getMainframe().startSpinner("Saving test...");
+
+                if (moveAttachmentFiles(testProxyServer.getTestOperations())) {
+                    retval = saveTest(getMainframe().getConfiguration().getRepositoryLocation(),
+                        getTestHeader(), testProxyServer.getTestOperations());
+                }
+
+                return retval;
+            }
+            
+            @Override
+            protected void done() {
+                Boolean b = false;
+                try {
+                    b = (Boolean)get();
+                } 
                 
-                if (retval) {
+                catch (Exception ex) {};
+                
+                if (b) {
                     getMainframe().getTestRepositoryTree().saveConfiguration();
                     getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
                 }
-            }
-        } 
-        
-        catch (IOException ex) {
-            LOG.error(ex.toString(), ex);
-            UIUtils.showError(this, "Save Error", "Error saving test - " + ex.toString());
-            retval = false;
-        }
+                
+                closeProxyServer();
+                
+                getMainframe().stopSpinner();
 
-        finally {
-            closeProxyServer();
-        }
+                getMainframe().getPlatformTestsPanel().populateList(getPlatform());
+
+            }
+            
+        }.execute();
+        
         
         return retval;
     }
