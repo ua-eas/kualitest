@@ -355,17 +355,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                                 if (nvp.getName().contains(Constants.FILE_ATTACHMENT_MARKER)) {
                                     File newFile=  buildAttachmentFileName(nvp.getValue());
                                     StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
-                                    st.nextToken();
+                                    String contentType = st.nextToken();
                                     FileUtils.deleteQuietly(newFile);
                                     FileUtils.copyFile(new File(st.nextToken()), newFile);
-                                    newparams.add(new UpdateableNameValuePair(nvp.getName(), newFile.getPath()));
+                                    newparams.add(new UpdateableNameValuePair(nvp.getName(), contentType + Constants.SEPARATOR_COLON + newFile.getPath()));
                                 } else {
                                     newparams.add(nvp);
                                 }
                             }
-                        }
                         
-                        contentParameter.setValue(Utils.buildMultipartParameterString(params));
+                            contentParameter.setValue(Utils.buildMultipartParameterString(newparams));
+                        }
                     } 
                 }
             }

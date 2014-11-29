@@ -470,6 +470,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public void handleDeleteTest(TestHeader testHeader) {
         if (UIUtils.promptForDelete(this, "Delete Test", "Delete test '" + testHeader.getTestName() + "'?")) {
             String platformName = testHeader.getPlatformName();
+            String testName = testHeader.getTestName();
             String testFileName = Utils.getTestFilePath(getConfiguration(), testHeader);
             
             Platform p = Utils.findPlatform(getConfiguration(), platformName);
@@ -507,11 +508,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 
                 File f = new File(testFileName);
                 FileUtils.deleteQuietly(f);
-
+                
                 f = new File(f.getPath().substring(0, f.getPath().lastIndexOf(".")+1) + "txt");
                 FileUtils.deleteQuietly(f);
-
-                deleteAttachments(testHeader);
+                deleteAttachments(platformName, testName);
                 testRepositoryTree.saveConfiguration();
                 testRepositoryTree.selectPlatformByName(platformName);
                 platformTestsPanel.populateList(p);
@@ -519,20 +519,21 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
-    private void deleteAttachments(TestHeader testHeader) {
+    private void deleteAttachments(String platformName, String testName) {
         try {
             StringBuilder buf = new StringBuilder(128);
 
-            buf.append(Utils.buildPlatformTestsDirectoryName(getConfiguration().getRepositoryLocation(), testHeader.getPlatformName()));
+            buf.append(Utils.buildPlatformTestsDirectoryName(getConfiguration().getRepositoryLocation(), platformName));
             buf.append(File.separator);
             buf.append(Constants.ATTACHMENTS);
             buf.append(File.separator);
-            buf.append(Utils.formatForFileName(testHeader.getTestName()));
-
-            FileUtils.deleteDirectory(new File(buf.toString()));
+            buf.append(Utils.formatForFileName(testName));
+            FileUtils.deleteQuietly(new File(buf.toString()));
         }
         
-        catch (Exception ex) {};
+        catch (Exception ex) {
+            LOG.warn(ex.toString(), ex);
+        };
     }
     /**
      *

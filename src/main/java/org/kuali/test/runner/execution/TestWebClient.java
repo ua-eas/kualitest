@@ -31,6 +31,7 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.FrameWindow;
 import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
 import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
@@ -59,6 +60,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import org.apache.commons.codec.CharEncoding;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
@@ -593,12 +595,47 @@ public class TestWebClient extends WebClient {
         return retval;
     }
     
+    private void populateFileInputElement(HtmlPage page, NameValuePair nvp, Set <HtmlElement> inputSet) {
+        int pos = nvp.getName().indexOf(Constants.FILE_ATTACHMENT_MARKER);
+        
+        if (pos > -1) {
+            HtmlElement e = findHtmlElementByName(page, nvp.getName().substring(0, pos));
+
+            if (e instanceof HtmlFileInput) {
+                if (!inputSet.contains(e)) {
+                    inputSet.add(e);
+                    StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
+                    String mimeType = st.nextToken();
+                    File f  = new File(st.nextToken());
+                    
+                    if (f.exists() && f.isFile()) {
+                        try {
+                            byte[] buf = FileUtils.readFileToByteArray(f);
+                            HtmlFileInput fileInput = (HtmlFileInput)e;
+                            fileInput.setContentType(mimeType);
+                            fileInput.setData(buf);
+                        } 
+                        
+                        catch (IOException ex) {
+                            LOG.error(ex.toString(), ex);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     public void populateFormElements(TestExecutionContext tec, List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         HtmlPage page = (HtmlPage)tec.getWebClient().getCurrentWindow().getEnclosedPage();
+        Set <HtmlElement> inputSet = new HashSet<HtmlElement>();
         for (NameValuePair nvp : nvplist) {
             try {
                 HtmlElement e = findHtmlElementByName(page, nvp.getName());
-                populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                if (isFileAttachment(nvp.getName())) {
+                    populateFileInputElement(page, nvp, inputSet);
+                } else {
+                    populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                }
             }
 
             catch (ElementNotFoundException ex) {};
@@ -641,6 +678,6 @@ public class TestWebClient extends WebClient {
         } else if (e instanceof HtmlTextArea) {
             HtmlTextArea ta = (HtmlTextArea)e;
             ta.setText(value);
-        }
+        } 
     }
 }
