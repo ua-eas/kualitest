@@ -1101,11 +1101,11 @@
         <handler-name>kfs12</handler-name>
     </handler>
 
-    <!-- handler for notes tab -->
+    <!-- handler for notes and attachments tab -->
     <handler>
         <application>KFS</application>
         <tag-name>td</tag-name>
-        <handler-class-name>org.kuali.test.handlers.htmltag.TdTagHandler</handler-class-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.NotesAndAttachmentsTagHandler</handler-class-name>
         <sort-index>6</sort-index>
         <tag-matchers>
             <tag-matcher>
@@ -1189,4 +1189,5 @@
         </label-matcher>
         <handler-name>kfs13</handler-name>
     </handler>
+
 </tag-handlers>

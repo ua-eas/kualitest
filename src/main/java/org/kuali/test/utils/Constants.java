@@ -319,6 +319,7 @@ public class Constants {
     public static final String FILE_ATTACHMENT_MARKER = ":fileAttachment";
     public static final String TMP_FILE_PREFIX_SEPARATOR = "_-_";
     public static final String ATTACHMENTS = "attachments";
+    
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_TABLE);

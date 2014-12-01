@@ -951,7 +951,7 @@ public class Utils {
      */
     public static String trimString(String in) {
         if (StringUtils.isNotBlank(in)) {
-            return in.trim().replaceAll("[^\\x00-\\x7F]", "");
+            return in.replaceAll("[^\\x00-\\x7F]", "").trim();
         } else {
             return "";
         }

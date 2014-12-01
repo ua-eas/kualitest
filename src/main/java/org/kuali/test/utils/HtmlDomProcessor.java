@@ -67,6 +67,11 @@ public class HtmlDomProcessor {
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
         
         if (th != null) {
+            if ("kfs13".equals(th.getTagHandler().getHandlerName())) {
+                int i = 0;
+            }
+            
+            
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);
                 if (StringUtils.isNotBlank(groupName)) {
@@ -112,20 +117,20 @@ public class HtmlDomProcessor {
                             useNode = th.getInputElement(node);
                         }
                         
-                        p.setName("tag-name");
+                        p.setName(Constants.TAG_NAME);
                         p.setValue(useNode.getTagName());
                         
                         String s = useNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
                         if (StringUtils.isNotBlank(s)) {
                             p = cp.getTagInformation().addNewParameter();
-                            p.setName("id");
+                            p.setName(Constants.HTML_TAG_ATTRIBUTE_ID);
                             p.setValue(s);
                         }
                         
                         s = useNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
                         if (StringUtils.isNotBlank(s)) {
                             p = cp.getTagInformation().addNewParameter();
-                            p.setName("name");
+                            p.setName(Constants.HTML_TAG_ATTRIBUTE_NAME);
                             p.setValue(s);
                         }
                         
@@ -133,7 +138,7 @@ public class HtmlDomProcessor {
                         
                         if (StringUtils.isNotBlank(iframeids)) {
                             p = cp.getTagInformation().addNewParameter();
-                            p.setName("iframe-ids");
+                            p.setName(Constants.IFRAME_IDS);
                             p.setValue(iframeids);
                         }
                         
