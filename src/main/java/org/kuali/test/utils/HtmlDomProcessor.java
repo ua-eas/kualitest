@@ -67,11 +67,6 @@ public class HtmlDomProcessor {
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
         
         if (th != null) {
-            if ("kfs13".equals(th.getTagHandler().getHandlerName())) {
-                int i = 0;
-            }
-            
-            
             if (th.isContainer(node)) {
                 String groupName = th.getGroupName(node);
                 if (StringUtils.isNotBlank(groupName)) {
