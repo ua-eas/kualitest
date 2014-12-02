@@ -70,6 +70,12 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:complexType name="lookup-results-paths">
+        <xs:sequence>
+            <xs:element name="lookup-results-path" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
     <xs:complexType name="urls-to-ignore">
         <xs:sequence>
             <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>

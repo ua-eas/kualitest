@@ -1468,6 +1468,28 @@ public class Utils {
 
     /**
      *
+     * @param node
+     * @return
+     */
+    public static Element getParentNodeByTagName(Element node, String parentTagName) {
+        Element retval = null;
+
+        Element curnode = (Element)node.getParentNode();
+
+        while (curnode != null) {
+            if (parentTagName.equalsIgnoreCase(curnode.getTagName())) {
+                retval = curnode;
+                break;
+            }
+            
+            curnode = (Element)curnode.getParentNode();
+        }
+
+        return retval;
+    }
+
+    /**
+     *
      * @param tm
      * @param node
      * @return
@@ -1738,7 +1760,7 @@ public class Utils {
             for (HtmlTagHandler hth : handlerList) {
                 boolean match = true;
                 TagHandler th = hth.getTagHandler();
-
+                
                 if (th.getTagMatchers() != null) {
                     for (TagMatcher tm : th.getTagMatchers().getTagMatcherArray()) {
                         if (getMatchingTagNode(tm, node) == null) {

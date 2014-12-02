@@ -15,6 +15,7 @@
  */
 package org.kuali.test.ui.components.panels;
 
+import chrriis.dj.nativeswing.NSComponentOptions;
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserAdapter;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserNavigationEvent;
@@ -71,11 +72,11 @@ import org.kuali.test.utils.Utils;
 public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener {
 
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
-
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
-
+    private String lookupResultPath;
+    
     /**
      *
      * @param mainframe
@@ -116,7 +117,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private JWebBrowser createWebBrowser(boolean initial) {
-        JWebBrowser retval = new JWebBrowser();
+        JWebBrowser retval = new JWebBrowser(NSComponentOptions.destroyOnFinalization());
 
         if (initial) {
             retval.setButtonBarVisible(false);
@@ -147,7 +148,7 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     if (o != null) {
                         tabbedPane.setTitleAt(selindx, o.toString());
                     }
-                }
+                } 
             }
         });
 

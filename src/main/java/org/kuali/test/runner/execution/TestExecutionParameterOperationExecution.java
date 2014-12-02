@@ -29,6 +29,7 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -70,8 +71,10 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         // required to handle asynchronous processing that may affect parameter fields
         while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
             if (StringUtils.isNotBlank(key)) {
+                Document doc = null;
                 for (String h : testWrapper.getHttpResponseStack()) {
-                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(h));
+                    doc = Utils.cleanHtml(h);
+                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
 
                     for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
                         String curkey = Utils.buildCheckpointPropertyKey(cp);
@@ -88,7 +91,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                 if (cpmatch != null) {
                     TestExecutionParameter tep = getOperation().getTestExecutionParameter();
                     ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
-                    tep.setValue(ph.getValue(tec, cpmatch.getPropertyValue().trim()));
+                    tep.setValue(ph.getValue(tec, doc, cpmatch, cpmatch.getPropertyValue().trim()));
                     lastTestException = null;
                     break;
                 }

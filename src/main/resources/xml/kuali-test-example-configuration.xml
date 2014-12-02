@@ -91,5 +91,6 @@
       <parameter-handler>org.kuali.test.handlers.parameter.FirstListItemHandler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.GeneratedIdHandler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.SaveValueHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.RandomListSelectionHandler</parameter-handler>
    </parameter-handlers>
 </kuali-test-configuration>

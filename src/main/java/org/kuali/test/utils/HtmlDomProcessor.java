@@ -104,14 +104,39 @@ public class HtmlDomProcessor {
                     if (StringUtils.isNotBlank(cp.getDisplayName()) && isValidSectionName(cp, th)) {
                         cp.addNewTagInformation();
 
-                        Parameter p = cp.getTagInformation().addNewParameter();
+                        Parameter p = null;
+                        if (Constants.HTML_TAG_TYPE_TD.equals(node.getTagName()) || Constants.HTML_TAG_TYPE_TH.equals(node.getTagName())) {
+                            Element table = Utils.getParentNodeByTagName(node, Constants.HTML_TAG_TYPE_TABLE);
+
+                            if (table != null) {
+                                String tid = table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+                                String tname = table.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
+                                
+                                if (StringUtils.isNotBlank(tid)) {
+                                    p = cp.getTagInformation().addNewParameter();
+                                    p.setName(Constants.TABLE_ID);
+                                    p.setValue("" + Utils.getChildNodeIndex(node));
+                                }
+
+                                if (StringUtils.isNotBlank(tname)) {
+                                    p = cp.getTagInformation().addNewParameter();
+                                    p.setName(Constants.TABLE_NAME);
+                                    p.setValue("" + Utils.getChildNodeIndex(node));
+                                }
+                            }
+                            
+                            p = cp.getTagInformation().addNewParameter();
+                            p.setName(Constants.CHILD_NODE_INDEX);
+                            p.setValue("" + Utils.getChildNodeIndex(node));
+                        }
                         
                         Element useNode = node;
                         
                         if (th.isInputWrapper(node)) {
                             useNode = th.getInputElement(node);
                         }
-                        
+
+                        p = cp.getTagInformation().addNewParameter();
                         p.setName(Constants.TAG_NAME);
                         p.setValue(useNode.getTagName());
                         
@@ -207,10 +232,9 @@ public class HtmlDomProcessor {
     }
 
     public Element getDomDocumentElement(String html) {
-      //  return Utils.tidify(html).getDocumentElement();
         return Utils.cleanHtml(html).getDocumentElement();
     }
-
+    
     private void processDocument(Document document, List<Element> labelNodes, DomInformation domInfo) {
         traverseNode(document.getDocumentElement(), domInfo, labelNodes);
     }

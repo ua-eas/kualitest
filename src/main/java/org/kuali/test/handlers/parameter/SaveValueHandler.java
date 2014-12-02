@@ -16,7 +16,9 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.w3c.dom.Document;
 
 
 public class SaveValueHandler extends AbstractParameterHandler {
@@ -27,7 +29,7 @@ public class SaveValueHandler extends AbstractParameterHandler {
     }
 
     @Override
-    public String getValue(TestExecutionContext tec, String inputValue) {
+    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
         return inputValue;
     }
 }

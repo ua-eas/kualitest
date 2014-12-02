@@ -197,12 +197,13 @@ public class TestProxyServer {
         
         proxyServer = (DefaultHttpProxyServer)DefaultHttpProxyServer
             .bootstrap()
-            .withConnectTimeout(Constants.PROXY_CONNECTION_TIMEOUT)
             .withPort(Integer.parseInt(proxyPort))
             .withAddress(new InetSocketAddress(proxyHost, Integer.parseInt(proxyPort)))
             .withFiltersSource(getHttpFiltersSource())
             .withManInTheMiddle(new SelfSignedMitmManager())
             .withAllowLocalOnly(true)
+            .withIdleConnectionTimeout(Constants.PROXY_CONNECTION_TIMEOUT)
+            .withConnectTimeout(Constants.PROXY_CONNECTION_TIMEOUT)
             .start();
         
         proxyServerRunning = true;

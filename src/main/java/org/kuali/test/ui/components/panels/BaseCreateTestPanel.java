@@ -65,7 +65,6 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
     private JMenuItem viewCheckpoints;
     private JMenuItem viewComments;
     private JMenuItem viewParameters;
-    
     /**
      * 
      * @param mainframe
@@ -100,12 +99,10 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         JMenuBar retval = new JMenuBar();
         
         JMenu menu = new JMenu(Constants.OPERATION_ACTION) {
-
             @Override
             public Insets getInsets() {
                 return new Insets(1, 5, 1, 200);
             }
-            
         };
         
         menu.setMnemonic('o');
@@ -130,6 +127,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
         
         menu.add(createCheckpoint);
         menu.add(createComment);
+
         if (isParameterOperationRequired()) {
             menu.add(createParameter);
         }
@@ -243,6 +241,8 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             handleViewComments();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
             handleSaveTest();
+        } else if (e.getActionCommand().equals(Constants.CREATE_RANDOM_LIST_SELECTION_ACTION)) {
+            handleRandomListSelection();
         } else {
             handleUnprocessedActionEvent(e);
         }
@@ -312,6 +312,9 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @return
      */
     protected abstract boolean handleSaveTest();
+
+    protected void handleRandomListSelection() {
+    };
 
     /**
      *

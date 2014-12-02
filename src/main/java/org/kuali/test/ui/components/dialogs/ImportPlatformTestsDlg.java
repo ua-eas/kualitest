@@ -220,6 +220,7 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
         if (sourcePlatform != null) {
             progressBar.setMinimum(0);
             List <String> selectedTests = availableTests.getSelectedValuesList();
+            
             progressBar.setMaximum(selectedTests.size());
             
             for (String testName : selectedTests) {

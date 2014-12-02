@@ -18,7 +18,9 @@ package org.kuali.test.handlers.parameter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.w3c.dom.Document;
 
 
 public class CurrentDateHandler extends AbstractParameterHandler {
@@ -26,7 +28,7 @@ public class CurrentDateHandler extends AbstractParameterHandler {
     private static final SimpleDateFormat DF = new SimpleDateFormat(DATE_FORMAT);
 
     @Override
-    public String getValue(TestExecutionContext tec, String currentValue) {
+    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
         return DF.format(new Date());
     }
     

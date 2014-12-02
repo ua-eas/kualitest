@@ -119,10 +119,12 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 add(tp, BorderLayout.CENTER);
             } else if (pmap.size() == 1) {
                 CheckpointTable t;
+                String key = pmap.keySet().iterator().next();
+                
                 if (singleSelectMode) {
-                    t = buildParameterTableForSingleSelect(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+                    t = buildParameterTableForSingleSelect(getName(), pmap.get(key));
                 } else {
-                    t = buildParameterTable(getName(), pmap.get(Constants.DEFAULT_HTML_PROPERTY_GROUP));
+                    t = buildParameterTable(getName(), pmap.get(key));
                 }
                 TablePanel p = new TablePanel(t);
                 checkpointTables.add(t);
@@ -202,7 +204,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         String retval = null;
         StringBuilder s = new StringBuilder(256);
         
-        s.append("return document.getElementsById('");
+        s.append("return document.getElementById('");
         if (StringUtils.isNotBlank(iframeIds)) {
             StringTokenizer st = new StringTokenizer(iframeIds, ",");
             s.append(st.nextToken());

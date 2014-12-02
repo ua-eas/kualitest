@@ -153,6 +153,7 @@ public class Constants {
     public static final String VIEW_PARAMETERS_ACTION = "View Parameters";
     public static final String CREATE_COMMENT_ACTION = "Create Comment";
     public static final String VIEW_COMMENTS_ACTION = "View Comments";
+    public static final String CREATE_RANDOM_LIST_SELECTION_ACTION = "Create Random List Selection";
     public static final String ADD_ACTION = "Add";
     public static final String OPERATION_ACTION = "Operation";
     public static final String COPY_ACTION = "Copy";
@@ -256,7 +257,7 @@ public class Constants {
     public static final long HTML_TEST_RETRY_TIMESPAN = MILLIS_PER_MINUTE;
     public static final long HTML_TEST_RETRY_SLEEP_INTERVAL = 5000;
     public static final String DEFAULT_MESSAGE_DIGEST_ALGORITHM = "SHA";
-    public static final int PROXY_CONNECTION_TIMEOUT = 2 * 300000;
+    public static final int PROXY_CONNECTION_TIMEOUT = 300000;
     public static final long LOCAL_TEST_RUN_SLEEP_TIME = 2000;
     public static final long HTML_CLIENT_WAIT_FOR_BACKGROUND_JAVASCRIPT_TIME = 30000;
     
@@ -315,7 +316,10 @@ public class Constants {
     public static final String HTML_TAG_TYPE_BODY = "body";
     public static final String HTML_TAG_TYPE_TEXTAREA = "textarea";
     public static final String TAG_NAME = "tag-name";
+    public static final String CHILD_NODE_INDEX = "child-node-index";
     public static final String IFRAME_IDS = "iframe-ids";
+    public static final String TABLE_ID = "table-id";
+    public static final String TABLE_NAME = "table-name";
     public static final String FILE_ATTACHMENT_MARKER = ":fileAttachment";
     public static final String TMP_FILE_PREFIX_SEPARATOR = "_-_";
     public static final String ATTACHMENTS = "attachments";
@@ -351,6 +355,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_CHECKED = "checked";
     public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
     public static final String HTML_TAG_ATTRIBUTE_TYPE = "type";
+    public static final String HTML_TAG_ATTRIBUTE_HREF = "href";
     public static final String HTML_TAG_ATTRIBUTE_SUMMARY = "summary";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_RADIO = "radio";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX = "checkbox";

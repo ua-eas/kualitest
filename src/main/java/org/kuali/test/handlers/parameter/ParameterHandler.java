@@ -16,10 +16,12 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.w3c.dom.Document;
 
 
 public interface ParameterHandler extends Comparable<ParameterHandler> {
-    public String getValue(TestExecutionContext tec, String inputValue);
+    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
     public String getDescription();
 }

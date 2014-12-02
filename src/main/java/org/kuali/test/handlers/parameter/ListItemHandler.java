@@ -16,8 +16,10 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
+import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -29,9 +31,9 @@ public abstract class ListItemHandler extends AbstractParameterHandler {
     }
     
     @Override
-    public String getValue(TestExecutionContext tec, String elementName) {
+    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
         String retval = "";
-        Node node = tec.getWebClient().findHtmlElementByName(elementName);
+        Node node = tec.getWebClient().findHtmlElementByName(inputValue);
         
         if ((node != null) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getNodeName())) {
             NodeList nodeList = node.getChildNodes();
