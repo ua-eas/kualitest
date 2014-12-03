@@ -24,4 +24,5 @@ import org.w3c.dom.Document;
 public interface ParameterHandler extends Comparable<ParameterHandler> {
     public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
     public String getDescription();
+    public String getCommentText();
 }

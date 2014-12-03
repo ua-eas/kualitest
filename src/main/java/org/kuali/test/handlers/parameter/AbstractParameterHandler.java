@@ -48,5 +48,9 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
     public int compareTo(ParameterHandler o) {
         return toString().compareTo(o.toString());
     }
-    
+
+    @Override
+    public String getCommentText() {
+        return null;
+    }
 }

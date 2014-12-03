@@ -36,52 +36,23 @@ import org.w3c.dom.NodeList;
 
 public class RandomListSelectionHandler extends AbstractParameterHandler {
     private static final Logger LOG = Logger.getLogger(RandomListSelectionHandler.class);
+    private String commentText;
     
     @Override
     public String getDescription() {
         return "This handler will save the current value from the selected link and replace all instances of this value found in future test runs with a randomly selected value from the list";
     }
-
-    private Element findTableElement(Document htmlDocument, CheckpointProperty cp) {
-        Element retval = null;
-        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_ID);
-        
-        if (param != null) {
-            retval = htmlDocument.getElementById(param.getValue());
-        }
-        
-        if (retval == null) {
-            param = Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_NAME);
-        
-            if (param != null) {
-                NodeList l = htmlDocument.getElementsByTagName(Constants.HTML_TAG_TYPE_TABLE);
-                
-                for (int i = 0; i < l.getLength(); ++i) {
-                    Node node = l.item(i);
-                    Node att = node.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_NAME);
-                    
-                    if ((att != null) && param.getValue().equals(att.getNodeValue())) {
-                        retval = (Element)node;
-                        break;
-                    }
-                }    
-            }
-        }
-        
-        return retval;
-    }
     
     @Override
     public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
         String retval = null;
-
         String tagName = getTagName(cp);
         
         // if the element is in a list or a table we will randomly select a new vale
         // else we will return the input value
         if (tagName != null) {
             if (Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagName)) {
-               Element sel = findElement(htmlDocument, cp, tagName);
+               Element sel = findElement(htmlDocument, getElementId(cp), getElementName(cp), tagName);
                
                if (sel != null) {
                    NodeList l = sel.getElementsByTagName(Constants.HTML_TAG_TYPE_OPTION);
@@ -93,11 +64,12 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
                                 break;
                             }
                         }
+
                         retval = getNodeValue(l.item(getRandomIndex(l.getLength(), selectedIndex)));
                     }
                }
             } else if (isTableElement(cp)) {
-                Element table = findTableElement(htmlDocument, cp);
+                Element table = findElement(htmlDocument, getTableId(cp), getTableName(cp), Constants.HTML_TAG_TYPE_TABLE);
                 
                 if (table != null) {
                     Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.CHILD_NODE_INDEX);
@@ -147,7 +119,9 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
                         }
                         
                         if (!availableData.isEmpty()) {
-                            retval = availableData.get(this.getRandomIndex(availableData.size(), selectedIndex));
+                            int indx = getRandomIndex(availableData.size(), selectedIndex);
+                            retval = availableData.get(indx);
+                            commentText = ("randomly selected row " + (indx+1) + " with data value " + retval);
                         }
                     }
                 }
@@ -219,6 +193,18 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
         return retval;
     }
 
+    private String getTableId(CheckpointProperty cp) {
+        String retval = null;
+        
+        Parameter id = Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_ID);
+        
+        if (id != null) {
+            retval = id.getValue();
+        }
+            
+        return retval;
+    }
+
     private String getElementId(CheckpointProperty cp) {
         String retval = null;
         
@@ -231,10 +217,10 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
         return retval;
     }
     
-    private String getElementName(CheckpointProperty cp) {
+    private String getTableName(CheckpointProperty cp) {
         String retval = null;
         
-        Parameter name = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_NAME);
+        Parameter name = Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_NAME);
         
         if (name != null) {
             retval = name.getValue();
@@ -243,48 +229,57 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
         return retval;
     }
     
-    private String[] getIframeIds(CheckpointProperty cp) {
-        String[] retval = new String[0];
+    private String getElementName(CheckpointProperty cp) {
+        String retval = null;
         
-        Parameter iframeIds = Utils.getCheckpointPropertyTagParameter(cp, Constants.IFRAME_IDS);
+        Parameter name = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
         
-        if (iframeIds != null) {
-            retval = iframeIds.getValue().split(",");
+        if (name != null) {
+            retval = name.getValue();
         }
-        
+            
         return retval;
     }
-    
-    private Element findElement(Document htmlDocument, CheckpointProperty cp, String tagName) {
+
+    private Element findElement(Document htmlDocument, String id, String name, String tagName) {
         Element retval = null;
 
-        String id = getElementId(cp);
-        
         if (StringUtils.isNotBlank(id)) {
             retval = htmlDocument.getElementById(id);
         }
         
         if (retval == null) {
-            String name = getElementName(cp);
-            
-            if (StringUtils.isNotBlank(name)) {
-                NodeList l = htmlDocument.getDocumentElement().getElementsByTagName(tagName);
+            NodeList l = htmlDocument.getDocumentElement().getElementsByTagName(tagName);
+
+            for (int i = 0; i < l.getLength(); ++i) {
+                Node node = l.item(i);
+                Node nameatt = node.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_NAME);
+                Node idatt = node.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_ID);
                 
-                for (int i = 0; i < l.getLength(); ++i) {
-                    Node node = l.item(i);
-                    Node att = node.getAttributes().getNamedItem(name);
-                    if (name.equals(att.getNodeValue())) {
-                        retval = (Element)node;
-                        break;
-                    }
+                if (StringUtils.isNotBlank(id) && (idatt != null) && id.equals(idatt.getNodeValue())) {
+                    retval = (Element)node;
+                    break;
+                }
+                
+                if (StringUtils.isNotBlank(name) && (nameatt != null) && name.equals(nameatt.getNodeValue())) {
+                    retval = (Element)node;
+                    break;
                 }
             }
         }
+        
         return retval;
     }
     
     private boolean isTableElement(CheckpointProperty cp) {
         return ((Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_ID) != null) 
             || (Utils.getCheckpointPropertyTagParameter(cp, Constants.TABLE_NAME) != null));
+    }
+
+    @Override
+    public String getCommentText() {
+        String retval = commentText;
+        commentText = null;
+        return retval;
     }
 }

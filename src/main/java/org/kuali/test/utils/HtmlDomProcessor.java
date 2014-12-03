@@ -115,13 +115,13 @@ public class HtmlDomProcessor {
                                 if (StringUtils.isNotBlank(tid)) {
                                     p = cp.getTagInformation().addNewParameter();
                                     p.setName(Constants.TABLE_ID);
-                                    p.setValue("" + Utils.getChildNodeIndex(node));
+                                    p.setValue(tid);
                                 }
 
                                 if (StringUtils.isNotBlank(tname)) {
                                     p = cp.getTagInformation().addNewParameter();
                                     p.setName(Constants.TABLE_NAME);
-                                    p.setValue("" + Utils.getChildNodeIndex(node));
+                                    p.setValue(tname);
                                 }
                             }
                             
