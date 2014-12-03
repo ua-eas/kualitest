@@ -93,6 +93,12 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                     ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
                     tep.setValue(ph.getValue(tec, doc, cpmatch, cpmatch.getPropertyValue().trim()));
                     lastTestException = null;
+                    String comment = ph.getCommentText();
+                    
+                    if (StringUtils.isNotBlank(comment)) {
+                        tec.writeCommentEntry(buildCommentOperation(tep.getName(), comment));
+                    }
+                    
                     break;
                 }
             }
@@ -122,5 +128,12 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         if (lastTestException != null) {
             throw lastTestException;
         }
+    }
+    
+    private Operation buildCommentOperation(String parameterName, String comment) {
+        Operation retval = Operation.Factory.newInstance();
+        retval.addNewCommentOperation();
+        retval.getCommentOperation().setComment("[" + parameterName + "] " + comment);
+        return retval;
     }
 }
