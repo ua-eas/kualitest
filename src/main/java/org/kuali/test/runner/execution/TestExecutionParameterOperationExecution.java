@@ -133,7 +133,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
     private Operation buildCommentOperation(String parameterName, String comment) {
         Operation retval = Operation.Factory.newInstance();
         retval.addNewCommentOperation();
-        retval.getCommentOperation().setComment("[" + parameterName + "] " + comment);
+        retval.getCommentOperation().setComment("parameter [" + parameterName + "]: " + comment);
         return retval;
     }
 }
