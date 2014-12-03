@@ -69,6 +69,7 @@ public class TestExecutionContext extends Thread {
     private File testResultsFile;
 
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
+    private Set<String> randomListAccessParameterToIgnore = new HashSet<String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
     private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
     
@@ -91,11 +92,17 @@ public class TestExecutionContext extends Thread {
     private PoiHelper poiHelper;
     private Integer currentOperationIndex;
     
-    public TestExecutionContext() {
+    public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
+        this.configuration = configuration;
         init();
     }
 
     private void init() {
+        if (configuration.getRandomListAccessParametersToIgnore() != null) {
+            for (String paramName : configuration.getRandomListAccessParametersToIgnore().getParameterNameArray()) {
+                randomListAccessParameterToIgnore.add(paramName);
+            }
+        }
     }
 
     private void initializeHttpClient() {
@@ -485,12 +492,11 @@ public class TestExecutionContext extends Thread {
         retval.add(this);
 
         for (int i = 1; i < testRuns; ++i) {
-            TestExecutionContext tec = new TestExecutionContext();
+            TestExecutionContext tec = new TestExecutionContext(configuration);
             tec.setStartTime(startTime);
             tec.setPlatform(platform);
             tec.setKualiTest(kualiTest);
             tec.setTestRun(i + 1);
-            tec.setConfiguration(configuration);
             retval.add(tec);
         }
 
@@ -743,5 +749,9 @@ public class TestExecutionContext extends Thread {
             
             webClient.getPage(request);
         }
+    }
+
+    public Set<String> getRandomListAccessParameterToIgnore() {
+        return randomListAccessParameterToIgnore;
     }
 }

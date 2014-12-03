@@ -17,11 +17,15 @@
 package org.kuali.test.ui.components.dialogs;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -32,11 +36,14 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.Parameter;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.handlers.parameter.ParameterHandler;
+import org.kuali.test.handlers.parameter.RandomListSelectionHandler;
 import org.kuali.test.handlers.parameter.SaveValueHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
@@ -51,11 +58,13 @@ import org.kuali.test.utils.Utils;
  */
 public class TestExecutionParameterDlg extends BaseSetupDlg 
     implements ListSelectionListener, DocumentListener {
+
+    private static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
     private JComboBox parameterHandlers;
     private TestExecutionParameter testExecutionParameter;
-    
+    private Set<String> randomListSelectParameterToIgnore = new HashSet<String>();
     
     /**
      * 
@@ -67,6 +76,13 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
     public TestExecutionParameterDlg(TestCreator mainframe, JWebBrowser wb, TestHeader testHeader, String html) {
         super(mainframe);
         setTitle("Test Execution Parameter Select");
+
+        if (getConfiguration().getRandomListAccessParametersToIgnore() != null) {
+            for (String s : getConfiguration().getRandomListAccessParametersToIgnore().getParameterNameArray()) {
+                randomListSelectParameterToIgnore.add(s);
+            }
+        }
+        
         initComponents(wb, testHeader, html);
     }
 
@@ -140,6 +156,30 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         testExecutionParameter.setName(name.getText());
         CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
         cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
+
+        
+        if (parameterHandlers.getSelectedItem().getClass().equals(RandomListSelectionHandler.class)) {
+            Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.ANCHOR_PARAMETERS);
+            
+            if ((param != null) && StringUtils.isNotBlank(param.getValue())) {
+                try {
+                    List <NameValuePair> l = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
+                    if (l != null) {
+                        for (NameValuePair nvp : l) {
+                            if (!randomListSelectParameterToIgnore.contains(nvp.getName())) {
+                                cp.setPropertyValue(nvp.getValue());
+                                break;
+                            }
+                        }
+                    }
+                } 
+                
+                catch (UnsupportedEncodingException ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        }
+        
         testExecutionParameter.setValueProperty(cp);
         testExecutionParameter.setParameterHandler(parameterHandlers.getSelectedItem().getClass().getName());
         

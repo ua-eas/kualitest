@@ -16,10 +16,13 @@
 
 package org.kuali.test.handlers.parameter;
 
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Parameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
@@ -32,6 +35,8 @@ import org.w3c.dom.NodeList;
 
 
 public class RandomListSelectionHandler extends AbstractParameterHandler {
+    private static final Logger LOG = Logger.getLogger(RandomListSelectionHandler.class);
+    
     @Override
     public String getDescription() {
         return "This handler will save the current value from the selected link and replace all instances of this value found in future test runs with a randomly selected value from the list";
@@ -110,14 +115,30 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
                             NodeList cols = row.getChildNodes();
                             
                             for (int j = 0; j < cols.getLength(); ++j) {
-                                Node col = cols.item(j);
+                                Element col = (Element)cols.item(j);
                                 
                                 if (Constants.HTML_TAG_TYPE_TD.equals(col.getNodeName())) {
                                     if (pos == colindx) {
-                                        String data = Utils.cleanDisplayText(col);
+                                        String data = null;
+
+                                        // handle anchors special need to pull parameters form href
+                                        Node anchor = Utils.getFirstChildNodeByNodeName(col, Constants.HTML_TAG_TYPE_ANCHOR);
+                                        if (anchor != null) {
+                                            Node att = anchor.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_HREF);
+                                            
+                                            if (att != null) {
+                                                data = getParameterValueFromHref(tec, att.getNodeValue());
+                                            }
+                                        } else {
+                                            data = Utils.cleanDisplayText(col);
+                                        }
+                                        
                                         if (!inputValue.equals(data)) {
+                                            availableData.add(data);
+                                        } else {
                                             selectedIndex = i;
                                         }
+
                                         break;
                                     }
                                     pos++;
@@ -140,6 +161,29 @@ public class RandomListSelectionHandler extends AbstractParameterHandler {
         return retval;
     }
 
+    private String getParameterValueFromHref(TestExecutionContext tec, String href) {
+        String retval = null;
+        try {
+            List <NameValuePair> l = Utils.getNameValueParameterListFromUrl(href);
+            
+            if (l != null) {
+                for (NameValuePair nvp : l) {
+                    if (!tec.getRandomListAccessParameterToIgnore().contains(nvp.getName())) {
+                        retval = nvp.getValue();
+                        break;
+                    }
+                }
+            }
+        } 
+        
+        catch (UnsupportedEncodingException ex) {
+            LOG.error(ex.toString(), ex);
+        }
+        
+        return retval;
+    }
+    
+    
     private String getNodeValue(Node node) {
         String retval = null;
         

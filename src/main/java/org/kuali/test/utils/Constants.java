@@ -260,7 +260,7 @@ public class Constants {
     public static final int PROXY_CONNECTION_TIMEOUT = 300000;
     public static final long LOCAL_TEST_RUN_SLEEP_TIME = 2000;
     public static final long HTML_CLIENT_WAIT_FOR_BACKGROUND_JAVASCRIPT_TIME = 30000;
-    
+    public static final String ANCHOR_PARAMETERS = "anchor-parameters";
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;

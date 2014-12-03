@@ -93,4 +93,9 @@
       <parameter-handler>org.kuali.test.handlers.parameter.SaveValueHandler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.RandomListSelectionHandler</parameter-handler>
    </parameter-handlers>
+   
+   <random-list-access-parameters-to-ignore>
+       <parameter-name>methodToCall</parameter-name>
+       <parameter-name>businessObjectClassName</parameter-name>
+   </random-list-access-parameters-to-ignore>
 </kuali-test-configuration>

@@ -128,6 +128,14 @@ public class HtmlDomProcessor {
                             p = cp.getTagInformation().addNewParameter();
                             p.setName(Constants.CHILD_NODE_INDEX);
                             p.setValue("" + Utils.getChildNodeIndex(node));
+
+                            Node anchor = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_ANCHOR);
+                            
+                            if (anchor != null) {
+                                p = cp.getTagInformation().addNewParameter();
+                                p.setName(Constants.ANCHOR_PARAMETERS);
+                                p.setValue(getAnchorParameters(anchor));
+                            }
                         }
                         
                         Element useNode = node;
@@ -173,6 +181,27 @@ public class HtmlDomProcessor {
             }
         }
     }
+    
+    private String getAnchorParameters(Node anchor) {
+        String retval = "";
+        
+        Node att = anchor.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_HREF);
+        
+        if (att != null) {
+            String href = att.getNodeValue();
+            
+            if (StringUtils.isNotBlank(href)) {
+                int pos = href.indexOf(Constants.SEPARATOR_QUESTION);
+                
+                if (pos > -1) {
+                    retval = href.substring(pos+1);
+                }
+            }
+        }
+        
+        return retval;
+    }
+
 
     private String getIframeParentIds(Element node) {
         String retval = null;
