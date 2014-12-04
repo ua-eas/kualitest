@@ -507,15 +507,46 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
 
+    private CheckpointProperty getTableCheckpointProperty(int indx) {
+        CheckpointProperty retval = null;
+        TablePanel tp = null;
+        
+        if (tabbedPane != null) {
+            tp = (TablePanel)tabbedPane.getSelectedComponent();
+        } else {
+            BorderLayout layout = (BorderLayout)getLayout();
+            tp = (TablePanel)layout.getLayoutComponent(BorderLayout.CENTER);
+        }
+
+        if (tp != null) {
+            retval = (CheckpointProperty)tp.getTable().getModel().getData().get(indx);
+        }
+
+        return retval;
+    }
+    
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         if (singleSelectMode) {
-            for (List <CheckpointProperty> l : checkPointMap.values()) {
-                for (CheckpointProperty p : l) {
-                    if (p != lse.getSource()) {
-                        p.setSelected(false);
+            CheckpointProperty selcp = getTableCheckpointProperty(lse.getFirstIndex());
+            
+            if (selcp != null) {
+                boolean foundit = false;
+                for (List <CheckpointProperty> l : checkPointMap.values()) {
+                    for (CheckpointProperty p : l) {
+                        if (p != selcp) {
+                            p.setSelected(false);
+                            foundit = true;
+                            break;
+                        }
+                    }
+                    
+                    if (foundit) {
+                        break;
                     }
                 }
+            
+                selcp.setSelected(true);
             }
         }
         
