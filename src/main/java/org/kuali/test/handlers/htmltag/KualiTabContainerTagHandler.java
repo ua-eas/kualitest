@@ -16,14 +16,23 @@
 
 package org.kuali.test.handlers.htmltag;
 
-import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Constants;
 import org.w3c.dom.Element;
 
 /**
  *
  * @author rbtucker
  */
-public class CheckboxInputTagHandler extends DefaultHtmlTagHandler {
+public class KualiTabContainerTagHandler extends DefaultHtmlTagHandler {
+    /**
+     *
+     * @param node
+     * @return
+     */
+    @Override
+    public boolean isContainer(Element node) {
+        return true;
+    }
 
     /**
      *
@@ -31,9 +40,16 @@ public class CheckboxInputTagHandler extends DefaultHtmlTagHandler {
      * @return
      */
     @Override
-    public CheckpointProperty getCheckpointProperty(Element node) {
-        CheckpointProperty retval = super.getCheckpointProperty(node);
-        retval.setPropertyValue(getSelectedCheckboxValue(node, retval.getPropertyName()));
+    public String getGroupContainerName(Element node) {
+        String id = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
+        String retval = id;
+        int pos1 = id.indexOf("-");
+        int pos2 = id.lastIndexOf("-");
+        
+        if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
+            retval = formatCamelCaseName(id.substring(pos1+1, pos2));
+        }
+        
         return retval;
     }
 }

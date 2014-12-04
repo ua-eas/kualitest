@@ -16,9 +16,8 @@
 
 package org.kuali.test.handlers.htmltag;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -36,6 +35,10 @@ import org.w3c.dom.Element;
  */
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
     protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
+    
+    private static final String[] CHECK_WORDS = {"of", "and", "&", "an", "a", "for", "to"};
+
+    
     private TagHandler tagHandler;
 
     /**
@@ -160,6 +163,16 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
      * @return
      */
     @Override
+    public String getGroupContainerName(Element node) {
+        return null;
+    }
+
+    /**
+     *
+     * @param node
+     * @return
+     */
+    @Override
     public String getSectionName(Element node) {
         return null;
     }
@@ -193,11 +206,15 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
     protected String getSelectedRadioValue(Element node, String name) {
         String retval = "";
         
-        for (Element sibling : Utils.getSiblingElements(node)) {
-            if (name.equals(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
-                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CHECKED))) {
-                    retval = sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
-                    break;
+        if (StringUtils.isNotBlank(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CHECKED))) {
+            retval = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+        } else {
+            for (Element sibling : Utils.getSiblingElements(node)) {
+                if (name.equals(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
+                    if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CHECKED))) {
+                        retval = sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+                        break;
+                    }
                 }
             }
         }
@@ -233,31 +250,11 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
      * @param name
      * @return
      */
-    protected String getSelectedCheckboxValues(Element node, String name) {
-        String retval = "";
+    protected String getSelectedCheckboxValue(Element node, String name) {
+        String retval = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CHECKED);
         
-        List <String> l = new ArrayList<String>();
-
-        
-        for (Element sibling : Utils.getSiblingElements(node)) {
-            if (name.equals(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME))) {
-                if (StringUtils.isNotBlank(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
-                    l.add(sibling.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE));
-                    break;
-                }
-            }
-        }
-
-        if (!l.isEmpty()) {
-            StringBuilder buf = new StringBuilder(64);
-            Collections.sort(l);
-            String comma = "";
-            for (String s : l) {
-              buf.append(comma);
-              buf.append(s);
-              comma = ",";
-            }
-            retval = buf.toString();
+        if (StringUtils.isBlank(retval)) {
+            retval = "";
         }
         
         return retval;
@@ -341,4 +338,96 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         
         return retval;
     }
+    
+    protected boolean isTextAreaWrapper(Element node) {
+        boolean retval = Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_TEXTAREA);
+        
+        if (!retval) {
+            String checkTag = null;
+            if (Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SPAN)) {
+                checkTag = Constants.HTML_TAG_TYPE_SPAN;
+            } else if (Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_NOBR)) {
+                checkTag = Constants.HTML_TAG_TYPE_NOBR;
+            }
+
+            if (StringUtils.isNotBlank(checkTag)) {
+                Element e = Utils.getFirstChildNodeByNodeName(node, checkTag);
+                
+                if (e != null) {
+                     retval = Utils.hasChildNodeWithNodeName(e, Constants.HTML_TAG_TYPE_TEXTAREA);
+
+                    if (!retval) {
+                        e = Utils.getFirstChildNodeByNodeName(e, Constants.HTML_TAG_TYPE_DIV);
+
+                        if (e != null) {
+                            retval = Utils.hasChildNodeWithNodeName(e, Constants.HTML_TAG_TYPE_TEXTAREA);
+                        }
+                    }
+                }
+            } 
+        }
+        
+        return retval;
+    }
+
+    public boolean isCamelCase(String input) {
+        return (StringUtils.isNotBlank(input) 
+            && !StringUtils.isAllLowerCase(input) 
+            && !StringUtils.isAllUpperCase(input)
+            && !StringUtils.isAnyBlank(input));
+    }
+    
+    public String formatCamelCaseName(String nm) {
+        String retval = nm;
+        if (StringUtils.isNotBlank(nm)) {
+            int len = nm.length();
+            StringBuilder buf = new StringBuilder(len);
+
+            boolean camelCase = isCamelCase(nm);
+            
+            for (int i = 0; i < len; ++i) {
+                char c = nm.charAt(i);
+                if (i == 0) {
+                    if (Character.isLetterOrDigit(c)) {
+                        buf.append(c);
+                    }
+                } else {
+                    if (camelCase && Character.isUpperCase(c) && Character.isLowerCase(nm.charAt(i-1))) {
+                        buf.append(" ");
+                    }
+                    
+                    buf.append(c);
+                }
+            }
+
+            StringTokenizer st = new StringTokenizer(buf.toString());
+            buf.setLength(0);
+            
+            while(st.hasMoreTokens()) {
+                String token = st.nextToken();
+                boolean defaultProcessing = true;
+                for (int i = 0; i < CHECK_WORDS.length; ++i) {
+                    if (token.endsWith(CHECK_WORDS[i])) {
+                        buf.append(token.substring(0, token.length() - CHECK_WORDS[i].length()));
+                        buf.append(" ");
+                        buf.append(token.substring(0, token.length() - CHECK_WORDS[i].length() + 1));
+                        defaultProcessing = false;
+                        break;
+                    }
+                }
+
+                if (defaultProcessing) {
+                    buf.append(token);
+                }
+                
+                buf.append(" ");
+            }
+            
+            retval = buf.toString().trim();
+        }
+        
+        return retval;
+    }
+
+
 }

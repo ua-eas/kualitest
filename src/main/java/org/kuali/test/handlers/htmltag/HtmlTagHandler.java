@@ -53,6 +53,13 @@ public interface HtmlTagHandler {
      * @param tag
      * @return
      */
+    public String getGroupContainerName(Element tag);
+
+    /**
+     *
+     * @param tag
+     * @return
+     */
     public String getSectionName(Element tag);
 
     /**

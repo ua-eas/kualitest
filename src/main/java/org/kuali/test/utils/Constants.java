@@ -311,6 +311,7 @@ public class Constants {
     public static final String HTML_TEXT_NODE_NAME = "#text";
     public static final String HTML_TAG_TYPE_DIV = "div";
     public static final String HTML_TAG_TYPE_SPAN = "span";
+    public static final String HTML_TAG_TYPE_NOBR = "nobr";
     public static final String HTML_TAG_TYPE_ANCHOR = "a";
     public static final String HTML_TAG_TYPE_SELECT = "select";
     public static final String HTML_TAG_TYPE_BODY = "body";
@@ -323,6 +324,7 @@ public class Constants {
     public static final String FILE_ATTACHMENT_MARKER = ":fileAttachment";
     public static final String TMP_FILE_PREFIX_SEPARATOR = "_-_";
     public static final String ATTACHMENTS = "attachments";
+    public static final String TAB = "tab";
     
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);

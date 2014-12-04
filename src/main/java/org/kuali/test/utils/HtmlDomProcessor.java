@@ -33,7 +33,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class HtmlDomProcessor {
-
     private static final Logger LOG = Logger.getLogger(HtmlDomProcessor.class);
     private static HtmlDomProcessor instance;
 
@@ -68,7 +67,13 @@ public class HtmlDomProcessor {
         
         if (th != null) {
             if (th.isContainer(node)) {
+                String groupContainerName = th.getGroupContainerName(node);
                 String groupName = th.getGroupName(node);
+                
+                if (StringUtils.isNotBlank(groupContainerName)) {
+                    domInformation.getGroupContainerStack().push(groupContainerName);
+                }
+
                 if (StringUtils.isNotBlank(groupName)) {
                     domInformation.getGroupStack().push(groupName);
                 }
@@ -81,9 +86,17 @@ public class HtmlDomProcessor {
                 if (StringUtils.isNotBlank(groupName)) {
                     domInformation.getGroupStack().pop();
                 }
+            
+                if (StringUtils.isNotBlank(groupContainerName)) {
+                    domInformation.getGroupContainerStack().pop();
+                }
             } else {
                 CheckpointProperty cp = th.getCheckpointProperty(node);
                 if ((cp != null) && !Utils.isNodeProcessed(domInformation.getProcessedNodes(), node)) {
+                    if (StringUtils.isBlank(cp.getPropertyGroupContainer()) && !domInformation.getGroupContainerStack().isEmpty()) {
+                        cp.setPropertyGroupContainer(domInformation.getGroupContainerStack().peek());
+                    }
+
                     if (StringUtils.isBlank(cp.getPropertyGroup())
                         || Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(cp.getPropertyGroup())) {
                         cp.setPropertyGroup(domInformation.getGroupStack().peek());
@@ -296,11 +309,13 @@ public class HtmlDomProcessor {
         private Map<String, String> labelMap;
         private List<CheckpointProperty> checkpointProperties;
         private Stack<String> groupStack;
+        private Stack<String> groupContainerStack;
         int nodeid = 1;
 
         public DomInformation(Platform platform, Map<String, String> labelMap) {
             this.platform = platform;
             groupStack = new Stack();
+            groupContainerStack = new Stack();
             groupStack.push(Constants.DEFAULT_HTML_PROPERTY_GROUP);
             this.labelMap = labelMap;
             checkpointProperties = new ArrayList<CheckpointProperty>();
@@ -327,9 +342,10 @@ public class HtmlDomProcessor {
             return groupStack;
         }
 
-        public void setGroupStack(Stack<String> groupStack) {
-            this.groupStack = groupStack;
+        public Stack<String> getGroupContainerStack() {
+            return groupContainerStack;
         }
+
 
         public Platform getPlatform() {
             return platform;

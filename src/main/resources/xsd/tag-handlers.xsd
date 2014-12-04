@@ -79,6 +79,7 @@
     <xs:complexType name="child-tag-match">
         <xs:sequence>
             <xs:element name="child-tag-name" type="xs:string"/>
+            <xs:element name="deep" type="xs:boolean" default="false"/>
             <xs:element name="match-attributes" type="tag-match-attributes" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>

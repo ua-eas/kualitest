@@ -2,7 +2,7 @@
  * Copyright 2014 The Kuali Foundation
  * 
  * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file except in compliance with the License.tag
  * You may obtain a copy of the License at
  * 
  * http://www.opensource.org/licenses/ecl2.php
@@ -1117,7 +1117,16 @@ public class Utils {
                             }
                         } else {
                             String val = att.getValue();
+                            boolean negate = val.startsWith("!");
+                            
+                            if (negate) {
+                                val = val.substring(1);
+                            }
+                            
                             if (!val.equalsIgnoreCase(node.getAttribute(att.getName()))) {
+                                retval = false;
+                                break;
+                            } else if (negate) {
                                 retval = false;
                                 break;
                             }
@@ -1224,6 +1233,14 @@ public class Utils {
                                 break;
                             }
                         } else {
+                            break;
+                        }
+                    }
+                    
+                    if ((retval || !foundone) && childTagMatch.getDeep()) {
+                        retval = isChildTagMatchFailure(child, childTagMatch);
+                        if (!retval) {
+                            foundone = true;
                             break;
                         }
                     }
@@ -2869,18 +2886,24 @@ public class Utils {
     }
 
     public static String buildCheckpointPropertyKey(CheckpointProperty cp) {
-        return buildCheckpointPropertyKey(cp.getPropertyGroup(), formatHtmlForComparisonProperty(cp.getPropertySection()), cp.getDisplayName());
+        return buildCheckpointPropertyKey(cp.getPropertyGroupContainer(), cp.getPropertyGroup(), formatHtmlForComparisonProperty(cp.getPropertySection()), cp.getDisplayName());
     }
 
-    public static String buildCheckpointPropertyKey(String group, String section, String name) {
+    public static String buildCheckpointPropertyKey(String groupContainer, String group, String section, String name) {
 
         StringBuilder retval = new StringBuilder(128);
+
+        if (StringUtils.isNotBlank(groupContainer)) {
+            retval.append(group.toLowerCase().trim().replace(" ", "_"));
+            retval.append(".");
+        } 
 
         if (StringUtils.isNotBlank(group)) {
             retval.append(group.toLowerCase().trim().replace(" ", "_"));
         } else {
             retval.append("nogroup");
         }
+        
         retval.append(".");
 
         if (StringUtils.isNotBlank(section)) {
@@ -3082,11 +3105,12 @@ public class Utils {
                 if (nl.item(i).getNodeType() == Node.ELEMENT_NODE) {
                     Element curElement = (Element) nl.item(i);
 
-                    // if the first child element is a span or div then we will save it
+                    // if the first child element is a span, div or nobr then we will save it
                     // if we do not find the desired child we will look in the first child span
                     if ((firstChildElement == null)
                         && (Constants.HTML_TAG_TYPE_SPAN.equalsIgnoreCase(curElement.getTagName())
-                        || Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(curElement.getTagName()))) {
+                        || Constants.HTML_TAG_TYPE_DIV.equalsIgnoreCase(curElement.getTagName())
+                        || Constants.HTML_TAG_TYPE_NOBR.equalsIgnoreCase(curElement.getTagName()))) {
                         firstChildElement = curElement;
                     }
 

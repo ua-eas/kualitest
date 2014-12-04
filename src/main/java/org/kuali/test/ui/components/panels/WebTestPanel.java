@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -202,12 +203,18 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     }
 
     private void createHtmlCheckpoint() {
-        JWebBrowser wb = getCurrentBrowser();
-        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
+        getMainframe().startSpinner("Loading available checkpoint parameters...");
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                JWebBrowser wb = getCurrentBrowser();
+                HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
 
-        if (dlg.isSaved()) {
-            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());
-        }
+                if (dlg.isSaved()) {
+                    addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());
+                }
+            }
+        });
     }
 
     private void createMemoryCheckpoint() {
@@ -440,11 +447,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                 }
                 
                 closeProxyServer();
-                
-                getMainframe().stopSpinner();
-
                 getMainframe().getPlatformTestsPanel().populateList(getPlatform());
-
+                getMainframe().stopSpinner();
             }
             
         }.execute();
@@ -573,5 +577,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected boolean isForCheckpoint() {
         return false;
+    }
+
+    @Override
+    public void replaceCenterComponent(JComponent newComponent) {
     }
 }

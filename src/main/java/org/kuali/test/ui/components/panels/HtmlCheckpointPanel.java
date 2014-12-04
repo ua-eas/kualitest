@@ -18,13 +18,21 @@ package org.kuali.test.ui.components.panels;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -49,15 +57,17 @@ import org.w3c.dom.Document;
 
 public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListener {
     private static Logger LOG = Logger.getLogger(HtmlCheckpointPanel.class);
-    private List <CheckpointTable> checkpointTables = new ArrayList<CheckpointTable>();
+    private Map<String, List<CheckpointProperty>> checkPointMap;
     private boolean empty = false;
     private boolean singleSelectMode;
     private BaseSetupDlg parentDialog;
     private JWebBrowser webBrowser;
+    private JComboBox containers;
+    private JTabbedPane tabbedPane;
     
     private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
 
-    public HtmlCheckpointPanel (final BaseSetupDlg parentDialog, final JWebBrowser webBrowser, 
+    public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
         final TestHeader testHeader, boolean singleSelectMode) {
         this.singleSelectMode = singleSelectMode;
         this.parentDialog = parentDialog;
@@ -84,50 +94,41 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         if (dominfo != null) {
             setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
         
-            Map<String, List<CheckpointProperty>> pmap = loadCheckpointMap(dominfo.getCheckpointProperties());
+            checkPointMap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("labelNodes.size(): " + dominfo.getLabelMap().size());
                 LOG.debug("CheckpointProperty list size: " + dominfo.getCheckpointProperties().size());
-                LOG.debug("CheckpointProperty map.size: " + pmap.size());
+                LOG.debug("CheckpointProperty map.size: " + checkPointMap.size());
             }
 
             // if we have more than 1 group then we will use tabs
-            if (pmap.size() > 1) {
-                JTabbedPane tp = new JTabbedPane();
-                List<String> tabNames = new ArrayList(pmap.keySet());
-                Collections.sort(tabNames, new HtmlCheckpointTabComparator());
-
-                for (String s : tabNames) {
-                    if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s)) {
-                        List<CheckpointProperty> props = pmap.get(s);
-
-                        if ((props != null) && !props.isEmpty()) {
-                            CheckpointTable t = null ;
-                            if (singleSelectMode) {
-                                t = buildParameterTableForSingleSelect(s, props);
-                            } else {
-                                t = buildParameterTable(s, props);
-                            }
-                            checkpointTables.add(t);
-                            t.getSelectionModel().addListSelectionListener(this);
-                            tp.addTab(s, new TablePanel(t));
+            if (checkPointMap.size() > 1) {
+                if (isUseTabContainers()) {
+                    JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                    p.add(containers = new JComboBox(getContainerNames()));
+                    add(p, BorderLayout.NORTH);
+                    
+                    containers.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            loadTabs();
                         }
-                    }
+                    });
                 }
-
-                add(tp, BorderLayout.CENTER);
-            } else if (pmap.size() == 1) {
+                add(tabbedPane = new JTabbedPane(), BorderLayout.CENTER);
+                loadTabs();
+            } else if (checkPointMap.size() == 1) {
                 CheckpointTable t;
-                String key = pmap.keySet().iterator().next();
+                String key = checkPointMap.keySet().iterator().next();
                 
                 if (singleSelectMode) {
-                    t = buildParameterTableForSingleSelect(getName(), pmap.get(key));
+                    t = buildParameterTableForSingleSelect(checkPointMap.get(key));
                 } else {
-                    t = buildParameterTable(getName(), pmap.get(key));
+                    t = buildParameterTable(checkPointMap.get(key));
                 }
                 TablePanel p = new TablePanel(t);
-                checkpointTables.add(t);
+           //   checkpointTables.add(t);
                 add(p, BorderLayout.CENTER);
                 t.getSelectionModel().addListSelectionListener(this);
             } else {
@@ -140,15 +141,135 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         
         parentDialog.validate();
     }
+    
+    private void loadTabs() {
+        tabbedPane.removeAll();
+        
+        List<String> tabNames = getTabNames();
 
+        for (String s : tabNames) {
+            String tabName = formatTabName(s);
+
+            if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(tabName) && !StringUtils.isNumeric(tabName)) {
+                List<CheckpointProperty> props = checkPointMap.get(s);
+
+                if ((props != null) && !props.isEmpty()) {
+                    CheckpointTable t = null ;
+                    if (singleSelectMode) {
+                        t = buildParameterTableForSingleSelect(props);
+                    } else {
+                        t = buildParameterTable(props);
+                    }
+            //      checkpointTables.add(t);
+                    t.getSelectionModel().addListSelectionListener(this);
+                    tabbedPane.addTab(tabName, new TablePanel(t));
+                }
+            }
+        }
+        
+        validate();
+        
+    }
+    
+    private String formatTabName(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            int pos = input.indexOf("|");
+            
+            if (pos > -1) {
+                retval = input.substring(pos+1);
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String[] getContainerNames() {
+        Set <String> names = new HashSet<String>();
+        
+        for (String s : checkPointMap.keySet()) {
+            int pos = s.indexOf("|");
+            names.add(s.substring(0, pos));
+        }
+
+        String[] retval = names.toArray(new String[names.size()]);
+        
+        Arrays.sort(retval);
+        
+        return retval;
+    }
+    
+    
+    private List <String> getTabNames() {
+        List <String> retval = new ArrayList<String>();
+        
+        if (containers != null) {
+            String container = ((String)containers.getSelectedItem() + "|");
+            
+            for (String s : checkPointMap.keySet()) {
+                if (s.startsWith(container) && !s.endsWith("|" + Constants.DEFAULT_HTML_PROPERTY_GROUP)) {
+                    retval.add(s);
+                }
+            }
+        } else {
+            retval.addAll(checkPointMap.keySet());
+        }
+        
+        Collections.sort(retval, new HtmlCheckpointTabComparator());
+        
+        return retval;
+    }
+    
+    private boolean isUseTabContainers() {
+        boolean retval = false;
+        for (String s : checkPointMap.keySet()) {
+            if (s.contains("|")) {
+                retval = true;
+                break;
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String buildTabKey(CheckpointProperty cp, boolean useTabContainer) {
+        StringBuilder retval = new StringBuilder(128);
+        
+        if (useTabContainer) {
+            if (StringUtils.isNotBlank(cp.getPropertyGroupContainer())) {
+                retval.append(cp.getPropertyGroupContainer());
+            } else {
+                retval.append(cp.getPropertyGroup());
+            }
+
+            retval.append("|");
+        }
+
+        retval.append(cp.getPropertyGroup());
+
+        
+        return retval.toString();
+    }
+    
     private Map<String, List<CheckpointProperty>> loadCheckpointMap(List<CheckpointProperty> checkpointProperties) {
         Map<String, List<CheckpointProperty>> retval = new HashMap<String, List<CheckpointProperty>>();
 
-        for (CheckpointProperty cp : checkpointProperties) {
-            List<CheckpointProperty> l = retval.get(cp.getPropertyGroup());
+        boolean useTabContainer = false;
 
+        for (CheckpointProperty cp : checkpointProperties) {
+            if (StringUtils.isNotBlank(cp.getPropertyGroupContainer())) {
+                useTabContainer = true;
+                break;
+            }
+        }
+        
+        for (CheckpointProperty cp : checkpointProperties) {
+            String key = buildTabKey(cp, useTabContainer);
+            
+            List<CheckpointProperty> l = retval.get(key);
             if (l == null) {
-                retval.put(cp.getPropertyGroup(), l = new ArrayList<CheckpointProperty>());
+                retval.put(key, l = new ArrayList<CheckpointProperty>());
             }
     
             if (Utils.isFormInputTag(cp)) {
@@ -257,10 +378,10 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         }
     }
     
-    private CheckpointTable buildParameterTableForSingleSelect(String groupName, List<CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTableForSingleSelect(List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties2");
-        config.setDisplayName("Available Properties - " + groupName);
+        config.setDisplayName("Available Properties");
 
         
         int[] alignment = new int[4];
@@ -302,10 +423,10 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return new CheckpointTable(config, singleSelectMode);
     }
 
-    private CheckpointTable buildParameterTable(String groupName, List<CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTable(List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
         config.setTableName("html-checkpoint-properties");
-        config.setDisplayName("Checkpoint Properties - " + groupName);
+        config.setDisplayName("Available Properties");
 
         
         int[] alignment = new int[7];
@@ -371,17 +492,13 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     public List <CheckpointProperty> getSelectedProperties() {
         List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
 
-        for (CheckpointTable t : checkpointTables) {
-            if (singleSelectMode) {
-                if (t.getSelectedRow() > -1) {
-                    retval.add((CheckpointProperty)t.getRowData(t.getSelectedRow()));
-                    break;
-                }
-
-            } else {
-                for (CheckpointProperty p : (List<CheckpointProperty>)t.getTableData()) {
-                    if (p.getSelected()) {
-                        retval.add(p);
+        for (List <CheckpointProperty> l : checkPointMap.values()) {
+            for (CheckpointProperty p : l) {
+                if (p.getSelected()) {
+                    retval.add(p);
+                    
+                    if (singleSelectMode) {
+                        break;
                     }
                 }
             }
@@ -393,9 +510,11 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         if (singleSelectMode) {
-            for (CheckpointTable t : checkpointTables) {
-                if (t.getSelectionModel() != lse.getSource()) {
-                    t.clearSelection();
+            for (List <CheckpointProperty> l : checkPointMap.values()) {
+                for (CheckpointProperty p : l) {
+                    if (p != lse.getSource()) {
+                        p.setSelected(false);
+                    }
                 }
             }
         }

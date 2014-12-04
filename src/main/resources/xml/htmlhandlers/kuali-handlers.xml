@@ -262,7 +262,6 @@
         </tag-matchers>
         <handler-name>kuali7</handler-name>
     </handler>
-
     <handler>
         <tag-name>div</tag-name>
         <handler-class-name>org.kuali.test.handlers.htmltag.KualiTabTagHandler</handler-class-name>
@@ -275,6 +274,15 @@
                         <name>id</name>
                         <value>tab-*-div</value>
                     </match-attribute>
+                </match-attributes>
+            </tag-matcher>
+            <tag-matcher>
+                <match-type>child</match-type>
+                <tag-name>div</tag-name>
+                <search-definition>1</search-definition>
+                <match-attributes>
+                    <name>class</name>
+                    <value>!tab-container</value>
                 </match-attributes>
             </tag-matcher>
         </tag-matchers>
@@ -410,4 +418,42 @@
         </label-matcher>
         <handler-name>kuali12</handler-name>
     </handler>
+    <handler>
+        <tag-name>div</tag-name>
+        <handler-class-name>org.kuali.test.handlers.htmltag.KualiTabContainerTagHandler</handler-class-name>
+        <tag-matchers>
+            <tag-matcher>
+                <match-type>current</match-type>
+                <tag-name>div</tag-name>
+                <match-attributes>
+                    <match-attribute>
+                        <name>id</name>
+                        <value>tab-*-div</value>
+                    </match-attribute>
+                </match-attributes>
+				<parent-tag-match>
+					<parent-tag-name>div</parent-tag-name>
+					<match-attributes>
+						<match-attribute>
+							<name>id</name>
+							<value>workarea</value>
+						</match-attribute>
+					</match-attributes>
+				</parent-tag-match>
+            </tag-matcher>
+				<child-tag-match>
+					<child-tag-name>div</child-tag-name>
+					<deep>true</deep>
+					<match-attributes>
+						<match-attribute>
+							<name>id</name>
+							<value>tab-:*-div</value>
+						</match-attribute>
+					</match-attributes>
+				</child-tag-match>
+            </tag-matcher>
+        </tag-matchers>
+        <name>kuali13</name>
+    </handler>
+
 </tag-handlers>

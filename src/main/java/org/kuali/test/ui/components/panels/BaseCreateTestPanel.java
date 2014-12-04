@@ -215,13 +215,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
                 setMenuState(false);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
-            getMainframe().startSpinner("Loading available checkpoint parameters...");
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    handleCreateCheckpoint();
-                }
-            });
+            handleCreateCheckpoint();
         } else if (e.getActionCommand().equals(Constants.VIEW_CHECKPOINTS_ACTION)) {
             handleViewCheckpoints();
         } else if (e.getActionCommand().startsWith(Constants.CREATE_PARAMETER_ACTION)) {

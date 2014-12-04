@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -36,7 +37,6 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
-import org.kuali.test.ui.components.spinners.Spinner;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 
@@ -51,7 +51,7 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     private JTextField name;
     private HtmlCheckpointPanel checkpointPanel;
     private JCheckBox saveScreen;
-    private Spinner spinner;
+
     /**
      * 
      * @param mainFrame
@@ -59,10 +59,10 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
      * @param webBrowser
      * @param html 
      */
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, JWebBrowser webBrowser, String html) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, final JWebBrowser webBrowser, final String html) {
         super(mainFrame);
         this.testHeader = testHeader;
-
+        
         if (checkpoint != null) {
             setTitle("Edit checkpoint " + checkpoint.getName());
             setEditmode(true);
@@ -74,7 +74,12 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
             checkpoint.setType(CheckpointType.HTTP);
         }
 
-        initComponents(webBrowser, html);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                initComponents(webBrowser, html);
+            };
+        });
     }
 
     private void initComponents(JWebBrowser webBrowser, String html) {
@@ -183,5 +188,10 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     public boolean isResizable() {
         return true;
     }
-    
+
+    @Override
+    public void dispose() {
+        stopSpinner();
+        super.dispose(); 
+    }
 }

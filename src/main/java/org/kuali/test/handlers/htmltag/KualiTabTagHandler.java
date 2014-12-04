@@ -24,7 +24,6 @@ import org.w3c.dom.Element;
  * @author rbtucker
  */
 public class KualiTabTagHandler extends DefaultHtmlTagHandler {
-
     /**
      *
      * @param node
@@ -51,7 +50,7 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
         int pos2 = id.lastIndexOf("-");
         
         if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-            retval = id.substring(pos1+1, pos2);
+            retval = formatCamelCaseName(id.substring(pos1+1, pos2));
         }
         
         // hack to handle generated tab names in kuali

@@ -53,11 +53,10 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
             Element c = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
                 Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX);
             if (c != null) {
-                retval.setPropertyValue(getSelectedCheckboxValues(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
+                retval.setPropertyValue(getSelectedCheckboxValue(c, c.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME)));
             }
         } else if (isTextInputWrapper(node)) {
-            Element c = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
-                Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+            Element c = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_TEXTAREA);
             if (c != null) {
                 retval.setPropertyValue(node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE));
             }
