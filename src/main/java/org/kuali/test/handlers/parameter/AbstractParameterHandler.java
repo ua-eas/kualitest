@@ -22,7 +22,6 @@ import org.w3c.dom.Document;
 
 
 public abstract class AbstractParameterHandler implements ParameterHandler {
-    
     @Override
     public abstract String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
 

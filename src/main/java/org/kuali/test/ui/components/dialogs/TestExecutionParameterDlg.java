@@ -20,6 +20,8 @@ import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,15 +33,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Parameter;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.handlers.parameter.ExecutionContextParameterHandler;
 import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.handlers.parameter.RandomListSelectionHandler;
 import org.kuali.test.handlers.parameter.SaveValueHandler;
@@ -54,15 +56,16 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentListener {
+public class TestExecutionParameterDlg extends BaseSetupDlg {
 
     private static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
     private JComboBox parameterHandlers;
+    private JComboBox existingParameters;
     private TestExecutionParameter testExecutionParameter;
     private Set<String> randomListSelectParameterToIgnore = new HashSet<String>();
-    
+    private List<TestOperation> testOperations;
     /**
      * 
      * @param mainframe
@@ -70,10 +73,11 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
      * @param testHeader
      * @param html 
      */
-    public TestExecutionParameterDlg(TestCreator mainframe, JWebBrowser wb, TestHeader testHeader, String html) {
+    public TestExecutionParameterDlg(TestCreator mainframe, JWebBrowser wb, List<TestOperation> testOperations, TestHeader testHeader, String html) {
         super(mainframe);
         setTitle("Test Execution Parameter Select");
-
+        this.testOperations = testOperations;
+        
         if (getConfiguration().getRandomListAccessParametersToIgnore() != null) {
             for (String s : getConfiguration().getRandomListAccessParametersToIgnore().getParameterNameArray()) {
                 randomListSelectParameterToIgnore.add(s);
@@ -87,15 +91,34 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
         String[] labels = new String[]{
             "Name",
             "Handler",
+            "Existing Parameter"
         };
 
         name = new JTextField(30);
-        name.getDocument().addDocumentListener(this);
         
         List <ParameterHandler> handlers = new ArrayList(Utils.PARAMETER_HANDLERS.values());
         Collections.sort(handlers);
         
         parameterHandlers = new JComboBox(handlers.toArray(new ParameterHandler[handlers.size()]));
+        existingParameters = new JComboBox();
+        
+        parameterHandlers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                existingParameters.removeAllItems();
+                existingParameters.setEnabled(false);
+                if (parameterHandlers.getSelectedItem().getClass().equals(ExecutionContextParameterHandler.class)) {
+                    List <String> existingParameterNames = getExistingParameterNames();
+                    if ((existingParameterNames != null) && !existingParameterNames.isEmpty()) {
+                        for (String s : existingParameterNames) {
+                            existingParameters.addItem(s);
+                        }
+                        
+                        existingParameters.setEnabled(true);
+                    }
+                }
+            }
+        });
         
         List <String> tooltips = new ArrayList<String>();
         
@@ -106,9 +129,11 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
         parameterHandlers.setRenderer(new ComboBoxTooltipRenderer(tooltips));
         
         parameterHandlers.setSelectedItem(Utils.PARAMETER_HANDLERS.get(SaveValueHandler.class.getName()));
+        
         JComponent[] components = new JComponent[]{
             name,
             parameterHandlers,
+            existingParameters
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -123,13 +148,18 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
         setDefaultBehavior();
     }
     
-    /**
-     *
-     * @return
-     */
-    @Override
-    protected String getSaveText() {
-        return Constants.SELECT_ACTION;
+    
+    private List <String> getExistingParameterNames() {
+        List <String> retval = new ArrayList<String>();
+        
+        for (TestOperation top : testOperations) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                retval.add(top.getOperation().getTestExecutionParameter().getName());
+            }
+        }
+        
+        
+        return retval;
     }
 
     /**
@@ -139,6 +169,25 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
     @Override
     protected String getDialogName() {
         return "test-execution-param-value-select";
+    }
+
+    private boolean isExistingParameterNameRequired() {
+        return (parameterHandlers.getSelectedItem().getClass().equals(ExecutionContextParameterHandler.class)) 
+            && (!existingParameters.isEnabled() || (existingParameters.getSelectedIndex() < 0));
+    }
+    
+    private boolean isDuplicateName() {
+        boolean retval = false;
+        for (TestOperation top : testOperations) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                if (top.getOperation().getTestExecutionParameter().getName().equalsIgnoreCase(name.getText())) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
     }
 
     /**
@@ -157,11 +206,19 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
         
         if ((cp == null) || StringUtils.isBlank(name.getText())) {
             displayRequiredFieldsMissingAlert("Name/Parameter", "name, parameter selection");
-        } else {
+        } else if (isDuplicateName()) {
+            this.displayExistingNameAlert("Parameter Name", name.getText());
+        } else if (isExistingParameterNameRequired()) {
+            displayRequiredFieldsMissingAlert("Existing Parameter", "existing parameter selection");
+        }else {
             testExecutionParameter = TestExecutionParameter.Factory.newInstance();
             testExecutionParameter.setName(name.getText());
-            cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
+            
+            if (parameterHandlers.getSelectedItem().getClass().equals(ExecutionContextParameterHandler.class)) {
+                testExecutionParameter.setAdditionalInfo(existingParameters.getSelectedItem().toString());
+            }
 
+            cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
 
             if (parameterHandlers.getSelectedItem().getClass().equals(RandomListSelectionHandler.class)) {
                 Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.ANCHOR_PARAMETERS);
@@ -217,25 +274,5 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
 
     public TestExecutionParameter getTestExecutionParameter() {
         return testExecutionParameter;
-    }
-
-    private boolean canSave() {
-        List <CheckpointProperty> l = valuesPanel.getSelectedProperties();
-        return ((l != null) && !l.isEmpty() && StringUtils.isNotBlank(name.getText()) && (parameterHandlers.getSelectedItem() != null));
-    }
-
-    @Override
-    public void insertUpdate(DocumentEvent de) {
-        getSaveButton().setEnabled(canSave());
-    }
-
-    @Override
-    public void removeUpdate(DocumentEvent de) {
-        getSaveButton().setEnabled(canSave());
-    }
-
-    @Override
-    public void changedUpdate(DocumentEvent de) {
-        getSaveButton().setEnabled(canSave());
     }
 }

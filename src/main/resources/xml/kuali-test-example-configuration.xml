@@ -92,6 +92,11 @@
       <parameter-handler>org.kuali.test.handlers.parameter.GeneratedIdHandler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.SaveValueHandler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.RandomListSelectionHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.RandomListSelectionHandler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.CurrentDatePlus1Handler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.CurrentDatePlus7Handler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.CurrentDatePlus30Handler</parameter-handler>
+      <parameter-handler>org.kuali.test.handlers.parameter.ExecutionContextParameterHandler</parameter-handler>
    </parameter-handlers>
    
    <random-list-access-parameters-to-ignore>

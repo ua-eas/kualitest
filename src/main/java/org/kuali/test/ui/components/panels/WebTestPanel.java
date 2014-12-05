@@ -509,8 +509,8 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(),
-                    getCurrentBrowser(), getTestHeader(), lastProxyHtmlResponse);
+                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
+                    getCurrentBrowser(), testProxyServer.getTestOperations(), getTestHeader(), lastProxyHtmlResponse);
 
                 if (dlg.isSaved()) {
                     addTestExecutionParameter(dlg.getTestExecutionParameter());

@@ -754,4 +754,14 @@ public class TestExecutionContext extends Thread {
     public Set<String> getRandomListAccessParameterToIgnore() {
         return randomListAccessParameterToIgnore;
     }
+    
+    public TestOperation getTestOperation(int i) {
+        TestOperation retval = null;
+        
+        if ((i >= 0) && (i < getCurrentTest().getTest().getOperations().sizeOfOperationArray())) {
+            retval = getCurrentTest().getTest().getOperations().getOperationArray(i);
+        }
+        
+        return retval;
+    }
 }

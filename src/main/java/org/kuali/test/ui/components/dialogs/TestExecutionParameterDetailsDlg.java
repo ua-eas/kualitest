@@ -22,15 +22,19 @@ import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import org.apache.commons.lang3.StringUtils;
+import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.creator.TestCreator;
+import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
+import org.kuali.test.ui.components.labels.DataDisplayLabel;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.CheckpointProperty;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -53,9 +57,26 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
     private void initComponents(TestExecutionParameter parameter) {
          String[] labels = {
             "Parameter Name",
+            "Handler",
+            "Additional Info" 
         };
         
-        JComponent[] components = {new JLabel(parameter.getName())};
+        ParameterHandler ph = Utils.getParameterHandler(parameter.getParameterHandler());
+        String handlerName = "";
+        if (ph != null) {
+            handlerName = ph.toString();
+        }
+
+        String additionalInfo = parameter.getAdditionalInfo();
+        
+        if (StringUtils.isBlank(additionalInfo)) {
+            additionalInfo = "";
+        }
+        
+        JComponent[] components = {
+            new DataDisplayLabel(parameter.getName()), 
+            new DataDisplayLabel(handlerName), 
+            new DataDisplayLabel(additionalInfo)};
         
         getContentPane().add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
         getContentPane().add(new TablePanel(buildPropertiesTable(parameter.getValueProperty()), 5), BorderLayout.CENTER);
@@ -92,7 +113,7 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             "Section",
             "Type",
             "Name",
-            "Origial Value"
+            "Original Value"
         });
         
         config.setPropertyNames(new String[] {

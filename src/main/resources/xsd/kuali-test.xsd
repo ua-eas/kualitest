@@ -125,6 +125,7 @@
             <xs:element name="remove" type="xs:boolean"/>
             <xs:element name="value-property" type="checkpoint-property"/>
             <xs:element name="parameter-handler" type="xs:string"/>
+            <xs:element name="additional-info" type="xs:string" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
