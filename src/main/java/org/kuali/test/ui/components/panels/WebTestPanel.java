@@ -23,14 +23,11 @@ import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowOpeningEvent;
 import chrriis.dj.nativeswing.swtimpl.components.WebBrowserWindowWillOpenEvent;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -70,13 +67,12 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class WebTestPanel extends BaseCreateTestPanel implements ContainerListener {
+public class WebTestPanel extends BaseCreateTestPanel {
 
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
     private String lastProxyHtmlResponse;
-    private String lookupResultPath;
     
     /**
      *
@@ -92,7 +88,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected void initComponents() {
         super.initComponents();
-        addContainerListener(this);
         tabbedPane = new JTabbedPane();
         tabbedPane.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         add(tabbedPane, BorderLayout.CENTER);
@@ -301,7 +296,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
-
         closeProxyServer();
     }
 
@@ -445,7 +439,6 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
                     getMainframe().getTestRepositoryTree().saveConfiguration();
                     getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' created");
                 }
-                
                 closeProxyServer();
                 getMainframe().getPlatformTestsPanel().populateList(getPlatform());
                 getMainframe().stopSpinner();
@@ -457,27 +450,17 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
         return retval;
     }
 
-    private void closeProxyServer() {
+    public void closeProxyServer() {
         try {
             if (testProxyServer != null) {
                 if (testProxyServer.getTestOperations() != null) {
                    testProxyServer.getTestOperations().clear();
                 }
                 testProxyServer.stop();
+                testProxyServer = null;
             }
         } catch (Throwable t) {
             LOG.warn(t.toString(), t);
-        }
-    }
-
-    @Override
-    public void componentAdded(ContainerEvent e) {
-    }
-
-    @Override
-    public void componentRemoved(ContainerEvent e) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("component removed: " + e.getComponent().getClass().getName());
         }
     }
 
@@ -580,9 +563,5 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     @Override
     protected boolean isForCheckpoint() {
         return false;
-    }
-
-    @Override
-    public void replaceCenterComponent(JComponent newComponent) {
     }
 }

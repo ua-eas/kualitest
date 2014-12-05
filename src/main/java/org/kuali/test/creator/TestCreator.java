@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -155,6 +156,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 try {
                     if (NativeInterface.isOpen()) {
                         NativeInterface.close();
+                    }
+                    
+                    JComponent c = getCreateTestPanel().getCenterComponent();
+                    
+                    if (c instanceof WebTestPanel) {
+                        WebTestPanel p = (WebTestPanel)c;
+                        p.closeProxyServer();
                     }
                 } 
                 

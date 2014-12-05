@@ -17,7 +17,10 @@
 package org.kuali.test.ui.base;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Insets;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.kuali.test.creator.TestCreator;
@@ -26,7 +29,7 @@ import org.kuali.test.creator.TestCreator;
  *
  * @author rbtucker
  */
-public class BasePanel extends JPanel {
+public class BasePanel extends JPanel implements ContainerListener {
     private TestCreator mainframe;
 
     /**
@@ -36,6 +39,7 @@ public class BasePanel extends JPanel {
     public BasePanel(TestCreator mainframe) {
         this.mainframe = mainframe;
         setLayout(new BorderLayout(3, 3));
+        addContainerListener(this);
     }
 
     /**
@@ -70,7 +74,8 @@ public class BasePanel extends JPanel {
      */
     public void replaceComponent(JComponent newComponent, Object constraints) {
         BorderLayout l = (BorderLayout)getLayout();
-        remove(l.getLayoutComponent(constraints));
+        Component c = l.getLayoutComponent(constraints);
+        remove(c);
         add(newComponent, constraints);
         getParent().validate();
     }
@@ -86,5 +91,21 @@ public class BasePanel extends JPanel {
     @Override
     public Insets getInsets() {
         return new Insets(3, 3, 3, 3);
+    }
+
+    @Override
+    public void componentAdded(ContainerEvent e) {
+        handleComponentAdded(e.getChild());
+    }
+
+    @Override
+    public void componentRemoved(ContainerEvent e) {
+        handleComponentRemoved(e.getChild());
+    }
+    
+    protected void handleComponentAdded(Component child) {
+    }
+
+    protected void handleComponentRemoved(Component child) {
     }
 }

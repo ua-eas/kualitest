@@ -16,6 +16,7 @@
 
 package org.kuali.test.ui.components.panels;
 
+import java.awt.Component;
 import javax.swing.JLabel;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BasePanel;
@@ -42,5 +43,13 @@ public class CreateTestPanel extends BasePanel {
      */
     public void clearPanel(String msg) {
         replaceCenterComponent(label = new JLabel(msg, JLabel.CENTER));
+    }
+
+    @Override
+    protected void handleComponentRemoved(Component child) {
+        if (child instanceof WebTestPanel) {
+            WebTestPanel p = (WebTestPanel)child;
+            p.closeProxyServer();
+        }
     }
 }
