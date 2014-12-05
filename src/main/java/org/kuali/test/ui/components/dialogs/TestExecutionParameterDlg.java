@@ -33,8 +33,6 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
@@ -56,8 +54,7 @@ import org.kuali.test.utils.Utils;
  *
  * @author rbtucker
  */
-public class TestExecutionParameterDlg extends BaseSetupDlg 
-    implements ListSelectionListener, DocumentListener {
+public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentListener {
 
     private static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
     private HtmlCheckpointPanel valuesPanel;
@@ -121,7 +118,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         getContentPane().add(p, BorderLayout.NORTH);
 
         getContentPane().add(valuesPanel = new HtmlCheckpointPanel(TestExecutionParameterDlg.this, wb, testHeader, true), BorderLayout.CENTER);
-        valuesPanel.addListSelectionListener(TestExecutionParameterDlg.this);
         
         addStandardButtons();
         getSaveButton().setEnabled(false);
@@ -211,11 +207,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg
         return testExecutionParameter;
     }
 
-    @Override
-    public void valueChanged(ListSelectionEvent lse) {
-        getSaveButton().setEnabled(canSave());
-    }
-    
     private boolean canSave() {
         List <CheckpointProperty> l = valuesPanel.getSelectedProperties();
         return ((l != null) && !l.isEmpty() && StringUtils.isNotBlank(name.getText()) && (parameterHandlers.getSelectedItem() != null));

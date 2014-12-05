@@ -251,14 +251,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 testRepositoryTree.saveConfiguration();
                 saveConfigurationButton.setEnabled(false);
                 saveConfigurationMenuItem.setEnabled(false);
-                setCreateTestState();
             }
         });
         
         menu.add(saveConfigurationMenuItem);
         
         createTestMenuItem = new JMenuItem("Create Test");
-        createTestMenuItem.setEnabled(false);
         
         createTestMenuItem.addActionListener(new java.awt.event.ActionListener() {
             @Override
@@ -414,8 +412,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         desktopPane.add(createToolBar(), BorderLayout.NORTH);
 
         getContentPane().add(desktopPane);
-        
-        setCreateTestState();
 
         pack();
     }
@@ -452,15 +448,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
         vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
-    }
-
-    private void setCreateTestState() {
-        setCreateTestEnabled(getConfiguration().getPlatforms().sizeOfPlatformArray() > 0);
-    }
-
-    private void setCreateTestEnabled(boolean enabled) {
-        createTestButton.setEnabled(enabled);
-        createTestMenuItem.setEnabled(enabled);
     }
 
     /**
@@ -552,8 +539,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
      * @param platform
      */
     public void handleCreateTest(Platform platform) {
-        setCreateTestEnabled(false);
-        
         if (platform == null) {
             if (testRepositoryTree.getSelectionPath() != null) {
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode)testRepositoryTree.getSelectionPath().getLastPathComponent();
@@ -570,6 +555,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         CreateTestDlg dlg = new CreateTestDlg(this, platform);
 
         if (dlg.isSaved()) {
+            enableCreateTestActions(false);
+            
             if (LOG.isDebugEnabled()) {
                 LOG.debug("init new " + dlg.getTestHeader().getTestType() + " test for platform " + dlg.getTestHeader().getPlatformName());
             }
@@ -593,8 +580,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                     break;
             }
         }
-        
-        setCreateTestEnabled(true);
     }
 
     /**
@@ -1219,7 +1204,6 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         });
 
         toolbar.add(createTestButton = new ToolbarButton(Constants.TEST_ICON, "create new test"));
-        createTestButton.setEnabled(false);
         createTestButton.setMargin(new Insets(1, 1, 1, 1));
 
         createTestButton.addActionListener(new ActionListener() {
@@ -1251,7 +1235,13 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         retval.add(new JSeparator(), BorderLayout.NORTH);
         retval.add(toolbar, BorderLayout.CENTER);
         
+        this.enableCreateTestActions(havePlatforms());
+        
         return retval;
+    }
+    
+    private boolean havePlatforms() {
+        return ((getConfiguration().getPlatforms() != null) && (getConfiguration().getPlatforms().getPlatformArray().length > 0));
     }
 
     /**
@@ -1304,5 +1294,10 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         testRepositoryTree.saveConfiguration();
         saveConfigurationButton.setEnabled(false);
         saveConfigurationMenuItem.setEnabled(false);
+    }
+    
+    public void enableCreateTestActions(boolean enable) {
+        createTestMenuItem.setEnabled(enable);
+        createTestButton.setEnabled(enable);
     }
 }

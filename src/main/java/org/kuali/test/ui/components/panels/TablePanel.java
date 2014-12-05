@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -160,5 +161,9 @@ public class TablePanel extends JPanel implements ListSelectionListener {
      */
     public BaseTable getTable() {
         return table;
+    }
+    
+    public List getData() {
+        return table.getModel().getData();
     }
 }

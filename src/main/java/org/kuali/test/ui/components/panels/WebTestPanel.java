@@ -298,10 +298,10 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
 
     @Override
     protected void handleCancelTest() {
-        testProxyServer.getTestOperations().clear();
         getMainframe().getCreateTestPanel().clearPanel("test '" + getTestHeader().getTestName() + "' cancelled");
         getMainframe().getCreateTestButton().setEnabled(true);
         getMainframe().getCreateTestMenuItem().setEnabled(true);
+
         closeProxyServer();
     }
 
@@ -460,6 +460,9 @@ public class WebTestPanel extends BaseCreateTestPanel implements ContainerListen
     private void closeProxyServer() {
         try {
             if (testProxyServer != null) {
+                if (testProxyServer.getTestOperations() != null) {
+                   testProxyServer.getTestOperations().clear();
+                }
                 testProxyServer.stop();
             }
         } catch (Throwable t) {

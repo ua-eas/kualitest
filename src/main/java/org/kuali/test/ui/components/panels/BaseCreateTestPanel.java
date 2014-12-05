@@ -213,6 +213,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
                 "Cancel test '" + testHeader.getTestName() + "'?")) {
                 handleCancelTest();
                 setMenuState(false);
+                getMainframe().enableCreateTestActions(true);
             }
         } else if (e.getActionCommand().equals(Constants.CREATE_CHECKPOINT_ACTION)) {
             handleCreateCheckpoint();
@@ -235,6 +236,7 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
             handleViewComments();
         } else if (e.getActionCommand().equals(Constants.SAVE_TEST_ACTION)) {
             handleSaveTest();
+            getMainframe().enableCreateTestActions(true);
         } else if (e.getActionCommand().equals(Constants.CREATE_RANDOM_LIST_SELECTION_ACTION)) {
             handleRandomListSelection();
         } else {
