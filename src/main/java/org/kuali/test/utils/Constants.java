@@ -359,6 +359,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_TYPE = "type";
     public static final String HTML_TAG_ATTRIBUTE_HREF = "href";
     public static final String HTML_TAG_ATTRIBUTE_SUMMARY = "summary";
+    public static final String HTML_TAG_ATTRIBUTE_MULTIPLE = "multiple";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_RADIO = "radio";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX = "checkbox";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_TEXT = "text";

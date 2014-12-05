@@ -229,16 +229,31 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
      */
     protected String getSelectedOption(Element node) {
         String retval = "";
+        String comma = "";
         
         List <Element> children = Utils.getChildElements(node);
+        
+        StringBuilder buf = new StringBuilder(128);
         
         for (Element child : children) {
             if (Constants.HTML_TAG_TYPE_OPTION.equalsIgnoreCase(child.getNodeName())) {
                 if (StringUtils.isNotBlank(child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED))) {
-                    retval = child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
-                    break;
+                    buf.append(comma);
+                    
+                    String value = child.getAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+                    
+                    if (StringUtils.isBlank(value)) {
+                        value = Utils.cleanDisplayText(child);
+                    }
+                    
+                    buf.append(value);
+                    comma = ",";
                 }
             }
+        }
+        
+        if (buf.length() > 0) {
+            retval = buf.toString();
         }
         
         return retval;

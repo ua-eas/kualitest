@@ -174,6 +174,13 @@ public class HtmlDomProcessor {
                             p.setName(Constants.HTML_TAG_ATTRIBUTE_NAME);
                             p.setValue(s);
                         }
+
+                        s = useNode.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+                        if (StringUtils.isNotBlank(s)) {
+                            p = cp.getTagInformation().addNewParameter();
+                            p.setName(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+                            p.setValue(s);
+                        }
                         
                         String iframeids = getIframeParentIds(node);
                         

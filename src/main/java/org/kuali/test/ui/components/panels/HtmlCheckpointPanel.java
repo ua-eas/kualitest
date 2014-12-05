@@ -285,7 +285,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
     
-    private String getCurrentDomValueById(String iframeIds, String id) {
+    private String getCurrentDomValueById(CheckpointProperty cp, String iframeIds, String id) {
         String retval = null;
         StringBuilder s = new StringBuilder(256);
         
@@ -304,7 +304,14 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         } 
         
         s.append(id);
-        s.append("').value");
+        
+        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        
+        if ((param != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(param.getValue())) {
+            s.append("').checked");
+        } else {
+            s.append("').value");
+        }
         
         Object o = webBrowser.executeJavascriptWithResult(s.toString());
         
@@ -315,7 +322,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
          
-    private String getCurrentDomValueByName(String iframeIds, String name) {
+    private String getCurrentDomValueByName(CheckpointProperty cp, String iframeIds, String name) {
         String retval = null;
         StringBuilder s = new StringBuilder(256);
         
@@ -334,7 +341,14 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         } 
         
         s.append(name);
-        s.append("')[0].value");
+        
+        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        
+        if ((param != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(param.getValue())) {
+            s.append("')[0].checked");
+        } else {
+            s.append("')[0].value");
+        }
         
         Object o = webBrowser.executeJavascriptWithResult(s.toString());
         
@@ -357,12 +371,12 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
             String currentValue = null;
             
             if (nameParam != null) {
-                currentValue = getCurrentDomValueById(iframeIds, nameParam.getValue());
+                currentValue = getCurrentDomValueById(cp, iframeIds, nameParam.getValue());
             } else {
                 nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
                 
                 if (nameParam != null) {
-                    currentValue = getCurrentDomValueByName(iframeIds, nameParam.getValue());
+                    currentValue = getCurrentDomValueByName(cp, iframeIds, nameParam.getValue());
                 }
             }
 
