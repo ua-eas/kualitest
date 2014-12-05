@@ -120,7 +120,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
         getContentPane().add(valuesPanel = new HtmlCheckpointPanel(TestExecutionParameterDlg.this, wb, testHeader, true), BorderLayout.CENTER);
         
         addStandardButtons();
-        getSaveButton().setEnabled(false);
         setDefaultBehavior();
     }
     
@@ -148,40 +147,53 @@ public class TestExecutionParameterDlg extends BaseSetupDlg implements DocumentL
      */
     @Override
     protected boolean save() {
-        testExecutionParameter = TestExecutionParameter.Factory.newInstance();
-        testExecutionParameter.setName(name.getText());
-        CheckpointProperty cp = valuesPanel.getSelectedProperties().get(0);
-        cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
-
+        boolean retval = false;
         
-        if (parameterHandlers.getSelectedItem().getClass().equals(RandomListSelectionHandler.class)) {
-            Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.ANCHOR_PARAMETERS);
-            
-            if ((param != null) && StringUtils.isNotBlank(param.getValue())) {
-                try {
-                    List <NameValuePair> l = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
-                    if (l != null) {
-                        for (NameValuePair nvp : l) {
-                            if (!randomListSelectParameterToIgnore.contains(nvp.getName())) {
-                                cp.setPropertyValue(nvp.getValue());
-                                break;
-                            }
-                        }
-                    }
-                } 
-                
-                catch (UnsupportedEncodingException ex) {
-                    LOG.error(ex.toString(), ex);
-                }
-            }
+        CheckpointProperty cp = null;
+        
+        if ((valuesPanel.getSelectedProperties() != null) && !valuesPanel.getSelectedProperties().isEmpty()) {
+            cp = valuesPanel.getSelectedProperties().get(0);
         }
         
-        testExecutionParameter.setValueProperty(cp);
-        testExecutionParameter.setParameterHandler(parameterHandlers.getSelectedItem().getClass().getName());
+        if ((cp == null) || StringUtils.isBlank(name.getText())) {
+            displayRequiredFieldsMissingAlert("Name/Parameter", "name, parameter selection");
+        } else {
+            testExecutionParameter = TestExecutionParameter.Factory.newInstance();
+            testExecutionParameter.setName(name.getText());
+            cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
+
+
+            if (parameterHandlers.getSelectedItem().getClass().equals(RandomListSelectionHandler.class)) {
+                Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.ANCHOR_PARAMETERS);
+
+                if ((param != null) && StringUtils.isNotBlank(param.getValue())) {
+                    try {
+                        List <NameValuePair> l = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
+                        if (l != null) {
+                            for (NameValuePair nvp : l) {
+                                if (!randomListSelectParameterToIgnore.contains(nvp.getName())) {
+                                    cp.setPropertyValue(nvp.getValue());
+                                    break;
+                                }
+                            }
+                        }
+                    } 
+
+                    catch (UnsupportedEncodingException ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                }
+            }
+
+            testExecutionParameter.setValueProperty(cp);
+            testExecutionParameter.setParameterHandler(parameterHandlers.getSelectedItem().getClass().getName());
+
+            setSaved(true);
+            dispose();
+            retval = true;
+        }
         
-        setSaved(true);
-        dispose();
-        return true;
+        return retval;
     }
 
     @Override
