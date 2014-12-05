@@ -65,8 +65,6 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private JComboBox containers;
     private JTabbedPane tabbedPane;
     
-    private List <ListSelectionListener> listeners = new ArrayList <ListSelectionListener>();
-
     public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
         final TestHeader testHeader, boolean singleSelectMode) {
         this.singleSelectMode = singleSelectMode;
@@ -93,7 +91,6 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private void initComponents(HtmlDomProcessor.DomInformation dominfo) {
         if (dominfo != null) {
             setName(Constants.DEFAULT_HTML_PROPERTY_GROUP);
-        
             checkPointMap = loadCheckpointMap(dominfo.getCheckpointProperties());
 
             if (LOG.isDebugEnabled()) {
@@ -123,14 +120,13 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 String key = checkPointMap.keySet().iterator().next();
                 
                 if (singleSelectMode) {
-                    t = buildParameterTableForSingleSelect(checkPointMap.get(key));
+                    t = buildParameterTableForSingleSelect(key, checkPointMap.get(key));
                 } else {
-                    t = buildParameterTable(checkPointMap.get(key));
+                    t = buildParameterTable(key, checkPointMap.get(key));
                 }
                 TablePanel p = new TablePanel(t);
-           //   checkpointTables.add(t);
-                add(p, BorderLayout.CENTER);
                 t.getSelectionModel().addListSelectionListener(this);
+                add(p, BorderLayout.CENTER);
             } else {
                 add(new JLabel("No checkpoint properties found", JLabel.CENTER), BorderLayout.CENTER);
                 empty = true;
@@ -156,11 +152,10 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 if ((props != null) && !props.isEmpty()) {
                     CheckpointTable t = null ;
                     if (singleSelectMode) {
-                        t = buildParameterTableForSingleSelect(props);
+                        t = buildParameterTableForSingleSelect(s, props);
                     } else {
-                        t = buildParameterTable(props);
+                        t = buildParameterTable(s, props);
                     }
-            //      checkpointTables.add(t);
                     t.getSelectionModel().addListSelectionListener(this);
                     tabbedPane.addTab(tabName, new TablePanel(t));
                 }
@@ -168,7 +163,6 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         }
         
         validate();
-        
     }
     
     private String formatTabName(String input) {
@@ -378,9 +372,9 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         }
     }
     
-    private CheckpointTable buildParameterTableForSingleSelect(List<CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTableForSingleSelect(String tabkey, List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("html-checkpoint-properties2");
+        config.setTableName("cp2-" + tabkey.toLowerCase().replace(" ", "-").replace("|", "-"));
         config.setDisplayName("Available Properties");
 
         
@@ -423,9 +417,9 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return new CheckpointTable(config, singleSelectMode);
     }
 
-    private CheckpointTable buildParameterTable(List<CheckpointProperty> checkpointProperties) {
+    private CheckpointTable buildParameterTable(String tabkey, List<CheckpointProperty> checkpointProperties) {
         TableConfiguration config = new TableConfiguration();
-        config.setTableName("html-checkpoint-properties");
+        config.setTableName("cp-" + tabkey.toLowerCase().replace(" ", "-").replace("|", "-"));
         config.setDisplayName("Available Properties");
 
         
@@ -524,38 +518,40 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
 
         return retval;
     }
+
+    private void clearCurrentSelection() {
+        if (tabbedPane != null) {
+            int curindx = tabbedPane.getSelectedIndex();
+            
+            for (int i = 0; i < tabbedPane.getComponentCount(); ++i) {
+                if (i != curindx) {
+                    TablePanel tp = (TablePanel)tabbedPane.getComponentAt(i);
+                    
+                    if (tp.getTable().getSelectedRowCount() > 0) {
+                        tp.getTable().getSelectionModel().clearSelection();
+
+                        List <CheckpointProperty> l = tp.getData();
+                        
+                        if (l != null) {
+                            for (CheckpointProperty cp : l) {
+                                cp.setSelected(false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         if (singleSelectMode) {
+            clearCurrentSelection();
             CheckpointProperty selcp = getTableCheckpointProperty(lse.getFirstIndex());
             
-            if (selcp != null) {
-                boolean foundit = false;
-                for (List <CheckpointProperty> l : checkPointMap.values()) {
-                    for (CheckpointProperty p : l) {
-                        if (p != selcp) {
-                            p.setSelected(false);
-                            foundit = true;
-                            break;
-                        }
-                    }
-                    
-                    if (foundit) {
-                        break;
-                    }
-                }
-            
+            if (selcp != null)  {
                 selcp.setSelected(true);
             }
         }
-        
-        for (ListSelectionListener l : listeners) {
-            l.valueChanged(lse);
-        }
-    }
-    
-    public void addListSelectionListener(ListSelectionListener l) {
-        listeners.add(l);
     }
 }
