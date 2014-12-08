@@ -25,4 +25,5 @@ public interface ParameterHandler extends Comparable<ParameterHandler> {
     public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
     public String getDescription();
     public String getCommentText();
+    public boolean isReplaceByValue();
 }

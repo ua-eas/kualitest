@@ -89,21 +89,15 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                         TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), 1);
 
                         if (monitor != null) {
-                            getProgressBar().setMaximum(monitor.getTestOperationCount());
                             monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
 
                             while (!monitor.testsCompleted()) {
                                 try {
-                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
-                                    if (monitor.getCurrentTestOperation() != null) {
-                                        getProgressBar().setValue(monitor.getCurrentTestOperation().getOperation().getIndex());
-                                    }
-
                                     updateDisplay(monitor.buildDisplayMessage("Running test suite '" + testSuite.getName() + "'..." , startTime));
-
                                     if (isCancelTest()) {
                                         break;
                                     }
+                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
                                 } 
 
                                 catch (InterruptedException ex) {};

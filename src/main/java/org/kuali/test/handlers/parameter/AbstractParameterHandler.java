@@ -52,4 +52,8 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
     public String getCommentText() {
         return null;
     }
+    
+    public boolean isReplaceByValue() {
+        return false;
+    }
 }

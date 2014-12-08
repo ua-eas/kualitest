@@ -31,4 +31,8 @@ public class GeneratedIdHandler extends AbstractParameterHandler {
     public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
         return inputValue;
     }
+    
+    public boolean isReplaceByValue() {
+        return true;
+    }
 }

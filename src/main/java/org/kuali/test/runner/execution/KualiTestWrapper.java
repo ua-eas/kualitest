@@ -16,7 +16,6 @@
 
 package org.kuali.test.runner.execution;
 
-import java.util.Stack;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -24,11 +23,9 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.TestType;
-import org.kuali.test.utils.Constants;
 
 
 public class KualiTestWrapper {
-    public Stack<String> httpResponseStack = new Stack<String>();
     public KualiTest test;
     private int warningCount = 0;
     private int successCount = 0;
@@ -41,22 +38,7 @@ public class KualiTestWrapper {
     public KualiTest getTest() {
         return test;
     }
-    
-    /**
-     * 
-     * @param html 
-     */
-    public void pushHttpResponse(String html) {
-        httpResponseStack.push(html);
-        if (httpResponseStack.size() > Constants.LAST_RESPONSE_STACK_SIZE) {
-            httpResponseStack.remove(0);
-        }
-    }
 
-    public Stack<String> getHttpResponseStack() {
-        return httpResponseStack;
-    }
-    
     public TestHeader getTestHeader() {
         return test.getTestHeader();
     }
@@ -119,10 +101,6 @@ public class KualiTestWrapper {
         } else {
             incrementSuccessCount();
         }
-    }
-    
-    public void cleanup() {
-        httpResponseStack.clear();
     }
     
     public String getTestName() {

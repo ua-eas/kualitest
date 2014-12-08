@@ -19,7 +19,6 @@ package org.kuali.test.runner.execution;
 import com.gargoylesoftware.htmlunit.AlertHandler;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.IncorrectnessListener;
 import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
 import com.gargoylesoftware.htmlunit.Page;
@@ -200,7 +199,6 @@ public class TestWebClient extends WebClient {
                         if ((retval.getStatusCode() == HttpStatus.OK_200)
                             && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                             if (StringUtils.isNotBlank(results)) {
-                                tec.getCurrentTest().pushHttpResponse(results);
                                 tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
                             }
                         } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
@@ -252,19 +250,6 @@ public class TestWebClient extends WebClient {
 
             catch (HttpRequestProcessorException ex) {
                 LOG.error(ex.toString(), ex);
-            }
-        }
-        
-        return retval;
-    }
-
-    @Override
-    public Page getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
-        Page retval = super.getPage(request); 
-        
-        if (retval instanceof HtmlPage) {
-            for (FrameWindow frame : ((HtmlPage)retval).getFrames()) {
-                tec.getCurrentTest().pushHttpResponse(Utils.printElement(frame.getEnclosingPage().getDocumentElement()));
             }
         }
         

@@ -247,7 +247,6 @@ public class PlatformTestsPanel extends BasePanel
                 protected void runProcess() {
                     TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
                     if (monitor != null) {
-                        getProgressBar().setMaximum(monitor.getTestOperationCount());
                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                         while (!monitor.testsCompleted()) {
                             try {

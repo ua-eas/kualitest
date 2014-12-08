@@ -72,18 +72,15 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         // required to handle asynchronous processing that may affect parameter fields
         while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
             if (StringUtils.isNotBlank(key)) {
-                Document doc = null;
-                for (String h : testWrapper.getHttpResponseStack()) {
-                    doc = Utils.cleanHtml(h);
-                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
+                Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
+                HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
 
-                    for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                        String curkey = Utils.buildCheckpointPropertyKey(cp);
-                        if (StringUtils.equals(key, curkey)) {
-                            if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                                cpmatch = cp;
-                                break;
-                            }
+                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+                    String curkey = Utils.buildCheckpointPropertyKey(cp);
+                    if (StringUtils.equals(key, curkey)) {
+                        if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                            cpmatch = cp;
+                            break;
                         }
                     }
                 }

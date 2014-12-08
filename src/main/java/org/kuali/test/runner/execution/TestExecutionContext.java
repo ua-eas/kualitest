@@ -52,6 +52,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.ValueType;
+import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
@@ -296,7 +297,6 @@ public class TestExecutionContext extends Thread {
 
         }
         
-        testWrapper.cleanup();
         completedTests.add(testWrapper);
         
         System.out.println("test '" + testWrapper.getTestName() + "[" + getTestRun() + "]' completed. runtime=" + runtime + "sec.");
@@ -625,8 +625,9 @@ public class TestExecutionContext extends Thread {
                 }
                 
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
                 
-                if (StringUtils.isNotBlank(tep.getValue())) {
+                if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
                     retval.put(tep.getValueProperty().getPropertyValue(), tep);
                 }
             }
@@ -645,8 +646,9 @@ public class TestExecutionContext extends Thread {
                 }
                 
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                
-                if (StringUtils.isNotBlank(tep.getValue())) {
+                ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+
+                if (StringUtils.isNotBlank(tep.getValue()) && !ph.isReplaceByValue()) {
                     if (tep.getValueProperty().getTagInformation() != null) {
                         for (Parameter p : tep.getValueProperty().getTagInformation().getParameterArray()) {
                             if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
