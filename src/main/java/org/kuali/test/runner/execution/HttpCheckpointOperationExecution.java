@@ -21,7 +21,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
@@ -43,6 +42,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
  */
 public class HttpCheckpointOperationExecution extends AbstractOperationExecution {
     private static Logger LOG = Logger.getLogger(HttpCheckpointOperationExecution.class);
+    
     /**
      *
      * @param context
@@ -109,23 +109,17 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         TestException lastTestException = null;
         long start = System.currentTimeMillis();
         
-        // if the source page was loaded from a get request try reload a few times if required 
-        // to handle asynchronous processing that may affect checkpoint fields
         while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
             List <CheckpointProperty> matchingProperties = null;
             if (cp.getCheckpointProperties() != null) {
-                html = testWrapper.getHttpResponseStack().peek();
+                String curhtml = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString();
+                Document doc = Utils.cleanHtml(curhtml);
                 HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
-                for (String curhtml : testWrapper.getHttpResponseStack()) {
-                    if (StringUtils.isNotBlank(curhtml)) {
-                        Document doc = Utils.cleanHtml(curhtml);
-                        HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
-                        matchingProperties = findCurrentProperties(cp, dominfo);
-                        if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
-                            html = curhtml;
-                            break;
-                        }
-                    }
+                HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
+                matchingProperties = findCurrentProperties(cp, dominfo);
+                if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
+                    html = curhtml;
+                    break;
                 }
             }
 
