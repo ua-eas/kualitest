@@ -425,7 +425,7 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
                     if (token.endsWith(CHECK_WORDS[i])) {
                         buf.append(token.substring(0, token.length() - CHECK_WORDS[i].length()));
                         buf.append(" ");
-                        buf.append(token.substring(token.length() - CHECK_WORDS[i].length() + 1));
+                        buf.append(token.substring(token.length() - CHECK_WORDS[i].length()));
                         defaultProcessing = false;
                         break;
                     }

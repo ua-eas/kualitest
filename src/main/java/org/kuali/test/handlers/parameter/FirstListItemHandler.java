@@ -25,5 +25,4 @@ public class FirstListItemHandler extends ListItemHandler {
     public String getDescription() {
         return "This handler set the selected option for the field to the first item if it exists";
     }
-
 }

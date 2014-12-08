@@ -123,6 +123,13 @@ public class BaseTable extends JTable implements ClipboardOwner {
         retval.append(".");
         retval.append(name);
 
+        // do this to handle generated key names that are to long
+        // so we do not get an exception
+        if (retval.length() > Preferences.MAX_KEY_LENGTH) {
+            retval.setLength(0);
+            retval.append("");
+        }
+        
         return retval.toString();
     }
 
@@ -145,7 +152,10 @@ public class BaseTable extends JTable implements ClipboardOwner {
         
         for (int i = 0; i < config.getPropertyNames().length; ++i) {
             String key = getColumnPreferenceKey(i, "width");
-            node.putInt(key, getColumnModel().getColumn(i).getPreferredWidth());
+            
+            if (StringUtils.isNotBlank(key)) {
+                node.putInt(key, getColumnModel().getColumn(i).getPreferredWidth());
+            }
         }
     }
     
@@ -153,7 +163,13 @@ public class BaseTable extends JTable implements ClipboardOwner {
         int retval = getConfig().getColumnWidths()[col];
         Preferences proot = Preferences.userRoot();
         Preferences node = proot.node(Constants.PREFS_TABLE_NODE);
-        retval = node.getInt(getColumnPreferenceKey(col, "width"), retval);
+        
+        String key = getColumnPreferenceKey(col, "width");
+        
+        if (StringUtils.isNotBlank(key)) {
+            retval = node.getInt(key, retval);
+        }
+        
         return retval;
     }
 

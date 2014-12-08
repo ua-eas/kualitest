@@ -17,6 +17,7 @@
 package org.kuali.test.handlers.parameter;
 
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.KualiApplication;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
@@ -53,7 +54,13 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
         return null;
     }
     
+    @Override
     public boolean isReplaceByValue() {
         return false;
+    }
+
+    @Override
+    public KualiApplication.Enum getApplication() {
+        return null;
     }
 }

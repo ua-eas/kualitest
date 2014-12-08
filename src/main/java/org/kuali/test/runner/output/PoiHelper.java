@@ -283,9 +283,11 @@ public class PoiHelper {
     private Row writeBaseEntryInformation(TestOperation op, Date startTime) {
         Row retval = wb.getSheetAt(0).createRow(++currentReportRow);
 
-        // operation nmber
+        // operation number
         Cell cell = retval.createCell(0);
-        cell.setCellValue(op.getOperation().getIndex());
+        if (op.getOperation().getIndex() > 0) {
+            cell.setCellValue(op.getOperation().getIndex());
+        }
         cell.setCellStyle(cellStyleNormal);
         
         // checkpoint name

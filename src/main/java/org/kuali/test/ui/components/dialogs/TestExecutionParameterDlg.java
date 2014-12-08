@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Parameter;
+import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
@@ -66,6 +67,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     private TestExecutionParameter testExecutionParameter;
     private Set<String> randomListSelectParameterToIgnore = new HashSet<String>();
     private List<TestOperation> testOperations;
+    private TestHeader testHeader;
     /**
      * 
      * @param mainframe
@@ -73,11 +75,15 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
      * @param testHeader
      * @param html 
      */
-    public TestExecutionParameterDlg(TestCreator mainframe, JWebBrowser wb, List<TestOperation> testOperations, TestHeader testHeader, String html) {
+    public TestExecutionParameterDlg(TestCreator mainframe, 
+        JWebBrowser wb, 
+        List<TestOperation> testOperations, 
+        TestHeader testHeader, 
+        String html) {
         super(mainframe);
         setTitle("Test Execution Parameter Select");
         this.testOperations = testOperations;
-        
+        this.testHeader = testHeader;
         if (getConfiguration().getRandomListAccessParametersToIgnore() != null) {
             for (String s : getConfiguration().getRandomListAccessParametersToIgnore().getParameterNameArray()) {
                 randomListSelectParameterToIgnore.add(s);
@@ -95,11 +101,9 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         };
 
         name = new JTextField(30);
-        
-        List <ParameterHandler> handlers = new ArrayList(Utils.PARAMETER_HANDLERS.values());
-        Collections.sort(handlers);
-        
-        parameterHandlers = new JComboBox(handlers.toArray(new ParameterHandler[handlers.size()]));
+
+        ParameterHandler[] handlers;
+        parameterHandlers = new JComboBox(handlers = getParameterHandlers());
         existingParameters = new JComboBox();
         
         parameterHandlers.addActionListener(new ActionListener() {
@@ -274,5 +278,18 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
 
     public TestExecutionParameter getTestExecutionParameter() {
         return testExecutionParameter;
+    }
+    
+    private ParameterHandler[] getParameterHandlers() {
+        List <ParameterHandler> retval = new ArrayList<ParameterHandler>();
+        Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
+        for (ParameterHandler p : Utils.PARAMETER_HANDLERS.values()) {
+            if ((p.getApplication() == null) || p.getApplication().equals(platform.getApplication())) {
+                retval.add(p);
+            }
+        }
+ 
+        Collections.sort(retval);
+        return retval.toArray(new ParameterHandler[retval.size()]);
     }
 }
