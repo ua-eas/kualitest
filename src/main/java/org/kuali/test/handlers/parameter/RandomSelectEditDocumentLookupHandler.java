@@ -1,0 +1,101 @@
+/*
+ * Copyright 2014 The Kuali Foundation
+ * 
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ * http://www.opensource.org/licenses/ecl2.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.kuali.test.handlers.parameter;
+
+import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+import java.util.Random;
+import org.apache.log4j.Logger;
+import org.kuali.test.CheckpointProperty;
+import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+
+public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLookupHandler  {
+    private static final Logger LOG = Logger.getLogger(RandomSelectEditDocumentLookupHandler.class);
+
+    @Override
+    public String getDescription() {
+        return "This handler will randomly select an editable document from a lookup list";
+    }
+    
+    @Override
+    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+        String retval = null;
+        
+        Element table = findLookupTable(htmlDocument);
+        
+        if (table != null) {
+            NodeList rows = table.getElementsByTagName(Constants.HTML_TAG_TYPE_TR);
+            
+            if ((rows != null) && (rows.getLength() > 0)) {
+                int indx = getRandomIndex(rows.getLength());
+                
+                Element selrow = (Element)rows.item(indx); 
+                NodeList cols = selrow.getElementsByTagName(Constants.HTML_TAG_TYPE_TD);
+                
+                if ((cols != null) && (cols.getLength() > 0)) {
+                    retval = getValue(cp, (Element)cols.item(0));
+                    setCommentText("randomly selected value " + retval + " from row[" + indx + "] ro replace value " + cp.getPropertyValue());
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String getValue(CheckpointProperty cp, Element columnZero) {
+        String retval = null;
+        
+        Element anchor = getAnchor(columnZero);
+        
+        if (anchor != null) {
+            Node att = anchor.getAttributeNode(Constants.HTML_TAG_ATTRIBUTE_HREF);
+            
+            if (att != null) {
+                try {
+                    List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(att.getNodeValue());
+                    
+                    if ((nvplist != null) && !nvplist.isEmpty()) {
+                        for (NameValuePair nvp : nvplist) {
+                            if (nvp.getName().equalsIgnoreCase(cp.getPropertyName())) {
+                                retval = nvp.getValue();
+                                break;
+                            }
+                        }
+                    }
+                } 
+                
+                catch (UnsupportedEncodingException ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    private int getRandomIndex(int maxValue) {
+        return new Random(System.currentTimeMillis()).nextInt(maxValue-1);
+    }
+}

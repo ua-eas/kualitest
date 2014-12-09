@@ -443,6 +443,4 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
         
         return retval;
     }
-
-
 }

@@ -262,6 +262,13 @@ public class Constants {
     public static final long HTML_CLIENT_WAIT_FOR_BACKGROUND_JAVASCRIPT_TIME = 30000;
     public static final String ANCHOR_PARAMETERS = "anchor-parameters";
     public static final String SOURCE_ACCOUNTING_LINE_MATCH = ".sourceAccountingLine[";
+    public static final String KFS_LOOKUP_RESULTS_DIV_ID = "lookup";
+    public static final String KC_LOOKUP_RESULTS_DIV_ID = "lookup-results";
+    public static final String LOOKUP_RESULTS_TABLE_ID = "row";
+    public static final String LOOKUP_RESULTS_TABLE_CLASS = "datatable-100";
+    public static final String EDIT = "edit";
+    public static final String COLUMN_NUMBER = "column-number";
+    public static final String ROW_NUMBER = "row-number";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;

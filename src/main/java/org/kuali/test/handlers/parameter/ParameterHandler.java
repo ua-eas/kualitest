@@ -27,5 +27,5 @@ public interface ParameterHandler extends Comparable<ParameterHandler> {
     public String getDescription();
     public String getCommentText();
     public boolean isReplaceByValue();
-    public KualiApplication.Enum getApplication();
+    public boolean isValidForApplication(KualiApplication.Enum app);
 }

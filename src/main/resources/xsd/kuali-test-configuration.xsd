@@ -51,7 +51,6 @@
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
                 <xs:element name="parameter-handlers" type="parameter-handlers" minOccurs="0"/>
-                <xs:element name="random-list-access-parameters-to-ignore" type="random-list-access-parameters-to-ignore" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -74,12 +73,6 @@
     <xs:complexType name="lookup-results-paths">
         <xs:sequence>
             <xs:element name="lookup-results-path" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="random-list-access-parameters-to-ignore">
-        <xs:sequence>
-            <xs:element name="parameter-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

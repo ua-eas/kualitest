@@ -473,16 +473,6 @@ public class WebTestPanel extends BaseCreateTestPanel {
         return true;
     }
 
-    /**
-     *
-     * @param lastResponse
-     */
-    public void setLastProxyHtmlResponse(String lastResponse) {
-        if (isHtml(lastResponse)) {
-            lastProxyHtmlResponse = lastResponse;
-        }
-    }
-
     private boolean isHtml(String input) {
         return (StringUtils.isNotBlank(input) && input.contains("<html>"));
     }
@@ -492,8 +482,7 @@ public class WebTestPanel extends BaseCreateTestPanel {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), 
-                    getCurrentBrowser(), testProxyServer.getTestOperations(), getTestHeader(), lastProxyHtmlResponse);
+                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), getCurrentBrowser(), testProxyServer.getTestOperations(), getTestHeader());
 
                 if (dlg.isSaved()) {
                     addTestExecutionParameter(dlg.getTestExecutionParameter());

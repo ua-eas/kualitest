@@ -29,6 +29,7 @@ public class GeneratedIdHandler extends AbstractParameterHandler {
 
     @Override
     public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+        setCommentText("replacing original parameter value " + cp.getPropertyValue() + " new value " + inputValue);
         return inputValue;
     }
     

@@ -1498,8 +1498,12 @@ public class Utils {
                 retval = curnode;
                 break;
             }
-            
-            curnode = (Element)curnode.getParentNode();
+
+            if (curnode.getParentNode() instanceof Element) {
+                curnode = (Element)curnode.getParentNode();
+            } else {
+                break;
+            }
         }
 
         return retval;

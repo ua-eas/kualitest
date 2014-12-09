@@ -23,6 +23,8 @@ import org.w3c.dom.Document;
 
 
 public abstract class AbstractParameterHandler implements ParameterHandler {
+    private String commentText;
+
     @Override
     public abstract String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
 
@@ -51,16 +53,22 @@ public abstract class AbstractParameterHandler implements ParameterHandler {
 
     @Override
     public String getCommentText() {
-        return null;
+        String retval = commentText;
+        commentText = null;
+        return retval;
     }
     
+    public void setCommentText(String commentText) {
+        this.commentText = commentText;
+    }
+
     @Override
     public boolean isReplaceByValue() {
         return false;
     }
 
     @Override
-    public KualiApplication.Enum getApplication() {
-        return null;
+    public boolean isValidForApplication(KualiApplication.Enum app) {
+        return true;
     }
 }

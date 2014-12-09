@@ -98,9 +98,4 @@
       <parameter-handler>org.kuali.test.handlers.parameter.CurrentDatePlus30Handler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.ExecutionContextParameterHandler</parameter-handler>
    </parameter-handlers>
-   
-   <random-list-access-parameters-to-ignore>
-       <parameter-name>methodToCall</parameter-name>
-       <parameter-name>businessObjectClassName</parameter-name>
-   </random-list-access-parameters-to-ignore>
 </kuali-test-configuration>

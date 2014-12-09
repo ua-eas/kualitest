@@ -24,7 +24,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.handlers.parameter.ExecutionContextParameterHandler;
 import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
@@ -90,7 +89,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                     TestExecutionParameter tep = getOperation().getTestExecutionParameter();
                     ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
                     
-                    if (ph instanceof ExecutionContextParameterHandler) {
+                    if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
                         tep.setValue(ph.getValue(tec, doc, cpmatch, tep.getAdditionalInfo()));
                     } else {
                         tep.setValue(ph.getValue(tec, doc, cpmatch, cpmatch.getPropertyValue().trim()));

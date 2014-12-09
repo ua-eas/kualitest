@@ -38,6 +38,7 @@ import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
+import org.kuali.test.KualiApplication;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -98,12 +99,7 @@ public class TestExecutionContext extends Thread {
         init();
     }
 
-    private void init() {
-        if (configuration.getRandomListAccessParametersToIgnore() != null) {
-            for (String paramName : configuration.getRandomListAccessParametersToIgnore().getParameterNameArray()) {
-                randomListAccessParameterToIgnore.add(paramName);
-            }
-        }
+    protected void init() {
     }
 
     private void initializeHttpClient() {
@@ -765,5 +761,9 @@ public class TestExecutionContext extends Thread {
         }
         
         return retval;
+    }
+    
+    public KualiApplication.Enum getApplication() {
+        return platform.getApplication();
     }
 }

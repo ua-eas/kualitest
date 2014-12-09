@@ -136,12 +136,20 @@ public class HtmlDomProcessor {
                                     p.setName(Constants.TABLE_NAME);
                                     p.setValue(tname);
                                 }
+                                
+                                Element row = Utils.getParentNodeByTagName(node, Constants.HTML_TAG_TYPE_TR);
+                                
+                                if (row != null) {
+                                    p = cp.getTagInformation().addNewParameter();
+                                    p.setName(Constants.ROW_NUMBER);
+                                    p.setValue("" + Utils.getChildNodeIndex(row));
+                                }
+
+                                p = cp.getTagInformation().addNewParameter();
+                                p.setName(Constants.COLUMN_NUMBER);
+                                p.setValue("" + Utils.getChildNodeIndex(node));
                             }
                             
-                            p = cp.getTagInformation().addNewParameter();
-                            p.setName(Constants.CHILD_NODE_INDEX);
-                            p.setValue("" + Utils.getChildNodeIndex(node));
-
                             Node anchor = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_ANCHOR);
                             
                             if (anchor != null) {

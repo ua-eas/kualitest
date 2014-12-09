@@ -64,6 +64,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private JWebBrowser webBrowser;
     private JComboBox containers;
     private JTabbedPane tabbedPane;
+    private List<ListSelectionListener> listSelectionListeners = new ArrayList <ListSelectionListener>();
     
     public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
         final TestHeader testHeader, boolean singleSelectMode) {
@@ -567,5 +568,23 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 selcp.setSelected(true);
             }
         }
+        
+        for (ListSelectionListener l : listSelectionListeners) {
+            l.valueChanged(lse);
+        }
+    }
+    
+    public void addListSelectionListener(ListSelectionListener l) {
+        listSelectionListeners.add(l);
+    }
+    
+    public List <CheckpointProperty> getAllCheckpointProperties() {
+        List <CheckpointProperty> retval = new ArrayList<CheckpointProperty>();
+        
+        for (List <CheckpointProperty> l : checkPointMap.values()) {
+            retval.addAll(l);
+        }
+        
+        return retval;
     }
 }
