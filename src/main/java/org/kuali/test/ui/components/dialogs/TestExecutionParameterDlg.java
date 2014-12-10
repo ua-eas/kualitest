@@ -231,7 +231,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             this.displayExistingNameAlert("Parameter Name", name.getText());
         } else if (isAdditionalInformationRequired()) {
             displayRequiredFieldsMissingAlert("Existing Parameter", "existing parameter selection");
-        }else {
+        } else {
             testExecutionParameter = TestExecutionParameter.Factory.newInstance();
             testExecutionParameter.setName(name.getText());
             

@@ -138,8 +138,10 @@ public class RunningTestDisplay {
     }
 
     public void updateDisplay(String message) {
-        label.setText(message);
-        label.validate();
+        if (label != null) {
+            label.setText(message);
+            label.validate();
+        }
     }
     
     /**
@@ -148,7 +150,7 @@ public class RunningTestDisplay {
      */
     public JProgressBar getProgressBar() {
         return progressBar;
-    }
+    } 
 
     public boolean isCancelTest() {
         return cancelTest;

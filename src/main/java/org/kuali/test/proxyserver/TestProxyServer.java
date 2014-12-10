@@ -56,7 +56,6 @@ import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
-import static org.kuali.test.utils.Utils.isStringMatch;
 import org.kuali.test.utils.WindowsRegistryProxyHandler;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
@@ -76,8 +75,7 @@ public class TestProxyServer {
     private WebTestPanel webTestPanel;
     private long lastRequestTimestamp = System.currentTimeMillis();
     private Stack <Integer> httpStatus = new Stack<Integer>();
-    private List <String> testCreateUrlsToIgnore = new ArrayList<String>();
-    private List <String> referrersToIgnore = new ArrayList<String>();
+    private List <String> urlPatternsToIgnore = new ArrayList<String>();
     private Set <String> hostsRequiringHttps = new HashSet<String>();
     private WindowsRegistryProxyHandler windowsProxyHandler = null;
 
@@ -208,14 +206,10 @@ public class TestProxyServer {
         
         proxyServerRunning = true;
         
-        if (webTestPanel.getMainframe().getConfiguration().getTestCreateUrlsToIgnore() != null) {
-            testCreateUrlsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getTestCreateUrlsToIgnore().getUrlArray()));
+        if (webTestPanel.getMainframe().getConfiguration().getUrlPatternsToIgnore() != null) {
+            urlPatternsToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getUrlPatternsToIgnore().getUrlPatternArray()));
         }
         
-        if (webTestPanel.getMainframe().getConfiguration().getReferrersToIgnore() != null) {
-            referrersToIgnore.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getReferrersToIgnore().getReferrerArray()));
-        }
-
         if (webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps() != null) {
             hostsRequiringHttps.addAll(Arrays.asList(webTestPanel.getMainframe().getConfiguration().getHostsRequiringHttps().getHostArray()));
         }
@@ -301,12 +295,7 @@ public class TestProxyServer {
                 if (!httpStatus.isEmpty()) {
                     status = httpStatus.pop().intValue();
                 }
-                retval = (status == HttpStatus.OK_200);
-
-                if (retval) {
-                    retval = (!Utils.isIgnoreUrl(testCreateUrlsToIgnore, request.getUri()) 
-                        && !isIgnoredReferrer(request.getUri(), request.headers().get(HttpHeaders.REFERER)));
-                }
+                retval = ((status == HttpStatus.OK_200) && !Utils.isIgnoreUrl(urlPatternsToIgnore, request.getUri()));
             }
         }
         return retval;
@@ -589,22 +578,6 @@ public class TestProxyServer {
             
             catch (Exception ex) {};
         }
-        
-        return retval;
-    }
-    
-    private boolean isIgnoredReferrer(String url, String referrer) {
-        boolean retval = false;
-        
-        if (StringUtils.isNotBlank(referrer)) {
-            for (String compareString : referrersToIgnore) {
-                if (isStringMatch(compareString, referrer)) {
-                    retval = true;
-                    break;
-                }
-            }
-        }
-        
         
         return retval;
     }

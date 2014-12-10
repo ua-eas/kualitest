@@ -80,7 +80,7 @@ public class TestWebClient extends WebClient {
     private List<String> parametersToIgnore = new ArrayList<String>();
     private List<HttpRequestProcessor> preSubmitProcessors = new ArrayList<HttpRequestProcessor>();
     private List<HttpRequestProcessor> postSubmitProcessors = new ArrayList<HttpRequestProcessor>();
-    private List<String> testRunUrlsToIgnore = new ArrayList<String>();
+    private List<String> urlPatternsToIgnore = new ArrayList<String>();
     
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.getDefault());
@@ -94,8 +94,8 @@ public class TestWebClient extends WebClient {
             errorIndicators.addAll(Arrays.asList(tec.getConfiguration().getErrorIndicators().getIndicatorArray()));
         }
 
-        if (tec.getConfiguration().getTestRunUrlsToIgnore() != null) {
-            testRunUrlsToIgnore.addAll(Arrays.asList(tec.getConfiguration().getTestRunUrlsToIgnore().getUrlArray()));
+        if (tec.getConfiguration().getUrlPatternsToIgnore() != null) {
+            urlPatternsToIgnore.addAll(Arrays.asList(tec.getConfiguration().getUrlPatternsToIgnore().getUrlPatternArray()));
         }
 
         if (tec.getConfiguration().getHttpPreSubmitProcessors() != null) {
@@ -154,7 +154,7 @@ public class TestWebClient extends WebClient {
                 WebResponse retval = null;
                 
                 // if this is in the ignore list the reurn an empty response
-                if (Utils.isIgnoreUrl(testRunUrlsToIgnore, request.getUrl().toExternalForm())) {
+                if (Utils.isIgnoreUrl(urlPatternsToIgnore, request.getUrl().toExternalForm())) {
                     retval = new StringWebResponse("", request.getUrl());
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("ignored url: " + request.getUrl().toExternalForm());

@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
@@ -56,10 +55,9 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
      * 
      * @param mainFrame
      * @param testHeader
-     * @param webBrowser
-     * @param html 
+     * @param webBrowser 
      */
-    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, final JWebBrowser webBrowser, final String html) {
+    public HtmlCheckPointDlg(TestCreator mainFrame, TestHeader testHeader, final JWebBrowser webBrowser) {
         super(mainFrame);
         this.testHeader = testHeader;
         
@@ -73,16 +71,10 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
             checkpoint.setTestName(testHeader.getTestName());
             checkpoint.setType(CheckpointType.HTTP);
         }
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                initComponents(webBrowser, html);
-            };
-        });
+        initComponents(webBrowser);
     }
 
-    private void initComponents(JWebBrowser webBrowser, String html) {
+    private void initComponents(JWebBrowser webBrowser) {
         String[] labels = new String[]{
             "Checkpoint Name",
             ""
@@ -106,7 +98,7 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
         p.add(new JSeparator(), BorderLayout.SOUTH);
         
         getContentPane().add(p, BorderLayout.NORTH);
-        getContentPane().add(checkpointPanel = new HtmlCheckpointPanel(this, webBrowser, testHeader, html), BorderLayout.CENTER);
+        getContentPane().add(checkpointPanel = new HtmlCheckpointPanel(this, webBrowser, testHeader), BorderLayout.CENTER);
         addStandardButtons();
 
         getSaveButton().setEnabled(!checkpointPanel.isEmpty());
@@ -187,11 +179,5 @@ public class HtmlCheckPointDlg extends BaseCheckpointDlg {
     @Override
     public boolean isResizable() {
         return true;
-    }
-
-    @Override
-    public void dispose() {
-        stopSpinner();
-        super.dispose(); 
     }
 }

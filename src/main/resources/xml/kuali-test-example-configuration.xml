@@ -62,17 +62,11 @@
       </auto-replace-parameter>
    </auto-replace-parameters>
    <parameters-to-ignore/>
-   <test-create-urls-to-ignore>
-      <url>*.dwr</url>
-      <url>*/RouteLog.do?documentId=*</url>
-   </test-create-urls-to-ignore>
-   <test-run-urls-to-ignore>
-      <url>*.dwr</url>
-      <url>*easyXDM/resize*</url>
-   </test-run-urls-to-ignore>
-   <referrers-to-ignore>
-      <referrer>*/portal.do?channelTitle=Contract%20Manager%20Assignment*</referrer>
-   </referrers-to-ignore>
+   <url-patterns-to-ignore>
+      <url-pattern>*.dwr</url-pattern>
+      <url-pattern>*/RouteLog.do?documentId=*</url-pattern>
+      <url-pattern>*easyXDM/resize*</url-pattern>
+   </url-patterns-to-ignore>
    <default-web-service-polling>true</default-web-service-polling>
    <date-replace-format>MM/dd/yyyy</date-replace-format>
    <auto-update-windows-registry-for-proxy>true</auto-update-windows-registry-for-proxy>

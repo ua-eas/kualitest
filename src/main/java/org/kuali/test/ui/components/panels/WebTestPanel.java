@@ -72,7 +72,6 @@ public class WebTestPanel extends BaseCreateTestPanel {
     private static final Logger LOG = Logger.getLogger(WebTestPanel.class);
     private TestProxyServer testProxyServer;
     private JTabbedPane tabbedPane;
-    private String lastProxyHtmlResponse;
     
     /**
      *
@@ -153,39 +152,33 @@ public class WebTestPanel extends BaseCreateTestPanel {
 
     @Override
     protected void handleCreateCheckpoint() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe(), getTestHeader().getTestType(), getPlatform());
+        CheckPointTypeSelectDlg dlg = new CheckPointTypeSelectDlg(getMainframe(), getTestHeader().getTestType(), getPlatform());
 
-                if (dlg.isSaved()) {
-                    int cptype = dlg.getCheckpointType().intValue();
+        if (dlg.isSaved()) {
+            int cptype = dlg.getCheckpointType().intValue();
 
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("checkpoint type: " + dlg.getCheckpointType() + ", intval: " + cptype);
-                    }
-
-                    switch (cptype) {
-                        case CheckpointType.INT_HTTP:
-                            createHtmlCheckpoint();
-                            break;
-                        case CheckpointType.INT_MEMORY:
-                            createMemoryCheckpoint();
-                            break;
-                        case CheckpointType.INT_SQL:
-                            createSqlCheckpoint();
-                            break;
-                        case CheckpointType.INT_WEB_SERVICE:
-                            createWebServiceCheckpoint();
-                            break;
-                        case CheckpointType.INT_FILE:
-                            createFileCheckpoint();
-                            break;
-                    }
-                }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("checkpoint type: " + dlg.getCheckpointType() + ", intval: " + cptype);
             }
-        });
 
+            switch (cptype) {
+                case CheckpointType.INT_HTTP:
+                    handleCreateHtmlCheckpoint();
+                    break;
+                case CheckpointType.INT_MEMORY:
+                    createMemoryCheckpoint();
+                    break;
+                case CheckpointType.INT_SQL:
+                    handleCreateSqlCheckpoint();
+                    break;
+                case CheckpointType.INT_WEB_SERVICE:
+                    handleCreateWebServiceCheckpoint();
+                    break;
+                case CheckpointType.INT_FILE:
+                    handleCreateFileCheckpoint();
+                    break;
+            }
+        }
     }
 
     private void addTestExecutionParameter(TestExecutionParameter param) {
@@ -197,19 +190,12 @@ public class WebTestPanel extends BaseCreateTestPanel {
         testProxyServer.getTestOperations().add(testOp);
     }
 
-    private void createHtmlCheckpoint() {
-        getMainframe().startSpinner("Loading available checkpoint parameters...");
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JWebBrowser wb = getCurrentBrowser();
-                HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), wb, lastProxyHtmlResponse);
+    private void handleCreateHtmlCheckpoint() {
+        HtmlCheckPointDlg dlg = new HtmlCheckPointDlg(getMainframe(), getTestHeader(), getCurrentBrowser());
 
-                if (dlg.isSaved()) {
-                    addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());
-                }
-            }
-        });
+        if (dlg.isSaved()) {
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());
+        }
     }
 
     private void createMemoryCheckpoint() {
@@ -220,7 +206,7 @@ public class WebTestPanel extends BaseCreateTestPanel {
         }
     }
 
-    private void createSqlCheckpoint() {
+    private void handleCreateSqlCheckpoint() {
         SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), null, testProxyServer);
 
         if (dlg.isSaved()) {
@@ -228,7 +214,7 @@ public class WebTestPanel extends BaseCreateTestPanel {
         }
     }
 
-    private void createFileCheckpoint() {
+    private void handleCreateFileCheckpoint() {
         FileCheckPointDlg dlg = new FileCheckPointDlg(getMainframe(), getTestHeader(), null);
 
         if (dlg.isSaved()) {
@@ -236,7 +222,7 @@ public class WebTestPanel extends BaseCreateTestPanel {
         }
     }
 
-    private void createWebServiceCheckpoint() {
+    private void handleCreateWebServiceCheckpoint() {
         WebServiceCheckPointDlg dlg = new WebServiceCheckPointDlg(getMainframe(), getTestHeader(), null);
 
         if (dlg.isSaved()) {
@@ -479,16 +465,11 @@ public class WebTestPanel extends BaseCreateTestPanel {
 
     @Override
     protected void handleCreateParameter() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), getCurrentBrowser(), testProxyServer.getTestOperations(), getTestHeader());
+        TestExecutionParameterDlg dlg = new TestExecutionParameterDlg(getMainframe(), getCurrentBrowser(), testProxyServer.getTestOperations(), getTestHeader());
 
-                if (dlg.isSaved()) {
-                    addTestExecutionParameter(dlg.getTestExecutionParameter());
-                }
-            }
-        });
+        if (dlg.isSaved()) {
+            addTestExecutionParameter(dlg.getTestExecutionParameter());
+        }
     }
 
     public TestProxyServer getTestProxyServer() {

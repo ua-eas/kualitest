@@ -88,6 +88,7 @@ public class SelectEditDocumentLookupHandler extends AbstractParameterHandler {
                             
                             if ((columns != null) && (columns.getLength() > 0)) {
                                 retval = getDocumentIdFromColumn((Element)columns.item(0));
+                                this.setCommentText("replacing " + cp.getPropertyValue() + " with " + retval);
                             }
                         }
                     }

@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
@@ -174,8 +175,10 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             }
         }
         
-        writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
-
+        if (StringUtils.isNotBlank(html)) {
+            writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
+        }
+        
         if (lastTestException != null) {
             throw lastTestException;
         }

@@ -3058,7 +3058,6 @@ public class Utils {
      */
     public static boolean isStringMatch(String patternString, String checkString) {
         boolean retval = false;
-
         if (StringUtils.isNotBlank(patternString)) {
             int pos = patternString.indexOf("*");
             int pos2 = patternString.indexOf("*", pos+1);

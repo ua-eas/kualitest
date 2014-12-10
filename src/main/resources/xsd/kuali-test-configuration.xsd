@@ -38,9 +38,7 @@
                 <xs:element name="encryption-password-file" type="xs:string" minOccurs="0"/>
                 <xs:element name="auto-replace-parameters" type="auto-replace-parameters" minOccurs="0"/>
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
-                <xs:element name="test-create-urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
-                <xs:element name="test-run-urls-to-ignore" type="urls-to-ignore" minOccurs="0"/>
-                <xs:element name="referrers-to-ignore" type="referrers-to-ignore" minOccurs="0"/>
+                <xs:element name="url-patterns-to-ignore" type="url-patterns-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
                 <xs:element name="date-replace-format" type="xs:string"/>
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
@@ -76,21 +74,15 @@
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="urls-to-ignore">
+    <xs:complexType name="url-patterns-to-ignore">
         <xs:sequence>
-            <xs:element name="url" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="url-pattern" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="parameter-handlers">
         <xs:sequence>
             <xs:element name="parameter-handler" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="referrers-to-ignore">
-        <xs:sequence>
-            <xs:element name="referrer" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 

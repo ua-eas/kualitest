@@ -85,7 +85,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         return retval;
     }
     public HtmlCheckpointPanel (BaseSetupDlg parentDialog, JWebBrowser webBrowser, 
-        TestHeader testHeader, String html) {
+        TestHeader testHeader) {
         this(parentDialog, webBrowser, testHeader, false);
     }
     
