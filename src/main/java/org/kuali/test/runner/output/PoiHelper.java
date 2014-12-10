@@ -285,9 +285,7 @@ public class PoiHelper {
 
         // operation number
         Cell cell = retval.createCell(0);
-        if (op.getOperation().getIndex() > 0) {
-            cell.setCellValue(op.getOperation().getIndex());
-        }
+        cell.setCellValue(op.getOperation().getIndex());
         cell.setCellStyle(cellStyleNormal);
         
         // checkpoint name
@@ -421,9 +419,8 @@ public class PoiHelper {
         Sheet sheet = wb.getSheetAt(0);
         Row retval = sheet.createRow(++currentReportRow);
 
-        // operation nmber
+        // blank operation number
         Cell cell = retval.createCell(0);
-        cell.setCellValue(op.getIndex());
         cell.setCellStyle(cellStyleNormal);
 
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 1, HEADER_NAMES.length - 1));
