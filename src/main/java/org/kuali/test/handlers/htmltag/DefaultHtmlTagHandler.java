@@ -17,7 +17,6 @@
 package org.kuali.test.handlers.htmltag;
 
 import java.util.List;
-import java.util.StringTokenizer;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -35,9 +34,6 @@ import org.w3c.dom.Element;
  */
 public class DefaultHtmlTagHandler implements HtmlTagHandler {
     protected static final Logger LOG = Logger.getLogger(DefaultHtmlTagHandler.class);
-    
-    private static final String[] CHECK_WORDS = {"of", "and", "&", "an", "a", "for", "to", "with"};
-
     
     private TagHandler tagHandler;
 
@@ -380,65 +376,6 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
                     }
                 }
             } 
-        }
-        
-        return retval;
-    }
-
-    public boolean isCamelCase(String input) {
-        return (StringUtils.isNotBlank(input) 
-            && !StringUtils.isAllLowerCase(input) 
-            && !StringUtils.isAllUpperCase(input)
-            && !StringUtils.isAnyBlank(input));
-    }
-    
-    public String formatCamelCaseName(String nm) {
-        String retval = nm;
-        if (StringUtils.isNotBlank(nm)) {
-            int len = nm.length();
-            StringBuilder buf = new StringBuilder(len);
-
-            boolean camelCase = isCamelCase(nm);
-            
-            for (int i = 0; i < len; ++i) {
-                char c = nm.charAt(i);
-                if (i == 0) {
-                    if (Character.isLetterOrDigit(c)) {
-                        buf.append(c);
-                    }
-                } else {
-                    if (camelCase && Character.isUpperCase(c) && Character.isLowerCase(nm.charAt(i-1))) {
-                        buf.append(" ");
-                    }
-                    
-                    buf.append(c);
-                }
-            }
-
-            StringTokenizer st = new StringTokenizer(buf.toString());
-            buf.setLength(0);
-            
-            while(st.hasMoreTokens()) {
-                String token = st.nextToken();
-                boolean defaultProcessing = true;
-                for (int i = 0; i < CHECK_WORDS.length; ++i) {
-                    if (token.endsWith(CHECK_WORDS[i])) {
-                        buf.append(token.substring(0, token.length() - CHECK_WORDS[i].length()));
-                        buf.append(" ");
-                        buf.append(token.substring(token.length() - CHECK_WORDS[i].length()));
-                        defaultProcessing = false;
-                        break;
-                    }
-                }
-
-                if (defaultProcessing) {
-                    buf.append(token);
-                }
-                
-                buf.append(" ");
-            }
-            
-            retval = buf.toString().trim();
         }
         
         return retval;

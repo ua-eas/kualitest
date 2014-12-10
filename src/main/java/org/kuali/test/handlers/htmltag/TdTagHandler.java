@@ -16,6 +16,7 @@
 
 package org.kuali.test.handlers.htmltag;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -81,6 +82,18 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
         String retval = null;
         if (getTagHandler().getSectionMatcher() != null) {
             retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
+        }
+
+        if (StringUtils.isBlank(retval)) {
+            Element pnode = (Element)node.getParentNode();
+            
+            if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
+                int row = Utils.getChildNodeIndex(pnode);
+                
+                if (row > 0) {
+                    retval = "row[" + row + "]";
+                }
+            }
         }
         
         if (LOG.isDebugEnabled()) {

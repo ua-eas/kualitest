@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +43,6 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Parameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.comparators.CheckpointPropertyComparator;
-import org.kuali.test.comparators.HtmlCheckpointTabComparator;
 import org.kuali.test.ui.base.BasePanel;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.TableConfiguration;
@@ -142,23 +142,21 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     private void loadTabs() {
         tabbedPane.removeAll();
         
-        List<String> tabNames = getTabNames();
-
-        for (String s : tabNames) {
-            String tabName = formatTabName(s);
-
-            if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(tabName) && !StringUtils.isNumeric(tabName)) {
-                List<CheckpointProperty> props = checkPointMap.get(s);
+        List<String[]> tabNames = getTabNames();
+        
+        for (String s[] : tabNames) {
+            if (!Constants.DEFAULT_HTML_PROPERTY_GROUP.equals(s[0])) {
+                List<CheckpointProperty> props = checkPointMap.get(s[1]);
 
                 if ((props != null) && !props.isEmpty()) {
                     CheckpointTable t = null ;
                     if (singleSelectMode) {
-                        t = buildParameterTableForSingleSelect(s, props);
+                        t = buildParameterTableForSingleSelect(s[1], props);
                     } else {
-                        t = buildParameterTable(s, props);
+                        t = buildParameterTable(s[1], props);
                     }
                     t.getSelectionModel().addListSelectionListener(this);
-                    tabbedPane.addTab(tabName, new TablePanel(t));
+                    tabbedPane.addTab(s[0], new TablePanel(t));
                 }
             }
         }
@@ -196,22 +194,29 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
     }
     
     
-    private List <String> getTabNames() {
-        List <String> retval = new ArrayList<String>();
+    private List <String[]> getTabNames() {
+        List <String[]> retval = new ArrayList<String[]>();
         
         if (containers != null) {
             String container = ((String)containers.getSelectedItem() + "|");
             
             for (String s : checkPointMap.keySet()) {
                 if (s.startsWith(container) && !s.endsWith("|" + Constants.DEFAULT_HTML_PROPERTY_GROUP)) {
-                    retval.add(s);
+                    retval.add(new String[] {formatTabName(s), s});
                 }
             }
         } else {
-            retval.addAll(checkPointMap.keySet());
+            for (String s : checkPointMap.keySet()) {
+                retval.add(new String[] {s, s});
+            }
         }
         
-        Collections.sort(retval, new HtmlCheckpointTabComparator());
+        Collections.sort(retval, new Comparator <String[]>() {
+            @Override
+            public int compare(String[] s1, String[] s2) {
+                return s1[0].compareTo(s2[0]);
+            }
+        });
         
         return retval;
     }

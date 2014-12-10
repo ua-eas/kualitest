@@ -16,7 +16,9 @@
 
 package org.kuali.test.handlers.htmltag;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 import org.w3c.dom.Element;
 
 /**
@@ -41,15 +43,59 @@ public class KualiTabContainerTagHandler extends DefaultHtmlTagHandler {
      */
     @Override
     public String getGroupContainerName(Element node) {
+        String retval = findTabName(node);
+
+        if (StringUtils.isBlank(retval)) {
+            retval = getTabNameFromId(node);
+        }
+        
+        return retval;
+    }
+
+    private String findTabName(Element node) {
+        String retval = null;
+        
+        Element prev = Utils.getPreviousSiblingElement(node);
+        
+        if (prev != null) {
+            String cname = prev.getAttribute(Constants.HTML_TAG_ATTRIBUTE_CLASS);
+            
+            if (Constants.TAB.equals(cname) && Constants.HTML_TAG_TYPE_TABLE.equals(prev.getTagName())) {
+                Element child = Utils.getFirstChildNodeByNodeName(prev, Constants.HTML_TAG_TYPE_TBODY);
+                
+                if (child != null) {
+                    child = Utils.getFirstChildNodeByNodeName(child, Constants.HTML_TAG_TYPE_TR);
+                    
+                    if (child != null) {
+                        child = Utils.getFirstChildNodeByNodeName(child, Constants.HTML_TAG_TYPE_TD);
+                        
+                        if (child != null) {
+                            retval = Utils.cleanDisplayText(child);
+                        }
+                    }
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
+    private String getTabNameFromId(Element node) {
         String id = node.getAttribute(Constants.HTML_TAG_ATTRIBUTE_ID);
         String retval = id;
+        
         int pos1 = id.indexOf("-");
         int pos2 = id.lastIndexOf("-");
         
         if ((pos1 > -1) && (pos2 > -1) && (pos2 > pos1)) {
-            retval = formatCamelCaseName(id.substring(pos1+1, pos2));
+            retval = id.substring(pos1+1, pos2);
         }
         
+        // hack to handle generated tab names in kuali
+        if (retval.startsWith("ID")) {
+            retval = null;
+        }
+
         return retval;
     }
 }
