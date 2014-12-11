@@ -17,20 +17,21 @@
 package org.kuali.test.handlers.parameter;
 
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public class GeneratedIdHandler extends AbstractParameterHandler {
+public class GeneratedIdHandler extends BaseParameterHandler {
     @Override
     public String getDescription() {
         return "This handler will save the current value from this field and replace all instances of this value found in future test runs with the current run value";
     }
 
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
-        setCommentText("replacing original parameter value " + cp.getPropertyValue() + " new value " + inputValue);
-        return inputValue;
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
+        setCommentText("replacing original parameter value " + tep.getValueProperty().getPropertyValue() + " new value " + cp.getPropertyValue());
+        return cp.getPropertyValue();
     }
     
     public boolean isReplaceByValue() {

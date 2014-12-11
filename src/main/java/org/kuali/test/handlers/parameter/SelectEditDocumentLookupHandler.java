@@ -18,12 +18,15 @@ package org.kuali.test.handlers.parameter;
 
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiApplication;
 import org.kuali.test.Parameter;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestOperation;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
@@ -34,8 +37,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public class SelectEditDocumentLookupHandler extends AbstractParameterHandler {
+public class SelectEditDocumentLookupHandler extends BaseParameterHandler {
     private static final Logger LOG = Logger.getLogger(SelectEditDocumentLookupHandler.class);
+    
+    private static final Set DOCUMENT_ID_PARAMETER_NAMES = new HashSet<String>();
+    
+    static {
+        DOCUMENT_ID_PARAMETER_NAMES.add("docId");
+        DOCUMENT_ID_PARAMETER_NAMES.add("documentId");
+    }
     
     @Override
     public String getDescription() {
@@ -68,14 +78,14 @@ public class SelectEditDocumentLookupHandler extends AbstractParameterHandler {
     }
     
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String executionParameterName) {
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         String retval = null;
 
         Element table = findLookupTable(htmlDocument);
 
         if (table != null) {
-            if (StringUtils.isNotBlank(executionParameterName)) {
-                String columnIdentifierValue = getColumnIdentifierValue(tec, executionParameterName);
+            if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
+                String columnIdentifierValue = getColumnIdentifierValue(tec, tep.getAdditionalInfo());
             
                 if (StringUtils.isNotBlank(columnIdentifierValue)) {
                     Parameter columnNumber = Utils.getCheckpointPropertyTagParameter(cp, Constants.COLUMN_NUMBER);
@@ -132,15 +142,8 @@ public class SelectEditDocumentLookupHandler extends AbstractParameterHandler {
         return retval;
     }
     
-    private boolean isDocumentIdParameter(NameValuePair nvp) {
-        boolean retval = false;
-        String tst = nvp.getName().toLowerCase();
-        
-        if (tst.contains("doc") && tst.contains("id") && !tst.contains(".")) {
-            retval = StringUtils.isNumeric(nvp.getValue());
-        }
-        
-        return retval;
+    protected boolean isDocumentIdParameter(NameValuePair nvp) {
+        return DOCUMENT_ID_PARAMETER_NAMES.contains(nvp.getName());
     }
     
     protected String getColumnIdentifierValue(TestExecutionContext tec, String executionParameterName) {

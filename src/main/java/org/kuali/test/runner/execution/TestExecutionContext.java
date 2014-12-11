@@ -18,6 +18,7 @@ package org.kuali.test.runner.execution;
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -58,7 +59,9 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
 /**
  *
@@ -766,4 +769,86 @@ public class TestExecutionContext extends Thread {
     public KualiApplication.Enum getApplication() {
         return platform.getApplication();
     }
+    
+    private String getSaveScreenFileName() {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(configuration.getTestResultLocation());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(platform.getName());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.SCREEN_CAPTURE_DIR);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
+        retval.append(Constants.FORWARD_SLASH);
+        
+        if (getCurrentTestOperation().getOperation().getCheckpointOperation() != null) {
+            retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getTestName().toLowerCase().replace(" ", "-"));
+            retval.append("_");
+            retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
+        } else {
+            retval.append(getCurrentTest().getTest().getTestHeader().getTestName().toLowerCase().replace(" ", "-"));
+            retval.append("[");
+            retval.append(this.getCurrentOperationIndex());
+            retval.append("]_error");
+        }
+        
+        retval.append("_");
+        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        retval.append("_");
+        retval.append(getTestRun());
+        retval.append(Constants.PDF_SUFFIX);
+        
+        return retval.toString();
+    }
+
+    private String formatHtmlForPdf(String html) {
+        String retval = html;
+        StringBuilder buf = new StringBuilder(html.length());
+        
+        int pos = html.indexOf("</head>");
+        
+        if (pos > -1) {
+            // add this css landscape to ensure page is not truncated on right
+            buf.append(html.substring(0, pos));
+            buf.append("<style> @page {size: landscape;} </style>");
+            buf.append(html.substring(pos));
+            retval = buf.toString();
+        }
+        
+        return retval;
+    }
+
+    public void saveCurrentScreen(String html) {
+        Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
+        File f = new File(getSaveScreenFileName());
+
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocument(doc, platform.getWebUrl());
+            renderer.layout();
+            renderer.createPDF(fos);
+            getGeneratedCheckpointFiles().add(f);
+        }
+
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+        }
+
+        finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+
+            catch (Exception ex) {};
+        }
+}
 }

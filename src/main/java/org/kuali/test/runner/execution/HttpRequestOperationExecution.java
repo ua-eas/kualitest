@@ -113,20 +113,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
 
-                long start = System.currentTimeMillis();
-                
-                // if we want to post a page that was loaded with a get request - check to make sure
-                // the page is populated before we post, if not completely populated then try reload
-                // a few times to handle asynchronous processing that may affect page to be posted
-                while (((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) 
-                    && !tec.getWebClient().isPagePopulated(nvplist)) {
-                    try {
-                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
-                    } catch (InterruptedException ex) {}
-
-                    tec.resubmitLastGetRequest();
-                }
-
                 // see if we can find a submit element, if we can then use click() call
                 // to submit
                 HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);

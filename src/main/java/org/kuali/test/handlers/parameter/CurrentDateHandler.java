@@ -19,16 +19,17 @@ package org.kuali.test.handlers.parameter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public class CurrentDateHandler extends AbstractParameterHandler {
+public class CurrentDateHandler extends BaseParameterHandler {
     private static String DATE_FORMAT = "MM/dd/yyyy";
     private static final SimpleDateFormat DF = new SimpleDateFormat(DATE_FORMAT);
 
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         return DF.format(new Date());
     }
     

@@ -17,32 +17,40 @@
 package org.kuali.test.handlers.parameter;
 
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.Parameter;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 
-public abstract class ListItemHandler extends AbstractParameterHandler {
+public abstract class ListItemHandler extends BaseParameterHandler {
     private int itemToSelect;
     public ListItemHandler(int itemToSelect) {
         this.itemToSelect = itemToSelect;
     }
     
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         String retval = "";
-        Node node = tec.getWebClient().findHtmlElementByName(inputValue);
         
-        if ((node != null) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getNodeName())) {
-            NodeList nodeList = node.getChildNodes();
-            
-            if (nodeList.getLength() >= itemToSelect) {
-                Node value  = nodeList.item(itemToSelect).getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_VALUE);
-                
-                if (value != null) {
-                    retval = value.getNodeValue();
+        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_NAME);
+        
+        if (param != null) {
+            Node node = tec.getWebClient().findHtmlElementByName(param.getValue());
+
+            if ((node != null) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getNodeName())) {
+                NodeList nodeList = node.getChildNodes();
+
+                if (nodeList.getLength() >= itemToSelect) {
+                    Node value  = nodeList.item(itemToSelect).getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+
+                    if (value != null) {
+                        retval = value.getNodeValue();
+                    }
                 }
             }
         }

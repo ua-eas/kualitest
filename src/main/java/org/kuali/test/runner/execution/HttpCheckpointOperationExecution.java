@@ -16,10 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -34,8 +31,6 @@ import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
-import org.w3c.dom.Document;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 /**
  *
@@ -66,30 +61,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         return retval;
     }
 
-   private String getSaveScreenFileName(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
-        Platform platform) {
-        StringBuilder retval = new StringBuilder(256);
-        
-        retval.append(configuration.getTestResultLocation());
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(platform.getName());
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(Constants.SCREEN_CAPTURE_DIR);
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(getOperation().getCheckpointOperation().getTestName().toLowerCase().replace(" ", "-"));
-        retval.append("_");
-        retval.append(getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
-        retval.append("_");
-        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
-        retval.append("_");
-        retval.append(getTestExecutionContext().getTestRun());
-        retval.append(Constants.PDF_SUFFIX);
-        
-        return retval.toString();
-    }
-
    /**
     * 
     * @param configuration
@@ -107,24 +78,14 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
         tec.setCurrentTest(testWrapper);
         
-        TestException lastTestException = null;
-        long start = System.currentTimeMillis();
-        
-        while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
+        try {
             List <CheckpointProperty> matchingProperties = null;
             if (cp.getCheckpointProperties() != null) {
-                String curhtml = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString();
-                Document doc = Utils.cleanHtml(curhtml);
-                HtmlDomProcessor domProcessor = HtmlDomProcessor.getInstance();
-                HtmlDomProcessor.DomInformation dominfo = domProcessor.processDom(platform, doc);
-                matchingProperties = findCurrentProperties(cp, dominfo);
-                if (matchingProperties.size() == cp.getCheckpointProperties().sizeOfCheckpointPropertyArray()) {
-                    html = curhtml;
-                    break;
-                }
+                html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString().trim();
+                matchingProperties = findCurrentProperties(cp, HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(html)));
             }
-
-            if (matchingProperties != null) {
+        
+            if ((matchingProperties != null) && !matchingProperties.isEmpty()) {
                 CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
                 if (matchingProperties.size() == properties.length) {
                     boolean success = true;
@@ -146,46 +107,27 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                     }
 
                     if (!success) {
-                        lastTestException = new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
-                    } else {
-                        lastTestException = null;
-                        break;
+                        throw new TestException("Current web document values do not match test criteria", getOperation(), failureAction);
                     }
                 } else {
-                    lastTestException = new TestException("Expected checkpoint property count mismatch: expected " 
+                    throw new TestException("Expected checkpoint property count mismatch: expected " 
                         + properties.length 
                         + " found " 
                         + matchingProperties.size(), getOperation(), FailureAction.ERROR_HALT_TEST);
                 }
             } else {
-                lastTestException =  new TestException("No matching properties found", getOperation(), FailureAction.ERROR_HALT_TEST);
-            }
-           
-            try {
-                Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
-            } catch (InterruptedException ex) {}
-            
-            try {
-                tec.resubmitLastGetRequest();
-            }
-            
-            catch (Exception ex) {
-                lastTestException = new TestException(ex.toString(), getOperation(), ex);
-                break;
+                throw new TestException("No matching properties found", getOperation(), FailureAction.ERROR_HALT_TEST);
             }
         }
         
-        if (StringUtils.isNotBlank(html)) {
-            writeHtmlIfRequired(cp, configuration, platform,  Utils.cleanHtml(formatForPdf(html), new String[] {"input.type=hidden,name=script"}));
-        }
-        
-        if (lastTestException != null) {
-            throw lastTestException;
+        finally {
+            if (StringUtils.isNotBlank(html)) {
+                writeHtmlIfRequired(cp, html);
+            }
         }
     }
 
-    private void writeHtmlIfRequired(Checkpoint cp, 
-        KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, Document doc) {
+    private void writeHtmlIfRequired(Checkpoint cp, String html) {
         boolean saveScreen = false;
 
         if (cp.getInputParameters() != null) {
@@ -198,52 +140,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         }
 
         if (saveScreen) {
-            File f = new File(getSaveScreenFileName(configuration, platform));
-            
-            if (!f.getParentFile().exists()) {
-                f.getParentFile().mkdirs();
-            }
-
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(f);
-                ITextRenderer renderer = new ITextRenderer();
-        		renderer.setDocument(doc, platform.getWebUrl());
-                renderer.layout();
-                renderer.createPDF(fos);
-                getTestExecutionContext().getGeneratedCheckpointFiles().add(f);
-            }
-
-            catch (Exception ex) {
-                LOG.error(ex.toString(), ex);
-            }
-
-            finally {
-                try {
-                    if (fos != null) {
-                        fos.close();
-                    }
-                }
-
-                catch (Exception ex) {};
-            }
+            getTestExecutionContext().saveCurrentScreen(html);
         }
-    }
-    
-    private String formatForPdf(String html) {
-        String retval = html;
-        StringBuilder buf = new StringBuilder(html.length());
-        
-        int pos = html.indexOf("</head>");
-        
-        if (pos > -1) {
-            // add this css landscape to ensure page is not truncated on right
-            buf.append(html.substring(0, pos));
-            buf.append("<style> @page {size: landscape;} </style>");
-            buf.append(html.substring(pos));
-            retval = buf.toString();
-        }
-        
-        return retval;
     }
 }

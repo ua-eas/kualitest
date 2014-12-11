@@ -79,15 +79,18 @@ public class KualiTabTagHandler extends DefaultHtmlTagHandler {
                 if (Constants.TAB.equals(cname) && Constants.HTML_TAG_TYPE_TABLE.equals(prev.getTagName())) {
                     Element child = Utils.getFirstChildNodeByNodeName(prev, Constants.HTML_TAG_TYPE_TBODY);
 
-                    if (child != null) {
+                    // special handling for tbody - sometimes there sometimes not
+                    if (child == null) {
+                        child = Utils.getFirstChildNodeByNodeName(prev, Constants.HTML_TAG_TYPE_TR);
+                    } else {
                         child = Utils.getFirstChildNodeByNodeName(child, Constants.HTML_TAG_TYPE_TR);
+                    }
+
+                    if (child != null) {
+                        child = Utils.getFirstChildNodeByNodeName(child, Constants.HTML_TAG_TYPE_TD);
 
                         if (child != null) {
-                            child = Utils.getFirstChildNodeByNodeName(child, Constants.HTML_TAG_TYPE_TD);
-
-                            if (child != null) {
-                                retval = Utils.cleanDisplayText(child);
-                            }
+                            retval = Utils.cleanDisplayText(child);
                         }
                     }
                 }

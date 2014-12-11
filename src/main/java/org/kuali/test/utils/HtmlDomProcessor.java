@@ -197,7 +197,7 @@ public class HtmlDomProcessor {
                             p.setName(Constants.IFRAME_IDS);
                             p.setValue(iframeids);
                         }
-                        
+
                         domInformation.getCheckpointProperties().add(cp);
                     }
                 }

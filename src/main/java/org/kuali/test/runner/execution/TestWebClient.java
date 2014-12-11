@@ -46,6 +46,7 @@ import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -183,6 +184,11 @@ public class TestWebClient extends WebClient {
 
                     if (!jscall && !csscall) {
                         String results = retval.getContentAsString();
+                        
+                        PrintWriter pw = new PrintWriter("/home/rbtucker/tmp/tst-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
+                        pw.println(results);
+                        pw.close();
+                        
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                             LOG.debug("url=" + request.getUrl().toExternalForm());
@@ -198,14 +204,17 @@ public class TestWebClient extends WebClient {
                         }
                         if ((retval.getStatusCode() == HttpStatus.OK_200)
                             && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                            if (StringUtils.isNotBlank(results)) {
-                                tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                            if (isErrorResult(results)) {
+                                tec.saveCurrentScreen(results);   
+                                tec.haltTest(new TestException("Current web page contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                            } else {
+                                if (StringUtils.isNotBlank(results)) {
+                                    tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                                }
                             }
                         } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
-                            if (isErrorResult(results)) {
-                                writeErrorFile(request.getUrl().toExternalForm(), indx, results);
-                                tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                            } else if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                            if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                                tec.saveCurrentScreen(results);   
                                 if (tec.getConfiguration().getOutputIgnoredResults()) {
                                     TestException tex = new TestException("server returned bad status - " 
                                         + status
@@ -213,6 +222,9 @@ public class TestWebClient extends WebClient {
                                         + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
                                     tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
                                 }
+                            } else {
+                                writeErrorFile(request.getUrl().toExternalForm(), indx, results);
+                                tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
                             }
                         } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
                             if (LOG.isDebugEnabled()) {
@@ -506,52 +518,35 @@ public class TestWebClient extends WebClient {
         
         return retval;
     }
-    
-    public boolean isPagePopulated(List <NameValuePair> nvplist) throws IOException {
-        boolean retval = true;
-        Page page = getCurrentWindow().getEnclosedPage();
-        for (NameValuePair nvp : nvplist) {
-            if (findHtmlElementByName(page, Utils.stripXY(nvp.getName())) == null) {
-                retval = false;
-                break;
-            }
-        }
-        
-        return retval;
-    }
 
     public HtmlElement findHtmlElementByName(String elementName) {
-        return findHtmlElementByName(getCurrentWindow().getEnclosedPage(), elementName);
+        return findHtmlElementByName((HtmlPage)getCurrentWindow().getEnclosedPage(), elementName);
     }
 
-    public HtmlElement findHtmlElementByName(Page page, String elementName) {
+    public HtmlElement findHtmlElementByName(HtmlPage page, String elementName) {
         HtmlElement retval = null;
         
-        if (page.isHtmlPage()) {
-            try {
-                retval = ((HtmlPage)page).getElementByName(elementName);
-            }
+        try {
+            retval = page.getElementByName(elementName);
+        }
 
-            catch (ElementNotFoundException ex) {};
-            
-            if (retval == null) {
-                for (FrameWindow window : ((HtmlPage)page).getFrames()) {
-                    Page pg = window.getFrameElement().getEnclosedPage();
-                    if (pg.isHtmlPage()) {
-                        try {
-                            retval = ((HtmlPage)pg).getElementByName(elementName);
-                        }
-                        
-                        catch (ElementNotFoundException ex) {};
-                        
-                        if (retval == null) {
-                            retval = findHtmlElementByName(pg, elementName);
-                        }
-                    }
-                    
-                    if (retval != null) {
-                        break;
-                    }
+        catch (ElementNotFoundException ex) {};
+
+        if (retval == null) {
+            for (FrameWindow window : page.getFrames()) {
+                HtmlPage fpage = (HtmlPage)window.getFrameElement().getEnclosedPage();
+                try {
+                    retval = fpage.getElementByName(elementName);
+                }
+
+                catch (ElementNotFoundException ex) {};
+
+                if (retval == null) {
+                    retval = findHtmlElementByName(fpage, elementName);
+                }
+
+                if (retval != null) {
+                    break;
                 }
             }
         }
@@ -559,18 +554,27 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
+    /**
+     * 
+     * @param nvplist
+     * @return
+     * @throws IOException 
+     */
     public HtmlElement findFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
         HtmlElement retval = null;
-        
+
         if (nvplist != null) {
-            Page pg = getCurrentWindow().getEnclosedPage();
-            for (NameValuePair nvp : nvplist) {
-                HtmlElement element = findHtmlElementByName(pg, Utils.stripXY(nvp.getName()));
-                if (element != null) {
-                    if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
-                        if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
-                            retval = element;
-                            break;
+            Page page = getCurrentWindow().getEnclosedPage();
+
+            if (page.isHtmlPage()) {
+                for (NameValuePair nvp : nvplist) {
+                    HtmlElement element = findHtmlElementByName((HtmlPage)page, Utils.stripXY(nvp.getName()));
+                    if (element != null) {
+                        if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
+                            if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
+                                retval = element;
+                                break;
+                            }
                         }
                     }
                 }
@@ -616,15 +620,30 @@ public class TestWebClient extends WebClient {
         for (NameValuePair nvp : nvplist) {
             try {
                 HtmlElement e = findHtmlElementByName(page, nvp.getName());
-                if (isFileAttachment(nvp.getName())) {
-                    populateFileInputElement(page, nvp, inputSet);
-                } else {
-                    populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                if (e != null) {
+                    if (isFileAttachment(nvp.getName())) {
+                        populateFileInputElement(page, nvp, inputSet);
+                    } else if (isUpdateableElement(e)) {
+                        populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                    }
                 }
             }
 
             catch (ElementNotFoundException ex) {};
         }
+    }
+    
+    private boolean isUpdateableElement(HtmlElement element) {
+        boolean retval = false;
+
+        if (Utils.isFormInputTag(element.getTagName())) {
+            retval = true;
+            if (Constants.HTML_INPUT_ATTRIBUTE_TYPE_HIDDEN.equals(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
+                retval = false;
+            }
+        }
+        
+        return true; //retval;
     }
 
     private void populateFormElement(HtmlPage page, HtmlElement e, String name, String value) {

@@ -18,15 +18,16 @@ package org.kuali.test.handlers.parameter;
 
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiApplication;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public abstract class AbstractParameterHandler implements ParameterHandler {
+public abstract class BaseParameterHandler implements ParameterHandler {
     private String commentText;
 
     @Override
-    public abstract String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue);
+    public abstract String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp);
 
     @Override
     public abstract String getDescription();

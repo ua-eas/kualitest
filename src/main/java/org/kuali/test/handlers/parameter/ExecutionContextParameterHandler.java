@@ -24,24 +24,24 @@ import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public class ExecutionContextParameterHandler extends AbstractParameterHandler {
+public class ExecutionContextParameterHandler extends BaseParameterHandler {
     @Override
     public String getDescription() {
         return "This handler will return the value from a populated existing test execution parameter in the current test run";
     }
 
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         String retval = "";
         
-        if (StringUtils.isNotBlank(inputValue)) {
+        if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
             for (int i = tec.getCurrentOperationIndex(); i >= 0; --i) {
                 TestOperation top = tec.getTestOperation(i);
 
                 if (top.getOperation().getTestExecutionParameter() != null) {
-                    TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+                    TestExecutionParameter curtep = top.getOperation().getTestExecutionParameter();
                     
-                    if (inputValue.equals(tep.getName())) {
+                    if (curtep.getAdditionalInfo().equals(tep.getAdditionalInfo())) {
                         retval = tep.getValue();
                         break;
                     }

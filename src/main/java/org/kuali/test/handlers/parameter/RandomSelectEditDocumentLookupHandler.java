@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Random;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -40,7 +41,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
     }
     
     @Override
-    public String getValue(TestExecutionContext tec, Document htmlDocument, CheckpointProperty cp, String inputValue) {
+    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         String retval = null;
         
         Element table = findLookupTable(htmlDocument);
@@ -56,7 +57,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
                 
                 if ((cols != null) && (cols.getLength() > 0)) {
                     retval = getValue(cp, (Element)cols.item(0));
-                    setCommentText("randomly selected value " + retval + " from row[" + indx + "] ro replace value " + cp.getPropertyValue());
+                    setCommentText("randomly selected value " + retval + " from row " + indx);
                 }
             }
         }
@@ -78,7 +79,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
                     
                     if ((nvplist != null) && !nvplist.isEmpty()) {
                         for (NameValuePair nvp : nvplist) {
-                            if (nvp.getName().equalsIgnoreCase(cp.getPropertyName())) {
+                            if (isDocumentIdParameter(nvp)) {
                                 retval = nvp.getValue();
                                 break;
                             }

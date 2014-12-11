@@ -1730,9 +1730,21 @@ public class Utils {
             switch (tm.getMatchType().intValue()) {
                 case TagMatchType.INT_CHILD:
                     retval = getMatchingChild(tm, node);
+                    // special handling for tbody - sometimes there sometimes not
+                    if ((retval == null) && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(tm.getTagName())) {
+                        TagMatcher tmtmp = (TagMatcher)tm.copy();
+                        tm.setTagName(Constants.HTML_TAG_TYPE_TR);
+                        retval = getMatchingChild(tmtmp, node);
+                    }
                     break;
                 case TagMatchType.INT_PARENT:
                     retval = getMatchingParent(tm, node);
+                    // special handling for tbody - sometimes there sometimes not
+                    if ((retval == null) && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(tm.getTagName())) {
+                        TagMatcher tmtmp = (TagMatcher)tm.copy();
+                        tmtmp.setTagName(Constants.HTML_TAG_TYPE_TABLE);
+                        retval = getMatchingParent(tmtmp, node);
+                    }
                     break;
                 case TagMatchType.INT_SIBLING:
                     retval = getMatchingSibling(tm, node);
@@ -3871,6 +3883,7 @@ public class Utils {
     public static boolean isFormInputTag(String tagName) {
         return (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(tagName)
             || Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagName)
+            || Constants.HTML_TAG_TYPE_TEXTAREA.equalsIgnoreCase(tagName)
             || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(tagName)
             || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(tagName));
 

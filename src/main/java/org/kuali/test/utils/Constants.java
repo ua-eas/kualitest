@@ -360,6 +360,7 @@ public class Constants {
     public static final String HTML_TAG_ATTRIBUTE_ROWSPAN = "rowspan";
     public static final String HTML_TAG_ATTRIBUTE_NAME = "name";
     public static final String HTML_TAG_ATTRIBUTE_SELECTED = "selected";
+    public static final String HTML_TAG_ATTRIBUTE_ONCLICK = "onclick";
     public static final String HTML_TAG_ATTRIBUTE_VALUE = "value";
     public static final String HTML_TAG_ATTRIBUTE_CHECKED = "checked";
     public static final String HTML_TAG_ATTRIBUTE_CLASS = "class";
@@ -370,6 +371,7 @@ public class Constants {
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_RADIO = "radio";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX = "checkbox";
     public static final String HTML_INPUT_ATTRIBUTE_TYPE_TEXT = "text";
+    public static final String HTML_INPUT_ATTRIBUTE_TYPE_HIDDEN = "hidden";
     public static final String HTML_TAG_ATTRIBUTE_CLASS_DATATABLE = "datatable";
     public static final String XML_SUFFIX = ".xml";
     public static final String HTML_SUFFIX = ".html";

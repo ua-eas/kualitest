@@ -58,8 +58,6 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         Platform platform, KualiTestWrapper testWrapper) throws TestException {
         String key = Utils.buildCheckpointPropertyKey(getOperation().getTestExecutionParameter().getValueProperty());
         
-        long start = System.currentTimeMillis();
-        
         TestExecutionContext tec = getTestExecutionContext();
         tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
         tec.setCurrentTest(testWrapper);
@@ -71,7 +69,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
             Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
 
             if (ph instanceof SelectEditDocumentLookupHandler) {
-                tep.setValue(ph.getValue(tec, doc, tep.getValueProperty(), tep.getAdditionalInfo()));
+                tep.setValue(ph.getValue(tec, tep, doc, null));
             } else {
                 CheckpointProperty cpmatch = null;
                 HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
@@ -88,11 +86,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
 
                 // if we found a matching html element then set the parameter value
                 if (cpmatch != null) {
-                    if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
-                        tep.setValue(ph.getValue(tec, doc, cpmatch, tep.getAdditionalInfo()));
-                    } else {
-                        tep.setValue(ph.getValue(tec, doc, cpmatch, cpmatch.getPropertyValue().trim()));
-                    }
+                    tep.setValue(ph.getValue(tec, tep, doc, cpmatch));
                 }
             }
 
