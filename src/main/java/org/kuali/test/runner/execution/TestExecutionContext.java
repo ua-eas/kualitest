@@ -788,9 +788,9 @@ public class TestExecutionContext extends Thread {
             retval.append(getCurrentTestOperation().getOperation().getCheckpointOperation().getName().toLowerCase().replace(" ", "-"));
         } else {
             retval.append(getCurrentTest().getTest().getTestHeader().getTestName().toLowerCase().replace(" ", "-"));
-            retval.append("[");
+            retval.append("-op");
             retval.append(this.getCurrentOperationIndex());
-            retval.append("]_error");
+            retval.append("");
         }
         
         retval.append("_");
@@ -802,6 +802,7 @@ public class TestExecutionContext extends Thread {
         return retval.toString();
     }
 
+    
     private String formatHtmlForPdf(String html) {
         String retval = html;
         StringBuilder buf = new StringBuilder(html.length());
@@ -819,13 +820,20 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
 
-    public void saveCurrentScreen(String html) {
+    public void saveCurrentScreen(String html, boolean errorMode) {
         if (StringUtils.isBlank(html)) {
             html = Constants.NO_HTML_FOUND;
         }
         
         Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
-        File f = new File(getSaveScreenFileName());
+        
+        File f = null;
+        
+        if (errorMode) {
+            f = new File(this.getErrorFileName(Constants.PDF_SUFFIX));
+        } else {
+            new File(getSaveScreenFileName());
+        }
 
         if (!f.getParentFile().exists()) {
             f.getParentFile().mkdirs();
@@ -854,5 +862,26 @@ public class TestExecutionContext extends Thread {
 
             catch (Exception ex) {};
         }
-}
+    }
+    
+    public String getErrorFileName(String suffix) {
+        StringBuilder retval = new StringBuilder(256);
+        
+        retval.append(getConfiguration().getTestResultLocation());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(getCurrentTest().getTestHeader().getPlatformName());
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.SCREEN_CAPTURE_DIR);
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
+        retval.append(Constants.FORWARD_SLASH);
+        retval.append(getCurrentTest().getTestName().toLowerCase().replace(" ", "-"));
+        retval.append("_error-output_");
+        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        retval.append("_");
+        retval.append(getTestRun());
+        retval.append(suffix);
+        
+        return retval.toString();
+    }
 }

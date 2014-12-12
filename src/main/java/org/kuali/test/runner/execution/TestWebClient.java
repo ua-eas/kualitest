@@ -184,11 +184,8 @@ public class TestWebClient extends WebClient {
                     if (!jscall && !csscall) {
                         String results = retval.getContentAsString();
                         
-                        /*
-                        PrintWriter pw = new PrintWriter("/home/rbtucker/tmp/tst-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
-                        pw.println(results);
-                        pw.close();
-                        */
+                        // uncomment to write out screens as pdf files for troubleshooting
+                        //tec.saveCurrentScreen(results);
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
@@ -204,29 +201,32 @@ public class TestWebClient extends WebClient {
                             LOG.debug(results);
                         }
                         
-                        if ((retval.getStatusCode() == HttpStatus.OK_200)
-                            && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                            if (isErrorResult(results)) {
-                                tec.saveCurrentScreen(results);   
-                                tec.haltTest(new TestException("Current web page contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                            } else {
-                                if (StringUtils.isNotBlank(results)) {
-                                    tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                        if (status == HttpStatus.OK_200) {
+                            if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                                if (isErrorResult(results)) {
+                                    tec.saveCurrentScreen(results, true);   
+                                    tec.haltTest(new TestException("Current web page response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                                } else {
+                                    if (StringUtils.isNotBlank(results)) {
+                                        tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                                    }
                                 }
                             }
-                        } else if (!Utils.isRedirectResponse(retval.getStatusCode())) {
+                        } else if (!Utils.isRedirectResponse(status)) {
                             if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                                tec.saveCurrentScreen(results);   
-                                if (tec.getConfiguration().getOutputIgnoredResults()) {
-                                    TestException tex = new TestException("server returned bad status - " 
+                                if (isErrorResult(results)) {
+                                    tec.saveCurrentScreen(results, true);   
+                                    tec.haltTest(new TestException("Current web response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                                } else if (tec.getConfiguration().getOutputIgnoredResults()) {
+                                    TestException tex = new TestException("server returned bad status [" 
                                         + status
-                                        + ", url=" 
+                                        + "] url=" 
                                         + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
                                     tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
                                 }
                             } else {
                                 writeErrorFile(request.getUrl().toExternalForm(), indx, results);
-                                tec.haltTest(new TestException("server returned error - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                                tec.haltTest(new TestException("server returned bad status [" +  status + "] - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
                             }
                         } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
                             if (LOG.isDebugEnabled()) {
@@ -455,7 +455,7 @@ public class TestWebClient extends WebClient {
     }
 
     private void writeErrorFile(String url, int indx, String results) {
-        File f = new File(getErrorFileName());
+        File f = new File(tec.getErrorFileName(Constants.TXT_SUFFIX));
 
         if (!f.getParentFile().exists()) {
             f.getParentFile().mkdirs();
@@ -488,27 +488,6 @@ public class TestWebClient extends WebClient {
         }
     }
 
-   private String getErrorFileName() {
-        StringBuilder retval = new StringBuilder(256);
-        
-        retval.append(tec.getConfiguration().getTestResultLocation());
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(tec.getCurrentTest().getTestHeader().getPlatformName());
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(Constants.SCREEN_CAPTURE_DIR);
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(Constants.DEFAULT_DATE_FORMAT.format(new Date()));
-        retval.append(Constants.FORWARD_SLASH);
-        retval.append(tec.getCurrentTest().getTestName().toLowerCase().replace(" ", "-"));
-        retval.append("_error-output_");
-        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
-        retval.append("_");
-        retval.append(tec.getTestRun());
-        retval.append(Constants.TXT_SUFFIX);
-        
-        return retval.toString();
-    }
-   
     private boolean isErrorResult(String input) {
         boolean retval = false;
         for (String s : errorIndicators) {

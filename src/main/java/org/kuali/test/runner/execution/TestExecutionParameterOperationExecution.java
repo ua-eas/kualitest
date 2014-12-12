@@ -110,11 +110,9 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                 }
             }
             
-            
             if (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue())) {
-                throw new TestException("failed to find test execution parameter for '" 
-                    + getOperation().getTestExecutionParameter().getName() 
-                    + "'", getOperation(), FailureAction.ERROR_HALT_TEST);
+                throw new TestException("failed to find value for test execution parameter[" 
+                    + tep.getName() + "]", getOperation(), FailureAction.ERROR_HALT_TEST);
             } else {
                 String comment = ph.getCommentText();
 

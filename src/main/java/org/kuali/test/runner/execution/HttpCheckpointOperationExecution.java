@@ -140,7 +140,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         
         finally {
             if (isSaveScreen()) {
-                getTestExecutionContext().saveCurrentScreen(html);
+                getTestExecutionContext().saveCurrentScreen(html, false);
             }
         }
     }
