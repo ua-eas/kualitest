@@ -64,8 +64,9 @@ public class PlatformTestsPanel extends BasePanel
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
     private static final String DELETE_TEST = "Delete test";
+    private static final String EXPORT_TEST = "Export test";
     private static final String RUN_TEST = "Run test";
-    private static final String RUN_TEST_LOAD_TEST = "Run test load test";
+    private static final String RUN_TEST_LOAD_TEST = "Run load test";
     
     private JList testList;
     private Platform currentPlatform;
@@ -106,6 +107,10 @@ public class PlatformTestsPanel extends BasePanel
         popupMenu.add(m);
         m.addActionListener(this);
         popupMenu.add(new JSeparator());
+
+        m = new JMenuItem(EXPORT_TEST);
+        popupMenu.add(m);
+        m.addActionListener(this);
 
         m = new JMenuItem(RUN_TEST);
         popupMenu.add(m);
@@ -237,6 +242,8 @@ public class PlatformTestsPanel extends BasePanel
     public void actionPerformed(ActionEvent e) {
         if (Constants.SHOW_TEST_INFORMATION_ACTION.equals(e.getActionCommand())) {
             getMainframe().handleShowTestInformation(currentTestHeader);
+        } else if (EXPORT_TEST.equals(e.getActionCommand())) {
+            getMainframe().handleExportTest(currentTestHeader);
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {

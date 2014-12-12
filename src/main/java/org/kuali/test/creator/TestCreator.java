@@ -30,7 +30,9 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -456,6 +459,55 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         hsplitPane.setDividerLocation(node.getInt(Constants.PREFS_HORIZONTAL_DIVIDER_LOCATION, Constants.DEFAULT_HORIZONTAL_DIVIDER_LOCATION));
         vsplitPane.setDividerLocation(node.getInt(Constants.PREFS_VERTICAL_DIVIDER_LOCATION, Constants.DEFAULT_VERTICAL_DIVIDER_LOCATION));
         desktopPane.add(hsplitPane, BorderLayout.CENTER);
+    }
+
+    /**
+     *
+     * @param testHeader
+     */
+    public void handleExportTest(TestHeader testHeader) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setSelectedFile(new File(Utils.formatForFileName(testHeader.getTestName()) + ".export"));        
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            
+            PrintWriter pw = null;
+            
+            try {
+                pw = new PrintWriter(new FileWriter(file));
+                pw.println("[application-name]");
+
+                Platform platform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
+                pw.println(platform.getApplication().toString());
+                pw.println();
+                pw.println("[application-version]");
+                pw.println(platform.getVersion());
+                pw.println();
+
+                pw.println("[test-header]");
+                pw.println(testHeader.toString().replace("xml-fragment", "test:test-header"));
+                pw.println();
+                pw.println("[test-desription]");
+                File ftest = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
+                pw.println(Utils.getTestDescription(ftest));
+                pw.println();
+                pw.println("[test-operations]");
+                pw.println(new String(FileUtils.readFileToByteArray(ftest)));
+            }
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+                UIUtils.showError(this, "File Export Error", "Error exporting file: " + file.getName() + " - " + ex.toString());
+            }
+            
+            finally {
+                try {
+                    pw.close();
+                }
+                
+                catch (Exception ex) {};
+            }
+        }
     }
 
     /**
