@@ -77,6 +77,7 @@ public class TestExecutionContext extends Thread {
     private Set<String> randomListAccessParameterToIgnore = new HashSet<String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
     private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
+    private Map<String, ParameterHandler> parameterHandlers = new HashMap<String, ParameterHandler>();
     
     private Platform platform;
     private TestSuite testSuite;
@@ -447,6 +448,7 @@ public class TestExecutionContext extends Thread {
      *
      */
     public final void startTest() {
+    System.out.println("------------------------->" + getName());
         start();
     }
 
@@ -624,7 +626,7 @@ public class TestExecutionContext extends Thread {
                 }
                 
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+                ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
                 
                 if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
                     retval.put(tep.getValueProperty().getPropertyValue(), tep);
@@ -645,7 +647,7 @@ public class TestExecutionContext extends Thread {
                 }
                 
                 TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+                ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
 
                 if (StringUtils.isNotBlank(tep.getValue()) && !ph.isReplaceByValue()) {
                     if (tep.getValueProperty().getTagInformation() != null) {
@@ -832,7 +834,7 @@ public class TestExecutionContext extends Thread {
         if (errorMode) {
             f = new File(this.getErrorFileName(Constants.PDF_SUFFIX));
         } else {
-            new File(getSaveScreenFileName());
+            f = new File(getSaveScreenFileName());
         }
 
         if (!f.getParentFile().exists()) {
@@ -895,5 +897,21 @@ public class TestExecutionContext extends Thread {
         retval.append(suffix);
         
         return retval.toString();
+    }
+    
+    public ParameterHandler getParameterHandler(String className) {
+        ParameterHandler retval = parameterHandlers.get(className);
+        
+        if (retval == null) {
+            try {
+                parameterHandlers.put(className, retval = (ParameterHandler)Class.forName(className).newInstance());
+            } 
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+            } 
+        }
+        
+        return retval;
     }
 }

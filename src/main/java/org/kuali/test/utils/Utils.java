@@ -118,7 +118,6 @@ import org.kuali.test.WebService;
 import org.kuali.test.comparators.HtmlTagHandlerComparator;
 import org.kuali.test.comparators.TagHandlerFileComparator;
 import org.kuali.test.handlers.htmltag.HtmlTagHandler;
-import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.ui.utils.UIUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -139,7 +138,6 @@ public class Utils {
     private static MessageDigest messageDigest;
 
     public static Map<String, List<HtmlTagHandler>> TAG_HANDLERS = new HashMap<String, List<HtmlTagHandler>>();
-    public static Map<String, ParameterHandler> PARAMETER_HANDLERS = new HashMap<String, ParameterHandler>();
 
     /**
      *
@@ -1020,14 +1018,6 @@ public class Utils {
      * @param configuration
      */
     public static void initializeHandlers(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
-        for (String handler : configuration.getParameterHandlers().getParameterHandlerArray()) {
-            try {
-                PARAMETER_HANDLERS.put(handler, (ParameterHandler)Class.forName(handler).newInstance());
-            } catch (Exception ex) {
-                LOG.error(ex.toString(), ex);
-            } 
-        }
-        
         File handlerDir = new File(configuration.getTagHandlersLocation());
 
         if (handlerDir.exists() && handlerDir.isDirectory()) {
@@ -3846,10 +3836,6 @@ public class Utils {
             catch (Exception ex) {};
         }
         return retval;
-    }
-    
-    public static ParameterHandler getParameterHandler(String nm) {
-        return PARAMETER_HANDLERS.get(nm);
     }
     
     public static Parameter getCheckpointPropertyTagParameter(CheckpointProperty cp, String parameterName) {

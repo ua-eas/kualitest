@@ -78,7 +78,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
         tec.setCurrentTest(testWrapper);
         
         try {
-        Checkpoint cp = getOperation().getCheckpointOperation();
+            Checkpoint cp = getOperation().getCheckpointOperation();
             CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
             List <CheckpointProperty> matchingProperties = null;
             if (cp.getCheckpointProperties() != null) {

@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.creator.TestCreator;
-import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
 import org.kuali.test.ui.base.TableConfiguration;
@@ -34,7 +33,6 @@ import org.kuali.test.ui.components.labels.DataDisplayLabel;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
-import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -61,10 +59,15 @@ public class TestExecutionParameterDetailsDlg extends BaseSetupDlg {
             "Additional Info" 
         };
         
-        ParameterHandler ph = Utils.getParameterHandler(parameter.getParameterHandler());
         String handlerName = "";
-        if (ph != null) {
-            handlerName = ph.toString();
+        if (StringUtils.isNoneBlank(parameter.getParameterHandler())) {
+            try {
+                handlerName = Class.forName(parameter.getParameterHandler()).newInstance().toString();
+            }
+            
+            catch (Exception ex) {
+                handlerName = "unknown handler";
+            };
         }
 
         String additionalInfo = parameter.getAdditionalInfo();

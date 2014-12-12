@@ -576,7 +576,7 @@ public class PoiHelper {
                 String nm = "";
                 
                 if (errorRuns[indx]) {
-                    nm = "*run(" + (++indx) + ")";
+                    nm = "run(" + (++indx) + ") - errors";
                 } else {
                     nm = "run(" + (++indx) + ")";
                 }

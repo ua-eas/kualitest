@@ -42,7 +42,7 @@ public class Spinner extends JPanel {
             JButton b = new JButton(Constants.CANCEL_ICON);
             b.setBorder(BorderFactory.createEmptyBorder());
             b.setContentAreaFilled(false);
-
+            b.setToolTipText("Cancel operation");
             add(b);
             
             b.addActionListener(new ActionListener() {

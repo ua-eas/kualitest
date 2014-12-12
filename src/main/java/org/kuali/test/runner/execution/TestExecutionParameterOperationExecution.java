@@ -65,7 +65,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         tec.setCurrentTest(testWrapper);
 
         TestExecutionParameter tep = getOperation().getTestExecutionParameter();
-        ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
+        ParameterHandler ph = tec.getParameterHandler(tep.getParameterHandler());
         
         if (StringUtils.isNotBlank(key)) {
             long start = System.currentTimeMillis();

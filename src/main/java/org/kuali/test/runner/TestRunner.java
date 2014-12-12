@@ -339,7 +339,7 @@ public class TestRunner {
             List <TestExecutionContext> testExecutions = new ArrayList<TestExecutionContext>();
             
             for (int i = 0; i < testRuns; ++i) {
-                TestExecutionContext tec = new TestExecutionContext(configuration, test);
+                TestExecutionContext tec = new TestExecutionContext(configuration, (KualiTest)test.copy());
                 testExecutions.add(tec);
             }
             

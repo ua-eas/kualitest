@@ -513,7 +513,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
             finally {
                 try {
-                    pw.close();
+                    if (pw != null) {
+                        pw.close();
+                    }
                 }
                 
                 catch (Exception ex) {};

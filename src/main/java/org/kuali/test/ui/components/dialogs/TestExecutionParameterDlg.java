@@ -42,7 +42,6 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.handlers.parameter.ExecutionContextParameterHandler;
 import org.kuali.test.handlers.parameter.ParameterHandler;
-import org.kuali.test.handlers.parameter.SaveValueHandler;
 import org.kuali.test.handlers.parameter.SelectEditDocumentLookupHandler;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.panels.HtmlCheckpointPanel;
@@ -123,8 +122,6 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         }
         
         parameterHandlers.setRenderer(new ComboBoxTooltipRenderer(tooltips));
-        
-        parameterHandlers.setSelectedItem(Utils.PARAMETER_HANDLERS.get(SaveValueHandler.class.getName()));
         
         JComponent[] components = new JComponent[]{
             name,
@@ -279,20 +276,31 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     
     private ParameterHandler[] getParameterHandlers() {
         List <ParameterHandler> retval = new ArrayList<ParameterHandler>();
-        Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
-        for (ParameterHandler p : Utils.PARAMETER_HANDLERS.values()) {
-            if (p.isValidForApplication(platform.getApplication())) {
-                if (p instanceof SelectEditDocumentLookupHandler) {
-                    if (isLookupTableAvailable()) {
-                        retval.add(p);
+
+        if (getMainframe().getConfiguration().getParameterHandlers() != null) {
+            Platform platform = Utils.findPlatform(getMainframe().getConfiguration(), testHeader.getPlatformName());
+            for (String className : getMainframe().getConfiguration().getParameterHandlers().getParameterHandlerArray()) {
+                try {
+                    ParameterHandler p = (ParameterHandler)Class.forName(className).newInstance();
+                    if (p.isValidForApplication(platform.getApplication())) {
+                        if (p instanceof SelectEditDocumentLookupHandler) {
+                            if (isLookupTableAvailable()) {
+                                retval.add(p);
+                            }
+                        } else {
+                            retval.add(p);
+                        }
                     }
-                } else {
-                    retval.add(p);
-                }
+                } 
+                
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                } 
             }
+
+            Collections.sort(retval);
         }
- 
-        Collections.sort(retval);
+        
         return retval.toArray(new ParameterHandler[retval.size()]);
     }
     
