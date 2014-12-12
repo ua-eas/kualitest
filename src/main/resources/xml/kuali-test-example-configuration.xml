@@ -77,7 +77,8 @@
    <http-pre-submit-processors/>
    <http-post-submit-processors/>
    <error-indicators>
-	   <indicator>Error</indicator>
+      <indicator>error(s) found on page</indicator>
+       <indicator>invalid NetID or password</indicator>
    </error-indicators>
    <pdf-viewer-path>acroread</pdf-viewer-path>
    <parameter-handlers>

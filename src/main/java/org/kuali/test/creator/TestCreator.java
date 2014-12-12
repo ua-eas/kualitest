@@ -475,22 +475,33 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             
             try {
                 pw = new PrintWriter(new FileWriter(file));
-                pw.println("[application-name]");
+                Platform platform = (Platform)Utils.findPlatform(getConfiguration(), testHeader.getPlatformName()).copy();
+                
+                platform.setEmailAddresses("");
+                if (platform.getTestSuites() != null) {
+                    platform.getTestSuites().setTestSuiteArray(new TestSuite[0]);
+                }
 
-                Platform platform = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
-                pw.println(platform.getApplication().toString());
-                pw.println();
-                pw.println("[application-version]");
-                pw.println(platform.getVersion());
+                if (platform.getPlatformTests() != null) {
+                    platform.getPlatformTests().setTestHeaderArray(new TestHeader[0]);
+                }
+                
+                platform.setEmailAddresses("");
+                platform.setDatabaseConnectionName("");
+                
+                pw.println("[test-platform]");
+                pw.println(platform.toString().replace("xml-fragment", "test:platform"));
                 pw.println();
 
                 pw.println("[test-header]");
                 pw.println(testHeader.toString().replace("xml-fragment", "test:test-header"));
                 pw.println();
+                
                 pw.println("[test-desription]");
                 File ftest = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
                 pw.println(Utils.getTestDescription(ftest));
                 pw.println();
+                
                 pw.println("[test-operations]");
                 pw.println(new String(FileUtils.readFileToByteArray(ftest)));
             }

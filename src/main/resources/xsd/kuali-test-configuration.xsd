@@ -40,7 +40,6 @@
                 <xs:element name="parameters-to-ignore" type="parameters-to-ignore" minOccurs="0"/>
                 <xs:element name="url-patterns-to-ignore" type="url-patterns-to-ignore" minOccurs="0"/>
                 <xs:element name="default-web-service-polling" type="xs:boolean"/>
-                <xs:element name="date-replace-format" type="xs:string"/>
                 <xs:element name="auto-update-windows-registry-for-proxy" type="xs:boolean" default="false"/>
                 <xs:element name="hosts-requiring-https" type="hosts-requiring-https" minOccurs="0"/>
                 <xs:element name="output-ignored-results" type="xs:boolean" minOccurs="0"/>
