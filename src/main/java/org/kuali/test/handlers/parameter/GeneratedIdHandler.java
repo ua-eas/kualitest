@@ -30,7 +30,7 @@ public class GeneratedIdHandler extends BaseParameterHandler {
 
     @Override
     public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
-        setCommentText("replacing original parameter value " + tep.getValueProperty().getPropertyValue() + " new value " + cp.getPropertyValue());
+        setCommentText("using current test execution value " + tep.getValueProperty().getPropertyValue() + " for \"" + cp.getDisplayName() + "\"");
         return cp.getPropertyValue();
     }
     

@@ -16,6 +16,7 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
@@ -27,6 +28,7 @@ import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.handlers.parameter.SelectEditDocumentLookupHandler;
 import org.kuali.test.runner.exceptions.TestException;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
 import org.w3c.dom.Document;
@@ -66,30 +68,49 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         ParameterHandler ph = Utils.getParameterHandler(tep.getParameterHandler());
         
         if (StringUtils.isNotBlank(key)) {
-            Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
+            long start = System.currentTimeMillis();
+            while (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue()) 
+                && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)) {
+                Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
 
-            if (ph instanceof SelectEditDocumentLookupHandler) {
-                tep.setValue(ph.getValue(tec, tep, doc, null));
-            } else {
-                CheckpointProperty cpmatch = null;
-                HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
+                if (ph instanceof SelectEditDocumentLookupHandler) {
+                    tep.setValue(ph.getValue(tec, tep, doc, null));
+                } else {
+                    CheckpointProperty cpmatch = null;
+                    HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
 
-                for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
-                    String curkey = Utils.buildCheckpointPropertyKey(cp);
-                    if (StringUtils.equals(key, curkey)) {
-                        if (StringUtils.isNotBlank(cp.getPropertyValue())) {
-                            cpmatch = cp;
-                            break;
+                    for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
+                        String curkey = Utils.buildCheckpointPropertyKey(cp);
+                        if (StringUtils.equals(key, curkey)) {
+                            if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                                cpmatch = cp;
+                                break;
+                            }
                         }
                     }
-                }
 
-                // if we found a matching html element then set the parameter value
-                if (cpmatch != null) {
-                    tep.setValue(ph.getValue(tec, tep, doc, cpmatch));
+                    // if we found a matching html element then set the parameter value
+                    if (cpmatch != null) {
+                        tep.setValue(ph.getValue(tec, tep, doc, cpmatch));
+                    }
+                }
+                
+                if (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue())) {
+                    try {
+                        Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                    } catch (InterruptedException ex) {}
+
+                    try {
+                        tec.resubmitLastGetRequest();
+                    }
+                    
+                    catch (IOException ex) {
+                        throw new TestException(ex.toString(), tec.getCurrentTestOperation().getOperation(), ex);
+                    }
                 }
             }
-
+            
+            
             if (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue())) {
                 throw new TestException("failed to find test execution parameter for '" 
                     + getOperation().getTestExecutionParameter().getName() 
@@ -98,7 +119,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                 String comment = ph.getCommentText();
 
                 if (StringUtils.isNotBlank(comment)) {
-                    tec.writeCommentEntry(buildCommentOperation(tep.getName(), comment));
+                    tec.writeCommentEntry(buildCommentOperation(tep.getName(), comment), true);
                 }
             }
         }
@@ -106,8 +127,9 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
     
     private Operation buildCommentOperation(String parameterName, String comment) {
         Operation retval = Operation.Factory.newInstance();
+        retval.setIndex(getTestExecutionContext().getCurrentOperationIndex());
         retval.addNewCommentOperation();
-        retval.getCommentOperation().setComment("parameter [" + parameterName + "]: " + comment);
+        retval.getCommentOperation().setComment("parameter[" + parameterName + "]: " + comment);
         return retval;
     }
 }

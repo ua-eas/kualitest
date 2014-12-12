@@ -706,9 +706,9 @@ public class TestExecutionContext extends Thread {
         }
     }
 
-    public void writeCommentEntry(Operation op) {
+    public void writeCommentEntry(Operation op, boolean showIndex) {
         if (poiHelper != null) {
-            poiHelper.writeCommentEntry(op);
+            poiHelper.writeCommentEntry(op, showIndex);
         } 
     }
     
@@ -820,6 +820,10 @@ public class TestExecutionContext extends Thread {
     }
 
     public void saveCurrentScreen(String html) {
+        if (StringUtils.isBlank(html)) {
+            html = Constants.NO_HTML_FOUND;
+        }
+        
         Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
         File f = new File(getSaveScreenFileName());
 

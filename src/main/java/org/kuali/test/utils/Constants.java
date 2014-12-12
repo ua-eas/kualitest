@@ -269,6 +269,8 @@ public class Constants {
     public static final String EDIT = "edit";
     public static final String COLUMN_NUMBER = "column-number";
     public static final String ROW_NUMBER = "row-number";
+    public static final String TRUE = "true";
+    public static final String NO_HTML_FOUND = "<html><body><h2>no html content found</h2></body></html>";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;

@@ -415,12 +415,15 @@ public class PoiHelper {
      * @param op
      * @param comment 
      */
-    public void writeCommentEntry(Operation op) {
+    public void writeCommentEntry(Operation op, boolean showIndex) {
         Sheet sheet = wb.getSheetAt(0);
         Row retval = sheet.createRow(++currentReportRow);
 
         // blank operation number
         Cell cell = retval.createCell(0);
+        if (showIndex) {
+            cell.setCellValue(op.getIndex());
+        }
         cell.setCellStyle(cellStyleNormal);
 
         sheet.addMergedRegion(new CellRangeAddress(currentReportRow, currentReportRow, 1, HEADER_NAMES.length - 1));

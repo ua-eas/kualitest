@@ -50,6 +50,6 @@ public class CommentOperationExecution extends AbstractOperationExecution {
         TestExecutionContext tec = getTestExecutionContext();
         tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
         tec.setCurrentTest(testWrapper);
-        tec.writeCommentEntry(getOperation());
+        tec.writeCommentEntry(getOperation(), false);
     }
 }

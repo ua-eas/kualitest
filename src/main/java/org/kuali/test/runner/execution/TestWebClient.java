@@ -46,7 +46,6 @@ import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -185,9 +184,11 @@ public class TestWebClient extends WebClient {
                     if (!jscall && !csscall) {
                         String results = retval.getContentAsString();
                         
+                        /*
                         PrintWriter pw = new PrintWriter("/home/rbtucker/tmp/tst-" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis() + ".html");
                         pw.println(results);
                         pw.close();
+                        */
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
@@ -202,6 +203,7 @@ public class TestWebClient extends WebClient {
                             LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
                             LOG.debug(results);
                         }
+                        
                         if ((retval.getStatusCode() == HttpStatus.OK_200)
                             && retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                             if (isErrorResult(results)) {
@@ -563,24 +565,34 @@ public class TestWebClient extends WebClient {
     public HtmlElement findFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
         HtmlElement retval = null;
 
-        if (nvplist != null) {
-            Page page = getCurrentWindow().getEnclosedPage();
+        long start = System.currentTimeMillis();
+        while ((retval == null) && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)) {
+            if (nvplist != null) {
+                Page page = getCurrentWindow().getEnclosedPage();
 
-            if (page.isHtmlPage()) {
-                for (NameValuePair nvp : nvplist) {
-                    HtmlElement element = findHtmlElementByName((HtmlPage)page, Utils.stripXY(nvp.getName()));
-                    if (element != null) {
-                        if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
-                            if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
-                                retval = element;
-                                break;
+                if (page.isHtmlPage()) {
+                    for (NameValuePair nvp : nvplist) {
+                        HtmlElement element = findHtmlElementByName((HtmlPage)page, Utils.stripXY(nvp.getName()));
+                        if (element != null) {
+                            if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
+                                if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
+                                    retval = element;
+                                    break;
+                                }
                             }
                         }
                     }
                 }
             }
+            
+            if (retval == null) {
+                try {
+                    Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                } catch (InterruptedException ex) {}
+
+                tec.resubmitLastGetRequest();
+            }
         }
-        
         return retval;
     }
     

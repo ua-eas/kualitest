@@ -37,7 +37,10 @@ public class CurrentDatePlusHandler extends BaseParameterHandler {
     public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         Calendar c = Calendar.getInstance();
         c.add(Calendar.DATE, plusdays);
-        return DF.format(c.getTime());
+        String retval = DF.format(c.getTime());
+        setCommentText("using date value " + retval + " for " + cp.getDisplayName());
+        return retval;
+
     }
     
     public String toString() {

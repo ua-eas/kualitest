@@ -16,9 +16,9 @@
 
 package org.kuali.test.runner.execution;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
@@ -72,21 +72,35 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
     public void execute(KualiTestConfigurationDocument.KualiTestConfiguration configuration, Platform platform, 
         KualiTestWrapper testWrapper) throws TestException {
         TestExecutionContext tec = getTestExecutionContext();
-        Checkpoint cp = getOperation().getCheckpointOperation();
         String html = null;
 
         tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
         tec.setCurrentTest(testWrapper);
         
         try {
+        Checkpoint cp = getOperation().getCheckpointOperation();
+            CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
             List <CheckpointProperty> matchingProperties = null;
             if (cp.getCheckpointProperties() != null) {
-                html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString().trim();
-                matchingProperties = findCurrentProperties(cp, HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(html)));
+                long start = System.currentTimeMillis();
+        
+                while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
+                    html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString().trim();
+                    matchingProperties = findCurrentProperties(cp, HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(html)));
+
+                    if (matchingProperties.size() == properties.length) {
+                        break;
+                    } else {
+                        try {
+                            Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                        } catch (InterruptedException ex) {}
+
+                        tec.resubmitLastGetRequest();
+                    }
+                }
             }
         
             if ((matchingProperties != null) && !matchingProperties.isEmpty()) {
-                CheckpointProperty[] properties = cp.getCheckpointProperties().getCheckpointPropertyArray();
                 if (matchingProperties.size() == properties.length) {
                     boolean success = true;
 
@@ -120,27 +134,19 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             }
         }
         
+        catch (IOException ex) {
+            throw new TestException(ex.toString(), tec.getCurrentTestOperation().getOperation(), ex);
+        }
+        
         finally {
-            if (StringUtils.isNotBlank(html)) {
-                writeHtmlIfRequired(cp, html);
+            if (isSaveScreen()) {
+                getTestExecutionContext().saveCurrentScreen(html);
             }
         }
     }
 
-    private void writeHtmlIfRequired(Checkpoint cp, String html) {
-        boolean saveScreen = false;
-
-        if (cp.getInputParameters() != null) {
-            for (Parameter param : cp.getInputParameters().getParameterArray()) {
-                if (Constants.SAVE_SCREEN.equalsIgnoreCase(param.getName())) {
-                    saveScreen = "true".equalsIgnoreCase(param.getValue());
-                    break;
-                }
-            }
-        }
-
-        if (saveScreen) {
-            getTestExecutionContext().saveCurrentScreen(html);
-        }
+    private boolean isSaveScreen() {
+       Parameter param = Utils.getCheckpointParameter(getOperation().getCheckpointOperation(), Constants.SAVE_SCREEN);
+       return ((param != null) && Constants.TRUE.equals(param.getValue()));
     }
 }
