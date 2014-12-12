@@ -16,13 +16,43 @@
 
 package org.kuali.test.ui.components.spinners;
 
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import org.kuali.test.utils.Constants;
 
 
-public class Spinner extends JLabel {
+public class Spinner extends JPanel {
+    private JLabel label;
+    private boolean cancelled = false;
+    
     public Spinner() {
-        super(Constants.LOADING_SPINNER_ICON);
+        this(false);
+    }
+    
+    public Spinner(boolean canstop) {
+        super(new FlowLayout(FlowLayout.LEFT, 3, 0));
+        setBorder(BorderFactory.createEmptyBorder());
+        setOpaque(false);
+        if (canstop) {
+            JButton b = new JButton(Constants.CANCEL_ICON);
+            b.setBorder(BorderFactory.createEmptyBorder());
+            b.setContentAreaFilled(false);
+
+            add(b);
+            
+            b.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    cancelled = true;
+                }
+            });
+        }
+        add(label = new JLabel(Constants.LOADING_SPINNER_ICON));
         setVisible(false);
     }
     
@@ -32,13 +62,19 @@ public class Spinner extends JLabel {
     }
 
     public void startSpinner( String msg) {
-        setText(msg);
+        cancelled = false;
+        label.setText(msg);
         setVisible(true);
-        repaint(0);
+        label.repaint(0);
     }
     
     public void stopSpinner() {
-        setText("");
+        label.setText("");
         setVisible(false);
+        cancelled = false;
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
     }
 }

@@ -287,6 +287,11 @@ public class PlatformTestsPanel extends BasePanel
 
                                 if (monitor != null) {
                                     while(!monitor.testsCompleted()) {
+                                        if (getMainframe().getSpinner2().isCancelled()) {
+                                            monitor.haltTests();
+                                            break;
+                                        }
+                                        
                                         Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
                                     }
                                 }

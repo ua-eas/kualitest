@@ -48,6 +48,7 @@ public class Constants {
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(TestCreator.class.getResource("/images/save.png"));
     public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/createtest.png"));
     public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/cancel-test.png"));
+    public static final ImageIcon CANCEL_ICON = new ImageIcon(TestCreator.class.getResource("/images/cancel.png"));
     public static final ImageIcon EXIT_APPLICATION_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/exit-toolbar.png"));
 
     public static final ImageIcon START_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/start-test.png"));

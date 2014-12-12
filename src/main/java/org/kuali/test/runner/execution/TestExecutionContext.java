@@ -711,6 +711,12 @@ public class TestExecutionContext extends Thread {
             poiHelper.writeCommentEntry(op, showIndex);
         } 
     }
+
+    public synchronized void haltTest() {
+        haltTest = true;
+        poiHelper.writeFailureEntry(getCurrentTestOperation(), new Date(), 
+            new TestException("Test(s) halted", getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+    }
     
     public synchronized void haltTest(TestException ex) {
         haltTest = true;
@@ -819,14 +825,8 @@ public class TestExecutionContext extends Thread {
         
         return retval;
     }
-
+    
     public void saveCurrentScreen(String html, boolean errorMode) {
-        if (StringUtils.isBlank(html)) {
-            html = Constants.NO_HTML_FOUND;
-        }
-        
-        Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
-        
         File f = null;
         
         if (errorMode) {
@@ -838,15 +838,27 @@ public class TestExecutionContext extends Thread {
         if (!f.getParentFile().exists()) {
             f.getParentFile().mkdirs();
         }
+        
+        saveCurrentScreen(f, html, false);
+    }
+
+    public void saveCurrentScreen(File saveFile, String html, boolean debug) {
+        if (StringUtils.isBlank(html)) {
+            html = Constants.NO_HTML_FOUND;
+        }
+        
+        Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
 
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(f);
+            fos = new FileOutputStream(saveFile);
             ITextRenderer renderer = new ITextRenderer();
             renderer.setDocument(doc, platform.getWebUrl());
             renderer.layout();
             renderer.createPDF(fos);
-            getGeneratedCheckpointFiles().add(f);
+            if (!debug) {
+                getGeneratedCheckpointFiles().add(saveFile);
+            }
         }
 
         catch (Exception ex) {

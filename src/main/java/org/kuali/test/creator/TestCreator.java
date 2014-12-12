@@ -1301,7 +1301,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         toolbar.addSeparator();
         
         toolbar.add(spinner = new Spinner());
-        toolbar.add(spinner2 = new Spinner());
+        toolbar.add(spinner2 = new Spinner(true));
 
         retval.add(new JSeparator(), BorderLayout.NORTH);
         retval.add(toolbar, BorderLayout.CENTER);
@@ -1370,5 +1370,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public void enableCreateTestActions(boolean enable) {
         createTestMenuItem.setEnabled(enable);
         createTestButton.setEnabled(enable);
+    }
+
+    public Spinner getSpinner2() {
+        return spinner2;
     }
 }

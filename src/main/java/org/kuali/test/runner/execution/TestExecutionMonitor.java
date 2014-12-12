@@ -237,5 +237,9 @@ public class TestExecutionMonitor extends Thread {
         this.overrideEmail = overrideEmail;
     }
     
-    
+    public void haltTests() {
+        for (TestExecutionContext tec : testExecutionList) {
+            tec.haltTest();
+        }
+    }
 }

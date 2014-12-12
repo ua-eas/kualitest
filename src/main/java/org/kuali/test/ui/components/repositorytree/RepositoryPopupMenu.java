@@ -131,6 +131,11 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
 
                                 if (monitor != null) {
                                     while(!monitor.testsCompleted()) {
+                                        if (getMainframe().getSpinner2().isCancelled()) {
+                                            monitor.haltTests();
+                                            break;
+                                        }
+
                                         Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
                                     }
                                 }
@@ -215,6 +220,10 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             m.addActionListener(this);
 
             m = new JMenuItem(RUN_TEST_SUITE_ACTION);
+            add(m);
+            m.addActionListener(this);
+
+            m = new JMenuItem(RUN_TEST_SUITE_LOAD_TEST_ACTION);
             add(m);
             m.addActionListener(this);
             
