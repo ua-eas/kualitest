@@ -272,6 +272,14 @@ public class Constants {
     public static final String ROW_NUMBER = "row-number";
     public static final String TRUE = "true";
     public static final String NO_HTML_FOUND = "<html><body><h2>no html content found</h2></body></html>";
+    public static final String JMX_MEMORY_USAGE_CLASS_NAME = "java.lang.management.MemoryUsage";
+    public static final String PRIMITIVE_LONG_TYPE = "long";
+    public static final String PRIMITIVE_INT_TYPE = "int";
+    public static final String PRIMITIVE_DOUBLE_TYPE = "double";
+    public static final String DEFAULT_MEMORY_MEASUREMENT_TYPE = PRIMITIVE_LONG_TYPE;
+    public static final String PERFORMANCE_ATTRIBUTE_TYPE_CLIENT = "Client Performance";
+    public static final String PERFORMANCE_ATTRIBUTE_NAME_HEAP_MEMORY_USAGE = "HeapMemoryUsage";
+    public static final String CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME = "HTTP Response Time((millis)";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;

@@ -59,6 +59,7 @@ public class CreateTestDlg extends BaseSetupDlg {
     private IntegerTextField maxRunTime;
     private JComboBox runtimeFailure;
     private JCheckBox useTestEntryTimes;
+    private JCheckBox collectPerformanceData;
     private TestHeader testHeader;
     
     /**
@@ -87,6 +88,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             "Test Type",
             "Max Run Time (sec)",
             "On Max Time Failure",
+            "",
             ""
         };
         
@@ -134,6 +136,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             }
         });
         
+        collectPerformanceData = new JCheckBox("Collect performance data during test runs");
         useTestEntryTimes = new JCheckBox("Use test entry times during test execution");
         
 
@@ -153,6 +156,7 @@ public class CreateTestDlg extends BaseSetupDlg {
             testType,
             maxRunTime,
             runtimeFailure,
+            collectPerformanceData,
             useTestEntryTimes
         };
 
@@ -223,6 +227,8 @@ public class CreateTestDlg extends BaseSetupDlg {
                 if (useTestEntryTimes.isEnabled()) {
                     testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
                 }
+
+                testHeader.setCollectPerformanceData(collectPerformanceData.isSelected());
                 
                 if (StringUtils.isBlank(maxRunTime.getText())) {
                     testHeader.setMaxRunTime(0);

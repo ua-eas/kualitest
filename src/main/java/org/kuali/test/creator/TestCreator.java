@@ -663,9 +663,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         return createTestPanel;
     }
 
-    public void handleExit() {
-        savePreferences();
-        System.exit(0);
+    public void handleExit(int exitcode) {
+        if (exitcode == 0) {
+            savePreferences();
+        }
+        
+        System.exit(exitcode);
     }
     
     /**
@@ -1295,7 +1298,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
             public void actionPerformed(ActionEvent e) {
                 if (JOptionPane.showConfirmDialog(TestCreator.this, "Exit Test Application?", "Exit", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
                     startSpinner("Shutting down application...");
-                    handleExit();
+                    handleExit(0);
                 }
             }
         });

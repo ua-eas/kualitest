@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,6 +61,9 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -3872,6 +3876,40 @@ public class Utils {
             || Constants.HTML_TAG_TYPE_TEXTAREA.equalsIgnoreCase(tagName)
             || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(tagName)
             || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(tagName));
-
     }
+    
+    
+    public static JMXConnector getJMXConnector(KualiTestConfigurationDocument.KualiTestConfiguration configuration, JmxConnection jmx) throws UnsupportedEncodingException, IOException {
+        JMXConnector retval = null;
+        if (jmx != null) {
+            String pass = jmx.getPassword();
+            if (StringUtils.isNotBlank(pass)) {
+                pass = decrypt(getEncryptionPassword(configuration), pass);
+            }
+
+            retval = getJMXConnector(jmx.getJmxUrl(), jmx.getUsername(), pass);
+        }
+        
+        return retval;
+    }
+
+    public static JMXConnector getJMXConnector(String url, String username, String password) throws MalformedURLException, IOException {
+        JMXConnector retval = null;
+
+        if (StringUtils.isNotBlank(url)) {
+            JMXServiceURL serviceUrl = new JMXServiceURL(url);
+
+            Map map = null;
+
+            if (StringUtils.isNotBlank(username)) {
+                map = new HashMap();
+                map.put(JMXConnector.CREDENTIALS, new String[]{username, password});
+            }
+
+            retval = JMXConnectorFactory.connect(serviceUrl, map);
+        }
+
+        return retval;
+    }
+
 }

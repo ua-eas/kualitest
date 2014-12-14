@@ -41,8 +41,8 @@ import org.kuali.test.TestOperation;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.components.editmasks.IntegerTextField;
-import org.kuali.test.ui.components.panels.TestOperationsPanel;
 import org.kuali.test.ui.components.labels.DataDisplayLabel;
+import org.kuali.test.ui.components.panels.TestOperationsPanel;
 import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
@@ -54,6 +54,7 @@ import org.kuali.test.utils.Utils;
 public class TestInformationDlg extends BaseSetupDlg {
     private TestHeader testHeader;
     private JCheckBox useTestEntryTimes;
+    private JCheckBox collectPerformanceData;
     private IntegerTextField maxExecutionTime;
     private JComboBox failureActions;
     private TestOperationsPanel testOperationsPanel;
@@ -91,6 +92,7 @@ public class TestInformationDlg extends BaseSetupDlg {
             "Test File Name",
             "Max Run Time (sec)",
             "On Max Time Failure",
+            "",
             ""
         };
 
@@ -122,6 +124,15 @@ public class TestInformationDlg extends BaseSetupDlg {
             }
         });
         
+        collectPerformanceData = new JCheckBox("Collect performance data during test runs");
+        collectPerformanceData.setSelected(testHeader.getCollectPerformanceData());
+        collectPerformanceData.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                testUpdated();
+            }
+        });
+
         maxExecutionTime = new IntegerTextField();
         maxExecutionTime.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -152,6 +163,7 @@ public class TestInformationDlg extends BaseSetupDlg {
             new DataDisplayLabel(nm.toString()),
             maxExecutionTime,
             failureActions,
+            collectPerformanceData,
             useTestEntryTimes
         };
 
@@ -267,6 +279,7 @@ public class TestInformationDlg extends BaseSetupDlg {
         testHeader.setMaxRunTime(maxExecutionTime.getInt());
         testHeader.setOnRuntimeFailure(FailureAction.Enum.forString(failureActions.getSelectedItem().toString()));
         testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
+        testHeader.setCollectPerformanceData(collectPerformanceData.isSelected());
         dispose();
         return true;
     }

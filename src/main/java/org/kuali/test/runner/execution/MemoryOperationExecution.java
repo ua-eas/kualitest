@@ -19,13 +19,8 @@ package org.kuali.test.runner.execution;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.util.HashMap;
-import java.util.Map;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
@@ -63,20 +58,13 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
         tec.setCurrentOperationIndex(Integer.valueOf(getOperation().getIndex()));
         tec.setCurrentTest(testWrapper);
 
+        JMXConnector conn = null;
         try {   
             JmxConnection jmx = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
             
             if (jmx != null) {
-                JMXServiceURL serviceUrl = new JMXServiceURL(jmx.getJmxUrl());
-                
-                Map map = null;
-                
-                if (StringUtils.isNotBlank(jmx.getUsername())) {
-                    map = new HashMap();
-                    map.put(JMXConnector.CREDENTIALS, new String[]{jmx.getUsername(), jmx.getPassword()});
-                }
-                JMXConnector jmxConnector = JMXConnectorFactory.connect(serviceUrl, map);           
-                MBeanServerConnection mbeanConn = jmxConnector.getMBeanServerConnection();    
+                conn = Utils.getJMXConnector(configuration, jmx);
+                MBeanServerConnection mbeanConn = conn.getMBeanServerConnection();    
                 MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanConn, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class); 
 
                 CheckpointProperty cp = getProperty(Constants.MAX_MEMORY_PERCENT);
@@ -98,6 +86,16 @@ public class MemoryOperationExecution extends AbstractOperationExecution {
         
         catch (IOException ex) {
             throw new TestException("an IOException was throw while attempting to connect via jmx - " + ex.toString(), getOperation(), ex);
+        }
+        
+        finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                }
+                
+                catch (Exception ex) {};
+            }
         }
     }
 }

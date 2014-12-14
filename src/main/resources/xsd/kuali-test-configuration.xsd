@@ -241,9 +241,25 @@
             <xs:element name="jmx-url" type="xs:string"/>
             <xs:element name="username" type="xs:string" minOccurs="0"/>
             <xs:element name="password" type="xs:string" minOccurs="0"/>
+            <xs:element name="performance-monitoring-attributes" type="performance-monitoring-attributes" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
 
+    <xs:complexType name="performance-monitoring-attributes">
+        <xs:sequence>
+            <xs:element name="performance-monitoring-attribute" type="performance-monitoring-attribute" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="performance-monitoring-attribute">
+        <xs:sequence>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="url" type="xs:string"/>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="value-type" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="test-suites">
         <xs:sequence>
@@ -258,6 +274,7 @@
             <xs:element name="email-addresses" type="xs:string" minOccurs="0"/>
             <xs:element name="suite-tests" type="suite-tests"/>
             <xs:element name="max-run-time" type="xs:int" default="0"/>
+            <xs:element name="collect-performance-data" type="xs:boolean" default="false"/>
         </xs:sequence>
     </xs:complexType>
     

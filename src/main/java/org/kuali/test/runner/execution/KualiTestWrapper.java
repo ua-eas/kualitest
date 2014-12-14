@@ -63,6 +63,10 @@ public class KualiTestWrapper {
         return test.getTestHeader().getUseTestEntryTimes();
     }
 
+    public boolean getCollectPerformanceData() {
+        return test.getTestHeader().getCollectPerformanceData();
+    }
+
     public void incrementErrorCount() {
         errorCount++;
     }

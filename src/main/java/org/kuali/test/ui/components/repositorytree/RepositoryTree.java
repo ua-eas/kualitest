@@ -187,6 +187,8 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
      * @param f
      */
     public void loadConfiguration(File f) {
+        boolean hasError = false;
+        
         File configFile = f;
         if (configFile == null) {
             if (StringUtils.isNotBlank(getMainframe().getConfigFileName())) {
@@ -249,16 +251,28 @@ public class RepositoryTree extends BaseTree implements DragGestureListener {
                 
                 Utils.initializeHandlers(configuration);
                 
-            } catch (XmlException ex) {
+            } 
+            
+            catch (XmlException ex) {
                 UIUtils.showError(this, "Invalid input configuration", "Input configuration file failed validation");
                 LOG.error(ex.toString());
 
                 for (XmlError error : xmlValidationErrorList) {
                     LOG.error(error.toString());
                 }
-            } catch (IOException ex) {
+                
+                hasError = true;
+            } 
+            
+            catch (IOException ex) {
                 LOG.error(ex.toString(), ex);
                 UIUtils.showError(this, "Input File Error", "An error occured while loading configuation file " + configFile.getPath());
+
+                hasError = true;
+            }
+            
+            if (hasError) {
+                getMainframe().handleExit(-1);
             }
         }
     }

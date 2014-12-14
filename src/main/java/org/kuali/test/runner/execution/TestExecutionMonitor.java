@@ -17,10 +17,15 @@
 package org.kuali.test.runner.execution;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -32,6 +37,7 @@ import org.kuali.test.utils.Utils;
  * @author rbtucker
  */
 public class TestExecutionMonitor extends Thread {
+    private static final Logger LOG = Logger.getLogger(TestExecutionMonitor.class);
     private static final int DEFAULT_TEST_MONITORING_SLEEP_TIME = 2000;
     private List <TestExecutionContext> testExecutionList;
     private TestOperation currentTestOperation;
@@ -126,11 +132,25 @@ public class TestExecutionMonitor extends Thread {
                 retval.add(tec.getTestResultsFile());
             }
             
+            if (tec.getPerformanceDataFile() != null) {
+                retval.add(tec.getPerformanceDataFile());
+            }
+
             if (tec.getGeneratedCheckpointFiles() != null) {
                 retval.addAll(tec.getGeneratedCheckpointFiles());
             }
         } else {
-            retval.add(getMergedResultFiles());
+            File merged = getMergedResultFile();
+            
+            if (merged != null) {
+                retval.add(merged);
+            }
+            
+            merged = getMergedPerformanceDataFile();
+            
+            if (merged != null) {
+                retval.add(merged);
+            }
             
             for (TestExecutionContext tec : testExecutionList) {
                 if (tec.getGeneratedCheckpointFiles() != null) {
@@ -142,12 +162,73 @@ public class TestExecutionMonitor extends Thread {
         return retval;
     }
     
-    private File getMergedResultFiles() {
+    private File getMergedPerformanceDataFile() {
+        File retval = null;
+        PrintWriter pw = null;
+        try {
+            boolean headerWritten = false;
+            for (TestExecutionContext tec : testExecutionList) {
+                File f = tec.getPerformanceDataFile();
+                if (f != null) {
+                    if (pw == null) {
+                        int pos = f.getPath().lastIndexOf("_");
+                        pw = new PrintWriter(retval = new File(f.getPath().substring(0, pos) + ".csv"));
+                    }
+
+                    LineNumberReader lnr = null;
+                    try {
+                        lnr = new LineNumberReader(new FileReader(f));
+
+                        if (headerWritten) {
+                            lnr.readLine();
+                        }
+                        
+                        String line = null;
+                        
+                        while ((line = lnr.readLine()) != null) {
+                            pw.println(line);
+                        }
+                        
+                        headerWritten = true;
+                    }
+                    
+                    catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                    
+                    finally {
+                        if (lnr != null) {
+                            try {
+                                lnr.close();
+                                FileUtils.deleteQuietly(f);
+                            }
+                            
+                            catch (Exception ex) {};
+                        }
+                    }
+                }
+            }
+        }
+
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+            retval = null;
+        }
+        
+        finally {
+            if (pw != null) {
+                pw.close();
+            }
+        }
+        
+        return retval;
+    }
+    
+    private File getMergedResultFile() {
         PoiHelper poiHelper = new PoiHelper(false);
         List <File> files = new ArrayList<File>();
 
         boolean[] errorRuns = new boolean[testExecutionList.size()];
-        
 
         for (TestExecutionContext tec : testExecutionList) {
             if (runErrorFlags.containsKey(tec.getTestRun())) {

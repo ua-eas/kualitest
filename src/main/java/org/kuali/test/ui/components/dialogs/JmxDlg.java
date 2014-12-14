@@ -20,22 +20,18 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.OpenMBeanAttributeInfoSupport;
 import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -46,6 +42,7 @@ import javax.swing.JTextField;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.JmxConnection;
+import org.kuali.test.PerformanceMonitoringAttribute;
 import org.kuali.test.creator.TestCreator;
 import org.kuali.test.ui.base.BaseSetupDlg;
 import org.kuali.test.ui.base.BaseTable;
@@ -53,6 +50,7 @@ import org.kuali.test.ui.base.TableConfiguration;
 import org.kuali.test.ui.components.panels.TablePanel;
 import org.kuali.test.ui.components.renderers.CheckboxTableCellRenderer;
 import org.kuali.test.ui.utils.UIUtils;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
 /**
@@ -138,18 +136,19 @@ public class JmxDlg extends BaseSetupDlg {
 
         JPanel p = new JPanel(new BorderLayout());
         
-        JButton b = new JButton("Refresh JMX Attributes");
-        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 1, 6));
-        p2.add(b);
-        p.add(p2, BorderLayout.NORTH);
-        
-        b.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                loadJMXData();
-            }
-        });
-        
+        if (!isEditmode()) {
+            JButton b = new JButton("Refresh JMX Attributes");
+            JPanel p2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 1, 6));
+            p2.add(b);
+            p.add(p2, BorderLayout.NORTH);
+
+            b.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    loadJMXData();
+                }
+            });
+        }
         
         tabbedPane = new JTabbedPane();
         for (int i = 0; i < tabInfo.length; ++i) {
@@ -159,6 +158,10 @@ public class JmxDlg extends BaseSetupDlg {
         p.add(tabbedPane, BorderLayout.CENTER);
 
         getContentPane().add(p, BorderLayout.CENTER);
+        
+        if (isEditmode()) {
+            loadJMXData();
+        }
 
         addStandardButtons();
         setDefaultBehavior();
@@ -208,6 +211,8 @@ public class JmxDlg extends BaseSetupDlg {
                     jmx.setPassword("");
                 }
 
+                updatePerformanceMonitoringAttributes();       
+                
                 setSaved(true);
                 getConfiguration().setModified(true);
                 dispose();
@@ -220,6 +225,27 @@ public class JmxDlg extends BaseSetupDlg {
         return retval;
     }
 
+    private void updatePerformanceMonitoringAttributes() {
+        if (jmx.getPerformanceMonitoringAttributes() != null) {
+            jmx.getPerformanceMonitoringAttributes().setNil();
+        } else {
+            jmx.addNewPerformanceMonitoringAttributes();
+        }
+        
+        for (int i = 0; i < tabInfo.length; ++i) {
+            for (AttributeWrapper aw : (List<AttributeWrapper>)getTablePanel(i).getData()) {
+                if (aw.getSelected()) {
+                    PerformanceMonitoringAttribute pma = jmx.getPerformanceMonitoringAttributes().addNewPerformanceMonitoringAttribute();
+                    pma.setType(tabInfo[i].getJmxBeanName());
+                    pma.setUrl(jmxUrl.getText());
+                    pma.setName(aw.getName());
+                    pma.setDescription(aw.getDescription());
+                    pma.setValueType(aw.getType());
+                }
+            }
+        }
+    }
+    
     private boolean jmxConnectionNameExists() {
         boolean retval = false;
         String newname = name.getText();
@@ -293,24 +319,6 @@ public class JmxDlg extends BaseSetupDlg {
         return retval;
     }
 
-    private MBeanServerConnection getMBeanConnection() throws MalformedURLException, IOException {
-        MBeanServerConnection retval = null;
-
-        if (StringUtils.isNotBlank(jmxUrl.getText())) {
-            JMXServiceURL serviceUrl = new JMXServiceURL(jmxUrl.getText());
-
-            Map map = null;
-
-            if (StringUtils.isNotBlank(username.getText())) {
-                map = new HashMap();
-                map.put(JMXConnector.CREDENTIALS, new String[]{username.getText(), new String(password.getPassword())});
-            }
-
-            retval = JMXConnectorFactory.connect(serviceUrl, map).getMBeanServerConnection();
-        }
-
-        return retval;
-    }
 
     private TablePanel getTablePanel(int indx) {
         return (TablePanel)tabbedPane.getComponentAt(indx);
@@ -323,30 +331,58 @@ public class JmxDlg extends BaseSetupDlg {
     }
     
     public void loadJMXData() {
+        JMXConnector conn = null;
+        
         try {
-            MBeanServerConnection mbeanConn = getMBeanConnection();
-            if (mbeanConn != null) {
-                for (int i = 0; i < tabInfo.length; ++i) {
-                    MBeanInfo mbeanInfo = mbeanConn.getMBeanInfo(new ObjectName(tabInfo[i].getJmxBeanName()));
+            Set <String> hs = new HashSet<String>();
+            
+            if (jmx.getPerformanceMonitoringAttributes() != null) {
+                for (PerformanceMonitoringAttribute pma : jmx.getPerformanceMonitoringAttributes().getPerformanceMonitoringAttributeArray()) {
+                    hs.add(pma.getType() + "." + pma.getName());
+                }
+            }
+            
+            conn = Utils.getJMXConnector(getConfiguration(), jmx);
+            
+            if (conn != null) {
+                MBeanServerConnection mbeanConn = conn.getMBeanServerConnection();
+                if (mbeanConn != null) {
+                    for (int i = 0; i < tabInfo.length; ++i) {
+                        MBeanInfo mbeanInfo = mbeanConn.getMBeanInfo(new ObjectName(tabInfo[i].getJmxBeanName()));
 
-                    if (mbeanInfo != null) {
-                        for (MBeanAttributeInfo att : mbeanInfo.getAttributes()) {
-                            AttributeWrapper aw = new AttributeWrapper(att);
-                           
-                            if (isValidAttributeType(aw.getType())) {
-                                tabInfo[i].getAttributeInfo().add(aw);
+                        if (mbeanInfo != null) {
+                            for (MBeanAttributeInfo att : mbeanInfo.getAttributes()) {
+                                AttributeWrapper aw = new AttributeWrapper(att);
+
+                                if (isValidAttributeType(aw.getType())) {
+                                    tabInfo[i].getAttributeInfo().add(aw);
+
+                                    if (hs.contains(tabInfo[i].getJmxBeanName() + "." + aw.getName())) {
+                                        aw.setSelected(true);
+                                    }
+                                }
                             }
-                        }
 
-                        getTablePanel(i).getTable().setTableData(tabInfo[i].getAttributeInfo());
+                            getTablePanel(i).getTable().setTableData(tabInfo[i].getAttributeInfo());
+                        }
                     }
                 }
             }
-
-          //   MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanConn, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class); 
-        } catch (Exception ex) {
+        } 
+        
+        catch (Exception ex) {
             LOG.error(ex.toString(), ex);
             UIUtils.showError(this, "JMX Error", "Error occurred during JMX connection - " + ex.toString());
+        }
+        
+        finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                }
+                
+                catch (Exception ex) {};
+            }
         }
     }
     
@@ -378,8 +414,8 @@ public class JmxDlg extends BaseSetupDlg {
             String retval = att.getType();
             if (att instanceof OpenMBeanAttributeInfoSupport) {
                 OpenMBeanAttributeInfoSupport ois = (OpenMBeanAttributeInfoSupport)att;
-                if ("java.lang.management.MemoryUsage".equals(ois.getOpenType().getTypeName())) {
-                    retval = "long";
+                if (Constants.JMX_MEMORY_USAGE_CLASS_NAME.equals(ois.getOpenType().getTypeName())) {
+                    retval = Constants.DEFAULT_MEMORY_MEASUREMENT_TYPE;
                 }
             }
             

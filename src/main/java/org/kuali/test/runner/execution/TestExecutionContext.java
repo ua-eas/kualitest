@@ -19,7 +19,15 @@ import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.MemoryUsage;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.PlatformManagedObject;
+import java.lang.management.ThreadMXBean;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,6 +38,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -39,11 +51,13 @@ import org.kuali.test.CheckpointType;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.HtmlRequestOperation;
+import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiApplication;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
+import org.kuali.test.PerformanceMonitoringAttribute;
 import org.kuali.test.Platform;
 import org.kuali.test.RequestHeader;
 import org.kuali.test.SuiteTest;
@@ -70,14 +84,32 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 public class TestExecutionContext extends Thread {
     private static final Logger LOG = Logger.getLogger(TestExecutionContext.class);
     
+    private static final String[] PERFORMANCE_DATA_HEADER = {
+        "platform name", // 1
+        "application", // 2
+        "application version", // 3
+        "test suite", // 4
+        "test", // 5
+        "test run", //6
+        "operation index", // 6
+        "timestamp", // 7
+        "attribute type", // 8
+        "attribute name", // 9
+        "value type", // 10
+        "value", // 11
+        "description" // 12
+    };
+    
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
+    private File performanceDataFile;
 
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> randomListAccessParameterToIgnore = new HashSet<String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
     private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
     private Map<String, ParameterHandler> parameterHandlers = new HashMap<String, ParameterHandler>();
+    private List<String[]> performanceData;
     
     private Platform platform;
     private TestSuite testSuite;
@@ -215,6 +247,11 @@ public class TestExecutionContext extends Thread {
             endTime = new Date();
             testResultsFile = new File(buildTestReportFileName());
             poiHelper.writeFile(testResultsFile);
+            
+            if (performanceData != null) {
+                performanceDataFile = new File(buildPerformanceDataFileName());
+                writePerformanceDataFile(performanceDataFile);
+            }
         } finally {
             cleanup();
             completed = true;
@@ -254,6 +291,30 @@ public class TestExecutionContext extends Thread {
         retval.append("_");
         retval.append(testRun);
         retval.append(".xlsx");
+
+        return retval.toString();
+    }
+
+    private String buildPerformanceDataFileName() {
+        StringBuilder retval = new StringBuilder(128);
+
+        retval.append(configuration.getTestResultLocation());
+        retval.append(Constants.FORWARD_SLASH);
+        if (testSuite != null) {
+            retval.append(testSuite.getPlatformName());
+            retval.append(Constants.FORWARD_SLASH);
+            retval.append(Utils.formatForFileName(testSuite.getName()));
+        } else {
+            retval.append(kualiTest.getTestHeader().getPlatformName());
+            retval.append(Constants.FORWARD_SLASH);
+            retval.append(Utils.getTestFileName(kualiTest.getTestHeader()));
+        }
+
+        retval.append("-");
+        retval.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(startTime));
+        retval.append("_performancedata_");
+        retval.append(testRun);
+        retval.append(".csv");
 
         return retval.toString();
     }
@@ -349,11 +410,16 @@ public class TestExecutionContext extends Thread {
             opExec = OperationExecutionFactory.getInstance().getOperationExecution(this, op);
             if (opExec != null) {
                 try {
+                    long start = System.currentTimeMillis();
                     opExec.execute(configuration, platform, testWrapper);
                     
                     if (op.getOperationType().equals(TestOperationType.CHECKPOINT)) {
                         testWrapper.incrementSuccessCount();
                         poiHelper.writeSuccessEntry(op, opStartTime);
+                    }
+                    
+                    if (isPerformanceDataRequired()) {
+                        writePerformanceData(op, (System.currentTimeMillis() - start));
                     }
                 } catch (TestException ex) {
                     throw ex;
@@ -542,6 +608,14 @@ public class TestExecutionContext extends Thread {
      */
     public File getTestResultsFile() {
         return testResultsFile;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public File getPerformanceDataFile() {
+        return this.performanceDataFile;
     }
 
     /**
@@ -913,5 +987,178 @@ public class TestExecutionContext extends Thread {
         }
         
         return retval;
+    }
+    
+    public boolean isPerformanceDataRequired() {
+        return (((testSuite != null) && testSuite.getCollectPerformanceData()) || getCurrentTest().getCollectPerformanceData());
+    }
+    
+    private String[] getInitializedPerformanceDataRecord() {
+        String[] retval = new String[PERFORMANCE_DATA_HEADER.length];
+        
+        retval[0] = platform.getName();
+        retval[1] = platform.getApplication().toString();
+        retval[2] = platform.getVersion();
+        
+        if (getTestSuite() != null) {
+            retval[3] = getTestSuite().getName();
+        } else {
+            retval[3] = "";
+        }
+        
+        retval[4] = getCurrentTest().getTestName();
+        retval[5] = "" + testRun;
+        retval[6] = "" + getCurrentOperationIndex();
+        retval[7] = Constants.DEFAULT_TIMESTAMP_FORMAT.format(new Date());
+        
+        return retval;
+        
+    }
+    
+    private String getValueFromMXBeanObject(String name, PlatformManagedObject mxbean) {
+        String retval = null;
+        
+        try {
+            Method m = mxbean.getClass().getMethod("get" + name, new Class[0]);
+
+            if (m != null) {
+                Object o = m.invoke(mxbean);
+
+                if (o != null) {
+                    if (o instanceof MemoryUsage) {
+                        MemoryUsage mu = (MemoryUsage)o;
+                        retval = "" + mu.getUsed();
+                    } else {
+                        retval = o.toString();
+                    }
+                }
+            }
+        }
+
+        catch (Exception ex) {};
+        
+        return retval;
+    }
+    
+    private void writePerformanceData(TestOperation op, long operationElaspedTime) {
+        if (performanceData == null) {
+            performanceData = new ArrayList<String[]>();
+        }
+        
+        if (op.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
+            String[] rec = getInitializedPerformanceDataRecord();
+            rec[8] = Constants.PERFORMANCE_ATTRIBUTE_TYPE_CLIENT;
+            rec[9] = Constants.CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME;
+            rec[10] = Constants.PRIMITIVE_LONG_TYPE;
+            rec[11] = "" + operationElaspedTime;
+            rec[12] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
+            performanceData.add(rec);
+        }
+        
+        JmxConnection jmxconn = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
+
+        if ((jmxconn != null) && (jmxconn.getPerformanceMonitoringAttributes() != null)) {
+            JMXConnector conn = null;
+            try {
+                conn = Utils.getJMXConnector(configuration,jmxconn);
+                if (conn != null) {
+                    MBeanServerConnection mbeanconn = conn.getMBeanServerConnection();
+                    for (PerformanceMonitoringAttribute att 
+                        : jmxconn.getPerformanceMonitoringAttributes().getPerformanceMonitoringAttributeArray()) {
+
+                        Object value = "";
+                        if (ManagementFactory.MEMORY_MXBEAN_NAME.equals(att.getType())) {
+                            MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class); 
+                            value = getValueFromMXBeanObject(att.getName(), mbean);
+                        } else if (ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME.equals(att.getType())) {
+                            OperatingSystemMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), OperatingSystemMXBean.class); 
+                            value = getValueFromMXBeanObject(att.getName(), mbean);
+                        } else if (ManagementFactory.THREAD_MXBEAN_NAME.equals(att.getType())) {
+                            ThreadMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), ThreadMXBean.class); 
+                            value = getValueFromMXBeanObject(att.getName(), mbean);
+                        }
+
+                        if ((value != null) && StringUtils.isNotBlank(value.toString())) {
+                            String[] rec = getInitializedPerformanceDataRecord();
+
+                            int pos = att.getType().indexOf(Constants.SEPARATOR_EQUALS);
+
+                            if (pos > -1) {
+                                rec[7] = att.getType().substring(pos+1);
+                            } else {
+                                rec[7] = att.getType();
+                            }
+                            rec[8] = att.getName();
+                            rec[9] = att.getType();
+                            rec[10] = value.toString();
+                            rec[11] = att.getDescription();
+                        
+                            performanceData.add(rec);
+                        }
+                    }
+                }
+            }
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+            }
+            
+            finally {
+                if (conn != null) {
+                    try {
+                        conn.close();
+                    }
+                    
+                    catch (Exception ex) {};
+                }
+            }
+        }
+    }
+    
+    private void writePerformanceDataFile(File f) {
+	    FileWriter fileWriter = null;
+	    CSVPrinter csvFilePrinter = null;
+	         
+	    //Create the CSVFormat object with "\n" as a record delimiter
+	    CSVFormat csvFileFormat = CSVFormat.EXCEL.withRecordSeparator("\n");
+	                 
+	    try {
+            //initialize FileWriter object
+            fileWriter = new FileWriter(f);
+
+            //initialize CSVPrinter object
+            csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
+	             
+            //Create CSV file header
+	        csvFilePrinter.printRecord(Arrays.asList(PERFORMANCE_DATA_HEADER));
+	             
+            //Write a new student object list to the CSV file
+            for (String[] rec : performanceData) {
+                csvFilePrinter.printRecord(Arrays.asList(rec));
+            }
+        } 
+        
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+        } 
+        
+        finally {
+            try {
+                if (fileWriter != null) {
+                    fileWriter.flush();
+                    fileWriter.close();
+                }
+            } 
+            
+            catch (Exception e) {}
+
+            try {
+                if (csvFilePrinter != null) {
+                    csvFilePrinter.close();
+                }
+            } 
+            
+            catch (Exception e) {}
+        }
     }
 }

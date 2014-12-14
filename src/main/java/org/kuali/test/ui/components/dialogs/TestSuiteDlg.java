@@ -23,6 +23,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,6 +56,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
     private JTextField name;
     private JTextField platformName;
     private JTextField emailAddresses;
+    private JCheckBox collectPerformanceData;
     private BaseTable testTable;
     
     /**
@@ -86,7 +88,9 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Name", 
             "Email Addresses",
             "Platform",
-            "Max Run Time(min)"
+            "Max Run Time(min)",
+            ""
+            
         };
         
         name = new FileNameField(testSuite.getName());
@@ -100,11 +104,15 @@ public class TestSuiteDlg extends BaseSetupDlg {
         maxRunTime = new IntegerTextField();
         maxRunTime.setInt(testSuite.getMaxRunTime());
         
+        collectPerformanceData = new JCheckBox("Collect performance data during test runs");
+        collectPerformanceData.setSelected(testSuite.getCollectPerformanceData());
         JComponent[] components = new JComponent[] {
             name,
             emailAddresses,
             platformName,
-            maxRunTime};
+            maxRunTime,
+            collectPerformanceData
+        };
 
         JPanel p = new JPanel(new BorderLayout(3, 3));
         p.add(UIUtils.buildEntryPanel(labels, components), BorderLayout.NORTH);
