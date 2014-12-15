@@ -37,4 +37,9 @@ public class GeneratedIdHandler extends BaseParameterHandler {
     public boolean isReplaceByValue() {
         return true;
     }
+    
+    @Override
+    public boolean isExistingPropertyValueRequired() {
+        return true;
+    }
 }

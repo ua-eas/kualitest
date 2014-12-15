@@ -17,13 +17,8 @@
 package org.kuali.test.handlers.parameter;
 
 
-public class CurrentDateHandler extends CurrentDatePlusHandler {
+public class CurrentDateHandler extends DateHandler {
     public CurrentDateHandler() {
         super(0);
-    }
-
-    @Override
-    public String getDescription() {
-        return "This handler will replace the date value in the selected field with the current date in the format 'MM/DD/YYYY' - for example 01/10/2014";
     }
 }

@@ -82,7 +82,8 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                     for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
                         String curkey = Utils.buildCheckpointPropertyKey(cp);
                         if (StringUtils.equals(key, curkey)) {
-                            if (StringUtils.isNotBlank(cp.getPropertyValue())) {
+                            if (!ph.isExistingPropertyValueRequired() 
+                                || StringUtils.isNotBlank(cp.getPropertyValue())) {
                                 cpmatch = cp;
                                 break;
                             }

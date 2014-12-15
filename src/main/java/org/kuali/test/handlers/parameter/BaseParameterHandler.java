@@ -72,4 +72,9 @@ public abstract class BaseParameterHandler implements ParameterHandler {
     public boolean isValidForApplication(KualiApplication.Enum app) {
         return true;
     }
+
+    @Override
+    public boolean isExistingPropertyValueRequired() {
+        return false;
+    }
 }

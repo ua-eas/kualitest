@@ -17,7 +17,7 @@
 package org.kuali.test.handlers.parameter;
 
 
-public class CurrentDatePlus7Handler extends CurrentDatePlusHandler {
+public class CurrentDatePlus7Handler extends DateHandler {
     public CurrentDatePlus7Handler() {
         super(7);
     }

@@ -16,18 +16,9 @@
 
 package org.kuali.test.handlers.parameter;
 
-import org.kuali.test.CheckpointProperty;
-import org.kuali.test.KualiApplication;
-import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.runner.execution.TestExecutionContext;
-import org.w3c.dom.Document;
 
-
-public interface ParameterHandler extends Comparable<ParameterHandler> {
-    public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp);
-    public String getDescription();
-    public String getCommentText();
-    public boolean isReplaceByValue();
-    public boolean isValidForApplication(KualiApplication.Enum app);
-    public boolean isExistingPropertyValueRequired();
+public class CurrentDateMinus1Handler extends DateHandler {
+    public CurrentDateMinus1Handler() {
+        super(-1);
+    }
 }

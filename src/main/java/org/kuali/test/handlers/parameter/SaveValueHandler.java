@@ -33,4 +33,9 @@ public class SaveValueHandler extends BaseParameterHandler {
     public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
         return cp.getPropertyValue();
     }
+    
+    @Override
+    public boolean isExistingPropertyValueRequired() {
+        return true;
+    }
 }
