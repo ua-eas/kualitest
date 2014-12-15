@@ -55,17 +55,19 @@ public class ResponseTimeOperationExecution extends AbstractOperationExecution {
         
         int curindx = tec.getCurrentOperationIndex();
         
-        for(int i = curindx; i >= 0; i--) {
+        for(int i = curindx-2; i >= 0; i--) {
             TestOperation top = tec.getTestOperation(i);
-            if (top.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
-                Long elapsedTime = testWrapper.getElapedTime(i);
-                
-                if (elapsedTime != null) {
-                    CheckpointProperty cp = getProperty(Constants.MAX_RUNTIME_PROPERTY_NAME);
-                    cp.setActualValue("" + (elapsedTime/1000));
-                    break;
+            if (top != null) {
+                if (top.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
+                    Long elapsedTime = testWrapper.getElapedTime(i);
+
+                    if (elapsedTime != null) {
+                        CheckpointProperty cp = getProperty(Constants.MAX_RUNTIME_PROPERTY_NAME);
+                        cp.setActualValue("" + (elapsedTime/1000));
+                        break;
+                    }
                 }
-            }
+            }   
         }
     }
 }

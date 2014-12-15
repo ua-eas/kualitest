@@ -53,7 +53,10 @@ public class OperationExecutionFactory {
         
         if (TestOperationType.CHECKPOINT.equals(op.getOperationType())) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("executing operation: type=checkpoint[" + op.getOperation().getCheckpointOperation().getType().toString() + "], name=" + op.getOperation().getCheckpointOperation().getName());
+                LOG.info("executing operation: type=checkpoint[" 
+                    + op.getOperation().getCheckpointOperation().getType().toString() 
+                    + "], name=" 
+                    + op.getOperation().getCheckpointOperation().getName());
             }
 
             switch(op.getOperation().getCheckpointOperation().getType().intValue()) {

@@ -279,7 +279,7 @@ public class Constants {
     public static final String DEFAULT_MEMORY_MEASUREMENT_TYPE = PRIMITIVE_LONG_TYPE;
     public static final String PERFORMANCE_ATTRIBUTE_TYPE_CLIENT = "Client Performance";
     public static final String PERFORMANCE_ATTRIBUTE_NAME_HEAP_MEMORY_USAGE = "HeapMemoryUsage";
-    public static final String CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME = "HTTP Response Time((millis)";
+    public static final String CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME = "HTTP Response Time";
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;

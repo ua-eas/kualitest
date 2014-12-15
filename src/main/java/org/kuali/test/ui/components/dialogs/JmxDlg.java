@@ -227,7 +227,7 @@ public class JmxDlg extends BaseSetupDlg {
 
     private void updatePerformanceMonitoringAttributes() {
         if (jmx.getPerformanceMonitoringAttributes() != null) {
-            jmx.getPerformanceMonitoringAttributes().setNil();
+            jmx.getPerformanceMonitoringAttributes().setPerformanceMonitoringAttributeArray(new PerformanceMonitoringAttribute[0]);
         } else {
             jmx.addNewPerformanceMonitoringAttributes();
         }

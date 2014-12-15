@@ -68,6 +68,7 @@ public class HttpResponseTimeCheckpointDlg extends BaseCheckpointDlg {
         };
         
         name = new JTextField(20);
+        name.setText("http response time check");
         maxResponseTime = new IntegerTextField();
         responseTimeFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         
@@ -90,7 +91,7 @@ public class HttpResponseTimeCheckpointDlg extends BaseCheckpointDlg {
             boolean oktosave = true;
             if (StringUtils.isBlank(name.getText()) 
                 && StringUtils.isBlank(maxResponseTime.getText())) {
-                displayRequiredFieldsMissingAlert("Respomse Time", "name, max response time");
+                displayRequiredFieldsMissingAlert("Response Time", "name, max response time");
                 oktosave = false;
             }
             
@@ -139,6 +140,6 @@ public class HttpResponseTimeCheckpointDlg extends BaseCheckpointDlg {
 
         @Override
     public Dimension getPreferredSize() {
-        return new Dimension(400, 200);
+        return new Dimension(500, 200);
     }
 }
