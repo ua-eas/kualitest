@@ -421,9 +421,7 @@ public class TestExecutionContext extends Thread {
                     long elapsedTime = (System.currentTimeMillis() - start);
                     testWrapper.setElapedTime(getCurrentOperationIndex(), elapsedTime);
                     
-                    if (isPerformanceDataRequired()) {
-                        writePerformanceData(op, elapsedTime);
-                    }
+                    writePerformanceData(op, elapsedTime);
                 } catch (TestException ex) {
                     throw ex;
                 } catch (Exception ex) {
@@ -517,7 +515,6 @@ public class TestExecutionContext extends Thread {
      *
      */
     public final void startTest() {
-    System.out.println("------------------------->" + getName());
         start();
     }
 
@@ -1044,75 +1041,78 @@ public class TestExecutionContext extends Thread {
     }
     
     private void writePerformanceData(TestOperation op, long operationElaspedTime) {
-        if (performanceData == null) {
-            performanceData = new ArrayList<String[]>();
-        }
-        
-        if (op.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
-            String[] rec = getInitializedPerformanceDataRecord();
-            rec[8] = Constants.PERFORMANCE_ATTRIBUTE_TYPE_CLIENT;
-            rec[9] = Constants.CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME;
-            rec[10] = Constants.PRIMITIVE_LONG_TYPE;
-            rec[11] = "" + operationElaspedTime;
-            rec[12] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
-            performanceData.add(rec);
-        }
-        
-        JmxConnection jmxconn = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
+        if (isPerformanceDataRequired()) {
 
-        if ((jmxconn != null) && (jmxconn.getPerformanceMonitoringAttributes() != null)) {
-            JMXConnector conn = null;
-            try {
-                conn = Utils.getJMXConnector(configuration,jmxconn);
-                if (conn != null) {
-                    MBeanServerConnection mbeanconn = conn.getMBeanServerConnection();
-                    for (PerformanceMonitoringAttribute att 
-                        : jmxconn.getPerformanceMonitoringAttributes().getPerformanceMonitoringAttributeArray()) {
+            if (performanceData == null) {
+                performanceData = new ArrayList<String[]>();
+            }
 
-                        Object value = "";
-                        if (ManagementFactory.MEMORY_MXBEAN_NAME.equals(att.getType())) {
-                            MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class); 
-                            value = getValueFromMXBeanObject(att.getName(), mbean);
-                        } else if (ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME.equals(att.getType())) {
-                            OperatingSystemMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), OperatingSystemMXBean.class); 
-                            value = getValueFromMXBeanObject(att.getName(), mbean);
-                        } else if (ManagementFactory.THREAD_MXBEAN_NAME.equals(att.getType())) {
-                            ThreadMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), ThreadMXBean.class); 
-                            value = getValueFromMXBeanObject(att.getName(), mbean);
-                        }
+            if (op.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
+                String[] rec = getInitializedPerformanceDataRecord();
+                rec[8] = Constants.PERFORMANCE_ATTRIBUTE_TYPE_CLIENT;
+                rec[9] = Constants.CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME;
+                rec[10] = Constants.PRIMITIVE_LONG_TYPE;
+                rec[11] = "" + operationElaspedTime;
+                rec[12] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
+                performanceData.add(rec);
+            }
 
-                        if ((value != null) && StringUtils.isNotBlank(value.toString())) {
-                            String[] rec = getInitializedPerformanceDataRecord();
+            JmxConnection jmxconn = Utils.findJmxConnection(configuration, platform.getJmxConnectionName());
 
-                            int pos = att.getType().indexOf(Constants.SEPARATOR_EQUALS);
+            if ((jmxconn != null) && (jmxconn.getPerformanceMonitoringAttributes() != null)) {
+                JMXConnector conn = null;
+                try {
+                    conn = Utils.getJMXConnector(configuration,jmxconn);
+                    if (conn != null) {
+                        MBeanServerConnection mbeanconn = conn.getMBeanServerConnection();
+                        for (PerformanceMonitoringAttribute att 
+                            : jmxconn.getPerformanceMonitoringAttributes().getPerformanceMonitoringAttributeArray()) {
 
-                            if (pos > -1) {
-                                rec[7] = att.getType().substring(pos+1);
-                            } else {
-                                rec[7] = att.getType();
+                            Object value = "";
+                            if (ManagementFactory.MEMORY_MXBEAN_NAME.equals(att.getType())) {
+                                MemoryMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class); 
+                                value = getValueFromMXBeanObject(att.getName(), mbean);
+                            } else if (ManagementFactory.OPERATING_SYSTEM_MXBEAN_NAME.equals(att.getType())) {
+                                OperatingSystemMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), OperatingSystemMXBean.class); 
+                                value = getValueFromMXBeanObject(att.getName(), mbean);
+                            } else if (ManagementFactory.THREAD_MXBEAN_NAME.equals(att.getType())) {
+                                ThreadMXBean mbean = ManagementFactory.newPlatformMXBeanProxy(mbeanconn, att.getType(), ThreadMXBean.class); 
+                                value = getValueFromMXBeanObject(att.getName(), mbean);
                             }
-                            rec[8] = att.getName();
-                            rec[9] = att.getType();
-                            rec[10] = value.toString();
-                            rec[11] = att.getDescription();
-                        
-                            performanceData.add(rec);
+
+                            if ((value != null) && StringUtils.isNotBlank(value.toString())) {
+                                String[] rec = getInitializedPerformanceDataRecord();
+
+                                int pos = att.getType().indexOf(Constants.SEPARATOR_EQUALS);
+
+                                if (pos > -1) {
+                                    rec[7] = att.getType().substring(pos+1);
+                                } else {
+                                    rec[7] = att.getType();
+                                }
+                                rec[8] = att.getName();
+                                rec[9] = att.getType();
+                                rec[10] = value.toString();
+                                rec[11] = att.getDescription();
+
+                                performanceData.add(rec);
+                            }
                         }
                     }
                 }
-            }
-            
-            catch (Exception ex) {
-                LOG.error(ex.toString(), ex);
-            }
-            
-            finally {
-                if (conn != null) {
-                    try {
-                        conn.close();
+
+                catch (Exception ex) {
+                    LOG.error(ex.toString(), ex);
+                }
+
+                finally {
+                    if (conn != null) {
+                        try {
+                            conn.close();
+                        }
+
+                        catch (Exception ex) {};
                     }
-                    
-                    catch (Exception ex) {};
                 }
             }
         }
