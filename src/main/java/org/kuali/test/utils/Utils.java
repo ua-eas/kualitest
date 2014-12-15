@@ -1857,7 +1857,8 @@ public class Utils {
 
         for (String checkpointType : checkpointTypes) {
             if (!checkpointType.equals(CheckpointType.RUNTIME.toString())) {
-                if (checkpointType.equals(CheckpointType.HTTP.toString())) {
+                if (checkpointType.equals(CheckpointType.HTTP.toString())
+                    || checkpointType.equals(CheckpointType.HTTP_RESPONSE_TIME.toString())) {
                     if (TestType.WEB.equals(testType)) {
                         retval.add(checkpointType);
                     }

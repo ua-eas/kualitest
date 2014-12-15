@@ -72,6 +72,9 @@ public class OperationExecutionFactory {
                 case CheckpointType.INT_WEB_SERVICE:
                     retval = new WebServiceOperationExecution(testContext, op.getOperation());
                     break;
+                case CheckpointType.INT_HTTP_RESPONSE_TIME:
+                    retval = new ResponseTimeOperationExecution(testContext, op.getOperation());
+                    break;
             }
         } else if (TestOperationType.HTTP_REQUEST.equals(op.getOperationType())) {
             retval = new HttpRequestOperationExecution(testContext, op.getOperation());

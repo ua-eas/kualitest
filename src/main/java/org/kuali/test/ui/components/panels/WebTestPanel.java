@@ -53,6 +53,7 @@ import org.kuali.test.ui.components.buttons.CloseTabIcon;
 import org.kuali.test.ui.components.dialogs.CheckPointTypeSelectDlg;
 import org.kuali.test.ui.components.dialogs.FileCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.HtmlCheckPointDlg;
+import org.kuali.test.ui.components.dialogs.HttpResponseTimeCheckpointDlg;
 import org.kuali.test.ui.components.dialogs.MemoryCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.SqlCheckPointDlg;
 import org.kuali.test.ui.components.dialogs.TestExecutionParameterDlg;
@@ -177,6 +178,9 @@ public class WebTestPanel extends BaseCreateTestPanel {
                 case CheckpointType.INT_FILE:
                     handleCreateFileCheckpoint();
                     break;
+                case CheckpointType.INT_HTTP_RESPONSE_TIME:
+                    handleCreateHttpResponseTimeCheckpoint();
+                    break;
             }
         }
     }
@@ -208,6 +212,14 @@ public class WebTestPanel extends BaseCreateTestPanel {
 
     private void handleCreateSqlCheckpoint() {
         SqlCheckPointDlg dlg = new SqlCheckPointDlg(getMainframe(), getTestHeader(), null, testProxyServer);
+
+        if (dlg.isSaved()) {
+            addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());
+        }
+    }
+
+    private void handleCreateHttpResponseTimeCheckpoint() {
+        HttpResponseTimeCheckpointDlg dlg = new HttpResponseTimeCheckpointDlg(getMainframe(), getTestHeader());
 
         if (dlg.isSaved()) {
             addCheckpoint(testProxyServer.getTestOperations(), (Checkpoint) dlg.getNewRepositoryObject(), dlg.getComment());

@@ -418,8 +418,11 @@ public class TestExecutionContext extends Thread {
                         poiHelper.writeSuccessEntry(op, opStartTime);
                     }
                     
+                    long elapsedTime = (System.currentTimeMillis() - start);
+                    testWrapper.setElapedTime(getCurrentOperationIndex(), elapsedTime);
+                    
                     if (isPerformanceDataRequired()) {
-                        writePerformanceData(op, (System.currentTimeMillis() - start));
+                        writePerformanceData(op, elapsedTime);
                     }
                 } catch (TestException ex) {
                     throw ex;

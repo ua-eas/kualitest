@@ -16,6 +16,8 @@
 
 package org.kuali.test.runner.execution;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -30,6 +32,7 @@ public class KualiTestWrapper {
     private int warningCount = 0;
     private int successCount = 0;
     private int errorCount = 0;
+    private Map<Integer, Long> operationElapsedTime = new HashMap<Integer, Long>();
     
     public KualiTestWrapper(KualiTest test) {
         this.test = test;
@@ -180,4 +183,11 @@ public class KualiTestWrapper {
         return retval;
     }
     
+    public void setElapedTime(Integer indx, Long elapsedTime) {
+        operationElapsedTime.put(indx, elapsedTime);
+    }
+
+    public Long getElapedTime(Integer indx) {
+        return operationElapsedTime.get(indx);
+    }
 }

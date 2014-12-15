@@ -168,6 +168,7 @@
             <xs:enumeration value="http"/>
             <xs:enumeration value="memory"/>
             <xs:enumeration value="runtime"/>
+            <xs:enumeration value="http-response-time"/>
             <xs:enumeration value="sql"/>
             <xs:enumeration value="web service"/>
         </xs:restriction>
