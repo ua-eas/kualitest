@@ -17,12 +17,10 @@
 package org.kuali.test.ui.components.dialogs;
 
 import chrriis.dj.nativeswing.swtimpl.components.JWebBrowser;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -59,6 +57,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     private static final Logger LOG = Logger.getLogger(TestExecutionParameterDlg.class);
     private HtmlCheckpointPanel valuesPanel;
     private JTextField name;
+    private JTextField additionalInformationEntry;
     private JComboBox parameterHandlers;
     private JComboBox additionalInformationSelect;
     private TestExecutionParameter testExecutionParameter;
@@ -86,7 +85,8 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         String[] labels = new String[]{
             "Name",
             "Handler",
-            "Existing Parameters"
+            "Existing Parameters",
+            "Value"
         };
 
         name = new JTextField(30);
@@ -112,6 +112,10 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
                         
                     additionalInformationSelect.setEnabled(true);
                 }
+                
+                additionalInformationEntry.setText("");
+                ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
+                additionalInformationEntry.setEditable(ph.isFreeformEntryRequired());
             }
         });
         
@@ -122,11 +126,14 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         }
         
         parameterHandlers.setRenderer(new ComboBoxTooltipRenderer(tooltips));
+        additionalInformationEntry = new JTextField(20);
+        additionalInformationEntry.setEnabled(false);
         
         JComponent[] components = new JComponent[]{
             name,
             parameterHandlers,
-            additionalInformationSelect
+            additionalInformationSelect,
+            additionalInformationEntry
         };
 
         JPanel p = new JPanel(new BorderLayout(1, 1));
@@ -228,6 +235,8 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             this.displayExistingNameAlert("Parameter Name", name.getText());
         } else if (isAdditionalInformationRequired()) {
             displayRequiredFieldsMissingAlert("Existing Parameter", "existing parameter selection");
+        } else if (isFreeformEntryRequired()) {
+            displayRequiredFieldsMissingAlert("Value", "value entry");
         } else {
             testExecutionParameter = TestExecutionParameter.Factory.newInstance();
             testExecutionParameter.setName(name.getText());
@@ -236,6 +245,8 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             
             if (isAdditionalInformationHandlerClass()) {
                 testExecutionParameter.setAdditionalInfo(additionalInformationSelect.getSelectedItem().toString());
+            } else if (p.isFreeformEntryRequired()) {
+                testExecutionParameter.setAdditionalInfo(additionalInformationEntry.getText());
             }
 
             cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
@@ -251,6 +262,11 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         return retval;
     }
 
+    private boolean isFreeformEntryRequired() {
+        ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
+        return (ph.isFreeformEntryRequired() && StringUtils.isBlank(this.additionalInformationEntry.getText()));
+    }
+    
     @Override
     public boolean isResizable() {
         return true;
@@ -302,32 +318,5 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
         }
         
         return retval.toArray(new ParameterHandler[retval.size()]);
-    }
-    
-    private void loadAnchorParameters() {
-        if (parameterHandlers.getSelectedItem() instanceof SelectEditDocumentLookupHandler) {
-            List <CheckpointProperty> cplist = valuesPanel.getSelectedProperties();
-            additionalInformationSelect.removeAllItems();
-            
-            if ((cplist != null) && !cplist.isEmpty()) {
-                Parameter param = Utils.getCheckpointPropertyTagParameter(cplist.get(0), Constants.ANCHOR_PARAMETERS);
-                
-                if (param != null) {
-                    try {
-                        List <NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
-                        
-                        if (nvplist != null) {
-                            for (NameValuePair nvp : nvplist) {
-                                additionalInformationSelect.addItem(nvp.getName() + "=" + nvp.getValue());
-                            }
-                        }
-                    } 
-                    
-                    catch (UnsupportedEncodingException ex) {
-                        LOG.error(ex.toString(), ex);
-                    }
-                }
-            }
-        }
     }
 }
