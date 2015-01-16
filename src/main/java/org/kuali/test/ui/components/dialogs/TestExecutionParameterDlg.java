@@ -115,7 +115,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
                 
                 additionalInformationEntry.setText("");
                 ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
-                additionalInformationEntry.setEditable(ph.isFreeformEntryRequired());
+                additionalInformationEntry.setEnabled(ph.isFreeformEntryRequired());
             }
         });
         

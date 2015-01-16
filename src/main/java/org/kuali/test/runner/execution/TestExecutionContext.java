@@ -838,11 +838,15 @@ public class TestExecutionContext extends Thread {
         return randomListAccessParameterToIgnore;
     }
     
-    public TestOperation getTestOperation(int i) {
+    public TestOperation getTestOperation(int testOpIndex) {
         TestOperation retval = null;
         
-        if ((i >= 0) && (i < getCurrentTest().getTest().getOperations().sizeOfOperationArray())) {
-            retval = getCurrentTest().getTest().getOperations().getOperationArray(i);
+        TestOperation[] testOperations =  getCurrentTest().getTest().getOperations().getOperationArray();
+        for (int i = 0; i < testOperations.length; ++i) {
+            if (testOpIndex == testOperations[i].getOperation().getIndex()) {
+                retval = testOperations[i];
+                break;
+            }
         }
         
         return retval;

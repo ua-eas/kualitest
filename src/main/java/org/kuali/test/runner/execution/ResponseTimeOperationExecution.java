@@ -21,7 +21,6 @@ import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Platform;
 import org.kuali.test.TestOperation;
-import org.kuali.test.TestOperationType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 
@@ -55,10 +54,10 @@ public class ResponseTimeOperationExecution extends AbstractOperationExecution {
         
         int curindx = tec.getCurrentOperationIndex();
         
-        for(int i = curindx-2; i >= 0; i--) {
+        for(int i = curindx-1; i >= 0; i--) {
             TestOperation top = tec.getTestOperation(i);
             if (top != null) {
-                if (top.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
+                if (top.getOperation().getHtmlRequestOperation() != null) {
                     Long elapsedTime = testWrapper.getElapedTime(i);
 
                     if (elapsedTime != null) {

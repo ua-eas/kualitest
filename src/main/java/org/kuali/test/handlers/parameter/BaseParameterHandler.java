@@ -16,6 +16,7 @@
 
 package org.kuali.test.handlers.parameter;
 
+import java.util.Random;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.KualiApplication;
 import org.kuali.test.TestExecutionParameter;
@@ -76,5 +77,14 @@ public abstract class BaseParameterHandler implements ParameterHandler {
     @Override
     public boolean isExistingPropertyValueRequired() {
         return false;
+    }
+
+    @Override
+    public boolean isFreeformEntryRequired() {
+        return false;
+    }
+    
+    protected int getRandomIndex(int maxValue) {
+        return new Random(System.currentTimeMillis()).nextInt(maxValue);
     }
 }

@@ -42,6 +42,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.ComparisonOperator;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Operation;
@@ -362,9 +363,12 @@ public class PoiHelper {
                     s.append(cp.getDisplayName());
                     s.append(" ");
                     s.append(Utils.getOperatorFromEnumName(cp.getOperator()));
-                    s.append(" ");
-                    s.append(cp.getPropertyValue());
-                    s.append("\n");
+                    if (!ComparisonOperator.NOT_NULL.equals(cp.getOperator())
+                        && !ComparisonOperator.NULL.equals(cp.getOperator())) {
+                        s.append(" ");
+                        s.append(cp.getPropertyValue());
+                        s.append("\n");
+                    }
                 }
             }
             cell.setCellValue(s.toString());

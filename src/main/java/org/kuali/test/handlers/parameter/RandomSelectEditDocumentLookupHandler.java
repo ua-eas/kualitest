@@ -19,7 +19,6 @@ package org.kuali.test.handlers.parameter;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Random;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
@@ -94,9 +93,5 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
         }
         
         return retval;
-    }
-    
-    private int getRandomIndex(int maxValue) {
-        return new Random(System.currentTimeMillis()).nextInt(maxValue-1);
     }
 }
