@@ -29,7 +29,6 @@ import org.kuali.test.utils.Constants;
  * @author rbtucker
  */
 public class ResponseTimeOperationExecution extends AbstractOperationExecution {
-
     /**
      *
      * @param context

@@ -172,8 +172,8 @@ public class Constants {
     public static final String SAVE_AND_RUN_ACTION = "Save and Run";
     public static final String DEFAULT_PROXY_HOST= "localhost";
     public static final String DEFAULT_PROXY_PORT= "8888";
-    public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024);
-    public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024);
+    public static final int MAX_RESPONSE_BUFFER_SIZE = (1024 * 1024 * 5);
+    public static final int MAX_REQUEST_BUFFER_SIZE = (1024 * 1024 * 5);
     public static final int DEFAULT_SPLASH_WIDTH = 350;
     public static final int DEFAULT_SPLASH_HEIGHT = 125;
     public static final int DEFAULT_TABLE_COLUMN_WIDTH = 75;
