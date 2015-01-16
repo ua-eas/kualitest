@@ -63,6 +63,10 @@ public class ResponseTimeOperationExecution extends AbstractOperationExecution {
                     if (elapsedTime != null) {
                         CheckpointProperty cp = getProperty(Constants.MAX_RUNTIME_PROPERTY_NAME);
                         cp.setActualValue("" + (elapsedTime/1000));
+                        
+                        if (Integer.valueOf(cp.getActualValue()) > Integer.valueOf(cp.getPropertyValue())) {
+                            throw new TestException("max response time exceeded", getOperation(), cp.getOnFailure());
+                        }
                         break;
                     }
                 }
