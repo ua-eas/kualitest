@@ -28,6 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.Checkpoint;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestConfigurationDocument;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
@@ -174,7 +175,11 @@ public class WebServiceOperationExecution extends AbstractOperationExecution {
                 cp.setActualValue("" + ((System.currentTimeMillis() - start)/1000));
             }
         } else {
-            throw new TestException("no web service result", getOperation(), cp.getOnFailure());
+            if (cp != null) {
+                throw new TestException("no web service result", getOperation(), cp.getOnFailure());
+            } else {
+                throw new TestException("no web service result", getOperation(), FailureAction.ERROR_HALT_TEST);
+            }
         }
         
         return retval;

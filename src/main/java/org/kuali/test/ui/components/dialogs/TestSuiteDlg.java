@@ -245,7 +245,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
                 
                 testSuite = platform.getTestSuites().addNewTestSuite();
                 testSuite.setName(name.getText());
-                
+                testSuite.setCollectPerformanceData(this.collectPerformanceData.isSelected());
                 testSuite.setPlatformName(platform.getName());
                 testSuite.addNewSuiteTests();
             }

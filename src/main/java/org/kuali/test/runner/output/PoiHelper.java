@@ -413,7 +413,7 @@ public class PoiHelper {
     /**
      * 
      * @param op
-     * @param comment 
+     * @param showIndex 
      */
     public void writeCommentEntry(Operation op, boolean showIndex) {
         Sheet sheet = wb.getSheetAt(0);
@@ -557,11 +557,12 @@ public class PoiHelper {
     }
 
     /**
-     *
+     * 
      * @param fileName
      * @param inputFiles
+     * @param errorRuns
      * @param deleteExistingFiles
-     * @return
+     * @return 
      */
     public File mergeWorkbookFiles(String fileName, List<File> inputFiles, boolean[] errorRuns, boolean deleteExistingFiles) {
         File retval = new File(fileName);

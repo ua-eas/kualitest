@@ -329,6 +329,7 @@ public class TestRunner {
      * 
      * @param platformName
      * @param testName
+     * @param testRuns
      * @return 
      */
     public TestExecutionMonitor runTest(String platformName, String testName, int testRuns) {

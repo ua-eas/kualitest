@@ -131,7 +131,7 @@ public class FileOperationExecution extends AbstractOperationExecution {
             CheckpointProperty cp4 = getProperty(Constants.CONTAINING_TEXT);
             if (StringUtils.isBlank(errorMessage)) {
                 if (cp4 != null) {
-                    String txt = cp.getPropertyValue();
+                    String txt = cp4.getPropertyValue();
 
                     if (StringUtils.isNotEmpty(txt)) {
                         filteredFiles = findFilesContainingText(filteredFiles, txt);
