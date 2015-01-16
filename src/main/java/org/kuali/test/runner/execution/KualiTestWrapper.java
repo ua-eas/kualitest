@@ -35,7 +35,7 @@ public class KualiTestWrapper {
     private Map<Integer, Long> operationElapsedTime = new HashMap<Integer, Long>();
     
     public KualiTestWrapper(KualiTest test) {
-        this.test = test;
+        this.test = (KualiTest)test.copy();
     }
     
     public KualiTest getTest() {
