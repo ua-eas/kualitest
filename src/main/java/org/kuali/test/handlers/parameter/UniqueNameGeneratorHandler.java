@@ -23,7 +23,7 @@ import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public class UniqueNameValueHandler extends BaseParameterHandler {
+public class UniqueNameGeneratorHandler extends BaseParameterHandler {
     @Override
     public String getDescription() {
         return "this handler will return the entered text + a unique number";
