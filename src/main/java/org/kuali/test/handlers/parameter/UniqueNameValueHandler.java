@@ -16,9 +16,6 @@
 
 package org.kuali.test.handlers.parameter;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
@@ -26,10 +23,10 @@ import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
 
-public class RandomListValueHandler extends BaseParameterHandler {
+public class UniqueNameValueHandler extends BaseParameterHandler {
     @Override
     public String getDescription() {
-        return "This handler will return a random selection from a comma-delimited list of values";
+        return "this handler will return the entered text + a unique number";
     }
 
     @Override
@@ -37,20 +34,7 @@ public class RandomListValueHandler extends BaseParameterHandler {
         String retval = "";
         
         if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
-            StringTokenizer st = new StringTokenizer(tep.getAdditionalInfo(), ",");
-            List <String> l = new ArrayList<String>();
-            while (st.hasMoreTokens()) {
-                l.add(st.nextToken());
-            }
-            
-            if (!l.isEmpty()) {
-                int indx = this.getRandomIndex(l.size());
-                if ((indx >= 0) && (indx < l.size())) {
-                    retval = l.get(indx);
-                } else {
-                    retval = l.get(0);
-                }
-            }
+            retval = tep.getAdditionalInfo() + " " + System.currentTimeMillis();
         }
         
         return retval;

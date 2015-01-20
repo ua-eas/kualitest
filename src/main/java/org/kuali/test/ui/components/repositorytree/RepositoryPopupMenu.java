@@ -86,7 +86,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                 @Override
                 protected void runProcess() {
                     try {
-                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), 1);
+                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), 1, 0);
 
                         if (monitor != null) {
                             monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
@@ -119,6 +119,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             LoadTestDlg dlg = new LoadTestDlg(getMainframe(),testSuite.getName(), true);
             if (dlg.isSaved()) {
                 final int testRuns = dlg.getTestRuns();
+                final int rampUpTime = dlg.getRampUpTime();
                 
                 if (testRuns > 0) {
                     getMainframe().startSpinner2("Running load test: test suite - " + testSuite.getName() + "[" + testRuns + "]");
@@ -127,7 +128,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                         protected Object doInBackground() throws Exception {
                             String retval = null;
                             try {
-                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), testRuns);
+                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), testRuns, rampUpTime);
 
                                 if (monitor != null) {
                                     while(!monitor.testsCompleted()) {

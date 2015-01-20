@@ -119,6 +119,7 @@ public class TestExecutionContext extends Thread {
     private Date endTime;
     private int testRun = 1;
     private int testRuns = 1;
+    private int rampUpTime = 0;
     private boolean completed = false;
     private boolean haltTest = false;
     private String repeatInterval;
@@ -152,11 +153,12 @@ public class TestExecutionContext extends Thread {
      * @param repeatInterval 
      */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        TestSuite testSuite, Date scheduledTime, int testRuns, String repeatInterval) {
+        TestSuite testSuite, Date scheduledTime, int testRuns, int rampUpTime, String repeatInterval) {
         this.testSuite = testSuite;
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
         this.testRuns = testRuns;
+        this.rampUpTime = rampUpTime;
         this.repeatInterval = repeatInterval;
         platform = Utils.findPlatform(configuration, testSuite.getPlatformName());
         init();
@@ -169,7 +171,7 @@ public class TestExecutionContext extends Thread {
      */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
         TestSuite testSuite) {
-        this(configuration, testSuite, null, 1, null);
+        this(configuration, testSuite, null, 1, 0, null);
     }
 
     /**
@@ -178,14 +180,16 @@ public class TestExecutionContext extends Thread {
      * @param kualiTest
      * @param scheduledTime
      * @param testRuns
+     * @param rampUpTime
      * @param repeatInterval 
      */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration,
-        KualiTest kualiTest, Date scheduledTime, int testRuns, String repeatInterval) {
+        KualiTest kualiTest, Date scheduledTime, int testRuns, int rampUpTime, String repeatInterval) {
         this.kualiTest = kualiTest;
         this.scheduledTime = scheduledTime;
         this.configuration = configuration;
         this.testRuns = testRuns;
+        this.rampUpTime = rampUpTime;
         this.repeatInterval = repeatInterval;
         platform = Utils.findPlatform(configuration, kualiTest.getTestHeader().getPlatformName());
         init();
@@ -197,7 +201,7 @@ public class TestExecutionContext extends Thread {
      * @param kualiTest
      */
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration, KualiTest kualiTest) {
-        this(configuration, kualiTest, null, 1, null);
+        this(configuration, kualiTest, null, 1, 0, null);
     }
 
     @Override
@@ -1167,5 +1171,13 @@ public class TestExecutionContext extends Thread {
             
             catch (Exception e) {}
         }
+    }
+
+    public int getRampUpTime() {
+        return rampUpTime;
+    }
+
+    public void setRampUpTime(int rampUpTime) {
+        this.rampUpTime = rampUpTime;
     }
 }

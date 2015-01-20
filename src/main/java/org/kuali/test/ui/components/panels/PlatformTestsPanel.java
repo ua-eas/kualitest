@@ -252,7 +252,7 @@ public class PlatformTestsPanel extends BasePanel
                 
                 @Override
                 protected void runProcess() {
-                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1);
+                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1, 0);
                     if (monitor != null) {
                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
                         while (!monitor.testsCompleted()) {
@@ -274,6 +274,7 @@ public class PlatformTestsPanel extends BasePanel
              
              if (dlg.isSaved()) {
                 final int testRuns = dlg.getTestRuns();
+                final int rampUpTime = dlg.getRampUpTime();
                 String testName = currentTestHeader.getTestName();
                 
                 if (testRuns > 0) {
@@ -283,7 +284,7 @@ public class PlatformTestsPanel extends BasePanel
                         protected Object doInBackground() throws Exception {
                             String retval = null;
                             try {
-                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns);
+                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns, rampUpTime);
 
                                 if (monitor != null) {
                                     while(!monitor.testsCompleted()) {

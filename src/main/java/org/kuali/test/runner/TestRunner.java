@@ -162,9 +162,9 @@ public class TestRunner {
             for (ScheduledTest test : testRunnerConfiguration.getScheduledTests().getScheduledTestArray()) {
                 if (test.getStartTime().getTimeInMillis() >= System.currentTimeMillis()) {
                     if (test.getType().equals(ScheduledTestType.TEST_SUITE)) {
-                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRepeatInterval());
+                        scheduleTestSuite(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(),  test.getRampUpTime(), test.getRepeatInterval());
                     } else if (test.getType().equals(ScheduledTestType.PLATFORM_TEST)) {
-                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRepeatInterval());
+                        scheduleTest(test.getPlaformName(), test.getName(), test.getStartTime().getTime(), test.getTestRuns(), test.getRampUpTime(), test.getRepeatInterval());
                     }
                     
                     activeTests.add(test);
@@ -221,7 +221,7 @@ public class TestRunner {
 
                 if ((ec.getScheduledTime() != null) && (ec.getScheduledTime().getTime() < System.currentTimeMillis())) {
                     List <TestExecutionContext> testExecutions = ec.getTestInstances();
-                    new TestExecutionMonitor(testExecutions);
+                    new TestExecutionMonitor(testExecutions, ec.getRampUpTime());
                     executingTests.addAll(testExecutions);
                     
                     String repeatInterval = ec.getRepeatInterval();
@@ -283,9 +283,10 @@ public class TestRunner {
      * @param testName
      * @param scheduledTime
      * @param testRuns
+     * @param rampUpTime
      * @param repeatInterval 
      */
-    public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns, String repeatInterval) {
+    public void scheduleTest(String platformName, String testName, Date scheduledTime, int testRuns, int rampUpTime, String repeatInterval) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -294,7 +295,7 @@ public class TestRunner {
             KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
             
             if (test != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime, testRuns, repeatInterval));
+                scheduledTests.add(new TestExecutionContext(configuration, test, scheduledTime, testRuns, rampUpTime, repeatInterval));
             } else {
                 System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
             }
@@ -307,9 +308,10 @@ public class TestRunner {
      * @param testSuiteName
      * @param scheduledTime
      * @param testRuns
+     * @param rampUpTime
      * @param repeatInterval 
      */
-    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns, String repeatInterval) {
+    public void scheduleTestSuite(String platformName, String testSuiteName, Date scheduledTime, int testRuns, int rampUpTime, String repeatInterval) {
         if (scheduledTime == null) {
             System.out.println("scheduled time is null - abort scheduling");
         } else if (scheduledTime.getTime() <= System.currentTimeMillis()) {
@@ -318,7 +320,7 @@ public class TestRunner {
             TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
             
             if (testSuite != null) {
-                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime, testRuns, repeatInterval));
+                scheduledTests.add(new TestExecutionContext(configuration, testSuite, scheduledTime, testRuns, rampUpTime, repeatInterval));
             } else {
                 System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
             }
@@ -330,9 +332,10 @@ public class TestRunner {
      * @param platformName
      * @param testName
      * @param testRuns
+     * @param rampUpTime
      * @return 
      */
-    public TestExecutionMonitor runTest(String platformName, String testName, int testRuns) {
+    public TestExecutionMonitor runTest(String platformName, String testName, int testRuns, int rampUpTime) {
         TestExecutionMonitor retval = null;
         KualiTest test = Utils.findKualiTest(configuration, platformName, testName);
 
@@ -344,7 +347,7 @@ public class TestRunner {
                 testExecutions.add(tec);
             }
             
-            retval = new TestExecutionMonitor(testExecutions);
+            retval = new TestExecutionMonitor(testExecutions, rampUpTime);
         } else {
             System.out.println("failed to find kuali test '" + testName + "' for plaform " + platformName);
         }
@@ -358,12 +361,13 @@ public class TestRunner {
      * @param platformName
      * @param testSuiteName
      * @param testRuns
+     * @param rampUpTime
      * @return 
      */
-    public TestExecutionMonitor runTestSuite(String configFileName, String platformName, String testSuiteName, int testRuns) {
+    public TestExecutionMonitor runTestSuite(String configFileName, String platformName, String testSuiteName, int testRuns, int rampUpTime) {
         TestExecutionMonitor retval = null;
         if (loadConfiguration(configFileName)) {
-            retval = runTestSuite(platformName, testSuiteName, testRuns);
+            retval = runTestSuite(platformName, testSuiteName, testRuns, rampUpTime);
         }
         return retval;
     }
@@ -374,12 +378,13 @@ public class TestRunner {
      * @param platformName
      * @param testName
      * @param testRuns
+     * @param rampUpTime
      * @return 
      */
-    public TestExecutionMonitor runTest(String configFileName, String platformName, String testName, int testRuns) {
+    public TestExecutionMonitor runTest(String configFileName, String platformName, String testName, int testRuns, int rampUpTime) {
         TestExecutionMonitor retval = null;
         if (loadConfiguration(configFileName)) {
-            retval = runTest(platformName, testName, testRuns);
+            retval = runTest(platformName, testName, testRuns, rampUpTime);
         }
         return retval;
     }
@@ -389,9 +394,10 @@ public class TestRunner {
      * @param platformName
      * @param testSuiteName
      * @param testRuns
+     * @param rampUpTime
      * @return 
      */
-    public TestExecutionMonitor runTestSuite(String platformName, String testSuiteName, int testRuns) {
+    public TestExecutionMonitor runTestSuite(String platformName, String testSuiteName, int testRuns, int rampUpTime) {
         TestExecutionMonitor retval = null;
         TestSuite testSuite = Utils.findTestSuite(configuration, platformName, testSuiteName);
 
@@ -403,7 +409,7 @@ public class TestRunner {
                 testExecutions.add(tec);
             }
             
-            retval = new TestExecutionMonitor(testExecutions);
+            retval = new TestExecutionMonitor(testExecutions, rampUpTime);
         } else {
             System.out.println("failed to find test suite '" + testSuiteName + "' for plaform " + platformName);
         }

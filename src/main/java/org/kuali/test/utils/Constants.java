@@ -30,16 +30,13 @@ public class Constants {
     public static final String DEFAULT_TIMESTAMP_FORMAT_STRING = "yyyy-MM-dd HH:mm:ss";
     public static final String DEFAULT_DATE_FORMAT_STRING = "yyyy-MM-dd";
     public static final String SELECT_DATETIME_FORMAT_STRING = "MM/dd/yyyy HH:mm";
-    
-    public static final String DEFAULT_USER_AGENT = "Mozilla/5.0";
-    public static final int MILLIS_PER_MINUTE = 1000 * 60;
-    
     public static final SimpleDateFormat FILENAME_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
     public static final SimpleDateFormat DEFAULT_TIMESTAMP_FORMAT = new SimpleDateFormat(DEFAULT_TIMESTAMP_FORMAT_STRING);
     public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT_STRING);
     
-    public static final ImageIcon KUALI_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
+    public static final int MILLIS_PER_MINUTE = 1000 * 60;
     
+    public static final ImageIcon KUALI_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
     public static final ImageIcon REPOSITORY_ICON = new ImageIcon(TestCreator.class.getResource("/images/repository.png"));
     public static final ImageIcon PLATFORM_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform.png"));
     public static final ImageIcon PLATFORM_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform-toolbar.png"));

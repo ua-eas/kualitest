@@ -115,7 +115,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
                 
                 additionalInformationEntry.setText("");
                 ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
-                additionalInformationEntry.setEnabled(ph.isFreeformEntryRequired());
+                additionalInformationEntry.setEnabled(ph.isTextEntryRequired());
             }
         });
         
@@ -245,7 +245,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             
             if (isAdditionalInformationHandlerClass()) {
                 testExecutionParameter.setAdditionalInfo(additionalInformationSelect.getSelectedItem().toString());
-            } else if (p.isFreeformEntryRequired()) {
+            } else if (p.isTextEntryRequired()) {
                 testExecutionParameter.setAdditionalInfo(additionalInformationEntry.getText());
             }
 
@@ -264,7 +264,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
 
     private boolean isFreeformEntryRequired() {
         ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
-        return (ph.isFreeformEntryRequired() && StringUtils.isBlank(this.additionalInformationEntry.getText()));
+        return (ph.isTextEntryRequired() && StringUtils.isBlank(this.additionalInformationEntry.getText()));
     }
     
     @Override

@@ -52,6 +52,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
     private JComboBox platforms;
     private JDateChooser startDateTime;
     private IntegerTextField testRuns;
+    private IntegerTextField rampUpTime;
     private JList testSuites;
     private JList platformTests;
     private JComboBox repeatInterval;
@@ -74,6 +75,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             "Platform",
             "Start Date/Time",
             "Test Runs (multi-threaded)",
+            "Ramp Up Time(sec)",
             "Repeat Interval"
         };
         
@@ -86,9 +88,12 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
         testRuns = new IntegerTextField();
         testRuns.setInt(1);
 
+        rampUpTime = new IntegerTextField();
+        rampUpTime.setInt(0);
+        
         repeatInterval = new JComboBox(Constants.TEST_REPEAT_INTERVALS);
         
-        JComponent[] components = {platforms, startDateTime, testRuns, repeatInterval};
+        JComponent[] components = {platforms, startDateTime, testRuns, rampUpTime, repeatInterval};
         
         platforms.addActionListener(this);
         platforms.setActionCommand(Constants.PLATFORM_SELECTED_ACTION);
@@ -150,6 +155,7 @@ public class ScheduleTestDlg extends BaseSetupDlg implements ListSelectionListen
             scheduledTest.setPlaformName((String)platforms.getSelectedItem());
             scheduledTest.setStartTime(startDateTime.getCalendar());
             scheduledTest.setTestRuns(testRuns.getInt());
+            scheduledTest.setRampUpTime(rampUpTime.getInt());
             scheduledTest.setRepeatInterval(repeatInterval.getSelectedItem().toString());
         } else {
             StringBuilder msg = new StringBuilder(256);

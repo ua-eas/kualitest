@@ -49,12 +49,27 @@ public class TestExecutionMonitor extends Thread {
      *
      * @param testExecutionList
      */
-    public TestExecutionMonitor(List <TestExecutionContext> testExecutionList) {
+    public TestExecutionMonitor(List <TestExecutionContext> testExecutionList, int rampUpTime) {
         this.testExecutionList = testExecutionList;
         int i = 1;
+        
+        int waitInterval = 0;
+        
+        if ((testExecutionList != null) && !testExecutionList.isEmpty()) {
+            waitInterval = ((rampUpTime * 1000) / testExecutionList.size());
+        }
+        
         for (TestExecutionContext tec : testExecutionList) {
             tec.startTest();
             tec.setTestRun(i++);
+            
+            if (waitInterval > 0) {
+                try {
+                    Thread.sleep(waitInterval);
+                } 
+                
+                catch (InterruptedException ex) {}
+            }
         }
         
         start();

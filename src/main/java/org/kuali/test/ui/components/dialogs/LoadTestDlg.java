@@ -34,6 +34,7 @@ import org.kuali.test.utils.Constants;
 public class LoadTestDlg extends BaseSetupDlg {
     private static final Logger LOG = Logger.getLogger(LoadTestDlg.class);
     private IntegerTextField testRuns;
+    private IntegerTextField rampUpTime;
     /**
      * 
      * @param mainFrame
@@ -55,14 +56,18 @@ public class LoadTestDlg extends BaseSetupDlg {
 
         String[] labels = {
             "Test Runs (multi-threaded)",
+            "Ramp Up Time (sec)"
         };
         
         testRuns = new IntegerTextField();
         testRuns.setInt(1);
-        
+
+        rampUpTime = new IntegerTextField();
+        rampUpTime.setInt(0);
+
         
         getContentPane().add(new JLabel("<html><div style='text-align: left; font-weight: normal;'>Clicking \"Run\" will run the test in the background by spawning off multiple instances of " + label + " as defined by the 'Test Runs' input</div></html>"), BorderLayout.NORTH);
-        getContentPane().add(UIUtils.buildEntryPanel(labels, new JComponent[] {testRuns}), BorderLayout.CENTER);
+        getContentPane().add(UIUtils.buildEntryPanel(labels, new JComponent[] {testRuns, rampUpTime}), BorderLayout.CENTER);
 
         addStandardButtons();
         setDefaultBehavior();
@@ -95,10 +100,14 @@ public class LoadTestDlg extends BaseSetupDlg {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(400, 150);
+        return new Dimension(400, 200);
     }
     
     public int getTestRuns() {
         return testRuns.getInt();
+    }
+    
+    public int getRampUpTime() {
+        return rampUpTime.getInt();
     }
 }

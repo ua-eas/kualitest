@@ -80,7 +80,7 @@ public abstract class BaseParameterHandler implements ParameterHandler {
     }
 
     @Override
-    public boolean isFreeformEntryRequired() {
+    public boolean isTextEntryRequired() {
         return false;
     }
     

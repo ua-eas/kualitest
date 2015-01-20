@@ -120,9 +120,13 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
         config.setTableName("scheduled-tests");
         config.setDisplayName("Scheduled Tests");
         
-        int[] alignment = new int[4];
+        int[] alignment = new int[6];
         for (int i = 0; i < alignment.length; ++i) {
-            alignment[i] = JLabel.LEFT;
+            if ((i == 3) || (i == 4)) {
+                alignment[i] = JLabel.CENTER;
+            } else {
+                alignment[i] = JLabel.LEFT;
+            }
         }
          
         config.setColumnAlignment(alignment);
@@ -132,6 +136,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             "Name",
             "Scheduled Date/Time",
             "Test Runs (multi-threaded)",
+            "Ramp Up Time(sec)",
             "Repeat Interval"
         });
         
@@ -140,6 +145,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             "name",
             "startTime",
             "testRuns",
+            "rampUpTime",
             "repeatInterval"
         });
             
@@ -148,6 +154,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             String.class,
             Calendar.class,
             Integer.class,
+            Integer.class,
             String.class
         });
         
@@ -155,6 +162,7 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
             20,
             100,
             30,
+            20,
             20,
             20
         });
@@ -288,5 +296,10 @@ public class ScheduleTestsDlg extends BaseSetupDlg {
                 tm.fireTableDataChanged();
             }
         }
+    }
+    
+    @Override
+    public boolean isResizable() {
+        return true;
     }
 }
