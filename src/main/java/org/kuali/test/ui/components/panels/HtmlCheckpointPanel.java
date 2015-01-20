@@ -276,14 +276,11 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
                 updatePropertyValueIfRequired(cp);
             }
             
-            if (!singleSelectMode || StringUtils.isNotBlank(cp.getPropertyValue())) {
-                l.add(cp);
-            }
+            l.add(cp);
         }
 
         CheckpointPropertyComparator c = new CheckpointPropertyComparator();
         
-        // if singleSelectMode load only properties with values
         for (List<CheckpointProperty> cpl : retval.values()) {
             Collections.sort(cpl, c);
         }
