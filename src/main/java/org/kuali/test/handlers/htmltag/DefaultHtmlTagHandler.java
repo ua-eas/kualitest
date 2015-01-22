@@ -287,6 +287,8 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
 
         if (isInput(node)) {
             retval = node;
+        } else if (isTextAreaWrapper(node)) {
+            retval = Utils.getFirstChildNodeByNodeName(node, Constants.HTML_TAG_TYPE_TEXTAREA);
         } else {
             retval = Utils.getFirstChildNodeByNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
                 Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
@@ -325,7 +327,7 @@ public class DefaultHtmlTagHandler implements HtmlTagHandler {
 
     protected boolean isTextInputWrapper(Element node) {
         boolean retval = Utils.hasChildNodeWithNodeNameAndAttribute(node, Constants.HTML_TAG_TYPE_INPUT, 
-            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT);
+            Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_TEXT) || isTextAreaWrapper(node);
         
         if (!retval) {
             if (Utils.hasChildNodeWithNodeName(node, Constants.HTML_TAG_TYPE_SPAN)) {

@@ -308,12 +308,18 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         
         s.append(id);
         
-        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
         
-        if ((param != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(param.getValue())) {
-            s.append("').checked");
+        Parameter typeParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        Parameter tagParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.TAG_NAME);
+
+        if ((tagParam != null) && Constants.HTML_TAG_TYPE_TEXTAREA.equalsIgnoreCase(tagParam.getName())) {
+            s.append("').text");
         } else {
-            s.append("').value");
+            if ((typeParam != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(typeParam.getValue())) {
+                s.append("').checked");
+            } else {
+                s.append("').value");
+            }
         }
         
         Object o = webBrowser.executeJavascriptWithResult(s.toString());
@@ -345,12 +351,17 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
         
         s.append(name);
         
-        Parameter param = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        Parameter typeParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_TYPE);
+        Parameter tagParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.TAG_NAME);
         
-        if ((param != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(param.getValue())) {
-            s.append("')[0].checked");
+        if ((tagParam != null) && Constants.HTML_TAG_TYPE_TEXTAREA.equalsIgnoreCase(tagParam.getName())) {
+            s.append("')[0].text");
         } else {
-            s.append("')[0].value");
+            if ((typeParam != null) && Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equals(typeParam.getValue())) {
+                s.append("')[0].checked");
+            } else {
+                s.append("')[0].value");
+            }
         }
         
         Object o = webBrowser.executeJavascriptWithResult(s.toString());
@@ -376,7 +387,7 @@ public class HtmlCheckpointPanel extends BasePanel implements ListSelectionListe
             if (nameParam != null) {
                 currentValue = getCurrentDomValueById(cp, iframeIds, nameParam.getValue());
             } else {
-                nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_ID);
+                nameParam = Utils.getCheckpointPropertyTagParameter(cp, Constants.HTML_TAG_ATTRIBUTE_NAME);
                 
                 if (nameParam != null) {
                     currentValue = getCurrentDomValueByName(cp, iframeIds, nameParam.getValue());

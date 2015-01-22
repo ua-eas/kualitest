@@ -16,6 +16,8 @@
 
 package org.kuali.test.handlers.parameter;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
@@ -24,6 +26,8 @@ import org.w3c.dom.Document;
 
 
 public class UniqueNameGeneratorHandler extends BaseParameterHandler {
+    private static final SimpleDateFormat TS = new SimpleDateFormat("yyyyMMddHHmmss");
+    
     @Override
     public String getDescription() {
         return "this handler will return the entered text with a unique number appended to the end";
@@ -34,7 +38,7 @@ public class UniqueNameGeneratorHandler extends BaseParameterHandler {
         String retval = "";
         
         if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
-            retval = tep.getAdditionalInfo() + " " + System.currentTimeMillis();
+            retval = tep.getAdditionalInfo() + " " + TS.format(new Date());
         }
         
         return retval;
