@@ -31,6 +31,7 @@ import com.gargoylesoftware.htmlunit.html.FrameWindow;
 import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
+import com.gargoylesoftware.htmlunit.html.HtmlForm;
 import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
@@ -71,6 +72,7 @@ import org.kuali.test.runner.requestprocessors.HttpRequestProcessorException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Node;
 
 
 public class TestWebClient extends WebClient {
@@ -181,19 +183,18 @@ public class TestWebClient extends WebClient {
 
                     int status = retval.getStatusCode();
 
-                    if (!jscall && !csscall) {
+                    if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                    //if (!jscall && !csscall) {
                         String results = retval.getContentAsString();
                         
-                        if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                            // uncomment to write out screens as pdf files for troubleshooting
-/*
+                        // uncomment to write out screens as pdf files for troubleshooting
+                        if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML) && StringUtils.isNotBlank(results)) {
                             tec.saveCurrentScreen(new File("/home/rbtucker/tmp/screen-op" 
                                 + tec.getCurrentOperationIndex() 
                                 + "-" 
                                 + System.currentTimeMillis() + ".pdf"), results, true);
-                            */
                         }
-                        
+
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
                             LOG.debug("url=" + request.getUrl().toExternalForm());
@@ -207,37 +208,39 @@ public class TestWebClient extends WebClient {
                             LOG.debug("--------------------------------------------- results ---------------------------------------------------------");
                             LOG.debug(results);
                         }
-                        
-                        if (status == HttpStatus.OK_200) {
-                            if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                                if (isErrorResult(results)) {
-                                    tec.saveCurrentScreen(results, true);   
-                                    tec.haltTest(new TestException("Current web page response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                                } else {
-                                    if (StringUtils.isNotBlank(results)) {
-                                        tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+
+                        if (!Utils.isIgnoredHttpStatus(status)) {
+                            if (status == HttpStatus.OK_200) {
+                                if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                                    if (isErrorResult(results)) {
+                                        tec.saveCurrentScreen(results, true);   
+                                        tec.haltTest(new TestException("Current web page response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                                    } else {
+                                        if (StringUtils.isNotBlank(results)) {
+                                            tec.updateAutoReplaceMap(HtmlDomProcessor.getInstance().getDomDocumentElement(results));
+                                        }
                                     }
                                 }
-                            }
-                        } else if (!Utils.isRedirectResponse(status)) {
-                            if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
-                                if (isErrorResult(results)) {
-                                    tec.saveCurrentScreen(results, true);   
-                                    tec.haltTest(new TestException("Current web response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                                } else if (tec.getConfiguration().getOutputIgnoredResults()) {
-                                    TestException tex = new TestException("server returned bad status [" 
-                                        + status
-                                        + "] url=" 
-                                        + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
-                                    tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+                            } else if (!Utils.isRedirectResponse(status)) {
+                                if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
+                                    if (isErrorResult(results)) {
+                                        tec.saveCurrentScreen(results, true);   
+                                        tec.haltTest(new TestException("Current web response contains error - see attached pdf file", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
+                                    } else if (tec.getConfiguration().getOutputIgnoredResults()) {
+                                        TestException tex = new TestException("server returned bad status [" 
+                                            + status
+                                            + "] url=" 
+                                            + request.getUrl().toExternalForm(), tec.getCurrentTestOperation().getOperation(), FailureAction.IGNORE);
+                                        tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
+                                    }
+                                } else {
+                                    writeErrorFile(request.getUrl().toExternalForm(), indx, results);
+                                    tec.haltTest(new TestException("server returned bad status [" +  status + "] - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
                                 }
-                            } else {
-                                writeErrorFile(request.getUrl().toExternalForm(), indx, results);
-                                tec.haltTest(new TestException("server returned bad status [" +  status + "] - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
-                            }
-                        } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
-                            if (LOG.isDebugEnabled()) {
-                                LOG.debug("redirect to: " + retval.getResponseHeaderValue(HttpHeaders.LOCATION));
+                            } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
+                                if (LOG.isDebugEnabled()) {
+                                    LOG.debug("redirect to: " + retval.getResponseHeaderValue(HttpHeaders.LOCATION));
+                                }
                             }
                         }
                     }
@@ -361,7 +364,7 @@ public class TestWebClient extends WebClient {
                     StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
                     String mimeType = st.nextToken();
                     String fname = st.nextToken();
-                    retval.add(new KeyDataPair("file", new File(fname), mimeType, CharEncoding.UTF_8));
+                    retval.add(new KeyDataPair(nvp.getName(), new File(fname), mimeType, CharEncoding.UTF_8));
                 } else {
                     retval.add(nvp);
                 }
@@ -542,6 +545,41 @@ public class TestWebClient extends WebClient {
         return retval;
     }
 
+    private HtmlForm getParentForm(HtmlElement e) {
+        HtmlForm retval = null;
+        
+        Node cur = e.getParentNode();
+        
+        while (cur != null) {
+            if (cur instanceof HtmlForm) {
+                retval = (HtmlForm)cur;
+                break;
+            }
+            
+            cur = cur.getParentNode();
+        }
+        
+        return retval;
+    }
+    
+    public HtmlForm findHtmlForm(List <NameValuePair> nvplist) {
+        HtmlForm retval = null;
+        for (NameValuePair nvp : nvplist) {
+            HtmlElement e = findHtmlElementByName(nvp.getName());
+            
+            if (e != null) {
+                HtmlForm form = getParentForm(e);
+                
+                if (form != null) {
+                    retval = form;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+
     /**
      * 
      * @param nvplist
@@ -552,7 +590,9 @@ public class TestWebClient extends WebClient {
         HtmlElement retval = null;
 
         long start = System.currentTimeMillis();
-        while ((retval == null) && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)) {
+        while ((retval == null) 
+            && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
+            && !tec.isHaltTest()) {
             if (nvplist != null) {
                 Page page = getCurrentWindow().getEnclosedPage();
 
@@ -560,6 +600,7 @@ public class TestWebClient extends WebClient {
                     for (NameValuePair nvp : nvplist) {
                         HtmlElement element = findHtmlElementByName((HtmlPage)page, Utils.stripXY(nvp.getName()));
                         if (element != null) {
+
                             if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
                                 if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
                                     retval = element;
@@ -582,7 +623,7 @@ public class TestWebClient extends WebClient {
         return retval;
     }
     
-    private void populateFileInputElement(HtmlPage page, NameValuePair nvp, Set <HtmlElement> inputSet) {
+    private void populateFileInputElement(HtmlPage page, KeyDataPair nvp, Set <HtmlElement> inputSet) {
         int pos = nvp.getName().indexOf(Constants.FILE_ATTACHMENT_MARKER);
         
         if (pos > -1) {
@@ -590,19 +631,16 @@ public class TestWebClient extends WebClient {
 
             if (e instanceof HtmlFileInput) {
                 if (!inputSet.contains(e)) {
-                    inputSet.add(e);
-                    StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
-                    String mimeType = st.nextToken();
-                    File f  = new File(st.nextToken());
-                    
-                    if (f.exists() && f.isFile()) {
+                    if (nvp.getFile().exists() && nvp.getFile().isFile()) {
+                        inputSet.add(e);
                         try {
-                            byte[] buf = FileUtils.readFileToByteArray(f);
+                            byte[] buf = FileUtils.readFileToByteArray(nvp.getFile());
                             HtmlFileInput fileInput = (HtmlFileInput)e;
-                            fileInput.setContentType(mimeType);
+                            fileInput.setContentType(nvp.getMimeType());
                             fileInput.setData(buf);
+                            fileInput.setAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE, nvp.getFile().getName());
                         } 
-                        
+
                         catch (IOException ex) {
                             LOG.error(ex.toString(), ex);
                         }
@@ -617,12 +655,27 @@ public class TestWebClient extends WebClient {
         Set <HtmlElement> inputSet = new HashSet<HtmlElement>();
         for (NameValuePair nvp : nvplist) {
             try {
-                HtmlElement e = findHtmlElementByName(page, nvp.getName());
-                if (e != null) {
-                    if (isFileAttachment(nvp.getName())) {
-                        populateFileInputElement(page, nvp, inputSet);
-                    } else if (isUpdateableElement(e)) {
-                        populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                if (isFileAttachment(nvp.getName())) {
+                    populateFileInputElement(page, (KeyDataPair)nvp, inputSet);
+                } else {
+                    HtmlElement e = findHtmlElementByName(page, Utils.stripXY(nvp.getName()));
+
+                    if (e != null) {
+                        if (Utils.isFormInputTag(e)) {
+                            populateFormElement(page, e, nvp.getName(), nvp.getValue());
+                        }
+                    } else { 
+                        // if we did not find this element create it on the form as a hidden field
+                        // this could be because the input was dynamically created via a javascript trigger action
+                        HtmlForm form = findHtmlForm(nvplist);
+                        
+                        if (form != null) {
+                            HtmlElement input = (HtmlElement)page.createElement(Constants.HTML_TAG_TYPE_INPUT);
+                            input.setAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME, nvp.getName());
+                            input.setAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE, nvp.getValue());
+                            input.setAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE, Constants.HTML_INPUT_ATTRIBUTE_TYPE_HIDDEN);
+                            form.appendChild(input);
+                        }
                     }
                 }
             }
@@ -631,19 +684,6 @@ public class TestWebClient extends WebClient {
         }
     }
     
-    private boolean isUpdateableElement(HtmlElement element) {
-        boolean retval = false;
-
-        if (Utils.isFormInputTag(element.getTagName())) {
-            retval = true;
-            if (Constants.HTML_INPUT_ATTRIBUTE_TYPE_HIDDEN.equals(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
-                retval = false;
-            }
-        }
-        
-        return true; //retval;
-    }
-
     private void populateFormElement(HtmlPage page, HtmlElement e, String name, String value) {
         if (e instanceof HtmlTextInput) {
             HtmlTextInput ti = (HtmlTextInput)e;
@@ -668,15 +708,24 @@ public class TestWebClient extends WebClient {
                 }
             }
         } else if (e instanceof HtmlSelect) {
-            for (DomElement de : page.getElementsByName(name)) {
-                HtmlSelect sel = (HtmlSelect)de;
-                HtmlOption option = sel.getOptionByValue(value);
-
-                if (option != null) {
-                    sel.setSelectedAttribute(option, true);
-                    break;
-                }
+            HtmlSelect sel = (HtmlSelect)e;
+            HtmlElement option = null;
+            try {
+                option = sel.getOptionByValue(value);
             }
+            
+            catch (ElementNotFoundException ex) {};
+            
+            // if we did not find the desired option we will add it
+            if (option == null)  {
+                option = (HtmlElement)sel.getPage().createElement(Constants.HTML_TAG_TYPE_OPTION);
+                option.setAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE, value);
+                option.setAttribute(Constants.HTML_TAG_ATTRIBUTE_SELECTED, Constants.HTML_TAG_ATTRIBUTE_SELECTED);
+                sel.appendChild(option);
+            } else {
+                ((HtmlOption)option).setSelected(true);
+            }
+            
         } else if (e instanceof HtmlTextArea) {
             HtmlTextArea ta = (HtmlTextArea)e;
             ta.setText(value);

@@ -84,6 +84,7 @@ import org.apache.log4j.Logger;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlOptions;
 import org.eclipse.jetty.http.HttpHeaders;
+import org.eclipse.jetty.http.HttpStatus;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.jsoup.Jsoup;
 import org.kuali.test.AutoReplaceParameter;
@@ -2665,7 +2666,6 @@ public class Utils {
         }
 
         return tidy;
-
     }
 
     /**
@@ -3065,10 +3065,10 @@ public class Utils {
      */
     public static boolean isStringMatch(String patternString, String checkString) {
         boolean retval = false;
+        
         if (StringUtils.isNotBlank(patternString)) {
             int pos = patternString.indexOf("*");
             int pos2 = patternString.indexOf("*", pos+1);
-            
             if (pos > -1) {
                 if (StringUtils.isNotBlank(checkString)) {
                     if (pos2 > -1) {
@@ -3438,6 +3438,16 @@ public class Utils {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
         
         if (StringUtils.isNotBlank(paramString)) {
+            boolean specialCharsReplace = false;
+
+            // this is a hack to handle some spacial lookup parameter names in kuali
+            for (int i = 0; i < Constants.TEMPORARY_PARAMETER_REPLACEMENTS.length; ++i) {
+                if (paramString.contains(Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][0])) {
+                    paramString = paramString.replace(Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][0], Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][1]);
+                    specialCharsReplace = true;
+                }
+            }
+            
             StringTokenizer st1 = new StringTokenizer(paramString, Constants.SEPARATOR_AMPERSTAND);
 
             while (st1.hasMoreTokens()) {
@@ -3447,21 +3457,30 @@ public class Utils {
                     String value = "";
                     if (st2.hasMoreTokens()) {
                         value = st2.nextToken();
-                        
+
                         if (StringUtils.isNotBlank(value)) {
                             value = value.trim();
-                            
+
                             // hack to handle % used for search wild cards in some kuali apps
                             if (Constants.PERCENT_CHARACTER.equals(value)) {
                                 value = Constants.URL_ENCODED_PERCENT_CHARACTER;
                             }
                         }
                     }
+
+                    String nm = name;
+                    String val = value;
+
+                    // this is a hack to handle some spacial lookup parameter names in kuali
+                    for (int i = 0; i < Constants.TEMPORARY_PARAMETER_REPLACEMENTS.length; ++i) {
+                        nm = name.replace(Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][1], Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][0]);
+                        val = value.replace(Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][1], Constants.TEMPORARY_PARAMETER_REPLACEMENTS[i][0]);
+                    }
                     
                     if (decode) {
-                        retval.add(new NameValuePair(name, URLDecoder.decode(value, CharEncoding.UTF_8)));
+                        retval.add(new NameValuePair(nm, URLDecoder.decode(val, CharEncoding.UTF_8)));
                     } else {
-                        retval.add(new NameValuePair(name, value));
+                        retval.add(new NameValuePair(nm, val));
                     }
                 }
             }
@@ -3471,6 +3490,10 @@ public class Utils {
     }
     
     public static List <NameValuePair> getNameValuePairsFromMultipartParams(String paramString) {
+        return getNameValuePairsFromMultipartParams(paramString, false);
+    }
+    
+    public static List <NameValuePair> getNameValuePairsFromMultipartParams(String paramString, boolean decode) {
         List <NameValuePair> retval = new ArrayList<NameValuePair>();
 
         if (StringUtils.isNotBlank(paramString)) {
@@ -3486,7 +3509,16 @@ public class Utils {
                     }
 
                     if (StringUtils.isNotBlank(value)) {
-                        retval.add(new NameValuePair(name, value.trim()));
+                        if (decode) {
+                            try {
+                                retval.add(new NameValuePair(name, URLDecoder.decode(value.trim(), CharEncoding.UTF_8)));
+                            } catch (UnsupportedEncodingException ex) {
+                                retval.add(new NameValuePair(name, value.trim()));
+                                LOG.warn(ex.toString(), ex);
+                            }
+                        } else {
+                            retval.add(new NameValuePair(name, value.trim()));
+                        }
                     } else {
                         retval.add(new NameValuePair(name, ""));
                     }
@@ -3498,18 +3530,42 @@ public class Utils {
     }
     
     public static String buildUrlEncodedParameterString(List <NameValuePair> nvplist) throws UnsupportedEncodingException {
+        return buildUrlEncodedParameterString(nvplist, false);
+    }
+    
+    public static String buildUrlEncodedParameterString(List <NameValuePair> nvplist, boolean decode) throws UnsupportedEncodingException {
         StringBuilder retval = new StringBuilder(512);
         
         String paramSeparator = "";
         
         for (NameValuePair nvp : nvplist) {
             retval.append(paramSeparator);
-            retval.append(nvp.getName());
+            if (decode) {
+                try {
+                    retval.append(URLDecoder.decode(nvp.getName(), CharEncoding.UTF_8));
+                } catch (UnsupportedEncodingException ex) {
+                    retval.append(nvp.getName());
+                    LOG.warn(ex.toString(), ex);
+                }
+            } else {
+                retval.append(nvp.getName());
+            }
+            
             retval.append(Constants.SEPARATOR_EQUALS);
+
             if (nvp.getValue() == null) {
                 retval.append("");
             } else {
-                retval.append(nvp.getValue());
+                if (decode) {
+                    try {
+                        retval.append(URLDecoder.decode(nvp.getValue(), CharEncoding.UTF_8));
+                    } catch (UnsupportedEncodingException ex) {
+                       retval.append(nvp.getValue());
+                       LOG.warn(ex.toString(), ex);
+                    }
+                } else {
+                    retval.append(nvp.getValue());
+                }
             }
             
             paramSeparator = Constants.SEPARATOR_AMPERSTAND;
@@ -3518,23 +3574,51 @@ public class Utils {
     }
 
     public static String buildUrlEncodedParameterString(NameValuePair[] nvparray) throws UnsupportedEncodingException {
-        return buildUrlEncodedParameterString(Arrays.asList(nvparray));
+        return buildUrlEncodedParameterString(Arrays.asList(nvparray), false);
     }
     
+    public static String buildUrlEncodedParameterString(NameValuePair[] nvparray, boolean decode) throws UnsupportedEncodingException {
+        return buildUrlEncodedParameterString(Arrays.asList(nvparray), decode);
+    }
+
     public static String buildMultipartParameterString(List <NameValuePair> nvplist) {
+        return buildMultipartParameterString(nvplist, false);
+    }
+    
+    public static String buildMultipartParameterString(List <NameValuePair> nvplist, boolean decode) {
         StringBuilder retval = new StringBuilder(512);
         
         String paramSeparator = "";
         
         for (NameValuePair nvp : nvplist) {
             retval.append(paramSeparator);
-            retval.append(nvp.getName());
+            
+            if (decode) {
+                try {
+                    retval.append(URLDecoder.decode(nvp.getName(), CharEncoding.UTF_8));
+                } catch (UnsupportedEncodingException ex) {
+                    retval.append(nvp.getName());
+                    LOG.warn(ex.toString(), ex);
+                }
+            } else {
+                retval.append(nvp.getName());
+            }
+            
             retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
             
             if (nvp.getValue() == null) {
                 retval.append("");
             } else {
-                retval.append(nvp.getValue());
+                if (decode) {
+                    try {
+                        retval.append(URLDecoder.decode(nvp.getValue(), CharEncoding.UTF_8));
+                    } catch (UnsupportedEncodingException ex) {
+                       retval.append(nvp.getValue());
+                       LOG.warn(ex.toString(), ex);
+                    }
+                } else {
+                    retval.append(nvp.getValue());
+                }
             }
             
             paramSeparator = Constants.MULTIPART_PARAMETER_SEPARATOR;
@@ -3626,6 +3710,7 @@ public class Utils {
 
     public static boolean isIgnoreUrl(List <String> urlsToIgnore, String url) {
         boolean retval = false;
+        
         
         if (StringUtils.isNotBlank(url)) {
             for (String compareString : urlsToIgnore) {
@@ -3879,6 +3964,35 @@ public class Utils {
             || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(tagName));
     }
     
+    public static boolean isFormInputTag(Node node) {
+        boolean retval = false;
+        
+        String tagName = node.getNodeName();
+        
+        if (Constants.HTML_TAG_TYPE_INPUT.equalsIgnoreCase(tagName)) {
+            if (node.getAttributes() != null) {
+                Node att = node.getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_TYPE);
+                
+                if (att != null) {
+                    boolean submit = false;
+                    for (int i = 0; i < Constants.SUBMIT_INPUT_TYPES.length; ++i) {
+                        if (Constants.SUBMIT_INPUT_TYPES[i].equalsIgnoreCase(att.getNodeValue())) {
+                            submit = true;
+                        }
+                    }
+                    
+                    retval = !submit;
+                }
+            }
+        } else if (Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(tagName)
+            || Constants.HTML_TAG_TYPE_TEXTAREA.equalsIgnoreCase(tagName)
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_RADIO.equalsIgnoreCase(tagName)
+            || Constants.HTML_INPUT_ATTRIBUTE_TYPE_CHECKBOX.equalsIgnoreCase(tagName)) {
+            retval = true;
+        }
+        
+        return retval;
+    }
     
     public static JMXConnector getJMXConnector(KualiTestConfigurationDocument.KualiTestConfiguration configuration, JmxConnection jmx) throws UnsupportedEncodingException, IOException {
         JMXConnector retval = null;
@@ -3913,4 +4027,21 @@ public class Utils {
         return retval;
     }
 
+    public static String decodeParameterName(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            try {
+                retval = stripXY(URLDecoder.decode(input, CharEncoding.UTF_8));
+            } catch (UnsupportedEncodingException ex) {
+                LOG.warn(ex.toString(), ex);
+            }
+        }
+        
+        return retval;
+    }
+    
+    public static boolean isIgnoredHttpStatus(int status) {
+        return (status == HttpStatus.NOT_MODIFIED_304);
+    }
 }

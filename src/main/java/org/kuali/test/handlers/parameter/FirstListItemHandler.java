@@ -18,7 +18,7 @@ package org.kuali.test.handlers.parameter;
 
 public class FirstListItemHandler extends ListItemHandler {
     public FirstListItemHandler() {
-        super(1);
+        super(0);
     }
     
     @Override

@@ -16,6 +16,7 @@
 
 package org.kuali.test.handlers.parameter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.Parameter;
 import org.kuali.test.TestExecutionParameter;
@@ -43,10 +44,21 @@ public abstract class ListItemHandler extends BaseParameterHandler {
             Node node = tec.getWebClient().findHtmlElementByName(param.getValue());
 
             if ((node != null) && Constants.HTML_TAG_TYPE_SELECT.equalsIgnoreCase(node.getNodeName())) {
+                int indx = itemToSelect;
+                
                 NodeList nodeList = node.getChildNodes();
 
-                if (nodeList.getLength() >= itemToSelect) {
-                    Node value  = nodeList.item(itemToSelect).getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+                if (nodeList.getLength() > 0) {
+                    Node value  = nodeList.item(0).getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_VALUE);
+                    
+                    // if first entry is balnk then increment desired index
+                    if ((value != null) && StringUtils.isBlank(value.getNodeValue())) {
+                        indx++;
+                    }
+                }
+                
+                if (nodeList.getLength() >= indx) {
+                    Node value  = nodeList.item(indx).getAttributes().getNamedItem(Constants.HTML_TAG_ATTRIBUTE_VALUE);
 
                     if (value != null) {
                         retval = value.getNodeValue();

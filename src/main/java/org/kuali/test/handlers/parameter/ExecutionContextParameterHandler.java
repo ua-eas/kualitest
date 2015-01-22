@@ -41,8 +41,8 @@ public class ExecutionContextParameterHandler extends BaseParameterHandler {
                 if (top.getOperation().getTestExecutionParameter() != null) {
                     TestExecutionParameter curtep = top.getOperation().getTestExecutionParameter();
                     
-                    if (curtep.getAdditionalInfo().equals(tep.getAdditionalInfo())) {
-                        retval = tep.getValue();
+                    if (curtep.getName().equals(tep.getAdditionalInfo())) {
+                        retval = curtep.getValue();
                         break;
                     }
                 }

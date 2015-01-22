@@ -84,7 +84,8 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
             if (cp.getCheckpointProperties() != null) {
                 long start = System.currentTimeMillis();
         
-                while ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN) {
+                while (((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
+                    && !tec.isHaltTest()) {
                     html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString().trim();
                     matchingProperties = findCurrentProperties(cp, HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(html)));
 

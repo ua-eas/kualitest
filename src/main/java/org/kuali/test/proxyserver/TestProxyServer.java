@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import org.apache.commons.codec.CharEncoding;
 import org.apache.commons.collections.map.IdentityMap;
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.lang3.StringUtils;
@@ -285,17 +287,29 @@ public class TestProxyServer {
         boolean retval = false;
         String method = request.getMethod().toString();
         if (Constants.VALID_HTTP_REQUEST_METHOD_SET.contains(method)) {
-           String s = request.getUri();
-           
             if (!Utils.isGetImageRequest(method, request.getUri())
                 && !Utils.isGetJavascriptRequest(method, request.getUri())
                 && !Utils.isGetCssRequest(method, request.getUri())) {
                 int status = HttpStatus.OK_200;
 
+                
                 if (!httpStatus.isEmpty()) {
                     status = httpStatus.pop().intValue();
                 }
-                retval = ((status == HttpStatus.OK_200) && !Utils.isIgnoreUrl(urlPatternsToIgnore, request.getUri()));
+                
+                if (status == HttpStatus.OK_200) {
+                    // jump through a few hoops here to prefix the uri with the hostname
+                    if (!Utils.isIgnoreUrl(urlPatternsToIgnore, request.getUri())) {
+                        io.netty.handler.codec.http.HttpHeaders headers = request.headers();
+                        String host = headers.get(HttpHeaders.HOST);
+                        
+                        if (StringUtils.isNotBlank(host) && !request.getUri().contains(host)) {
+                            retval = !Utils.isIgnoreUrl(urlPatternsToIgnore, host + request.getUri());
+                        } else {
+                            retval = true;
+                        }
+                    }
+                }
             }
         }
         return retval;
@@ -417,7 +431,6 @@ public class TestProxyServer {
             if (Constants.HTTP_REQUEST_METHOD_POST.equalsIgnoreCase(op.getMethod())) {
                 if (request instanceof FullHttpRequest) {
                     FullHttpRequest fr = (FullHttpRequest) request;
-
                     if (fr.content() != null) {
                         byte[] data = getHttpPostContent(fr.content());
 
@@ -480,20 +493,22 @@ public class TestProxyServer {
         // if we have a parameter string then convert to NameValuePair list and 
         // process parameters requiring encryption
         if (StringUtils.isNotBlank(parameterString)) {
-            List<NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(parameterString, true);
+            List<NameValuePair> nvplist = Utils.getNameValuePairsFromUrlEncodedParams(parameterString, false);
 
             if ((nvplist != null) && !nvplist.isEmpty()) {
                 NameValuePair[] nvparray = nvplist.toArray(new NameValuePair[nvplist.size()]);
 
-                for (String parameterName : configuration.getParametersRequiringEncryption().getNameArray()) {
-                    for (int i = 0; i < nvparray.length; ++i) {
-                        if (parameterName.equals(nvparray[i].getName())) {
-                            nvparray[i] = new NameValuePair(parameterName, Utils.encrypt(Utils.getEncryptionPassword(configuration), nvparray[i].getValue()));
-                        }
+                Set <String> namesRequringEncryption = new HashSet<String>(Arrays.asList(configuration.getParametersRequiringEncryption().getNameArray()));
+                
+                for (int i = 0; i < nvparray.length; ++i) {
+                    if (namesRequringEncryption.contains(nvparray[i].getName())) {
+                        nvparray[i] = new NameValuePair(URLDecoder.decode(nvparray[i].getName(), CharEncoding.UTF_8), Utils.encrypt(Utils.getEncryptionPassword(configuration), URLDecoder.decode(nvparray[i].getValue(), CharEncoding.UTF_8)));
+                    } else {
+                        nvparray[i] = new NameValuePair(URLDecoder.decode(nvparray[i].getName(), CharEncoding.UTF_8), URLDecoder.decode(nvparray[i].getValue(), CharEncoding.UTF_8));
                     }
                 }
                 
-                retval.append(Utils.buildUrlEncodedParameterString(nvparray));
+                retval.append(Utils.buildUrlEncodedParameterString(nvparray, false));
             }
         }
 
@@ -530,7 +545,7 @@ public class TestProxyServer {
                 } else {
                     boolean senstiveParameter = hs.contains(name);
 
-                    retval.append(name);
+                    retval.append(URLDecoder.decode(name, CharEncoding.UTF_8));
                     retval.append(Constants.MULTIPART_NAME_VALUE_SEPARATOR);
 
                     String value = "";
@@ -544,7 +559,7 @@ public class TestProxyServer {
                     } else if ((replaceParams != null) && replaceParams.containsKey(name)) {
                         retval.append(replaceParams.get(name));
                     } else {
-                        retval.append(value);
+                        retval.append(URLDecoder.decode(value, CharEncoding.UTF_8));
                     }
                 }
 

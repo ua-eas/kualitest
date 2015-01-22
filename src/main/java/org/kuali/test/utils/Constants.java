@@ -570,4 +570,8 @@ public class Constants {
         "submit",
         "image"
     };
+    
+    public static final String[][] TEMPORARY_PARAMETER_REPLACEMENTS =  {
+        {"((&&))", "@@@@"}
+    };
 }

@@ -95,6 +95,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                                 try {
                                     updateDisplay(monitor.buildDisplayMessage("Running test suite '" + testSuite.getName() + "'..." , startTime));
                                     if (isCancelTest()) {
+                                        monitor.haltTests();
                                         break;
                                     }
                                     Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);

@@ -113,8 +113,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
 
-                // see if we can find a submit element, if we can then use click() call
-                // to submit
+                // see if we can find a submit element, if we can then 
+                // use click() call to submit
                 HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
 
                 if (submit != null) {

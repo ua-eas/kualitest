@@ -103,7 +103,7 @@ public class TestExecutionContext extends Thread {
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
     private File performanceDataFile;
-
+    
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> randomListAccessParameterToIgnore = new HashSet<String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
@@ -926,7 +926,9 @@ public class TestExecutionContext extends Thread {
         saveCurrentScreen(f, html, false);
     }
 
-    public void saveCurrentScreen(File saveFile, String html, boolean debug) {
+    public boolean saveCurrentScreen(File saveFile, String html, boolean debug) {
+        boolean retval = false;
+        
         if (StringUtils.isBlank(html)) {
             html = Constants.NO_HTML_FOUND;
         }
@@ -943,6 +945,8 @@ public class TestExecutionContext extends Thread {
             if (!debug) {
                 getGeneratedCheckpointFiles().add(saveFile);
             }
+            
+            retval = true;
         }
 
         catch (Exception ex) {
@@ -958,6 +962,8 @@ public class TestExecutionContext extends Thread {
 
             catch (Exception ex) {};
         }
+        
+        return retval;
     }
     
     public String getErrorFileName(String suffix) {
@@ -1179,5 +1185,9 @@ public class TestExecutionContext extends Thread {
 
     public void setRampUpTime(int rampUpTime) {
         this.rampUpTime = rampUpTime;
+    }
+
+    public boolean isHaltTest() {
+        return haltTest;
     }
 }

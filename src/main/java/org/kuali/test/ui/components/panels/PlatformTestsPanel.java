@@ -247,7 +247,7 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            new RunningTestDisplay(getMainframe(), "Running Test") {
+            RunningTestDisplay dlg = new RunningTestDisplay(getMainframe(), "Running Test") {
                 private long startTime = System.currentTimeMillis();
                 
                 @Override
@@ -259,6 +259,7 @@ public class PlatformTestsPanel extends BasePanel
                             try {
                                 updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
                                 if (isCancelTest()) {
+                                    monitor.haltTests();
                                     break;
                                 }
                                 Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
