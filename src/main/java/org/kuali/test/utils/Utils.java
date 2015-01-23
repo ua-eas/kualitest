@@ -3271,9 +3271,9 @@ public class Utils {
         int pos1 = 0;
 
         do {
-            pos1 = input.indexOf("${", lastPos);
+            pos1 = input.indexOf(Constants.TEST_EXECUTION_PARAMETER_PREFIX, lastPos);
             if (pos1 > -1) {
-                int pos2 = input.indexOf("}", pos1);
+                int pos2 = input.indexOf(Constants.TEST_EXECUTION_PARAMETER_SUFFIX, pos1);
 
                 if (pos2 > pos1) {
                     int startPos = pos1 + 2;

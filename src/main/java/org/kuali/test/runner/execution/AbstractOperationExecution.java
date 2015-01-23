@@ -31,6 +31,7 @@ import org.kuali.test.CheckpointProperty;
 import org.kuali.test.ComparisonOperator;
 import org.kuali.test.Operation;
 import org.kuali.test.Parameter;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.TestOutput;
@@ -196,6 +197,36 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         return retval;
     }
     
+    private boolean isTestExecutionParameter(String input) {
+        return (StringUtils.isNotBlank(input) 
+            && input.trim().startsWith(Constants.TEST_EXECUTION_PARAMETER_PREFIX) 
+            && input.trim().endsWith(Constants.TEST_EXECUTION_PARAMETER_SUFFIX));
+    }
+    
+    private String getTestExecutionParameterValue(String parameterName) {
+        String retval = null;
+        
+        for (TestExecutionParameter tep : getTestExecutionContext().getTestExecutionContextParameters()) {
+            if (tep.getName().equalsIgnoreCase(parameterName)) {
+                retval = tep.getValue();
+                break;
+            }
+        }   
+        
+        return retval;
+    }
+    
+    private String getTestExecutionParameterName(String input) {
+        String retval = input;
+        
+        if (StringUtils.isNotBlank(input)) {
+            String s = input.trim();
+            retval = s.substring(2, s.length() - 1);
+        }
+        
+        return retval;
+    }
+    
     /**
      *
      * @param cp
@@ -206,6 +237,12 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         Object retval = null;
         ValueType.Enum type = cp.getValueType();
         String comparisonValue = cp.getPropertyValue();
+        
+        if (isTestExecutionParameter(comparisonValue)) {
+            comparisonValue = getTestExecutionParameterValue(getTestExecutionParameterName(comparisonValue));
+            
+System.out.println("----------------->" + comparisonValue);            
+        }
         
         if (!ComparisonOperator.NULL.equals(cp.getOperator())) {
             if (ComparisonOperator.IN.equals(cp.getOperator())) {

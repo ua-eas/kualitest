@@ -115,7 +115,7 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
                 
                 additionalInformationEntry.setText("");
                 ParameterHandler ph = (ParameterHandler)parameterHandlers.getSelectedItem();
-                additionalInformationEntry.setEnabled(ph.isTextEntryRequired());
+                additionalInformationEntry.setEnabled(ph.isTextEntryAllowed() || ph.isTextEntryRequired());
             }
         });
         
@@ -243,12 +243,12 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
             
             ParameterHandler p = (ParameterHandler)parameterHandlers.getSelectedItem();
             
-            if (isAdditionalInformationHandlerClass()) {
-                testExecutionParameter.setAdditionalInfo(additionalInformationSelect.getSelectedItem().toString());
-            } else if (p.isTextEntryRequired()) {
+            if (p.isTextEntryRequired() || (p.isTextEntryAllowed() && StringUtils.isNotBlank(additionalInformationEntry.getText()))) {
                 testExecutionParameter.setAdditionalInfo(additionalInformationEntry.getText());
+            } else if (isAdditionalInformationHandlerClass()) {
+                testExecutionParameter.setAdditionalInfo(additionalInformationSelect.getSelectedItem().toString());
             }
-
+            
             cp.setPropertySection(Utils.formatHtmlForComparisonProperty(cp.getPropertySection()));
 
             testExecutionParameter.setValueProperty(cp);

@@ -19,7 +19,6 @@ package org.kuali.test.handlers.parameter;
 import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
-import org.kuali.test.TestOperation;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.w3c.dom.Document;
 
@@ -27,7 +26,7 @@ import org.w3c.dom.Document;
 public class ExecutionContextParameterHandler extends BaseParameterHandler {
     @Override
     public String getDescription() {
-        return "This handler will return the value from a populated existing test execution parameter in the current test run";
+        return "This handler will return the value from a populated existing test execution parameter in the current test execution context";
     }
 
     @Override
@@ -35,20 +34,21 @@ public class ExecutionContextParameterHandler extends BaseParameterHandler {
         String retval = "";
         
         if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
-            for (int i = tec.getCurrentOperationIndex(); i >= 0; --i) {
-                TestOperation top = tec.getTestOperation(i);
-
-                if (top.getOperation().getTestExecutionParameter() != null) {
-                    TestExecutionParameter curtep = top.getOperation().getTestExecutionParameter();
-                    
-                    if (curtep.getName().equals(tep.getAdditionalInfo())) {
-                        retval = curtep.getValue();
-                        break;
-                    }
+            for (TestExecutionParameter contextParameter : tec.getTestExecutionContextParameters()) {
+                if (contextParameter.getName().equals(tep.getAdditionalInfo())) {
+                    retval = contextParameter.getValue();
+                    break;
                 }
             }
         }
         
         return retval;
     }
+
+    @Override
+    public boolean isTextEntryAllowed() {
+        return true;
+    }
 }
+
+

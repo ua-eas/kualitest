@@ -57,7 +57,7 @@ public class RandomListValueHandler extends BaseParameterHandler {
     }
 
     @Override
-    public boolean isTextEntryRequired() {
+    public boolean isTextEntryAllowed() {
         return true;
     }
 }

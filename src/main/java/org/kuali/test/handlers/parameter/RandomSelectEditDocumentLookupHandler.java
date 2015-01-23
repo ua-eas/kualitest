@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.kuali.test.CheckpointProperty;
+import org.kuali.test.Parameter;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
 import org.kuali.test.utils.Constants;
@@ -55,7 +56,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
                 NodeList cols = selrow.getElementsByTagName(Constants.HTML_TAG_TYPE_TD);
                 
                 if ((cols != null) && (cols.getLength() > 0)) {
-                    retval = getValue(cp, (Element)cols.item(0));
+                    retval = getValue(tep, cp, (Element)cols.item(0));
                     setCommentText("randomly selected value " + retval + " from row " + indx);
                 }
             }
@@ -64,7 +65,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
         return retval;
     }
     
-    private String getValue(CheckpointProperty cp, Element columnZero) {
+    private String getValue(TestExecutionParameter tep, CheckpointProperty cp, Element columnZero) {
         String retval = null;
         
         Element anchor = getAnchor(columnZero);
@@ -79,6 +80,22 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
                     if ((nvplist != null) && !nvplist.isEmpty()) {
                         for (NameValuePair nvp : nvplist) {
                             if (isDocumentIdParameter(nvp)) {
+                                // look at the original anchor to find the replace by value document id
+                                // set this in the checkpoint property value for comparison
+                                Parameter param  =  Utils.getCheckpointPropertyTagParameter(tep.getValueProperty(), Constants.ANCHOR_PARAMETERS);
+                                if (param != null) {
+                                    nvplist = Utils.getNameValuePairsFromUrlEncodedParams(param.getValue());
+
+                                    if ((nvplist != null) && !nvplist.isEmpty()) {
+                                        for (NameValuePair nvp2 : nvplist) {
+                                            if (nvp2.getName().equalsIgnoreCase(nvp.getName())) {
+                                                tep.getValueProperty().setPropertyValue(nvp2.getValue());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                
                                 retval = nvp.getValue();
                                 break;
                             }
@@ -93,5 +110,10 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
         }
         
         return retval;
+    }
+
+    @Override
+    public boolean isReplaceByValue() {
+        return true;
     }
 }

@@ -216,7 +216,7 @@ public class WhereValueCellEditor extends JPanel implements TableCellEditor, Act
         
         if (StringUtils.isNotBlank(param)) {
             JTextField tf = (JTextField)cellEditor.getComponent();
-            tf.setText("${" + param + "}");
+            tf.setText(Constants.TEST_EXECUTION_PARAMETER_PREFIX + param + Constants.TEST_EXECUTION_PARAMETER_SUFFIX);
         }
     }
 }

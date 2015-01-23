@@ -30,5 +30,6 @@ public interface ParameterHandler extends Comparable<ParameterHandler> {
     public boolean isReplaceByValue();
     public boolean isValidForApplication(KualiApplication.Enum app);
     public boolean isExistingPropertyValueRequired();
+    public boolean isTextEntryAllowed();
     public boolean isTextEntryRequired();
 }

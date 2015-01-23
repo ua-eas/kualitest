@@ -201,10 +201,11 @@ public class SqlOperationExecution extends AbstractOperationExecution {
         TestExecutionContext tec = getTestExecutionContext();
         
         Map<String, TestExecutionParameter> map = tec.getTestExecutionByParameterNameMap();
+
         
         for (String nm : map.keySet()) {
             TestExecutionParameter tep = map.get(nm);
-            nm = "${" + nm + "}";
+            nm = Constants.TEST_EXECUTION_PARAMETER_PREFIX + nm + Constants.TEST_EXECUTION_PARAMETER_SUFFIX;
             retval = retval.replace(nm, tep.getValue());
         }
 

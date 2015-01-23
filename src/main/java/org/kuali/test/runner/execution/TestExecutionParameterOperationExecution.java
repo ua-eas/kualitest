@@ -94,6 +94,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                         // if we found a matching html element then set the parameter value
                         if (cpmatch != null) {
                             tep.setValue(ph.getValue(tec, tep, doc, cpmatch));
+                            tec.addTestExecutionParameter(tep);
                         }
                     }
                 }

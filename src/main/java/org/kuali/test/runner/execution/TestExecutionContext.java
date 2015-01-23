@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,6 +111,8 @@ public class TestExecutionContext extends Thread {
     private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
     private Map<String, ParameterHandler> parameterHandlers = new HashMap<String, ParameterHandler>();
     private List<String[]> performanceData;
+    private LinkedList <TestExecutionParameter> testExecutionContextParameters = new LinkedList<TestExecutionParameter>();
+    
     
     private Platform platform;
     private TestSuite testSuite;
@@ -697,18 +700,11 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByValueParameterMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestOperation top : currentTest.getOperations()) {
-            if (top.getOperation().getTestExecutionParameter() != null) {
-                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
-                    break;
-                }
-                
-                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
-                
-                if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
-                    retval.put(tep.getValueProperty().getPropertyValue(), tep);
-                }
+        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+            ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
+
+            if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
+                retval.put(tep.getValueProperty().getPropertyValue(), tep);
             }
         }
         
@@ -718,22 +714,15 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByElementNameParameterMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestOperation top : currentTest.getOperations()) {
-            if (top.getOperation().getTestExecutionParameter() != null) {
-                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
-                    break;
-                }
-                
-                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-                ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
+        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+            ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
 
-                if (StringUtils.isNotBlank(tep.getValue()) && !ph.isReplaceByValue()) {
-                    if (tep.getValueProperty().getTagInformation() != null) {
-                        for (Parameter p : tep.getValueProperty().getTagInformation().getParameterArray()) {
-                            if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
-                                retval.put(p.getValue(), tep);
-                                break;
-                            }
+            if (StringUtils.isNotBlank(tep.getValue()) && !ph.isReplaceByValue()) {
+                if (tep.getValueProperty().getTagInformation() != null) {
+                    for (Parameter p : tep.getValueProperty().getTagInformation().getParameterArray()) {
+                        if (Constants.HTML_TAG_ATTRIBUTE_NAME.equals(p.getName())) {
+                            retval.put(p.getValue(), tep);
+                            break;
                         }
                     }
                 }
@@ -746,16 +735,9 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByParameterNameMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestOperation top : currentTest.getOperations()) {
-            if (top.getOperation().getTestExecutionParameter() != null) {
-                if (top.getOperation().getIndex() > currentOperationIndex.intValue()) {
-                    break;
-                }
-                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
-
-                if (StringUtils.isNotBlank(tep.getValue())) {
-                    retval.put(tep.getName(), tep);
-                }
+        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+            if (StringUtils.isNotBlank(tep.getValue())) {
+                retval.put(tep.getName(), tep);
             }
         }
         
@@ -1189,5 +1171,13 @@ public class TestExecutionContext extends Thread {
 
     public boolean isHaltTest() {
         return haltTest;
+    }
+    
+    public void addTestExecutionParameter(TestExecutionParameter tep) {
+        testExecutionContextParameters.addFirst(tep);
+    }
+
+    public List<TestExecutionParameter> getTestExecutionContextParameters() {
+        return testExecutionContextParameters;
     }
 }
