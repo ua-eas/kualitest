@@ -16,6 +16,8 @@
 package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
@@ -26,6 +28,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -53,6 +57,7 @@ import org.kuali.test.ui.dnd.DndHelper;
 import org.kuali.test.ui.dnd.RepositoryDragSourceAdapter;
 import org.kuali.test.ui.dnd.RepositoryTransferData;
 import org.kuali.test.ui.dnd.RepositoryTransferable;
+import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
 
@@ -126,13 +131,35 @@ public class PlatformTestsPanel extends BasePanel
         deleteTestMenuItem.addActionListener(this);
         
         testList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        
+        testList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                TestHeader th = (TestHeader)value;
+
+                JLabel retval = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                
+                retval.setText(th.getTestName());
+                
+                if (th.getExternalDependency()) {
+                    retval.setForeground(Color.RED);
+                    retval.setToolTipText("requires external input parameters to run");
+                } else {
+                    retval.setForeground(Color.BLACK);
+                }
+                
+                return retval;
+            };
+        });
+        
         testList.addMouseListener(new MouseAdapter() {
             private void myPopupEvent(MouseEvent e) {
                 int indx = testList.locationToIndex(e.getPoint());
                 if (indx > -1) {
                     // only allow deleting 1 test at a time
                     deleteTestMenuItem.setEnabled((getSelectedTests() != null) && (getSelectedTests().size() == 1));
-                    showPopup((String)testList.getModel().getElementAt(indx), e.getX(), e.getY());
+                    TestHeader th = (TestHeader)testList.getModel().getElementAt(indx);
+                    showPopup(th.getTestName(), e.getX(), e.getY());
                 }
             }
 
@@ -222,7 +249,7 @@ public class PlatformTestsPanel extends BasePanel
             clearList();
             DefaultListModel model = (DefaultListModel) testList.getModel();
             for (TestHeader th : platform.getPlatformTests().getTestHeaderArray()) {
-                model.addElement(th.getTestName());
+                model.addElement(th);
             }
 
         } else {
@@ -238,6 +265,31 @@ public class PlatformTestsPanel extends BasePanel
         return currentPlatform;
     }
 
+    private boolean isTestRunnable(TestHeader testHeader) {
+        boolean retval = true;
+
+        if (testHeader.getExternalDependency()) {
+            Set <String> dependencyList = Utils.getExternalTestDependencies(getMainframe().getConfiguration(), testHeader);
+
+            if (!dependencyList.isEmpty()) {
+                retval = false;
+                StringBuilder msg = new StringBuilder(256);
+                msg.append("Test '");
+                msg.append(testHeader.getTestName());
+                msg.append("' depends upon the outside input parameters listed below and cannot be run standalone:<br /><br />");
+                for (String s : dependencyList) {
+                    msg.append("\"");
+                    msg.append(s);
+                    msg.append("\"<br />");
+                }
+
+                UIUtils.showError(this, "Test Not Runnable", msg.toString());
+            }
+        }
+        
+        return retval;
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (Constants.SHOW_TEST_INFORMATION_ACTION.equals(e.getActionCommand())) {
@@ -247,70 +299,74 @@ public class PlatformTestsPanel extends BasePanel
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
-            RunningTestDisplay dlg = new RunningTestDisplay(getMainframe(), "Running Test") {
-                private long startTime = System.currentTimeMillis();
-                
-                @Override
-                protected void runProcess() {
-                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1, 0);
-                    if (monitor != null) {
-                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
-                        while (!monitor.testsCompleted()) {
-                            try {
-                                updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
-                                if (isCancelTest()) {
-                                    monitor.haltTests();
-                                    break;
-                                }
-                                Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
-                            } 
+            if (isTestRunnable(currentTestHeader)) {
+                RunningTestDisplay dlg = new RunningTestDisplay(getMainframe(), "Running Test") {
+                    private long startTime = System.currentTimeMillis();
 
-                            catch (InterruptedException ex) {};
+                    @Override
+                    protected void runProcess() {
+                        TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), 1, 0);
+                        if (monitor != null) {
+                            monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
+                            while (!monitor.testsCompleted()) {
+                                try {
+                                    updateDisplay(monitor.buildDisplayMessage("Running test '" + currentTestHeader.getTestName() + "'...", startTime));
+                                    if (isCancelTest()) {
+                                        monitor.haltTests();
+                                        break;
+                                    }
+                                    Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                } 
+
+                                catch (InterruptedException ex) {};
+                            }
                         }
                     }
-                }
+                };
             };
         } else if (RUN_TEST_LOAD_TEST.equals(e.getActionCommand())) {
-             LoadTestDlg dlg = new LoadTestDlg(getMainframe(), currentTestHeader.getTestName(), false);
+            if (isTestRunnable(currentTestHeader)) {
+                LoadTestDlg dlg = new LoadTestDlg(getMainframe(), currentTestHeader.getTestName(), false);
              
-             if (dlg.isSaved()) {
-                final int testRuns = dlg.getTestRuns();
-                final int rampUpTime = dlg.getRampUpTime();
-                String testName = currentTestHeader.getTestName();
-                
-                if (testRuns > 0) {
-                    getMainframe().startSpinner2("Running load test: test - " + testName + "[" + testRuns + "]");
-                    new SwingWorker() {
-                        @Override
-                        protected Object doInBackground() throws Exception {
-                            String retval = null;
-                            try {
-                                TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns, rampUpTime);
+                if (dlg.isSaved()) {
+                   final int testRuns = dlg.getTestRuns();
+                   final int rampUpTime = dlg.getRampUpTime();
+                    String testName = currentTestHeader.getTestName();
+                    if (testRuns > 0) {
+                        getMainframe().startSpinner2("Running load test: test - " + testName + "[" + testRuns + "]");
+                        new SwingWorker() {
+                            @Override
+                            protected Object doInBackground() throws Exception {
+                                String retval = null;
+                                try {
+                                    TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns, rampUpTime);
 
-                                if (monitor != null) {
-                                    while(!monitor.testsCompleted()) {
-                                        if (getMainframe().getSpinner2().isCancelled()) {
-                                            monitor.haltTests();
-                                            break;
+                                    if (monitor != null) {
+                                        monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
+                                        while(!monitor.testsCompleted()) {
+                                            if (getMainframe().getSpinner2().isCancelled()) {
+                                                monitor.haltTests();
+                                                break;
+                                            }
+
+                                            Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
                                         }
-                                        
-                                        Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
                                     }
+                                } 
+
+                                catch (Exception ex) {
+                                    LOG.error(ex.toString(), ex);
                                 }
-                            } 
 
-                            catch (Exception ex) {
-                                LOG.error(ex.toString(), ex);
+                                return retval;
+                            };
+
+                            @Override
+                            protected void done() {
+                                getMainframe().stopSpinner2();
                             }
-
-                            return retval;
-                        };
-
-                        @Override
-                        protected void done() {
-                            getMainframe().stopSpinner2();
-                        }
-                    }.execute();
+                        }.execute();
+                    }
                 }
              }
         }
@@ -335,7 +391,8 @@ public class PlatformTestsPanel extends BasePanel
         
         for (int i = 0; i < sz; ++i) {
             if (testList.isSelectedIndex(i)) {
-                retval.add((String)testList.getModel().getElementAt(i));
+                TestHeader th = (TestHeader)testList.getModel().getElementAt(i);
+                retval.add(th.getTestName());
             }
         }
         return retval;

@@ -42,6 +42,7 @@ public class Constants {
     public static final ImageIcon PLATFORM_TOOLBAR_ICON = new ImageIcon(TestCreator.class.getResource("/images/platform-toolbar.png"));
     public static final ImageIcon TEST_SUITE_ICON = new ImageIcon(TestCreator.class.getResource("/images/test-suite.png"));
     public static final ImageIcon TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/test.png"));
+    public static final ImageIcon DEPENDENT_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/dependent-test.png"));
     public static final ImageIcon SAVE_CONFIGURATION_ICON = new ImageIcon(TestCreator.class.getResource("/images/save.png"));
     public static final ImageIcon CREATE_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/createtest.png"));
     public static final ImageIcon CANCEL_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/cancel-test.png"));
@@ -281,6 +282,12 @@ public class Constants {
     public static final String PERFORMANCE_ATTRIBUTE_TYPE_CLIENT = "Client Performance";
     public static final String PERFORMANCE_ATTRIBUTE_NAME_HEAP_MEMORY_USAGE = "HeapMemoryUsage";
     public static final String CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME = "HTTP Response Time";
+    public static final String[] EXECUTION_CONTEXT_PARAMETER_HANDLER_CLASSES = {
+        "org.kuali.test.handlers.parameter.ExecutionContextParameterHandler",
+        "org.kuali.test.handlers.parameter.ExecutionContextParameterReplaceByValueHandler"
+    };
+    
+    
     
     public static final int SIBLING_NODE_SEARCH_DIRECTION_INVALID = Integer.MIN_VALUE;
     public static final int SIBLING_NODE_SEARCH_DIRECTION_PREVIOUS = -1;
@@ -344,6 +351,7 @@ public class Constants {
     public static final String TMP_FILE_PREFIX_SEPARATOR = "_-_";
     public static final String ATTACHMENTS = "attachments";
     public static final String TAB = "tab";
+    public static final String CHECKBOX_ON = "on";
     
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);

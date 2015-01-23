@@ -67,13 +67,16 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
         TestExecutionParameter tep = getOperation().getTestExecutionParameter();
         ParameterHandler ph = tec.getParameterHandler(tep.getParameterHandler());
 
+if (tec.getCurrentOperationIndex() > 31) {
+    System.out.println("------------------------------------>");
+    System.out.println(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
+}
 
         if (StringUtils.isNotBlank(key)) {
             long start = System.currentTimeMillis();
             while (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue()) 
                 && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
                 && !tec.isHaltTest()) {
-
                 Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
 
                 if (doc != null) {
@@ -85,6 +88,9 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
 
                         for (CheckpointProperty cp : dominfo.getCheckpointProperties()) {
                             String curkey = Utils.buildCheckpointPropertyKey(cp);
+if (tec.getCurrentOperationIndex() > 31) {
+    System.out.println("-------------->" + key + "=" + curkey);
+}
                             if (StringUtils.equals(key, curkey)) {
                                 cpmatch = cp;
                                 break;

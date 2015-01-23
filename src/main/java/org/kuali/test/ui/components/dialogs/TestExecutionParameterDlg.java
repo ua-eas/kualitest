@@ -63,12 +63,13 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     private TestExecutionParameter testExecutionParameter;
     private List<TestOperation> testOperations;
     private TestHeader testHeader;
+
     /**
      * 
      * @param mainframe
      * @param wb
-     * @param testHeader
-     * @param html 
+     * @param testOperations
+     * @param testHeader 
      */
     public TestExecutionParameterDlg(TestCreator mainframe, 
         JWebBrowser wb, 
@@ -183,8 +184,15 @@ public class TestExecutionParameterDlg extends BaseSetupDlg {
     }
     
     private boolean isAdditionalInformationRequired() {
-        return (isAdditionalInformationHandlerClass()  
-            && (!additionalInformationSelect.isEnabled() || (additionalInformationSelect.getSelectedIndex() < 0)));
+        boolean retval = false;
+        
+        if (isAdditionalInformationHandlerClass()) {
+            if (!additionalInformationEntry.isEnabled() || StringUtils.isBlank(additionalInformationEntry.getText())) {
+                retval = (!additionalInformationSelect.isEnabled() || (additionalInformationSelect.getSelectedIndex() < 0));
+            }
+        }
+        
+        return retval;
     }
     
     private boolean isLookupTableAvailable() {

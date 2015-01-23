@@ -37,6 +37,7 @@ public class ExecutionContextParameterHandler extends BaseParameterHandler {
             for (TestExecutionParameter contextParameter : tec.getTestExecutionContextParameters()) {
                 if (contextParameter.getName().equals(tep.getAdditionalInfo())) {
                     retval = contextParameter.getValue();
+                    setCommentText("using test execution value " + retval + " from parameter \"" +  contextParameter.getName() + "\"");
                     break;
                 }
             }

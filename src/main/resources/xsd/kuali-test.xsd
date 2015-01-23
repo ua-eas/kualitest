@@ -159,6 +159,7 @@
             <xs:element name="additional-parameters" type="xs:string" minOccurs="0"/>
             <xs:element name="collect-performance-data" type="xs:boolean" default="false"/>
             <xs:element name="use-test-entry-times" type="xs:boolean" default="false"/>
+            <xs:element name="external-dependency" type="xs:boolean" default="false" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     

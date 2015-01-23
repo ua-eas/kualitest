@@ -113,6 +113,7 @@ import org.kuali.test.TagHandlersDocument;
 import org.kuali.test.TagMatchAttribute;
 import org.kuali.test.TagMatchType;
 import org.kuali.test.TagMatcher;
+import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperations;
@@ -3800,6 +3801,26 @@ public class Utils {
             
             ops.setOperationArray(testOperations.toArray(new TestOperation[testOperations.size()]));
 
+            Set <String> hs = new HashSet<String>();
+            // loop over parameters and see if there are any external depedencies
+            for (TestOperation top : test.getOperations().getOperationArray()) {
+                if (top.getOperation().getTestExecutionParameter() != null) {
+                    TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+
+                    // if this is an execution context handler and we have not seen the parameter name
+                    // yet then this is an outside dependency
+                    if (isExecutionContextHandler(tep.getParameterHandler())) {
+                        if (!hs.contains(tep.getAdditionalInfo())) {
+                            testHeader.setExternalDependency(true);
+                            break;
+                        }
+                    }
+
+                    hs.add(tep.getName());
+                }
+            }
+
+            
             File f = Utils.buildTestFile(repositoryLocation, testHeader);
             
             if (!f.getParentFile().exists()) {
@@ -4044,4 +4065,48 @@ public class Utils {
     public static boolean isIgnoredHttpStatus(int status) {
         return (status == HttpStatus.NOT_MODIFIED_304);
     }
+    
+    
+    public static Set <String> getExternalTestDependencies(KualiTestConfigurationDocument.KualiTestConfiguration configuration, 
+        TestHeader testHeader) {
+        Set <String> retval = new HashSet<String>();
+        Set <String> hs = new HashSet<String>();
+
+        KualiTest test = findKualiTest(configuration, testHeader.getPlatformName(), testHeader.getTestName());
+
+            // loop over parameters and see if there are any external depedencies
+        for (TestOperation top : test.getOperations().getOperationArray()) {
+            if (top.getOperation().getTestExecutionParameter() != null) {
+                TestExecutionParameter tep = top.getOperation().getTestExecutionParameter();
+
+                // if this is an execution context handler and we have not seen the parameter name
+                // yet then this is an outside dependency
+                if (isExecutionContextHandler(tep.getParameterHandler())) {
+                    if (!hs.contains(tep.getAdditionalInfo())) {
+                        retval.add(tep.getAdditionalInfo());
+                    }
+                }
+
+                hs.add(tep.getName());
+            }
+        }
+
+        return retval;
+    }
+
+    public static boolean isExecutionContextHandler(String classname) {
+        boolean retval = false;
+        
+        if (StringUtils.isNotBlank(classname)) {
+            for (int i = 0; i < Constants.EXECUTION_CONTEXT_PARAMETER_HANDLER_CLASSES.length; ++i) {
+                if (classname.equals(Constants.EXECUTION_CONTEXT_PARAMETER_HANDLER_CLASSES[i])) {
+                    retval = true;
+                    break;
+                }
+            }
+        }
+        
+        return retval;
+    }
+    
 }

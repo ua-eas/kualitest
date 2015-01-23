@@ -51,6 +51,26 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
         super(context, op);
     }
 
+    private String getSubmitElementName(HtmlElement element) {
+        String retval = null;
+        
+        if (element != null) {
+            String nm = element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
+            
+            if (StringUtils.isNotBlank(nm)) {
+                int pos = nm.indexOf(")");
+                if (pos > -1) {
+                    nm = nm.substring(0, pos+1);
+                }
+                
+                retval = Utils.stripXY(nm);
+            }
+                 
+        }
+        
+        return retval;
+    }
+    
     /**
      * 
      * @param configuration
@@ -113,12 +133,15 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     }
                 }
 
+                tec.setLastHttpSubmitElementName(null);
+                
                 // see if we can find a submit element, if we can then 
                 // use click() call to submit
                 HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
 
                 if (submit != null) {
                     tec.getWebClient().populateFormElements(tec, nvplist);
+                    tec.setLastHttpSubmitElementName(getSubmitElementName(submit));
                     submit.click();
                     requestSubmitted = true;
                 } else {

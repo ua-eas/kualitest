@@ -240,8 +240,6 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         
         if (isTestExecutionParameter(comparisonValue)) {
             comparisonValue = getTestExecutionParameterValue(getTestExecutionParameterName(comparisonValue));
-            
-System.out.println("----------------->" + comparisonValue);            
         }
         
         if (!ComparisonOperator.NULL.equals(cp.getOperator())) {

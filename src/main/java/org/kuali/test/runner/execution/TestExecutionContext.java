@@ -98,13 +98,13 @@ public class TestExecutionContext extends Thread {
         "attribute name", // 9
         "value type", // 10
         "value", // 11
-        "description" // 12
+        "trigger", // 12
+        "description" // 13
     };
     
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
     private File testResultsFile;
     private File performanceDataFile;
-    
     private Map<String, String> autoReplaceParameterMap = new HashMap<String, String>();
     private Set<String> randomListAccessParameterToIgnore = new HashSet<String>();
     private Set<String> parametersRequiringDecryption = new HashSet<String>();
@@ -133,6 +133,7 @@ public class TestExecutionContext extends Thread {
     private KualiTestWrapper currentTest;
     private PoiHelper poiHelper;
     private Integer currentOperationIndex;
+    private String lastHttpSubmitElementName;
     
     public TestExecutionContext(KualiTestConfigurationDocument.KualiTestConfiguration configuration) {
         this.configuration = configuration;
@@ -1036,6 +1037,15 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
+    private String getLastHttpSubmitElementName() {
+        String retval = "";
+        if (StringUtils.isNotBlank(lastHttpSubmitElementName)) {
+            retval = lastHttpSubmitElementName;
+            lastHttpSubmitElementName = null;
+        }
+        return retval;
+    };
+    
     private void writePerformanceData(TestOperation op, long operationElaspedTime) {
         if (isPerformanceDataRequired()) {
 
@@ -1049,7 +1059,8 @@ public class TestExecutionContext extends Thread {
                 rec[9] = Constants.CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME;
                 rec[10] = Constants.PRIMITIVE_LONG_TYPE;
                 rec[11] = "" + operationElaspedTime;
-                rec[12] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
+                rec[12] = getLastHttpSubmitElementName();
+                rec[13] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
                 performanceData.add(rec);
             }
 
@@ -1089,7 +1100,8 @@ public class TestExecutionContext extends Thread {
                                 rec[8] = att.getName();
                                 rec[9] = att.getType();
                                 rec[10] = value.toString();
-                                rec[11] = att.getDescription();
+                                rec[12] = "";
+                                rec[13] = att.getDescription();
 
                                 performanceData.add(rec);
                             }
@@ -1179,5 +1191,9 @@ public class TestExecutionContext extends Thread {
 
     public List<TestExecutionParameter> getTestExecutionContextParameters() {
         return testExecutionContextParameters;
+    }
+
+    public void setLastHttpSubmitElementName(String lastHttpSubmitElementName) {
+        this.lastHttpSubmitElementName = lastHttpSubmitElementName;
     }
 }

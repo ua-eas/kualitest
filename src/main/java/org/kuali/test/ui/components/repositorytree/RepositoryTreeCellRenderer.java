@@ -52,7 +52,12 @@ public class RepositoryTreeCellRenderer extends BaseTreeCellRenderer {
             } else if (node.getUserObject() instanceof TestSuite) {
                 retval = Constants.TEST_SUITE_ICON;
             } else if (node.getUserObject() instanceof SuiteTest) {
-                retval = Constants.TEST_ICON;
+                SuiteTest st = (SuiteTest)node.getUserObject();
+                if (st.getTestHeader().getExternalDependency()) {
+                    retval = Constants.DEPENDENT_TEST_ICON;
+                } else {
+                    retval = Constants.TEST_ICON;
+                }
             }
         }
         

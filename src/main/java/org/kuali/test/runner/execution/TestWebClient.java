@@ -187,13 +187,14 @@ public class TestWebClient extends WebClient {
                         String results = retval.getContentAsString();
                         
                         // uncomment to write out screens as pdf files for troubleshooting
-                        
+                        /*
                         if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML) && StringUtils.isNotBlank(results)) {
                             tec.saveCurrentScreen(new File("/home/rbtucker/tmp/screen-op" 
                                 + tec.getCurrentOperationIndex() 
                                 + "-" 
                                 + System.currentTimeMillis() + ".pdf"), results, true);
                         }
+                        */
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
@@ -333,7 +334,7 @@ public class TestWebClient extends WebClient {
         }
     }
     
-    private List  <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
+    private List <NameValuePair> replaceRequestParameterValues(List  <NameValuePair> nvplist, Map<String, String> paramMap) throws UnsupportedEncodingException  {
         List  <NameValuePair> retval = new ArrayList<NameValuePair>();
         List  <NameValuePair> work = new ArrayList<NameValuePair>();
         
@@ -700,13 +701,8 @@ public class TestWebClient extends WebClient {
                 }
             }
         } else if (e instanceof HtmlCheckBoxInput) {
-            for (DomElement de : page.getElementsByName(name)) {
-                HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)de;
-                if (cbi.getValueAttribute().equals(name)) {
-                    cbi.setChecked(true);
-                    break;
-                }
-            }
+            HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)e;
+            cbi.setChecked(Constants.CHECKBOX_ON.equalsIgnoreCase(value));
         } else if (e instanceof HtmlSelect) {
             HtmlSelect sel = (HtmlSelect)e;
             HtmlElement option = null;
