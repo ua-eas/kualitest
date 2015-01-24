@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -93,6 +94,7 @@ import org.kuali.test.ui.components.panels.WebServicePanel;
 import org.kuali.test.ui.components.panels.WebTestPanel;
 import org.kuali.test.ui.components.repositorytree.RepositoryTree;
 import org.kuali.test.ui.components.spinners.Spinner;
+import org.kuali.test.ui.components.splash.SplashDisplay;
 import org.kuali.test.ui.components.sqlquerypanel.DatabasePanel;
 import org.kuali.test.ui.components.webservicetree.WebServiceTree;
 import org.kuali.test.ui.utils.UIUtils;
@@ -100,6 +102,7 @@ import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.kuali.test.utils.ZipDirectory;
 
 /**
  *
@@ -266,6 +269,18 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         });
         
         menu.add(saveConfigurationMenuItem);
+        
+        JMenuItem backupRepositoryMenuItem = new JMenuItem("Backup Repository");
+        
+        backupRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                handleBackupRepository();
+            }
+        });
+        
+        menu.add(backupRepositoryMenuItem);
+
         
         createTestMenuItem = new JMenuItem("Create Test");
         
@@ -990,6 +1005,41 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    private File getBackupFile(File parentDir) {
+        StringBuilder nm = new StringBuilder(256);
+        
+        nm.append(parentDir.getPath());
+        nm.append(File.separator);
+        nm.append("repo-backup-");
+        nm.append(Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()));
+        nm.append(".zip");
+        
+        return new File(nm.toString());
+        
+    }
+    private void handleBackupRepository() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            final File selectedFile = fileChooser.getSelectedFile();
+            
+            new SplashDisplay(this, "Back Up", "Backing up repository...") {
+                @Override
+                protected void runProcess() {
+                    try {
+                        new ZipDirectory(new File(getConfiguration().getRepositoryLocation()), getBackupFile(selectedFile));
+                    }
+                    
+                    catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                }
+            };
+        }
+    }
+    
     private void handleReloadConfiguation(ActionEvent evt) {
         startSpinner("Reloading configuration...");
         
