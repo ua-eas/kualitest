@@ -21,6 +21,7 @@ import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,9 @@ import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
 import org.kuali.test.runner.output.PoiHelper;
+import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.Utils;
+import org.kuali.test.utils.ZipDirectory;
 
 /**
  *
@@ -151,8 +154,20 @@ public class TestExecutionMonitor extends Thread {
                 retval.add(tec.getPerformanceDataFile());
             }
 
-            if (tec.getGeneratedCheckpointFiles() != null) {
-                retval.addAll(tec.getGeneratedCheckpointFiles());
+            if ((tec.getGeneratedCheckpointFiles() != null) && !tec.getGeneratedCheckpointFiles().isEmpty()) {
+                if (tec.getGeneratedCheckpointFiles().size() > 1) {
+                    File parentDir = tec.getGeneratedCheckpointFiles().get(0).getParentFile();
+                    File f = new File(parentDir.getPath() + File.separator + "checkpoint-files-" + Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()) + ".zip");
+                    try {
+                        new ZipDirectory(parentDir, f, tec.getGeneratedCheckpointFiles());
+                    } catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                    
+                    retval.add(f);
+                } else {
+                    retval.addAll(tec.getGeneratedCheckpointFiles());
+                }
             }
         } else {
             File merged = getMergedResultFile();
@@ -167,11 +182,29 @@ public class TestExecutionMonitor extends Thread {
                 retval.add(merged);
             }
             
+            List <File> checkpointFiles = new ArrayList<File>();
             for (TestExecutionContext tec : testExecutionList) {
                 if (tec.getGeneratedCheckpointFiles() != null) {
-                    retval.addAll(tec.getGeneratedCheckpointFiles());
+                    checkpointFiles.addAll(tec.getGeneratedCheckpointFiles());
                 }
             }
+            
+            if (!checkpointFiles.isEmpty()) {
+                if (checkpointFiles.size() > 1) {
+                    File parentDir = checkpointFiles.get(0).getParentFile();
+                    File f = new File(parentDir.getPath() + File.separator + "checkpoint-files-" + Constants.FILENAME_TIMESTAMP_FORMAT.format(new Date()) + ".zip");
+                    try {
+                        new ZipDirectory(parentDir, f, checkpointFiles);
+                    } catch (Exception ex) {
+                        LOG.error(ex.toString(), ex);
+                    }
+                    
+                    retval.add(f);
+                } else {
+                    retval.addAll(checkpointFiles);
+                }
+            }
+            
         }
         
         return retval;

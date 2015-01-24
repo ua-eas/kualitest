@@ -32,6 +32,10 @@ public class ZipDirectory {
 		writeZipFile(sourceDir, targetFile, fileList);
 	}
 
+	public ZipDirectory(File sourceDir, File targetFile, List<File> fileList) throws Exception {
+		writeZipFile(sourceDir, targetFile, fileList);
+	}
+    
 	private void getAllFiles(File dir, List<File> fileList) {
         File[] files = dir.listFiles();
         for (File file : files) {

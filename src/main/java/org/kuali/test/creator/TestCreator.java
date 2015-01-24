@@ -281,6 +281,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         menu.add(backupRepositoryMenuItem);
 
+        menu.add(new JSeparator());
         
         createTestMenuItem = new JMenuItem("Create Test");
         
