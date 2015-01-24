@@ -1053,13 +1053,15 @@ public class TestExecutionContext extends Thread {
                 performanceData = new ArrayList<String[]>();
             }
 
+            String submitElementName = getLastHttpSubmitElementName();;
+            
             if (op.getOperationType().equals(TestOperationType.HTTP_REQUEST)) {
                 String[] rec = getInitializedPerformanceDataRecord();
                 rec[8] = Constants.PERFORMANCE_ATTRIBUTE_TYPE_CLIENT;
                 rec[9] = Constants.CLIENT_PERFORMANCE_ATTRIBUTE_HTTP_RESPONSE_TIME;
                 rec[10] = Constants.PRIMITIVE_LONG_TYPE;
                 rec[11] = "" + operationElaspedTime;
-                rec[12] = getLastHttpSubmitElementName();
+                rec[12] = submitElementName;
                 rec[13] = (op.getOperation().getHtmlRequestOperation().getMethod() + ": " +  op.getOperation().getHtmlRequestOperation().getUrl());
                 performanceData.add(rec);
             }
@@ -1100,7 +1102,7 @@ public class TestExecutionContext extends Thread {
                                 rec[8] = att.getName();
                                 rec[9] = att.getType();
                                 rec[10] = value.toString();
-                                rec[12] = "";
+                                rec[12] = submitElementName;
                                 rec[13] = att.getDescription();
 
                                 performanceData.add(rec);

@@ -130,7 +130,7 @@ public class TestSuiteDlg extends BaseSetupDlg {
         config.setTableName("test-suite-tests");
         config.setDisplayName("Tests");
         
-        int[] alignment = new int[7];
+        int[] alignment = new int[6];
         for (int i = 0; i < alignment.length; ++i) {
             alignment[i] = JLabel.LEFT;
         }
@@ -143,7 +143,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "Created By",
             "Create Date",
             "Max Run Time(min)",
-            "Description",
             "Details"
         });
         
@@ -153,7 +152,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
             "createdBy",
             "dateCreated",
             "maxRunTime",
-            "description",
             Constants.IGNORE_TABLE_DATA_INDICATOR
         });
             
@@ -163,7 +161,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
             String.class,
             Calendar.class,
             Integer.class,
-            String.class,
             String.class
         });
         
@@ -173,7 +170,6 @@ public class TestSuiteDlg extends BaseSetupDlg {
             50,
             75,
             20,
-            100,
             15
         });
 
@@ -189,18 +185,18 @@ public class TestSuiteDlg extends BaseSetupDlg {
         BaseTable retval = new BaseTable(config) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return (column == 6);
+                return (column == 5);
             }
         };
         
-        TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
+        final TableCellIconButton b = new TableCellIconButton(Constants.DETAILS_ICON);
         b.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TableCellIconButton b = (TableCellIconButton)e.getSource();
                 List <TestHeader> l = testTable.getTableData();
-                if ((b.getCurrentRow() > -1) && (l.size() > b.getCurrentRow())) {
-                    TestInformationDlg dlg = new TestInformationDlg(getMainframe(), TestSuiteDlg.this, l.get(b.getCurrentRow()));
+                int row = b.getCurrentRow();
+                if ((row > -1) && (l.size() > row)) {
+                    TestInformationDlg dlg = new TestInformationDlg(getMainframe(), TestSuiteDlg.this, l.get(row));
                     if (dlg.isSaved()) {
                         Utils.saveKualiTest(testTable, getConfiguration().getRepositoryLocation(), platform, 
                             dlg.getTestHeader(), dlg.getOperations(), dlg.getTestDescription());
@@ -209,8 +205,8 @@ public class TestSuiteDlg extends BaseSetupDlg {
             }
         });
         
-        retval.getColumnModel().getColumn(6).setCellRenderer(b);
-        retval.getColumnModel().getColumn(6).setCellEditor(b);
+        retval.getColumnModel().getColumn(5).setCellRenderer(b);
+        retval.getColumnModel().getColumn(5).setCellEditor(b);
 
         return retval;
     }
