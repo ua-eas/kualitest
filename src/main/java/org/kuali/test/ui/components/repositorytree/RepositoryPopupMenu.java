@@ -132,6 +132,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                                 TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), testRuns, rampUpTime);
 
                                 if (monitor != null) {
+                                    long start = System.currentTimeMillis();
+                                    
                                     while(!monitor.testsCompleted()) {
                                         if (getMainframe().getSpinner2().isCancelled()) {
                                             monitor.haltTests();
@@ -139,6 +141,24 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                                         }
 
                                         Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                        
+                                        long minutes = 0;
+                                        long seconds = ((System.currentTimeMillis() - start) / 1000);
+                                        if (seconds >= 60) {
+                                            minutes = (seconds / 60);
+                                        }
+
+                                        seconds = (seconds % 60);
+
+                                        String elapsedTime = null;
+                                        if (minutes > 0) {
+                                            elapsedTime = (" - elapsed time: " + minutes + "min " + seconds + "sec");
+                                        } else {
+                                            elapsedTime = (" - elapsed time: " + seconds + "sec");
+
+                                        }
+                                        
+                                        getMainframe().updateSpinner2("Running load test: test suite - " + testSuite.getName() + "[" + testRuns + "]" + elapsedTime);
                                     }
                                 }
                             } 

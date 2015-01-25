@@ -1431,4 +1431,8 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     public Spinner getSpinner2() {
         return spinner2;
     }
+
+    public void updateSpinner2(String msg) {
+        spinner2.updateMessage(msg);
+    }
 }

@@ -51,7 +51,7 @@ public class RandomSelectEditDocumentLookupHandler extends SelectEditDocumentLoo
             
             if ((rows != null) && (rows.getLength() > 0)) {
                 int indx = getRandomIndex(rows.getLength());
-                
+
                 Element selrow = (Element)rows.item(indx); 
                 NodeList cols = selrow.getElementsByTagName(Constants.HTML_TAG_TYPE_TD);
                 

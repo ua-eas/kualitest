@@ -43,6 +43,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.AutoReplaceParameter;
@@ -450,10 +451,68 @@ public class TestExecutionContext extends Thread {
                 testWrapper.updateCounts(ex.getFailureAction());
                 retval = poiHelper.writeFailureEntry(op, opStartTime, ex);
             }
+            
+            if (FailureAction.ERROR_HALT_TEST.equals(ex.getFailureAction())) {
+                boolean saveAsText = false;
+                if (webClient != null) {
+                    try {
+                        if (!saveCurrentScreen(webClient.getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString(), true)) {
+                            saveAsText = true;
+                        }
+                    }
+                    
+                    catch (Exception ex2) {
+                        saveAsText = true;
+                    };
+                } else {
+                    saveAsText = true;
+                }
+                
+                if (saveAsText) {
+                    writeErrorFile(null, getCurrentOperationIndex(), Utils.getStackTraceOutput(ex));
+                }
+            }
         }
 
         return retval;
     }
+    
+    public void writeErrorFile(String url, int indx, String results) {
+        File f = new File(getErrorFileName(Constants.TXT_SUFFIX));
+
+        if (!f.getParentFile().exists()) {
+            f.getParentFile().mkdirs();
+        }
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(f);
+            String s = "test operation=" + indx;
+            fos.write(s.getBytes());
+            if (StringUtils.isNotBlank(url)) {
+                s = "\r\nurl=" + url;
+                fos.write(s.getBytes());
+            }
+            fos.write("\r\n----------------------------------------------------------------------------------------\r\n".getBytes());
+            fos.write(results.getBytes());
+            getGeneratedCheckpointFiles().add(f);
+        }
+
+        catch (Exception ex) {
+            LOG.error(ex.toString(), ex);
+        }
+
+        finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+
+            catch (Exception ex) {};
+        }
+    }
+
 
     /**
      *
@@ -893,7 +952,7 @@ public class TestExecutionContext extends Thread {
         return retval;
     }
     
-    public void saveCurrentScreen(String html, boolean errorMode) {
+    public boolean saveCurrentScreen(String html, boolean errorMode) {
         File f = null;
         
         if (errorMode) {
@@ -906,7 +965,7 @@ public class TestExecutionContext extends Thread {
             f.getParentFile().mkdirs();
         }
         
-        saveCurrentScreen(f, html, false);
+        return saveCurrentScreen(f, html, false);
     }
 
     public boolean saveCurrentScreen(File saveFile, String html, boolean debug) {
@@ -916,7 +975,9 @@ public class TestExecutionContext extends Thread {
             html = Constants.NO_HTML_FOUND;
         }
         
-        Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
+       // Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
+        
+        Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden"});
 
         FileOutputStream fos = null;
         try {
@@ -944,6 +1005,11 @@ public class TestExecutionContext extends Thread {
             }
 
             catch (Exception ex) {};
+            
+            if (saveFile.exists() && (saveFile.length() == 0)) {
+                FileUtils.deleteQuietly(saveFile);
+            }
+            
         }
         
         return retval;

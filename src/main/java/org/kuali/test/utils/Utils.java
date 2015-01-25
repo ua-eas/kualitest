@@ -4110,4 +4110,27 @@ public class Utils {
         return retval;
     }
     
+    public static String getStackTraceOutput(Throwable t) {
+        StringBuilder retval = new StringBuilder(1024);
+        
+        retval.append(t.toString());
+        retval.append("\n----------------------------------------------------------------\n");
+        for (StackTraceElement st : t.getStackTrace()) {
+            retval.append(st.toString());
+            retval.append("\n");
+        }
+        
+        if (t.getCause() != null) {
+            retval.append("Cause: ");
+            retval.append(t.toString());
+            retval.append("\n----------------------------------------------------------------\n");
+
+            for (StackTraceElement st : t.getCause().getStackTrace()) {
+                retval.append(st.toString());
+                retval.append("\n");
+            }
+        }
+        
+        return retval.toString();
+    }
 }

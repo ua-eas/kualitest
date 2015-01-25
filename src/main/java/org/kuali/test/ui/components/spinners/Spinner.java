@@ -77,4 +77,8 @@ public class Spinner extends JPanel {
     public boolean isCancelled() {
         return cancelled;
     }
+    
+    public void updateMessage(String msg) {
+        label.setText(msg);
+    }
 }

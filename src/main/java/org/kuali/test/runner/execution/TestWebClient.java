@@ -45,7 +45,6 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
 import com.google.common.net.HttpHeaders;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
@@ -235,7 +234,7 @@ public class TestWebClient extends WebClient {
                                         tec.writeFailureEntry(tec.getCurrentTestOperation(), new Date(), tex);
                                     }
                                 } else {
-                                    writeErrorFile(request.getUrl().toExternalForm(), indx, results);
+                                    tec.writeErrorFile(request.getUrl().toExternalForm(), indx, results);
                                     tec.haltTest(new TestException("server returned bad status [" +  status + "] - see attached error output page", tec.getCurrentTestOperation().getOperation(), FailureAction.ERROR_HALT_TEST));
                                 }
                             } else if (Utils.isRedirectResponse(retval.getStatusCode())) {
@@ -465,39 +464,6 @@ public class TestWebClient extends WebClient {
         return getCookieManager().getCookies();
     }
 
-    private void writeErrorFile(String url, int indx, String results) {
-        File f = new File(tec.getErrorFileName(Constants.TXT_SUFFIX));
-
-        if (!f.getParentFile().exists()) {
-            f.getParentFile().mkdirs();
-        }
-
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(f);
-            String s = "test operation=" + indx;
-            fos.write(s.getBytes());
-            s = "\r\nurl=" + url;
-            fos.write(s.getBytes());
-            fos.write("\r\n----------------------------------------------------------------------------------------\r\n".getBytes());
-            fos.write(results.getBytes());
-            tec.getGeneratedCheckpointFiles().add(f);
-        }
-
-        catch (Exception ex) {
-            LOG.error(ex.toString(), ex);
-        }
-
-        finally {
-            try {
-                if (fos != null) {
-                    fos.close();
-                }
-            }
-
-            catch (Exception ex) {};
-        }
-    }
 
     private boolean isErrorResult(String input) {
         boolean retval = false;

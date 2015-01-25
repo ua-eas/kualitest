@@ -331,7 +331,7 @@ public class PlatformTestsPanel extends BasePanel
                 if (dlg.isSaved()) {
                    final int testRuns = dlg.getTestRuns();
                    final int rampUpTime = dlg.getRampUpTime();
-                    String testName = currentTestHeader.getTestName();
+                    final String testName = currentTestHeader.getTestName();
                     if (testRuns > 0) {
                         getMainframe().startSpinner2("Running load test: test - " + testName + "[" + testRuns + "]");
                         new SwingWorker() {
@@ -343,6 +343,7 @@ public class PlatformTestsPanel extends BasePanel
 
                                     if (monitor != null) {
                                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
+                                        long start = System.currentTimeMillis();
                                         while(!monitor.testsCompleted()) {
                                             if (getMainframe().getSpinner2().isCancelled()) {
                                                 monitor.haltTests();
@@ -350,6 +351,24 @@ public class PlatformTestsPanel extends BasePanel
                                             }
 
                                             Thread.sleep(Constants.LOCAL_TEST_RUN_SLEEP_TIME);
+                                            
+                                            long minutes = 0;
+                                            long seconds = ((System.currentTimeMillis() - start) / 1000);
+                                            if (seconds >= 60) {
+                                                minutes = (seconds / 60);
+                                            }
+
+                                            seconds = (seconds % 60);
+                                            
+                                            String elapsedTime = null;
+                                            if (minutes > 0) {
+                                                elapsedTime = (" - elapsed time: " + minutes + "min " + seconds + "sec");
+                                            } else {
+                                                elapsedTime = (" - elapsed time: " + seconds + "sec");
+                                                
+                                            }
+                                            getMainframe().updateSpinner2("Running load test: test - " + testName + "[" + testRuns + "]" + elapsedTime);
+
                                         }
                                     }
                                 } 
