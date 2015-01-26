@@ -186,14 +186,14 @@ public class TestWebClient extends WebClient {
                         String results = retval.getContentAsString();
                         
                         // uncomment to write out screens as pdf files for troubleshooting
-                        
+                        /*
                         if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML) && StringUtils.isNotBlank(results)) {
                             tec.saveCurrentScreen(new File("/home/rbtucker/tmp/screen-op" 
                                 + tec.getCurrentOperationIndex() 
                                 + "-" 
                                 + System.currentTimeMillis() + ".pdf"), results, true);
                         }
-                        
+                        */
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
