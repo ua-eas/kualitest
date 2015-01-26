@@ -129,11 +129,10 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
                         protected Object doInBackground() throws Exception {
                             String retval = null;
                             try {
+                                long start = System.currentTimeMillis();
                                 TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTestSuite(testSuite.getPlatformName(), testSuite.getName(), testRuns, rampUpTime);
 
                                 if (monitor != null) {
-                                    long start = System.currentTimeMillis();
-                                    
                                     while(!monitor.testsCompleted()) {
                                         if (getMainframe().getSpinner2().isCancelled()) {
                                             monitor.haltTests();

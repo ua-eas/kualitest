@@ -30,7 +30,9 @@ import org.kuali.test.Platform;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.utils.Constants;
 import org.kuali.test.utils.HtmlDomProcessor;
+import org.kuali.test.utils.HtmlDomProcessor.DomInformation;
 import org.kuali.test.utils.Utils;
+import org.w3c.dom.Document;
 
 /**
  *
@@ -87,16 +89,26 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                 while (((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
                     && !tec.isHaltTest()) {
                     html = tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString().trim();
-                    matchingProperties = findCurrentProperties(cp, HtmlDomProcessor.getInstance().processDom(platform, Utils.cleanHtml(html)));
+                    Document doc =  Utils.cleanHtml(html);
+                    
+                    if (doc != null) {
+                        DomInformation di = HtmlDomProcessor.getInstance().processDom(platform, doc);
 
-                    if (matchingProperties.size() == properties.length) {
-                        break;
+                        matchingProperties = findCurrentProperties(cp, di);
+
+                        if (matchingProperties.size() == properties.length) {
+                            break;
+                        } else {
+                            try {
+                                Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
+                            } catch (InterruptedException ex) {}
+
+                            tec.resubmitLastGetRequest();
+                        }
                     } else {
                         try {
                             Thread.sleep(Constants.HTML_TEST_RETRY_SLEEP_INTERVAL);
                         } catch (InterruptedException ex) {}
-
-                        tec.resubmitLastGetRequest();
                     }
                 }
             }

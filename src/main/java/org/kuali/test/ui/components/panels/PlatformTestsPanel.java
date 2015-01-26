@@ -340,11 +340,11 @@ public class PlatformTestsPanel extends BasePanel
                             protected Object doInBackground() throws Exception {
                                 String retval = null;
                                 try {
+                                    long start = System.currentTimeMillis();
                                     TestExecutionMonitor monitor = new TestRunner(getMainframe().getConfiguration()).runTest(currentPlatform.getName(), currentTestHeader.getTestName(), testRuns, rampUpTime);
 
                                     if (monitor != null) {
                                         monitor.setOverrideEmail(getMainframe().getLocalRunEmailAddress());
-                                        long start = System.currentTimeMillis();
                                         while(!monitor.testsCompleted()) {
                                             if (getMainframe().getSpinner2().isCancelled()) {
                                                 monitor.haltTests();

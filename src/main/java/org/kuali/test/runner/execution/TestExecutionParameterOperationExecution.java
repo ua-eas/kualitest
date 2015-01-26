@@ -77,6 +77,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                 if (doc != null) {
                     if (ph instanceof SelectEditDocumentLookupHandler) {
                         tep.setValue(ph.getValue(tec, tep, doc, null));
+                        tec.addTestExecutionParameter(tep);
                     } else {
                         CheckpointProperty cpmatch = null;
                         HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
