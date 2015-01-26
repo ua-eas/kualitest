@@ -32,4 +32,5 @@ public interface ParameterHandler extends Comparable<ParameterHandler> {
     public boolean isExistingPropertyValueRequired();
     public boolean isTextEntryAllowed();
     public boolean isTextEntryRequired();
+    public boolean isResubmitRequestAllowed();
 }

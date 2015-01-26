@@ -103,7 +103,9 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                     } catch (InterruptedException ex) {}
 
                     try {
-                        tec.resubmitLastGetRequest();
+                        if (ph.isResubmitRequestAllowed()) {
+                            tec.resubmitLastGetRequest();
+                        }
                     }
                     
                     catch (IOException ex) {

@@ -92,4 +92,9 @@ public abstract class BaseParameterHandler implements ParameterHandler {
     protected int getRandomIndex(int maxValue) {
         return new Random(System.currentTimeMillis()).nextInt(maxValue);
     }
+    
+    @Override
+    public boolean isResubmitRequestAllowed() {
+        return true;
+    }
 }

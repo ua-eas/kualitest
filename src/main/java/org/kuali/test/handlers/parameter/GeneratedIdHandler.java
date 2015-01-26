@@ -42,4 +42,10 @@ public class GeneratedIdHandler extends BaseParameterHandler {
     public boolean isExistingPropertyValueRequired() {
         return true;
     }
+    
+    @Override
+    public boolean isResubmitRequestAllowed() {
+        return false;
+    }
+
 }

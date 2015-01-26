@@ -152,9 +152,9 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
 
                                         String elapsedTime = null;
                                         if (minutes > 0) {
-                                            elapsedTime = (" - elapsed time: " + minutes + "min " + seconds + "sec");
+                                            elapsedTime = (", elapsed time: " + minutes + "min " + seconds + "sec");
                                         } else {
-                                            elapsedTime = (" - elapsed time: " + seconds + "sec");
+                                            elapsedTime = (", elapsed time: " + seconds + "sec");
 
                                         }
                                         

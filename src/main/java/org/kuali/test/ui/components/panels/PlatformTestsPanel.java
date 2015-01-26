@@ -16,7 +16,6 @@
 package org.kuali.test.ui.components.panels;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
@@ -139,14 +138,16 @@ public class PlatformTestsPanel extends BasePanel
 
                 JLabel retval = (JLabel)super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 
-                retval.setText(th.getTestName());
-                
+                StringBuilder txt = new StringBuilder(128);
+                txt.append("<html>");
+                txt.append(th.getTestName());
                 if (th.getExternalDependency()) {
-                    retval.setForeground(Color.RED);
-                    retval.setToolTipText("requires external input parameters to run");
-                } else {
-                    retval.setForeground(Color.BLACK);
+                    txt.append("<span style='color: #8B0000;'>  &lt;D&gt;</span>");
                 }
+                
+                txt.append("</html>");
+                
+                retval.setText(txt.toString());
                 
                 return retval;
             };
@@ -362,9 +363,9 @@ public class PlatformTestsPanel extends BasePanel
                                             
                                             String elapsedTime = null;
                                             if (minutes > 0) {
-                                                elapsedTime = (" - elapsed time: " + minutes + "min " + seconds + "sec");
+                                                elapsedTime = (", elapsed time: " + minutes + "min " + seconds + "sec");
                                             } else {
-                                                elapsedTime = (" - elapsed time: " + seconds + "sec");
+                                                elapsedTime = (", elapsed time: " + seconds + "sec");
                                                 
                                             }
                                             getMainframe().updateSpinner2("Running load test: test - " + testName + "[" + testRuns + "]" + elapsedTime);
