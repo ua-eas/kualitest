@@ -364,7 +364,7 @@ public class TestWebClient extends WebClient {
                     StringTokenizer st = new StringTokenizer(nvp.getValue(), Constants.SEPARATOR_COLON);
                     String mimeType = st.nextToken();
                     String fname = st.nextToken();
-                    retval.add(new KeyDataPair(nvp.getName(), new File(fname), mimeType, CharEncoding.UTF_8));
+                    retval.add(new KeyDataPair(nvp.getName(), new File(tec.buildFileAttachmentName(fname)), mimeType, CharEncoding.UTF_8));
                 } else {
                     retval.add(nvp);
                 }

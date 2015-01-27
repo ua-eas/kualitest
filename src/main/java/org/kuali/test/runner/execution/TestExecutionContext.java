@@ -1264,4 +1264,16 @@ public class TestExecutionContext extends Thread {
     public void setLastHttpSubmitElementName(String lastHttpSubmitElementName) {
         this.lastHttpSubmitElementName = lastHttpSubmitElementName;
     }
+    
+    public String buildFileAttachmentName(String inputFileName) {
+        String repodir = configuration.getRepositoryLocation();
+        
+        int pos = inputFileName.indexOf(platform.getName());
+        
+        if (pos > -1) {
+            return repodir + File.separator + inputFileName.substring(pos);
+        } else {
+            return inputFileName;
+        }
+    }
 }
