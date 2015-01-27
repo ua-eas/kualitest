@@ -277,7 +277,7 @@ public class PlatformTestsPanel extends BasePanel
                 StringBuilder msg = new StringBuilder(256);
                 msg.append("Test '");
                 msg.append(testHeader.getTestName());
-                msg.append("' depends upon the outside input parameters listed below and cannot be run standalone:<br /><br />");
+                msg.append("' depends upon the external input parameters listed below and cannot be run standalone:<br /><br />");
                 for (String s : dependencyList) {
                     msg.append("\"");
                     msg.append(s);
