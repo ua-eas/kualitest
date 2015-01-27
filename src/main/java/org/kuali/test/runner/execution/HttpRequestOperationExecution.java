@@ -134,11 +134,19 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                 }
 
                 tec.setLastHttpSubmitElementName(null);
+
+                HtmlElement submit = null;
+                
+                
+                // this is a hack to handle KC backdoor login - no submit is available
+                // so the logic attempts to wait for a specified time to find the submit
+                // which really slows down the test
+                if (!isBackdoorLogin(request)) {
+                    submit = tec.getWebClient().findFormSubmitElement(nvplist);
+                }
                 
                 // see if we can find a submit element, if we can then 
                 // use click() call to submit
-                HtmlElement submit = tec.getWebClient().findFormSubmitElement(nvplist);
-
                 if (submit != null) {
                     tec.getWebClient().populateFormElements(tec, nvplist);
                     tec.setLastHttpSubmitElementName(getSubmitElementName(submit));
@@ -171,6 +179,20 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
                     + uri + ", error: " +  ex.toString(), getOperation(), ex);
             }
         }
+    }
+    
+    private boolean isBackdoorLogin(WebRequest request) {
+        boolean retval = false;
+        if (request != null) {
+            URL url = request.getUrl();
+            
+            if (url != null) {
+                String surl = url.toExternalForm();
+                retval = (StringUtils.isNoneBlank(surl) && surl.toLowerCase().endsWith("backdoorlogin.do"));
+            }
+        }
+        
+        return retval;
     }
 }
 
