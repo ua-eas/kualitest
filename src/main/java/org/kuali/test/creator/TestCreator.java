@@ -109,7 +109,6 @@ import org.kuali.test.utils.ZipDirectory;
  * @author rbtucker
  */
 public class TestCreator extends JFrame implements WindowListener, ClipboardOwner {
-
     private static final Logger LOG = Logger.getLogger(TestCreator.class);
 
     private String configFileName;
