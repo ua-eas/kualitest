@@ -226,6 +226,8 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setCreatedBy("default-user");
                 if (useTestEntryTimes.isEnabled()) {
                     testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
+                } else {
+                    testHeader.setUseTestEntryTimes(false);
                 }
 
                 testHeader.setCollectPerformanceData(collectPerformanceData.isSelected());

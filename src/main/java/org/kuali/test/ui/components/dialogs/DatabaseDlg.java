@@ -167,6 +167,7 @@ public class DatabaseDlg extends BaseSetupDlg {
                 dbconnection.setPassword(Utils.encrypt(getMainframe().getEncryptionPassword(), password.getText()));
                 dbconnection.setConfiguredTablesOnly(configuredTablesOnly.isSelected());
                 dbconnection.setType(DatabaseType.Enum.forString(type.getSelectedItem().toString()));
+                
                 setSaved(true);
                 getConfiguration().setModified(true);
                 dispose();
