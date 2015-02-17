@@ -204,7 +204,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                     Table t = additionalDbInfo.get(tableName);
 
                     if ((t != null) || !dbconn.getConfiguredTablesOnly()) {
-                        if (t != null) {
+                        if ((t != null) && dbconn.getConfiguredTablesOnly()) {
                             tables.add(new TableData(dbconn.getSchema(), tableName, t.getDisplayName()));
                         } else {
                             tables.add(new TableData(dbconn.getSchema(), tableName, tableName));
@@ -348,7 +348,7 @@ public class DatabasePanel extends BaseCreateTestPanel  {
                 if (tdata == null) {
                     Table t = additionalDbInfo.get(tname);
 
-                    if (t != null) {
+                    if ((t != null) && dbconn.getConfiguredTablesOnly()) {
                         map.put(key, tdata = new TableData(schema, tname, t.getDisplayName()));
                     } else {
                         map.put(key, tdata = new TableData(schema, tname, tname));
@@ -544,16 +544,17 @@ public class DatabasePanel extends BaseCreateTestPanel  {
         
         if (!configuredTablesOnly) {
             retval = cname;
-        }
-        
-        Table t = additionalDbInfo.get(tname);
-        
-        if (t != null) {
-            if (t.getColumns().sizeOfColumnArray() > 0) {
-                for (Column c : t.getColumns().getColumnArray()) {
-                    if (c.getColumnName().equals(cname)) {
-                        retval = c.getDisplayName();
-                        break;
+        } else {
+
+            Table t = additionalDbInfo.get(tname);
+
+            if (t != null) {
+                if (t.getColumns().sizeOfColumnArray() > 0) {
+                    for (Column c : t.getColumns().getColumnArray()) {
+                        if (c.getColumnName().equals(cname)) {
+                            retval = c.getDisplayName();
+                            break;
+                        }
                     }
                 }
             }

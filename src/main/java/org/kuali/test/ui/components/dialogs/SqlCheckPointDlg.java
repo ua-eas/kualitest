@@ -165,7 +165,7 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
             
             param = checkpoint.getInputParameters().addNewParameter();
             param.setName(Constants.SAVE_QUERY_RESULTS_DIR);
-            param.setValue("" + saveQueryResults.isSelected());
+            param.setValue("true");
 
             CheckpointProperty cp = checkpoint.addNewCheckpointProperties().addNewCheckpointProperty();
             cp.setValueType(ValueType.INT);
