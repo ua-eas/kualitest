@@ -245,6 +245,6 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
 
     @Override
     public boolean isResizable() {
-        return dbPanel.isForCheckpoint();
+        return true;
     }
 }
