@@ -56,6 +56,7 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
     private IntegerTextField maxRunTime;
     private DatabasePanel dbPanel;
     private TestProxyServer testProxyServer;
+    private JTextField comment;
 
     /**
      * 
@@ -117,10 +118,11 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
         sqlFailure = new JComboBox(Utils.getXmlEnumerations(FailureAction.class));
         saveQueryResults = new JCheckBox("Save SQL Query Results");
         maxRunTime = new IntegerTextField();
+        comment = new JTextField(30);
         
         JComponent[] components = new JComponent[]{
             name,
-            createCommentField(),
+            comment,
             checkpointProperty,
             sqlFailure,
             maxRunTime,
@@ -246,5 +248,10 @@ public class SqlCheckPointDlg extends BaseCheckpointDlg {
     @Override
     public boolean isResizable() {
         return true;
+    }
+
+    @Override
+    public String getComment() {
+        return comment.getText();
     }
 }

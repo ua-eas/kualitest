@@ -844,20 +844,20 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 try {
                     FileUtils.deleteDirectory(fdir.getParentFile());
                     
-                    Platform[] platforms = getConfiguration().getPlatforms().getPlatformArray();
-                    
-                    for (int i = 0; i < platforms.length; ++i) {
-                        if (platforms[i].getName().equals(platform.getName())) {
-                            this.testRepositoryTree.removeNode(platformNode);
-                            getConfiguration().getPlatforms().removePlatform(i);
-                            saveConfigurationButton.setEnabled(true);
-                            saveConfigurationMenuItem.setEnabled(true);
-                            break;
-                        }
-                    }
-                    
                 } catch (IOException ex) {
                     UIUtils.showError(this, "Delete Error", "Error occured deleting platform '" + platform.getName() + "' - " + ex.toString());
+                }
+            }
+
+            Platform[] platforms = getConfiguration().getPlatforms().getPlatformArray();
+
+            for (int i = 0; i < platforms.length; ++i) {
+                if (platforms[i].getName().equals(platform.getName())) {
+                    this.testRepositoryTree.removeNode(platformNode);
+                    getConfiguration().getPlatforms().removePlatform(i);
+                    saveConfigurationButton.setEnabled(true);
+                    saveConfigurationMenuItem.setEnabled(true);
+                    break;
                 }
             }
         }

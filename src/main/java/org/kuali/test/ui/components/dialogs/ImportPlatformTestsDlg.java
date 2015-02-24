@@ -237,7 +237,7 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
                         operations.add(newop);
                     }
                     
-                    String testDescription = Utils.getTestDescription(Utils.buildTestFile(getMainframe().getConfiguration().getRepositoryLocation(), testHeader));
+                    String testDescription = Utils.getTestDescription(Utils.buildTestFile(getMainframe().getConfiguration().getRepositoryLocation(), sourceTest.getTestHeader()));
                 
                     if (Utils.saveKualiTest(getSaveButton(), getMainframe().getConfiguration().getRepositoryLocation(), targetPlatform, testHeader, operations, testDescription)) {
                         importedTestCount++;
@@ -254,14 +254,32 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
         return retval;
     }
     
+    private String getContextFromUrl(String host, String url) {
+        String retval = null;
+        int pos1 = url.indexOf("/", url.indexOf(host));
+        int pos2 = url.indexOf("/", pos1+1);
+        
+        if (pos2 > pos1) {
+            retval = url.substring(pos1, pos2+1);
+        } else {
+            retval = url.substring(pos1);
+        }
+        
+        return retval;
+    }
+    
     private void importOperation(Platform sourcePlatform, TestOperation newop) {
         if (TestOperationType.HTTP_REQUEST.equals(newop.getOperationType())) {
             HtmlRequestOperation htmlop = newop.getOperation().getHtmlRequestOperation();
 
             String targetHost = Utils.getHostFromUrl(targetPlatform.getWebUrl(), false);
             String sourceHost = Utils.getHostFromUrl(sourcePlatform.getWebUrl(), false);
+
+            String targetContext = getContextFromUrl(targetHost, targetPlatform.getWebUrl());
+            String sourceContext = getContextFromUrl(sourceHost, sourcePlatform.getWebUrl());
             
             htmlop.setUrl(htmlop.getUrl().replace(sourceHost, targetHost));
+            htmlop.setUrl(htmlop.getUrl().replace(sourceContext, targetContext));
             
             if (htmlop.getRequestHeaders() != null) {
                 for (RequestHeader h : htmlop.getRequestHeaders().getHeaderArray()) {
