@@ -85,6 +85,7 @@ import org.kuali.test.ui.components.dialogs.PlatformDlg;
 import org.kuali.test.ui.components.dialogs.ScheduleTestsDlg;
 import org.kuali.test.ui.components.dialogs.TestInformationDlg;
 import org.kuali.test.ui.components.dialogs.TestSuiteDlg;
+import org.kuali.test.ui.components.dialogs.UpdateTestLoginDlg;
 import org.kuali.test.ui.components.dialogs.WebServiceDlg;
 import org.kuali.test.ui.components.jmxtree.JmxTree;
 import org.kuali.test.ui.components.panels.CreateTestPanel;
@@ -244,9 +245,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         menu.add(m);
 
         m = new JMenuItem("Schedule Tests...");
-        m.addActionListener(new java.awt.event.ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 handleScheduleTests(evt);
             }
         });
@@ -258,9 +259,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         saveConfigurationMenuItem = new JMenuItem("Save Repository Configuration");
         saveConfigurationMenuItem.setEnabled(false);
         
-        saveConfigurationMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        saveConfigurationMenuItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 testRepositoryTree.saveConfiguration();
                 saveConfigurationButton.setEnabled(false);
                 saveConfigurationMenuItem.setEnabled(false);
@@ -271,9 +272,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         JMenuItem backupRepositoryMenuItem = new JMenuItem("Backup Repository");
         
-        backupRepositoryMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        backupRepositoryMenuItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 handleBackupRepository();
             }
         });
@@ -284,9 +285,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         
         createTestMenuItem = new JMenuItem("Create Test");
         
-        createTestMenuItem.addActionListener(new java.awt.event.ActionListener() {
+        createTestMenuItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 handleCreateTest(null);
             }
         });
@@ -379,9 +380,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
         m = new JMenuItem("Exit");
         m.setMnemonic('x');
-        m.addActionListener(new java.awt.event.ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 exitApplication.doClick();
             }
         });
@@ -396,9 +397,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m = new JMenuItem("Contents");
         m.setMnemonic('c');
         menu.add(m);
-        m.addActionListener(new java.awt.event.ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 showHelp(evt);
             }
         });
@@ -407,9 +408,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         m.setMnemonic('a');
         menu.add(m);
 
-        m.addActionListener(new java.awt.event.ActionListener() {
+        m.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 showHelpAbout();
             }
         });
@@ -538,6 +539,14 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
         }
     }
 
+    /**
+     *
+     * @param testHeader
+     */
+    public void handleUpdateTestLogin(TestHeader testHeader) {
+        new UpdateTestLoginDlg(this, testHeader);
+    }
+    
     /**
      *
      * @param testHeader

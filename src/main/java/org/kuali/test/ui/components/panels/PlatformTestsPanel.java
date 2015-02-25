@@ -71,6 +71,7 @@ public class PlatformTestsPanel extends BasePanel
     private static final String EXPORT_TEST = "Export test";
     private static final String RUN_TEST = "Run test";
     private static final String RUN_TEST_LOAD_TEST = "Run load test";
+    private static final String UPDATE_TEST_LOGIN = "Update test login/password";
     
     private JList testList;
     private Platform currentPlatform;
@@ -128,6 +129,12 @@ public class PlatformTestsPanel extends BasePanel
         deleteTestMenuItem = new JMenuItem(DELETE_TEST);
         popupMenu.add(deleteTestMenuItem);
         deleteTestMenuItem.addActionListener(this);
+        
+        popupMenu.add(new JSeparator());
+        m = new JMenuItem(UPDATE_TEST_LOGIN);
+        popupMenu.add(m);
+        m.addActionListener(this);
+
         
         testList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         
@@ -299,6 +306,8 @@ public class PlatformTestsPanel extends BasePanel
             getMainframe().handleExportTest(currentTestHeader);
         } else if (DELETE_TEST.equals(e.getActionCommand())) {
             getMainframe().handleDeleteTest(currentTestHeader);
+        } else if (UPDATE_TEST_LOGIN.equals(e.getActionCommand())) {
+            getMainframe().handleUpdateTestLogin(currentTestHeader);
         } else if (RUN_TEST.equals(e.getActionCommand())) {
             if (isTestRunnable(currentTestHeader)) {
                 RunningTestDisplay dlg = new RunningTestDisplay(getMainframe(), "Running Test") {

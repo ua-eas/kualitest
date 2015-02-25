@@ -886,6 +886,16 @@ public class Utils {
     /**
      *
      * @param configuration
+     * @param testHeader
+     * @return
+     */
+    public static KualiTest findKualiTest(KualiTestConfigurationDocument.KualiTestConfiguration configuration, TestHeader testHeader) {
+        return findKualiTest(configuration, testHeader.getPlatformName(), testHeader.getTestName());
+    }
+
+    /**
+     *
+     * @param configuration
      * @param platformName
      * @param testName
      * @return
@@ -3453,20 +3463,18 @@ public class Utils {
             StringTokenizer st1 = new StringTokenizer(paramString, Constants.SEPARATOR_AMPERSTAND);
 
             while (st1.hasMoreTokens()) {
-                StringTokenizer st2 = new StringTokenizer(st1.nextToken(), Constants.SEPARATOR_EQUALS);
-                if (st2.countTokens() > 0) {
-                    String name = st2.nextToken().trim();
-                    String value = "";
-                    if (st2.hasMoreTokens()) {
-                        value = st2.nextToken();
+                String token = st1.nextToken();
+                int pos = token.indexOf(Constants.SEPARATOR_EQUALS);
+                if (pos > -1) {
+                    String name = token.substring(0, pos).trim();
+                    String value = token.substring(pos+1);
 
-                        if (StringUtils.isNotBlank(value)) {
-                            value = value.trim();
+                    if (StringUtils.isNotBlank(value)) {
+                        value = value.trim();
 
-                            // hack to handle % used for search wild cards in some kuali apps
-                            if (Constants.PERCENT_CHARACTER.equals(value)) {
-                                value = Constants.URL_ENCODED_PERCENT_CHARACTER;
-                            }
+                        // hack to handle % used for search wild cards in some kuali apps
+                        if (Constants.PERCENT_CHARACTER.equals(value)) {
+                            value = Constants.URL_ENCODED_PERCENT_CHARACTER;
                         }
                     }
 
