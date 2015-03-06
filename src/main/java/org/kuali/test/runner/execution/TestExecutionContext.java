@@ -92,15 +92,15 @@ public class TestExecutionContext extends Thread {
         "application version", // 3
         "test suite", // 4
         "test", // 5
-        "test run", //6
-        "operation index", // 6
-        "timestamp", // 7
-        "attribute type", // 8
-        "attribute name", // 9
-        "value type", // 10
-        "value", // 11
-        "trigger", // 12
-        "description" // 13
+        "test run", // 6
+        "operation index", // 7
+        "timestamp", // 8
+        "attribute type", // 9
+        "attribute name", // 10
+        "value type", // 11
+        "value", // 12
+        "trigger", // 13
+        "description" // 14
     };
     
     private List<File> generatedCheckpointFiles = new ArrayList<File>();
@@ -1161,13 +1161,13 @@ public class TestExecutionContext extends Thread {
                                 int pos = att.getType().indexOf(Constants.SEPARATOR_EQUALS);
 
                                 if (pos > -1) {
-                                    rec[7] = att.getType().substring(pos+1);
+                                    rec[8] = att.getType().substring(pos+1);
                                 } else {
-                                    rec[7] = att.getType();
+                                    rec[8] = att.getType();
                                 }
-                                rec[8] = att.getName();
-                                rec[9] = att.getType();
-                                rec[10] = value.toString();
+                                rec[9] = att.getName();
+                                rec[10] = att.getType();
+                                rec[11] = value.toString();
                                 rec[12] = submitElementName;
                                 rec[13] = att.getDescription();
 
