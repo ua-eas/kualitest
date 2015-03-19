@@ -611,6 +611,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                             handleSaveConfiguration();
                             
                             validImportFile = true;    
+                            
+                            JOptionPane.showMessageDialog(this, "Successfully imported test '" + testName + " into platform '" + p.getName() + "'");
+
                         }
                     }
                 }
