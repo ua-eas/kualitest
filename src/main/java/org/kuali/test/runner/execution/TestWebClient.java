@@ -32,6 +32,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlFileInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
+import com.gargoylesoftware.htmlunit.html.HtmlHiddenInput;
 import com.gargoylesoftware.htmlunit.html.HtmlOption;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlPasswordInput;
@@ -46,6 +47,7 @@ import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
 import com.google.common.net.HttpHeaders;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -86,6 +88,17 @@ public class TestWebClient extends WebClient {
     public TestWebClient(final TestExecutionContext tec) {
         super(BrowserVersion.getDefault());
         this.tec = tec;
+        
+        // if we have a debug screen capture directory clear it out
+        if (StringUtils.isNotBlank(tec.getConfiguration().getDebugScreenCaptureDirectory())) {
+            File f = new File(tec.getConfiguration().getDebugScreenCaptureDirectory());
+            
+            if (f.exists() && f.isDirectory()) {
+                try {
+                    FileUtils.deleteDirectory(f);
+                } catch (IOException ex) {}
+            }
+        }
         
         if (tec.getConfiguration().getParametersToIgnore() != null) {
             parametersToIgnore.addAll(Arrays.asList(tec.getConfiguration().getParametersToIgnore().getParameterNameArray()));
@@ -184,16 +197,14 @@ public class TestWebClient extends WebClient {
 
                     if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         String results = retval.getContentAsString();
-                        
-                        // uncomment to write out screens as pdf files for troubleshooting
-                        /*
-                        if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML) && StringUtils.isNotBlank(results)) {
-                            tec.saveCurrentScreen(new File("/home/rbtucker/tmp/screen-op" 
-                                + tec.getCurrentOperationIndex() 
-                                + "-" 
-                                + System.currentTimeMillis() + ".pdf"), results, true);
+
+                        // if we have a debug screen capture directory we will write out the pdf
+                        if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML) 
+                            && StringUtils.isNotBlank(results) 
+                            && StringUtils.isNotBlank(tec.getConfiguration().getDebugScreenCaptureDirectory())) {
+                            writeScreenForDebug(results);
                         }
-                        */
+                        
                         
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("========================================= operation: " + indx.toString() + " =============================================");
@@ -555,12 +566,12 @@ public class TestWebClient extends WebClient {
      */
     public HtmlElement findFormSubmitElement(List <NameValuePair> nvplist) throws IOException {
         HtmlElement retval = null;
-
         long start = System.currentTimeMillis();
         while ((retval == null) 
             && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
             && !tec.isHaltTest()) {
             if (nvplist != null) {
+
                 Page page = getCurrentWindow().getEnclosedPage();
 
                 if (page.isHtmlPage()) {
@@ -625,8 +636,12 @@ public class TestWebClient extends WebClient {
                 if (isFileAttachment(nvp.getName())) {
                     populateFileInputElement(page, (KeyDataPair)nvp, inputSet);
                 } else {
-                    HtmlElement e = findHtmlElementByName(page, Utils.stripXY(nvp.getName()));
-
+                    HtmlElement e = (HtmlElement)page.getElementById(nvp.getName());
+                    
+                    if (e == null) {
+                        e = findHtmlElementByName(page, Utils.stripXY(nvp.getName()));
+                    }
+                    
                     if (e != null) {
                         if (Utils.isFormInputTag(e)) {
                             populateFormElement(page, e, nvp.getName(), nvp.getValue());
@@ -691,6 +706,40 @@ public class TestWebClient extends WebClient {
         } else if (e instanceof HtmlTextArea) {
             HtmlTextArea ta = (HtmlTextArea)e;
             ta.setText(value);
+        } else if (e instanceof HtmlHiddenInput) {
+            HtmlHiddenInput hi = (HtmlHiddenInput)e;
+            hi.setNodeValue(value);
         } 
     }
+    
+    private void writeScreenForDebug(String results) {
+        
+        File f = new File(tec.getConfiguration().getDebugScreenCaptureDirectory());
+        
+        if (!f.exists()) {
+            f.mkdirs();
+        }
+        
+        // save the raw html
+        PrintWriter pw = null;
+        String rootFileName = (f.getPath() + "/screen-op" + tec.getCurrentOperationIndex() + "-" + System.currentTimeMillis());
+        try {
+            pw = new PrintWriter(rootFileName + Constants.HTML_SUFFIX);
+            pw.println(results);
+        }
+        
+        catch (Exception ex) {}
+        
+        finally {
+            try {
+                pw.close();
+            }
+            
+            catch (Exception ex) {};
+        }
+        
+        // save the pdf
+        tec.saveCurrentScreen(new File(rootFileName + Constants.PDF_SUFFIX), results, true);
+    }
+
 }

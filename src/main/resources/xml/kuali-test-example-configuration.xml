@@ -93,4 +93,5 @@
       <parameter-handler>org.kuali.test.handlers.parameter.CurrentDatePlus30Handler</parameter-handler>
       <parameter-handler>org.kuali.test.handlers.parameter.ExecutionContextParameterHandler</parameter-handler>
    </parameter-handlers>
+   <debug-screen-capture-directory>/home/rbtucker/tmp</debug-screen-capture-directory>
 </kuali-test-configuration>

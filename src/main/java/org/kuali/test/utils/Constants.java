@@ -35,6 +35,7 @@ public class Constants {
     public static final SimpleDateFormat DEFAULT_DATE_FORMAT = new SimpleDateFormat(DEFAULT_DATE_FORMAT_STRING);
     
     public static final int MILLIS_PER_MINUTE = 1000 * 60;
+    public static final int WEB_TEST_CLIENT_CACHE_SIZE = 100;
     
     public static final ImageIcon KUALI_TEST_ICON = new ImageIcon(TestCreator.class.getResource("/images/kuali-small.png"));
     public static final ImageIcon REPOSITORY_ICON = new ImageIcon(TestCreator.class.getResource("/images/repository.png"));
@@ -126,7 +127,7 @@ public class Constants {
     public static final String PREFS_DLG_WIDTH = "-dlg-width";
     public static final String PREFS_DLG_HEIGHT = "-dlg-height";
     
-    
+    public static final String DEFAULT_USER = "default-user";
     public static final String TEST_TRANSFER_MIME_TYPE = "test-transfer";
     public static final String PREFS_LAST_FILE_TEST_DIR = "last-file-test-dir";
     

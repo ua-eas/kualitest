@@ -37,13 +37,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.kuali.test.HtmlRequestOperation;
 import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
-import org.kuali.test.RequestHeader;
-import org.kuali.test.RequestParameter;
 import org.kuali.test.TestHeader;
 import org.kuali.test.TestOperation;
 import org.kuali.test.TestOperationType;
@@ -254,48 +250,9 @@ public class ImportPlatformTestsDlg extends BaseSetupDlg {
         return retval;
     }
     
-    private String getContextFromUrl(String host, String url) {
-        String retval = null;
-        int pos1 = url.indexOf("/", url.indexOf(host));
-        int pos2 = url.indexOf("/", pos1+1);
-        
-        if (pos2 > pos1) {
-            retval = url.substring(pos1, pos2+1);
-        } else {
-            retval = url.substring(pos1);
-        }
-        
-        return retval;
-    }
-    
     private void importOperation(Platform sourcePlatform, TestOperation newop) {
         if (TestOperationType.HTTP_REQUEST.equals(newop.getOperationType())) {
-            HtmlRequestOperation htmlop = newop.getOperation().getHtmlRequestOperation();
-
-            String targetHost = Utils.getHostFromUrl(targetPlatform.getWebUrl(), false);
-            String sourceHost = Utils.getHostFromUrl(sourcePlatform.getWebUrl(), false);
-
-            String targetContext = getContextFromUrl(targetHost, targetPlatform.getWebUrl());
-            String sourceContext = getContextFromUrl(sourceHost, sourcePlatform.getWebUrl());
-            
-            htmlop.setUrl(htmlop.getUrl().replace(sourceHost, targetHost));
-            htmlop.setUrl(htmlop.getUrl().replace(sourceContext, targetContext));
-            
-            if (htmlop.getRequestHeaders() != null) {
-                for (RequestHeader h : htmlop.getRequestHeaders().getHeaderArray()) {
-                    if (StringUtils.isNotBlank(h.getValue())) {
-                        h.setValue(h.getValue().replace(sourceHost, targetHost));
-                    }
-                }
-            }
-            
-            if (htmlop.getRequestParameters() != null) {
-                for (RequestParameter p : htmlop.getRequestParameters().getParameterArray()) {
-                    if (StringUtils.isNotBlank(p.getValue())) {
-                        p.setValue(p.getValue().replace(sourceHost, targetHost));
-                    }
-                }
-            }
+            Utils.updateWebUrls(newop.getOperation().getHtmlRequestOperation(), sourcePlatform.getWebUrl(), targetPlatform.getWebUrl());
         }
     }
 

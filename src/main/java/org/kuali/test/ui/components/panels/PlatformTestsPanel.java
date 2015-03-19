@@ -67,11 +67,11 @@ import org.kuali.test.utils.Utils;
 public class PlatformTestsPanel extends BasePanel 
     implements TreeSelectionListener, DragGestureListener, ActionListener {
     private static final Logger LOG = Logger.getLogger(PlatformTestsPanel.class);
-    private static final String DELETE_TEST = "Delete test";
-    private static final String EXPORT_TEST = "Export test";
-    private static final String RUN_TEST = "Run test";
-    private static final String RUN_TEST_LOAD_TEST = "Run load test";
-    private static final String UPDATE_TEST_LOGIN = "Update test login/password";
+    private static final String DELETE_TEST = "Delete Test";
+    private static final String EXPORT_TEST = "Export Test to File";
+    private static final String RUN_TEST = "Run Test";
+    private static final String RUN_TEST_LOAD_TEST = "Run Load Test";
+    private static final String UPDATE_TEST_LOGIN = "Update Test login/password";
     
     private JList testList;
     private Platform currentPlatform;

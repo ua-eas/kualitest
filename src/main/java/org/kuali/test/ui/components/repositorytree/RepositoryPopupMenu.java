@@ -50,6 +50,7 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
     public static final String DELETE_TEST_SUITE_ACTION = "Delete Test Suite";
     public static final String ADD_TESTS_ACTION = "Add Test(s)";
     public static final String EDIT_TEST_ACTION = "Edit Test";
+    public static final String IMPORT_TEST_ACTION = "Import Test from File";
     public static final String RUN_TEST_SUITE_ACTION = "Run Test Suite";
     public static final String RUN_TEST_SUITE_LOAD_TEST_ACTION = "Run Test Suite Load Test";
     public static final String REMOVE_TEST_ACTION = "Remove Test";
@@ -188,6 +189,8 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             getMainframe().handleShowTestInformation(actionNode);
         } else if (IMPORT_PLATFORM_TESTS_ACTION.equalsIgnoreCase(e.getActionCommand())) {
             getMainframe().handleImportPlatformTests(actionNode);
+        } else if (IMPORT_TEST_ACTION.equalsIgnoreCase(e.getActionCommand())) {
+            getMainframe().handleImportTest(actionNode);
         }
         
     }
@@ -228,6 +231,10 @@ public class RepositoryPopupMenu extends BaseTreePopupMenu {
             m.addActionListener(this);
         
             add(new JSeparator());
+            m = new JMenuItem(IMPORT_TEST_ACTION);
+            add(m);
+            m.addActionListener(this);
+
             m = new JMenuItem(IMPORT_PLATFORM_TESTS_ACTION);
             add(m);
             m.addActionListener(this);

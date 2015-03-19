@@ -223,7 +223,7 @@ public class CreateTestDlg extends BaseSetupDlg {
                 testHeader.setDateCreated(Calendar.getInstance());
                 testHeader.setPlatformName((String)platforms.getSelectedItem());
                 testHeader.setTestSuiteName(Constants.NO_TEST_SUITE_NAME);
-                testHeader.setCreatedBy("default-user");
+                testHeader.setCreatedBy(Constants.DEFAULT_USER);
                 if (useTestEntryTimes.isEnabled()) {
                     testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
                 } else {

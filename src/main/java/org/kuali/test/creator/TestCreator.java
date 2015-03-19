@@ -30,13 +30,16 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JButton;
@@ -62,11 +65,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.kuali.test.DatabaseConnection;
+import org.kuali.test.FailureAction;
 import org.kuali.test.JmxConnection;
 import org.kuali.test.KualiTestConfigurationDocument;
+import org.kuali.test.KualiTestDocument;
+import org.kuali.test.KualiTestDocument.KualiTest;
 import org.kuali.test.Platform;
 import org.kuali.test.SuiteTest;
 import org.kuali.test.TestHeader;
+import org.kuali.test.TestOperation;
+import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.WebService;
@@ -102,6 +110,7 @@ import org.kuali.test.ui.utils.UIUtils;
 import org.kuali.test.utils.ApplicationInstanceListener;
 import org.kuali.test.utils.ApplicationInstanceManager;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.UnzipFile;
 import org.kuali.test.utils.Utils;
 import org.kuali.test.utils.ZipDirectory;
 
@@ -478,48 +487,206 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
     }
 
     /**
+     * 
+     * @param actionNode 
+     */
+    public void handleImportTest(DefaultMutableTreeNode actionNode) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            
+            Platform p = (Platform)actionNode.getUserObject();
+            
+            try {
+                File fwork = new File(System.getProperty("java.io.tmpdir") + File.separator + "kualitest-import");
+
+                if (fwork.exists()) {
+                    if (fwork.isDirectory()) {
+                        FileUtils.deleteDirectory(fwork);
+                    } else {
+                        FileUtils.deleteQuietly(fwork);
+                    }
+                }
+
+
+                fwork.mkdirs();
+                
+                new UnzipFile(file, fwork);
+                
+                File fprops = new File(fwork.getPath() + File.separator + "export.properties");
+                
+                boolean validImportFile = false;
+                if (fprops.exists()) {
+                    Properties importProperties = new Properties();
+                
+                    importProperties.load(new FileReader(fprops));
+                    String testName = importProperties.getProperty("test.name");
+                    if (StringUtils.isNotBlank(testName)) {
+                        File testXml = new File(fwork.getPath() + File.separator + Utils.formatForFileName(testName) + Constants.XML_SUFFIX);
+                        File testDesc = new File(fwork.getPath() + File.separator + Utils.formatForFileName(testName) + Constants.TXT_SUFFIX);
+                        
+                        // see if test name already exists
+                        if (testXml.exists() && testDesc.exists()) {
+                            if (p.getPlatformTests() != null) {
+                                for (TestHeader th : p.getPlatformTests().getTestHeaderArray()) {
+                                    if (th.getTestName().equalsIgnoreCase(testName)) {
+                                        throw new Exception("Test with name '" + testName + "' already exists in platform '" + p.getName() + "'");
+                                    }
+                                }
+                            }
+
+                            if (p.getPlatformTests() == null) {
+                                p.addNewPlatformTests();
+                            }
+                            
+                            TestHeader th = p.getPlatformTests().addNewTestHeader();
+                            
+                            th.setPlatformName(p.getName());
+                            th.setTestSuiteName(Constants.NO_TEST_SUITE_NAME);
+                            th.setTestName(testName);
+                            
+                            th.setTestFileName("${repository-location}/" + p.getName() + "/tests/" + testXml.getName());
+                            th.setTestType(TestType.Enum.forString(importProperties.getProperty("test.type")));
+                            th.setCreatedBy(Constants.DEFAULT_USER);
+                            th.setDateCreated(Calendar.getInstance());
+                            try {
+                                th.setMaxRunTime(Integer.parseInt(importProperties.getProperty("test.max.run.time")));
+                            }
+                            
+                            catch (NumberFormatException ex) {
+                                th.setMaxRunTime(0);
+                            }
+                            
+                            if (StringUtils.isNotBlank(importProperties.getProperty("test.failure.action"))) {
+                                th.setOnRuntimeFailure(FailureAction.Enum.forString(importProperties.getProperty("test.failure.action")));
+                            }
+
+                            th.setCollectPerformanceData(Boolean.valueOf(importProperties.getProperty("collect.performance.data")));
+                            th.setUseTestEntryTimes(Boolean.valueOf(importProperties.getProperty("use.test.entry.times")));
+                            
+                            
+                            File fdir = new File(Utils.getTestFilePath(getConfiguration(), th)).getParentFile();
+                            
+                            if (!fdir.exists()) {
+                                fdir.mkdirs();
+                            }
+
+                            // update web urls
+                            KualiTestDocument doc = KualiTestDocument.Factory.parse(testXml);
+                            KualiTest test = (KualiTest)doc.getKualiTest().copy();
+                            String sourceUrl = importProperties.getProperty("platform.web.url");
+                            String targetUrl = p.getWebUrl();
+                            for (TestOperation op : test.getOperations().getOperationArray()) {
+                                if (TestOperationType.HTTP_REQUEST.equals(op.getOperationType())) {
+                                    Utils.updateWebUrls(op.getOperation().getHtmlRequestOperation(), sourceUrl, targetUrl);
+                                }
+                            }
+                            
+                            doc.setKualiTest(test);
+                            doc.save(testXml);
+                            FileUtils.copyFileToDirectory(testXml, fdir);
+                            FileUtils.copyFileToDirectory(testDesc, fdir);
+
+                            File importattdir = new File(fwork.getPath() + File.separator + "attachments" + File.separator + Utils.formatForFileName(testName));
+                            
+                            if (importattdir.exists()) {
+                                File attdir = new File(fdir.getParent() + File.separator + "attachments" + File.separator + Utils.formatForFileName(testName));
+                                
+                                if (!attdir.exists()) {
+                                    attdir.mkdirs();
+                                }
+                                
+                                FileUtils.copyDirectoryToDirectory(importattdir, attdir.getParentFile());
+                            }
+                            
+                            handleSaveConfiguration();
+                            
+                            validImportFile = true;    
+                        }
+                    }
+                }
+                
+                
+                if (!validImportFile) {
+                    throw new Exception("Invalid test import file - " + file.getPath());
+                }
+            }
+            
+            catch (Exception ex) {
+                LOG.error(ex.toString(), ex);
+                UIUtils.showError(this, "Test Import Error", "Error occured while attempting to import test file - " + ex.toString());
+            }
+            
+            
+        }
+    }
+    
+    /**
      *
      * @param testHeader
      */
     public void handleExportTest(TestHeader testHeader) {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setSelectedFile(new File(Utils.formatForFileName(testHeader.getTestName()) + ".export"));        
+        fileChooser.setSelectedFile(new File(Utils.formatForFileName(testHeader.getTestName()) + ".export.zip"));        
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             
             PrintWriter pw = null;
             
             try {
-                pw = new PrintWriter(new FileWriter(file));
-                Platform platform = (Platform)Utils.findPlatform(getConfiguration(), testHeader.getPlatformName()).copy();
+                File ftmpdir = new File(System.getProperty("java.io.tmpdir") + File.separator + "kualitest-export");
                 
-                platform.setEmailAddresses("");
-                if (platform.getTestSuites() != null) {
-                    platform.getTestSuites().setTestSuiteArray(new TestSuite[0]);
-                }
-
-                if (platform.getPlatformTests() != null) {
-                    platform.getPlatformTests().setTestHeaderArray(new TestHeader[0]);
+                if (ftmpdir.exists()) {
+                    if (ftmpdir.isDirectory()) {
+                        FileUtils.deleteDirectory(ftmpdir);
+                    } else {
+                        FileUtils.deleteQuietly(ftmpdir);
+                    }
                 }
                 
-                platform.setEmailAddresses("");
-                platform.setDatabaseConnectionName("");
+                ftmpdir.mkdirs();
                 
-                pw.println("[test-platform]");
-                pw.println(platform.toString().replace("xml-fragment", "test:platform"));
-                pw.println();
+                String testFileName = Utils.getTestFilePath(getConfiguration(), testHeader);
+                // copy test xml
+                File testFile = new File(testFileName);
+                FileUtils.copyFileToDirectory(testFile, ftmpdir);
+                
+                int pos = testFileName.lastIndexOf(".");
+                
+                // copy test description
+                FileUtils.copyFileToDirectory(new File(testFileName.substring(0, pos) + ".txt"), ftmpdir);
 
-                pw.println("[test-header]");
-                pw.println(testHeader.toString().replace("xml-fragment", "test:test-header"));
-                pw.println();
+                // copy attachments
+                pos = testFile.getName().lastIndexOf(".");
+                File attachmentsDir = new File(testFile.getParentFile() + File.separator + "attachments" + File.separator + testFile.getName().substring(0, pos));
+                if (attachmentsDir.exists() && attachmentsDir.isDirectory()) {
+                    File destatt = new File(ftmpdir.getPath() + File.separator + "attachments");
+                    destatt.mkdirs();
+                    FileUtils.copyDirectoryToDirectory(attachmentsDir, destatt);
+                }
                 
-                pw.println("[test-desription]");
-                File ftest = new File(Utils.getTestFilePath(getConfiguration(), testHeader));
-                pw.println(Utils.getTestDescription(ftest));
-                pw.println();
                 
-                pw.println("[test-operations]");
-                pw.println(new String(FileUtils.readFileToByteArray(ftest)));
+                if (file.exists()) {
+                    FileUtils.deleteQuietly(file);
+                }
+                
+                // create export.properties
+                pw = new PrintWriter(ftmpdir.getPath() + File.separator + "export.properties");
+                
+                Platform p = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
+                pw.println("application=" + p.getApplication().toString());
+                pw.println("application.version=" + p.getVersion());
+                pw.println("platform.web.url=" + p.getWebUrl());
+                pw.println("test.name=" + testHeader.getTestName());
+                pw.println("test.type=" + testHeader.getTestType());
+                pw.println("test.max.run.time=" + testHeader.getMaxRunTime());
+                pw.println("collect.performance.data=" + testHeader.getCollectPerformanceData());
+                pw.println("use.test.entry.times=" + testHeader.getUseTestEntryTimes());
+                pw.close();
+                                
+                new ZipDirectory(ftmpdir, file);
+
             }
             
             catch (Exception ex) {
@@ -1442,5 +1609,9 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void updateSpinner2(String msg) {
         spinner2.updateMessage(msg);
+    }
+
+    private Writer FileWriter(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

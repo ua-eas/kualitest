@@ -261,6 +261,10 @@ public class PoiHelper {
                 break;
         }
         
+        if (StringUtils.isBlank(retval)) {
+            retval = ("unknown (" + op.getOperation().getIndex() + ")");
+        }
+        
         return retval;
     }
     

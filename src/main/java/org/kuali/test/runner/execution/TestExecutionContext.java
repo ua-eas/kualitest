@@ -975,7 +975,9 @@ public class TestExecutionContext extends Thread {
             html = Constants.NO_HTML_FOUND;
         }
         
-       // Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden,name=script"});
+        if (!saveFile.getParentFile().exists()) {
+            saveFile.getParentFile().mkdirs();
+        }
         
         Document doc = Utils.cleanHtml(formatHtmlForPdf(html), new String[] {"input.type=hidden"});
 

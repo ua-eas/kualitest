@@ -4141,4 +4141,46 @@ public class Utils {
         
         return retval.toString();
     }
+    
+    public static String getContextFromUrl(String host, String url) {
+        String retval = null;
+        int pos1 = url.indexOf("/", url.indexOf(host));
+        int pos2 = url.indexOf("/", pos1+1);
+        
+        if (pos2 > pos1) {
+            retval = url.substring(pos1, pos2+1);
+        } else {
+            retval = url.substring(pos1);
+        }
+        
+        return retval;
+    }
+    
+    public static void updateWebUrls(HtmlRequestOperation htmlop, String sourceUrl, String targetUrl) {
+        String targetHost = Utils.getHostFromUrl(targetUrl, false);
+        String sourceHost = Utils.getHostFromUrl(sourceUrl, false);
+
+        String targetContext = getContextFromUrl(targetHost, targetUrl);
+        String sourceContext = getContextFromUrl(sourceHost, sourceUrl);
+
+        htmlop.setUrl(htmlop.getUrl().replace(sourceHost, targetHost));
+        htmlop.setUrl(htmlop.getUrl().replace(sourceContext, targetContext));
+
+        if (htmlop.getRequestHeaders() != null) {
+            for (RequestHeader h : htmlop.getRequestHeaders().getHeaderArray()) {
+                if (StringUtils.isNotBlank(h.getValue())) {
+                    h.setValue(h.getValue().replace(sourceHost, targetHost));
+                }
+            }
+        }
+
+        if (htmlop.getRequestParameters() != null) {
+            for (RequestParameter p : htmlop.getRequestParameters().getParameterArray()) {
+                if (StringUtils.isNotBlank(p.getValue())) {
+                    p.setValue(p.getValue().replace(sourceHost, targetHost));
+                }
+            }
+        }
+    }
+
 }

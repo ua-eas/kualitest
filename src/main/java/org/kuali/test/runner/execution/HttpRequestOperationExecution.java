@@ -58,10 +58,11 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             String nm = element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_NAME);
             
             if (StringUtils.isNotBlank(nm)) {
-                int pos = nm.indexOf(")");
-                if (pos > -1) {
-                    nm = nm.substring(0, pos+1);
-                }
+                // --------------------------> check this
+     //           int pos = nm.indexOf(")");
+     //           if (pos > -1) {
+     //               nm = nm.substring(0, pos+1);
+     //           }
                 
                 retval = Utils.stripXY(nm);
             }

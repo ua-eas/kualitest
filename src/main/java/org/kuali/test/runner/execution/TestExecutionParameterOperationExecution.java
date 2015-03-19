@@ -72,6 +72,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
             while (StringUtils.isBlank(getOperation().getTestExecutionParameter().getValue()) 
                 && ((System.currentTimeMillis() - start) < Constants.HTML_TEST_RETRY_TIMESPAN)
                 && !tec.isHaltTest()) {
+
                 Document doc = Utils.cleanHtml(tec.getWebClient().getCurrentWindow().getEnclosedPage().getWebResponse().getContentAsString());
 
                 if (doc != null) {

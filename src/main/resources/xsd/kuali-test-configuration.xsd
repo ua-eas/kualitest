@@ -48,6 +48,7 @@
                 <xs:element name="error-indicators" type="error-indicators" minOccurs="0"/>
                 <xs:element name="pdf-viewer-path" type="xs:string" minOccurs="0"/>
                 <xs:element name="parameter-handlers" type="parameter-handlers" minOccurs="0"/>
+                <xs:element name="debug-screen-capture-directory" type="xs:string" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
