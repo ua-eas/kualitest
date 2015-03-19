@@ -528,6 +528,14 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                         
                         // see if test name already exists
                         if (testXml.exists() && testDesc.exists()) {
+                            String sourceApp = importProperties.getProperty("application.name");
+                            String targetApp = p.getApplication().toString();
+                            
+                            if (!sourceApp.equals(targetApp)) {
+                                throw new Exception("Application mismatch for import: source=" + sourceApp + ", target=" + targetApp);
+                            }
+                            
+
                             if (p.getPlatformTests() != null) {
                                 for (TestHeader th : p.getPlatformTests().getTestHeaderArray()) {
                                     if (th.getTestName().equalsIgnoreCase(testName)) {
@@ -675,7 +683,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 pw = new PrintWriter(ftmpdir.getPath() + File.separator + "export.properties");
                 
                 Platform p = Utils.findPlatform(getConfiguration(), testHeader.getPlatformName());
-                pw.println("application=" + p.getApplication().toString());
+                pw.println("application.name=" + p.getApplication().toString());
                 pw.println("application.version=" + p.getVersion());
                 pw.println("platform.web.url=" + p.getWebUrl());
                 pw.println("test.name=" + testHeader.getTestName());
