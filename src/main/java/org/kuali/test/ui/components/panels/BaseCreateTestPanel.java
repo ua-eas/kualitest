@@ -20,6 +20,8 @@ import java.awt.BorderLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -252,6 +254,27 @@ public abstract class BaseCreateTestPanel extends BasePanel implements ActionLis
      * @return
      */
     protected boolean saveTest(String repositoryLocation, TestHeader header, List <TestOperation> testOperations) {
+        // final check for urls we do not want in test
+        if (getMainframe().getConfiguration().getUrlPatternsToIgnore() != null) {
+            List <String> urlPatternsToIgnore = Arrays.asList(getMainframe().getConfiguration().getUrlPatternsToIgnore().getUrlPatternArray());
+
+            Iterator <TestOperation> it = testOperations.iterator();
+            while (it.hasNext()) {
+                TestOperation op = it.next();
+                
+                if (op.getOperation().getHtmlRequestOperation() != null) {
+                    if (Utils.isIgnoreUrl(urlPatternsToIgnore, op.getOperation().getHtmlRequestOperation().getUrl())) {
+                        it.remove();
+                    }
+                }
+            }
+        }
+
+        int indx = 1;
+        for (TestOperation op : testOperations) {
+            op.getOperation().setIndex(indx++);
+        }
+        
         return Utils.saveKualiTest(this, repositoryLocation, platform, header, testOperations, testDescription);
     }
 
