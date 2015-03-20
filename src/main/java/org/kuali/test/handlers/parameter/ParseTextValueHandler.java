@@ -87,7 +87,6 @@ public class ParseTextValueHandler extends BaseParameterHandler {
         
         // recursively load all text nodes in current document
         loadTextNodes(element, textNodes);
-        
 
         // look in the text nodes for a string that matches our search string
         if (!textNodes.isEmpty() && (rpos > -1)) {
