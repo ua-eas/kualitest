@@ -116,7 +116,7 @@ public class Constants {
     public static final String URL_ENCODED_PERCENT_CHARACTER = "%25";
     public static final String TEST_EXECUTION_PARAMETER_PREFIX = "${";
     public static final String TEST_EXECUTION_PARAMETER_SUFFIX = "}";
-    
+    public static final String TEXT_SEARCH_PLACE_HOLDER = "{v}";
 
     public static final String REPOSITORY_ROOT_REPLACE = "${repository-location}";
     

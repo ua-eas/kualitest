@@ -64,7 +64,7 @@ public class RandomSelectDocumentLookupHandler extends SelectEditDocumentLookupH
         return retval;
     }
     
-    private String getValue(TestExecutionParameter tep, CheckpointProperty cp, Element columnZero) {
+    protected String getValue(TestExecutionParameter tep, CheckpointProperty cp, Element columnZero) {
         String retval = null;
         
         Element anchor = getAnchor(columnZero);
