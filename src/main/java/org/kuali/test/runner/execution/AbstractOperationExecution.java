@@ -36,6 +36,7 @@ import org.kuali.test.ValueType;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.TestOutput;
 import org.kuali.test.utils.Constants;
+import org.kuali.test.utils.Utils;
 
 /**
  *
@@ -199,8 +200,8 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     
     private boolean isTestExecutionParameter(String input) {
         return (StringUtils.isNotBlank(input) 
-            && input.trim().startsWith(Constants.TEST_EXECUTION_PARAMETER_PREFIX) 
-            && input.trim().endsWith(Constants.TEST_EXECUTION_PARAMETER_SUFFIX));
+            && input.contains(Constants.TEST_EXECUTION_PARAMETER_PREFIX) 
+            && input.contains(Constants.TEST_EXECUTION_PARAMETER_SUFFIX));
     }
     
     private String getTestExecutionParameterValue(String parameterName) {
@@ -208,7 +209,11 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         
         for (TestExecutionParameter tep : getTestExecutionContext().getTestExecutionContextParameters()) {
             if (tep.getName().equalsIgnoreCase(parameterName)) {
-                retval = tep.getValue();
+                if (Utils.isGeneratedIdParameterHandler(tep.getParameterHandler())) {
+                    retval = Utils.parseGeneratedIdParameterValue(tep.getValue());
+                } else {
+                    retval = tep.getValue();
+                }
                 break;
             }
         }   
@@ -220,8 +225,13 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         String retval = input;
         
         if (StringUtils.isNotBlank(input)) {
-            String s = input.trim();
-            retval = s.substring(2, s.length() - 1);
+            int pos1 = input.indexOf(Constants.TEST_EXECUTION_PARAMETER_PREFIX) +  Constants.TEST_EXECUTION_PARAMETER_PREFIX.length();
+            int pos2 = input.indexOf(Constants.TEST_EXECUTION_PARAMETER_SUFFIX);
+
+
+            if (pos2 > pos1) {
+                retval = input.substring(pos1, pos2).trim();
+            }
         }
         
         return retval;
@@ -239,7 +249,10 @@ public abstract class AbstractOperationExecution implements OperationExecution {
         String comparisonValue = cp.getPropertyValue();
         
         if (isTestExecutionParameter(comparisonValue)) {
-            comparisonValue = getTestExecutionParameterValue(getTestExecutionParameterName(comparisonValue));
+            String pname = getTestExecutionParameterName(comparisonValue);
+            String pval = getTestExecutionParameterValue(pname);
+            
+            comparisonValue = comparisonValue.replace((Constants.TEST_EXECUTION_PARAMETER_PREFIX + pname + Constants.TEST_EXECUTION_PARAMETER_SUFFIX), pval);
         }
         
         if (!ComparisonOperator.NULL.equals(cp.getOperator())) {
