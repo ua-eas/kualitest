@@ -70,6 +70,7 @@ import org.kuali.test.TestOperationType;
 import org.kuali.test.TestSuite;
 import org.kuali.test.TestType;
 import org.kuali.test.ValueType;
+import org.kuali.test.handlers.parameter.GeneratedIdHandler;
 import org.kuali.test.handlers.parameter.ParameterHandler;
 import org.kuali.test.runner.exceptions.TestException;
 import org.kuali.test.runner.output.PoiHelper;
@@ -764,7 +765,11 @@ public class TestExecutionContext extends Thread {
             ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
 
             if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
-                retval.put(tep.getValueProperty().getPropertyValue(), tep);
+                if (ph instanceof GeneratedIdHandler) {
+                   retval.put(Utils.parseGeneratedIdParameterValue(tep.getValueProperty().getPropertyValue()), tep);
+                } else {
+                    retval.put(tep.getValueProperty().getPropertyValue(), tep);
+                }
             }
         }
         

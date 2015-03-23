@@ -19,6 +19,7 @@ package org.kuali.test.handlers.parameter;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.utils.Utils;
 import org.w3c.dom.Document;
 
 
@@ -30,10 +31,12 @@ public class GeneratedIdHandler extends BaseParameterHandler {
 
     @Override
     public String getValue(TestExecutionContext tec, TestExecutionParameter tep, Document htmlDocument, CheckpointProperty cp) {
-        setCommentText("using current test execution value " + cp.getPropertyValue() + " for \"" + cp.getDisplayName() + "\"");
-        return cp.getPropertyValue();
+        String retval = Utils.parseGeneratedIdParameterValue(cp.getPropertyValue());
+        setCommentText("using current test execution value " + retval + " for \"" + cp.getDisplayName() + "\"");
+        return retval;
     }
     
+    @Override
     public boolean isReplaceByValue() {
         return true;
     }

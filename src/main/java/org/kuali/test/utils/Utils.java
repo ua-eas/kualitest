@@ -4183,4 +4183,34 @@ public class Utils {
         }
     }
 
+    public static String parseGeneratedIdParameterValue(String in) {
+        String retval = in;
+        if (StringUtils.isNotBlank(in)) {
+            for (int i = 0; i < Constants.ID_SEPARATORS.length; ++i) {
+                int pos = in.indexOf(Constants.ID_SEPARATORS[i]);
+            
+                if (pos > -1) {
+                    if (StringUtils.isNumeric(in.substring(0, pos)))  {
+                        retval = in.substring(0, pos);
+                    } else if (StringUtils.isNumeric(in.substring(pos+1))) {
+                        retval = in.substring(pos+1);
+                    }
+                    
+                    if (StringUtils.isNotBlank(retval)) {
+                        break;
+                    }
+                } 
+            }
+            
+            if (StringUtils.isBlank(retval)) {
+                retval = in;
+            }
+        }
+       
+        return retval;
+    }
+    
+    public static boolean isGeneratedIdParameterHandler(String c) {
+        return (StringUtils.isNotBlank(c) && c.equals("org.kuali.test.handlers.parameter.GeneratedIdHandler"));
+    }
 }

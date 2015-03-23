@@ -94,7 +94,7 @@ public class Constants {
     public static final int TEST_OPERATION_POPUP_Y= 75;
 
     public static final int MAX_TABLE_RELATIONSHIP_DEPTH = 6;
-    
+    public static final String[] ID_SEPARATORS = {":"};
     public static final String KUALI_TEST_TITLE = "Kuali Test Framework";
     public static final String PREFS_ROOT_NODE = "kualitest/mainframe";
     public static final String LOCAL_RUN_EMAIL = "local-run-email";
