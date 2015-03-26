@@ -40,7 +40,8 @@
             <xs:element name="sub-section-matcher" type="tag-matchers" minOccurs="0"/>
             <xs:element name="required-section-name" type="xs:string" minOccurs="0"/>
             <xs:element name="section-name-required" type="xs:boolean" default="false"/>
-        </xs:sequence>
+            <xs:element name="append-row-number-if-available" type="xs:boolean" default="false" minOccurs="0"/>
+       </xs:sequence>
     </xs:complexType>
 
     <xs:simpleType name="tag-match-type">

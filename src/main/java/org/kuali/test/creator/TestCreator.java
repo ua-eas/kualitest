@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -1620,9 +1619,5 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
     public void updateSpinner2(String msg) {
         spinner2.updateMessage(msg);
-    }
-
-    private Writer FileWriter(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

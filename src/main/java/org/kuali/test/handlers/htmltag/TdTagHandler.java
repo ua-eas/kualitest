@@ -84,16 +84,20 @@ public class TdTagHandler extends DefaultHtmlTagHandler {
             retval = Utils.getMatchedNodeText(getTagHandler().getSectionMatcher().getTagMatcherArray(), node); 
         }
 
-        if (StringUtils.isBlank(retval)) {
-            Element pnode = (Element)node.getParentNode();
-            
-            if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
-                int row = Utils.getChildNodeIndex(pnode);
-                
-                if (row > 0) {
-                    retval = "row[" + row + "]";
-                }
+        Element pnode = (Element)node.getParentNode();
+        String rownum = "";
+        if ((pnode != null) && Constants.HTML_TAG_TYPE_TR.equals(pnode.getTagName())) {
+            int row = Utils.getChildNodeIndex(pnode);
+
+            if (row > 0) {
+                rownum = "row[" + row + "]";
             }
+        }
+
+        if (StringUtils.isBlank(retval)) {
+            retval = rownum;
+        } else if (getTagHandler().getAppendRowNumberIfAvailable() && !retval.contains(" row[")) {
+            retval = (retval + " " + rownum);
         }
         
         if (LOG.isDebugEnabled()) {
