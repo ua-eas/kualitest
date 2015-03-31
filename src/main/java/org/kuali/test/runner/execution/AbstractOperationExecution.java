@@ -207,7 +207,9 @@ public abstract class AbstractOperationExecution implements OperationExecution {
     private String getTestExecutionParameterValue(String parameterName) {
         String retval = null;
         
-        for (TestExecutionParameter tep : getTestExecutionContext().getTestExecutionContextParameters()) {
+        for (TestExecutionParameterWrapper tepw : getTestExecutionContext().getTestExecutionContextParameters()) {
+            TestExecutionParameter tep = tepw.getTestExecutionParameter();
+            
             if (tep.getName().equalsIgnoreCase(parameterName)) {
                 if (Utils.isGeneratedIdParameterHandler(tep.getParameterHandler())) {
                     retval = Utils.parseGeneratedIdParameterValue(tep.getValue());
@@ -320,6 +322,7 @@ public abstract class AbstractOperationExecution implements OperationExecution {
                                 value = s2.trim();
                             }
                         }
+                        
                         Comparable c1 = (Comparable)comparisonValue;
                         Comparable c2 = (Comparable)value;
                         

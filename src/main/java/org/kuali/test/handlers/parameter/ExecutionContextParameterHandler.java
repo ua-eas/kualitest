@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.CheckpointProperty;
 import org.kuali.test.TestExecutionParameter;
 import org.kuali.test.runner.execution.TestExecutionContext;
+import org.kuali.test.runner.execution.TestExecutionParameterWrapper;
 import org.w3c.dom.Document;
 
 
@@ -34,7 +35,8 @@ public class ExecutionContextParameterHandler extends BaseParameterHandler {
         String retval = "";
         
         if (StringUtils.isNotBlank(tep.getAdditionalInfo())) {
-            for (TestExecutionParameter contextParameter : tec.getTestExecutionContextParameters()) {
+            for (TestExecutionParameterWrapper tepw : tec.getTestExecutionContextParameters()) {
+                TestExecutionParameter contextParameter = tepw.getTestExecutionParameter();
                 if (contextParameter.getName().equals(tep.getAdditionalInfo())) {
                     retval = contextParameter.getValue();
                     setCommentText("using test execution value " + retval + " from parameter \"" +  contextParameter.getName() + "\"");

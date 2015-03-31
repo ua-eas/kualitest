@@ -353,6 +353,7 @@ public class Constants {
     public static final String ATTACHMENTS = "attachments";
     public static final String TAB = "tab";
     public static final String CHECKBOX_ON = "on";
+    public static final String CHECKED = "checked";
     
     static {
         DEFAULT_HTML_CONTAINER_TAGS.add(HTML_TAG_TYPE_BODY);

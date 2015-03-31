@@ -95,7 +95,6 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                         DomInformation di = HtmlDomProcessor.getInstance().processDom(platform, doc);
 
                         matchingProperties = findCurrentProperties(cp, di);
-
                         if (matchingProperties.size() == properties.length) {
                             break;
                         } else {
@@ -122,6 +121,7 @@ public class HttpCheckpointOperationExecution extends AbstractOperationExecution
                     for (int j = 0; j < properties.length; ++j) {
                         if (j < matchingProperties.size()) {
                             properties[j].setActualValue(matchingProperties.get(j).getPropertyValue());
+
                             if (!evaluateCheckpointProperty(testWrapper, properties[j])) {
                                 success = false;
 

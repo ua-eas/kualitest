@@ -78,7 +78,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                 if (doc != null) {
                     if (ph instanceof SelectEditDocumentLookupHandler) {
                         tep.setValue(ph.getValue(tec, tep, doc, null));
-                        tec.addTestExecutionParameter(tep);
+                        tec.addTestExecutionParameter(tec.getCurrentOperationIndex(), tep);
                     } else {
                         CheckpointProperty cpmatch = null;
                         HtmlDomProcessor.DomInformation dominfo = HtmlDomProcessor.getInstance().processDom(platform, doc);
@@ -94,7 +94,7 @@ public class TestExecutionParameterOperationExecution extends AbstractOperationE
                         // if we found a matching html element then set the parameter value
                         if (cpmatch != null) {
                             tep.setValue(ph.getValue(tec, tep, doc, cpmatch));
-                            tec.addTestExecutionParameter(tep);
+                            tec.addTestExecutionParameter(tec.getCurrentOperationIndex(), tep);
                         }
                     }
                 }

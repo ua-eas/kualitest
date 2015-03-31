@@ -113,7 +113,7 @@ public class TestExecutionContext extends Thread {
     private List <KualiTestWrapper> completedTests = new ArrayList<KualiTestWrapper>();
     private Map<String, ParameterHandler> parameterHandlers = new HashMap<String, ParameterHandler>();
     private List<String[]> performanceData;
-    private LinkedList <TestExecutionParameter> testExecutionContextParameters = new LinkedList<TestExecutionParameter>();
+    private LinkedList <TestExecutionParameterWrapper> testExecutionContextParameters = new LinkedList<TestExecutionParameterWrapper>();
     
     
     private Platform platform;
@@ -761,7 +761,8 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByValueParameterMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+        for (TestExecutionParameterWrapper tepw : this.testExecutionContextParameters) {
+            TestExecutionParameter tep = tepw.getTestExecutionParameter();
             ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
 
             if (StringUtils.isNotBlank(tep.getValue()) && ph.isReplaceByValue()) {
@@ -779,7 +780,8 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByElementNameParameterMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+        for (TestExecutionParameterWrapper tepw : this.testExecutionContextParameters) {
+            TestExecutionParameter tep = tepw.getTestExecutionParameter();
             ParameterHandler ph = getParameterHandler(tep.getParameterHandler());
 
             if (StringUtils.isNotBlank(tep.getValue()) && !ph.isReplaceByValue()) {
@@ -800,7 +802,8 @@ public class TestExecutionContext extends Thread {
     public Map <String, TestExecutionParameter> getTestExecutionByParameterNameMap() {
         Map<String, TestExecutionParameter> retval = new HashMap<String, TestExecutionParameter>();
 
-        for (TestExecutionParameter tep : this.testExecutionContextParameters) {
+        for (TestExecutionParameterWrapper tepw : this.testExecutionContextParameters) {
+            TestExecutionParameter tep = tepw.getTestExecutionParameter();
             if (StringUtils.isNotBlank(tep.getValue())) {
                 retval.put(tep.getName(), tep);
             }
@@ -1260,11 +1263,11 @@ public class TestExecutionContext extends Thread {
         return haltTest;
     }
     
-    public void addTestExecutionParameter(TestExecutionParameter tep) {
-        testExecutionContextParameters.addFirst(tep);
+    public void addTestExecutionParameter(int indx, TestExecutionParameter tep) {
+        testExecutionContextParameters.addFirst(new TestExecutionParameterWrapper(indx, tep));
     }
 
-    public List<TestExecutionParameter> getTestExecutionContextParameters() {
+    public List<TestExecutionParameterWrapper> getTestExecutionContextParameters() {
         return testExecutionContextParameters;
     }
 

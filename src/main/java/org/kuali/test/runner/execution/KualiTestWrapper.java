@@ -29,6 +29,7 @@ import org.kuali.test.TestType;
 
 public class KualiTestWrapper {
     public KualiTest test;
+    public int lastSubmittedRequest = Integer.MAX_VALUE;
     private int warningCount = 0;
     private int successCount = 0;
     private int errorCount = 0;
@@ -189,5 +190,13 @@ public class KualiTestWrapper {
 
     public Long getElapedTime(Integer indx) {
         return operationElapsedTime.get(indx);
+    }
+
+    public int getLastSubmittedRequest() {
+        return lastSubmittedRequest;
+    }
+
+    public void setLastSubmittedRequest(int lastSubmittedRequest) {
+        this.lastSubmittedRequest = lastSubmittedRequest;
     }
 }

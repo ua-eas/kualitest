@@ -138,7 +138,6 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
 
                 HtmlElement submit = null;
                 
-                
                 // this is a hack to handle KC backdoor login - no submit is available
                 // so the logic attempts to wait for a specified time to find the submit
                 // which really slows down the test
@@ -162,6 +161,8 @@ public class HttpRequestOperationExecution extends AbstractOperationExecution {
             if (!requestSubmitted) {
                 tec.getWebClient().getPage(request);
             }   
+            
+            testWrapper.setLastSubmittedRequest(tec.getCurrentOperationIndex());
         } 
 
         catch (IOException ex) {

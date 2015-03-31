@@ -64,7 +64,6 @@ public class HtmlDomProcessor {
         Element node = domInformation.getCurrentNode();
         
         HtmlTagHandler th = Utils.getHtmlTagHandler(domInformation.getPlatform().getApplication().toString(), node);
-        
         if (th != null) {
             if (th.isContainer(node)) {
                 String groupContainerName = th.getGroupContainerName(node);
@@ -105,6 +104,7 @@ public class HtmlDomProcessor {
                     cp.setPropertySection(Utils.buildCheckpointSectionName(th, node));
 
                     if (th.getTagHandler().getLabelMatcher() != null) {
+                        String s = Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node);
                         cp.setDisplayName(Utils.getMatchedNodeText(th.getTagHandler().getLabelMatcher().getTagMatcherArray(), node));
                     } else if (domInformation.getLabelMap().containsKey(cp.getPropertyName())) {
                         cp.setDisplayName(Utils.trimString(domInformation.getLabelMap().get(cp.getPropertyName())));

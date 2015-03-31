@@ -1490,9 +1490,10 @@ public class Utils {
     }
 
     /**
-     *
+     * 
      * @param node
-     * @return
+     * @param parentTagName
+     * @return 
      */
     public static Element getParentNodeByTagName(Element node, String parentTagName) {
         Element retval = null;
@@ -1692,19 +1693,36 @@ public class Utils {
                 TagMatcher tm = tagMatchers[i];
                 String sdef = tm.getSearchDefinition();
 
+                TagMatcher tm2 = tm;
                 // "I" is a key to match to same sibling index as parent
                 // used for table column header matching. Will need to clone
                 // original matcher in this case
                 if (StringUtils.isNotBlank(sdef) && sdef.startsWith(Constants.NODE_INDEX_MATCHER_CODE)) {
-                    tm = (TagMatcher) tm.copy();
+                     tm2 = (TagMatcher) tm.copy();
                     if (sdef.length() > 1) {
-                        tm.setSearchDefinition("" + (getSiblingIndex(node) + Integer.parseInt(sdef.substring(1))));
+                        tm2.setSearchDefinition("" + (getSiblingIndex(node) + Integer.parseInt(sdef.substring(1))));
                     } else {
-                        tm.setSearchDefinition("" + (getSiblingIndex(node) + 1));
+                        tm2.setSearchDefinition("" + (getSiblingIndex(node) + 1));
+                    }
+                } 
+
+                Element tnode = Utils.getMatchingTagNode(tm2, curnode);
+                
+                // special handling for tbody tags - go straight to tr if we don't find one
+                if ((tnode == null) && (curnode != null)) {
+                    if (Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(tm.getTagName())) {
+                        if ((tm.getMatchType().intValue() == TagMatchType.INT_CHILD) 
+                            && Constants.HTML_TAG_TYPE_TABLE.equalsIgnoreCase(curnode.getNodeName())) {
+                            tnode = Utils.getFirstChildNodeByNodeName(curnode, Constants.HTML_TAG_TYPE_TR);
+                            i++;
+                        } else if (tm.getMatchType().intValue() == TagMatchType.INT_PARENT) {
+                            tnode = Utils.findFirstParentNode(curnode, Constants.HTML_TAG_TYPE_TABLE);
+                            i++;
+                        }
                     }
                 }
-
-                curnode = Utils.getMatchingTagNode(tm, curnode);
+          
+                curnode = tnode;
             }
 
             if (curnode != null) {
@@ -1736,21 +1754,9 @@ public class Utils {
             switch (tm.getMatchType().intValue()) {
                 case TagMatchType.INT_CHILD:
                     retval = getMatchingChild(tm, node);
-                    // special handling for tbody - sometimes there sometimes not
-                    if ((retval == null) && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(tm.getTagName())) {
-                        TagMatcher tmtmp = (TagMatcher)tm.copy();
-                        tm.setTagName(Constants.HTML_TAG_TYPE_TR);
-                        retval = getMatchingChild(tmtmp, node);
-                    }
                     break;
                 case TagMatchType.INT_PARENT:
                     retval = getMatchingParent(tm, node);
-                    // special handling for tbody - sometimes there sometimes not
-                    if ((retval == null) && Constants.HTML_TAG_TYPE_TBODY.equalsIgnoreCase(tm.getTagName())) {
-                        TagMatcher tmtmp = (TagMatcher)tm.copy();
-                        tmtmp.setTagName(Constants.HTML_TAG_TYPE_TABLE);
-                        retval = getMatchingParent(tmtmp, node);
-                    }
                     break;
                 case TagMatchType.INT_SIBLING:
                     retval = getMatchingSibling(tm, node);
@@ -2913,7 +2919,6 @@ public class Utils {
     }
 
     public static String buildCheckpointPropertyKey(String groupContainer, String group, String section, String name) {
-
         StringBuilder retval = new StringBuilder(128);
 
         if (StringUtils.isNotBlank(groupContainer)) {

@@ -34,6 +34,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.apache.commons.lang3.StringUtils;
 import org.kuali.test.FailureAction;
 import org.kuali.test.KualiTestDocument;
 import org.kuali.test.TestHeader;
@@ -277,7 +278,14 @@ public class TestInformationDlg extends BaseSetupDlg {
     protected boolean save() {
         setSaved(true);
         testHeader.setMaxRunTime(maxExecutionTime.getInt());
-        testHeader.setOnRuntimeFailure(FailureAction.Enum.forString(failureActions.getSelectedItem().toString()));
+
+        if ((failureActions.getSelectedItem() == null)
+            || StringUtils.isBlank(failureActions.getSelectedItem().toString())) {
+            testHeader.setOnRuntimeFailure(FailureAction.IGNORE);
+        } else {
+            testHeader.setOnRuntimeFailure(FailureAction.Enum.forString(failureActions.getSelectedItem().toString()));
+        }
+        
         testHeader.setUseTestEntryTimes(useTestEntryTimes.isSelected());
         testHeader.setCollectPerformanceData(collectPerformanceData.isSelected());
         dispose();

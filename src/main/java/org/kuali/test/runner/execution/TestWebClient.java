@@ -194,7 +194,6 @@ public class TestWebClient extends WebClient {
                     retval = runPostSubmitProcessing(request, response);
 
                     int status = retval.getStatusCode();
-
                     if (retval.getContentType().startsWith(Constants.MIME_TYPE_HTML)) {
                         String results = retval.getContentAsString();
 
@@ -367,6 +366,7 @@ public class TestWebClient extends WebClient {
             for (NameValuePair nvp : work) {
                 TestExecutionParameter tep1 = byValueMap.get(nvp.getValue());
                 TestExecutionParameter tep2 = byElementNameMap.get(nvp.getName());
+
                 if (tep1 != null) {
                     retval.add(new NameValuePair(nvp.getName(), tep1.getValue()));
                 } else if (tep2 != null) {
@@ -578,7 +578,6 @@ public class TestWebClient extends WebClient {
                     for (NameValuePair nvp : nvplist) {
                         HtmlElement element = findHtmlElementByName((HtmlPage)page, Utils.stripXY(nvp.getName()));
                         if (element != null) {
-
                             if (Constants.HTML_TAG_TYPE_INPUT.equals(element.getTagName())) {
                                 if (Utils.isSubmitInputType(element.getAttribute(Constants.HTML_TAG_ATTRIBUTE_TYPE))) {
                                     retval = element;
@@ -598,10 +597,11 @@ public class TestWebClient extends WebClient {
                 tec.resubmitLastGetRequest();
             }
         }
+        
         return retval;
     }
     
-    private void populateFileInputElement(HtmlPage page, KeyDataPair nvp, Set <HtmlElement> inputSet) {
+    private void populateFileInputElement(HtmlPage page, KeyDataPair nvp, File afile, Set <HtmlElement> inputSet) {
         int pos = nvp.getName().indexOf(Constants.FILE_ATTACHMENT_MARKER);
         
         if (pos > -1) {
@@ -609,14 +609,14 @@ public class TestWebClient extends WebClient {
 
             if (e instanceof HtmlFileInput) {
                 if (!inputSet.contains(e)) {
-                    if (nvp.getFile().exists() && nvp.getFile().isFile()) {
+                    if (afile.exists() && afile.isFile()) {
                         inputSet.add(e);
                         try {
-                            byte[] buf = FileUtils.readFileToByteArray(nvp.getFile());
+                            byte[] buf = FileUtils.readFileToByteArray(afile);
                             HtmlFileInput fileInput = (HtmlFileInput)e;
                             fileInput.setContentType(nvp.getMimeType());
                             fileInput.setData(buf);
-                            fileInput.setAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE, nvp.getFile().getName());
+                            fileInput.setAttribute(Constants.HTML_TAG_ATTRIBUTE_VALUE, afile.getName());
                         } 
 
                         catch (IOException ex) {
@@ -628,16 +628,37 @@ public class TestWebClient extends WebClient {
         }
     }
     
+    public File getAttachmentFile(TestExecutionContext tec, String fname) {
+        File retval = null;
+
+        File test = new File(Utils.getTestFilePath(tec.getConfiguration(), tec.getCurrentTest().getTestHeader()));
+        
+        String adirname = test.getName().substring(0, test.getName().lastIndexOf("."));
+        
+        retval = new File(test.getParentFile() + File.separator + Constants.ATTACHMENTS + File.separator + adirname + File.separator + fname);
+        
+        
+        if (!retval.getParentFile().exists()) {
+            retval.getParentFile().mkdirs();
+        }
+        
+        return retval;
+    }
+    
     public void populateFormElements(TestExecutionContext tec, List <NameValuePair> nvplist) throws UnsupportedEncodingException {
         HtmlPage page = (HtmlPage)tec.getWebClient().getCurrentWindow().getEnclosedPage();
         Set <HtmlElement> inputSet = new HashSet<HtmlElement>();
         for (NameValuePair nvp : nvplist) {
             try {
+                
                 if (isFileAttachment(nvp.getName())) {
-                    populateFileInputElement(page, (KeyDataPair)nvp, inputSet);
+                    File afile = getAttachmentFile(tec, nvp.getValue());
+                    if (afile != null) {
+                        populateFileInputElement(page, (KeyDataPair)nvp, afile, inputSet);
+                    }
                 } else {
                     HtmlElement e = (HtmlElement)page.getElementById(nvp.getName());
-                    
+
                     if (e == null) {
                         e = findHtmlElementByName(page, Utils.stripXY(nvp.getName()));
                     }
@@ -683,7 +704,7 @@ public class TestWebClient extends WebClient {
             }
         } else if (e instanceof HtmlCheckBoxInput) {
             HtmlCheckBoxInput cbi = (HtmlCheckBoxInput)e;
-            cbi.setChecked(Constants.CHECKBOX_ON.equalsIgnoreCase(value));
+            cbi.setChecked(Constants.CHECKBOX_ON.equalsIgnoreCase(value) || Constants.CHECKED.equalsIgnoreCase(value));
         } else if (e instanceof HtmlSelect) {
             HtmlSelect sel = (HtmlSelect)e;
             HtmlElement option = null;
@@ -732,7 +753,9 @@ public class TestWebClient extends WebClient {
         
         finally {
             try {
-                pw.close();
+                if (pw != null) {
+                    pw.close();
+                }
             }
             
             catch (Exception ex) {};
