@@ -571,7 +571,12 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
                             th.setCollectPerformanceData(Boolean.valueOf(importProperties.getProperty("collect.performance.data")));
                             th.setUseTestEntryTimes(Boolean.valueOf(importProperties.getProperty("use.test.entry.times")));
-                            th.setExternalDependency(Boolean.valueOf(importProperties.getProperty("external.dependency")));
+                            
+                            if (StringUtils.isNotBlank(importProperties.getProperty("external.dependency"))) {
+                                th.setExternalDependency(Boolean.valueOf(importProperties.getProperty("external.dependency")));
+                            } else {
+                                th.setExternalDependency(false);
+                            }
                             
                             
                             File fdir = new File(Utils.getTestFilePath(getConfiguration(), th)).getParentFile();
