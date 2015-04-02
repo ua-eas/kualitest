@@ -571,6 +571,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
 
                             th.setCollectPerformanceData(Boolean.valueOf(importProperties.getProperty("collect.performance.data")));
                             th.setUseTestEntryTimes(Boolean.valueOf(importProperties.getProperty("use.test.entry.times")));
+                            th.setExternalDependency(Boolean.valueOf(importProperties.getProperty("external.dependency")));
                             
                             
                             File fdir = new File(Utils.getTestFilePath(getConfiguration(), th)).getParentFile();
@@ -598,7 +599,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                             File importattdir = new File(fwork.getPath() + File.separator + "attachments" + File.separator + Utils.formatForFileName(testName));
                             
                             if (importattdir.exists()) {
-                                File attdir = new File(fdir.getParent() + File.separator + "attachments" + File.separator + Utils.formatForFileName(testName));
+                                File attdir = new File(fdir.getParent() + File.separator + "tests" + File.separator + "attachments" + File.separator + Utils.formatForFileName(testName));
                                 
                                 if (!attdir.exists()) {
                                     attdir.mkdirs();
@@ -693,6 +694,7 @@ public class TestCreator extends JFrame implements WindowListener, ClipboardOwne
                 pw.println("test.max.run.time=" + testHeader.getMaxRunTime());
                 pw.println("collect.performance.data=" + testHeader.getCollectPerformanceData());
                 pw.println("use.test.entry.times=" + testHeader.getUseTestEntryTimes());
+                pw.println("external.dependency=" + testHeader.getExternalDependency());
                 pw.close();
                                 
                 new ZipDirectory(ftmpdir, file);
